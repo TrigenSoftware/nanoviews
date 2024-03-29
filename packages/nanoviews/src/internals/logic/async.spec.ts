@@ -53,39 +53,37 @@ describe('nanoviews', () => {
           })
 
           it('should render with initial footer', () => {
-            it('should render without initial value', () => {
-              let addBlock: GetChildHook
-              let setFooterBlock: GetChildHook
-              let resetBlocks: GetChildHook
-              const list = createAsyncList('Footer', (a, s, r) => {
-                addBlock = a
-                setFooterBlock = s
-                resetBlocks = r
-              })
-              const { container } = render(list)
-
-              expect(container.innerHTML).toBe('<div>Footer</div>')
-
-              addBlock!(() => createElement('div')('A'))
-
-              expect(container.innerHTML).toBe('<div><div>A</div>Footer</div>')
-
-              setFooterBlock!(() => 'retooF')
-
-              expect(container.innerHTML).toBe('<div><div>A</div>retooF</div>')
-
-              addBlock!(() => createElement('div')('B'))
-
-              expect(container.innerHTML).toBe('<div><div>A</div><div>B</div>retooF</div>')
-
-              resetBlocks!()
-
-              expect(container.innerHTML).toBe('<div></div>')
-
-              resetBlocks!(() => 'Footer')
-
-              expect(container.innerHTML).toBe('<div>Footer</div>')
+            let addBlock: GetChildHook
+            let setFooterBlock: GetChildHook
+            let resetBlocks: GetChildHook
+            const list = createAsyncList('Footer', (a, s, r) => {
+              addBlock = a
+              setFooterBlock = s
+              resetBlocks = r
             })
+            const { container } = render(list)
+
+            expect(container.innerHTML).toBe('<div>Footer</div>')
+
+            addBlock!(() => createElement('div')('A'))
+
+            expect(container.innerHTML).toBe('<div><div>A</div>Footer</div>')
+
+            setFooterBlock!(() => 'retooF')
+
+            expect(container.innerHTML).toBe('<div><div>A</div>retooF</div>')
+
+            addBlock!(() => createElement('div')('B'))
+
+            expect(container.innerHTML).toBe('<div><div>A</div><div>B</div>retooF</div>')
+
+            resetBlocks!()
+
+            expect(container.innerHTML).toBe('<div></div>')
+
+            resetBlocks!(() => 'Footer')
+
+            expect(container.innerHTML).toBe('<div>Footer</div>')
           })
 
           it('should call destroy function', () => {
@@ -130,6 +128,40 @@ describe('nanoviews', () => {
             resetBlocks!(() => ComponentC())
 
             expect(container.innerHTML).toBe('<div><div>(C) dark</div></div>')
+          })
+
+          it('should render in reversed order', () => {
+            let addBlock: GetChildHook
+            let setFooterBlock: GetChildHook
+            let resetBlocks: GetChildHook
+            const list = createAsyncList('Footer', (a, s, r) => {
+              addBlock = a
+              setFooterBlock = s
+              resetBlocks = r
+            }, true)
+            const { container } = render(list)
+
+            expect(container.innerHTML).toBe('<div>Footer</div>')
+
+            addBlock!(() => createElement('div')('A'))
+
+            expect(container.innerHTML).toBe('<div>Footer<div>A</div></div>')
+
+            setFooterBlock!(() => 'retooF')
+
+            expect(container.innerHTML).toBe('<div>retooF<div>A</div></div>')
+
+            addBlock!(() => createElement('div')('B'))
+
+            expect(container.innerHTML).toBe('<div>retooF<div>B</div><div>A</div></div>')
+
+            resetBlocks!()
+
+            expect(container.innerHTML).toBe('<div></div>')
+
+            resetBlocks!(() => 'Footer')
+
+            expect(container.innerHTML).toBe('<div>Footer</div>')
           })
         })
       })

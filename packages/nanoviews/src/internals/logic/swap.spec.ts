@@ -37,16 +37,28 @@ describe('nanoviews', () => {
             expect(container.innerHTML).toBe('<div><div>A</div></div>')
           })
 
-          it('should only insert element', () => {
+          it('should only insert element before', () => {
             const a = createElement('div')('A')
             const b = createElement('div')('B')
             const { container } = render(a)
 
             expect(container.innerHTML).toBe('<div><div>A</div></div>')
 
-            swap(a, b, true)
+            swap(a, b, -1)
 
             expect(container.innerHTML).toBe('<div><div>B</div><div>A</div></div>')
+          })
+
+          it('should only insert element after', () => {
+            const a = createElement('div')('A')
+            const b = createElement('div')('B')
+            const { container } = render(a)
+
+            expect(container.innerHTML).toBe('<div><div>A</div></div>')
+
+            swap(a, b, 1)
+
+            expect(container.innerHTML).toBe('<div><div>A</div><div>B</div></div>')
           })
         })
 

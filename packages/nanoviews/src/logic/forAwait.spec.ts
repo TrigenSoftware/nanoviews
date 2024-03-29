@@ -8,7 +8,10 @@ import { render } from '@nanoviews/testing-library'
 import { atom } from 'nanostores'
 import * as Stories from './forAwait.stories.js'
 
-const { PendingState: Demo } = composeStories(Stories)
+const {
+  PendingState: Demo,
+  Reversed: ReversedDemo
+} = composeStories(Stories)
 
 function withResolvers<T>() {
   let resolve: (value: T) => void
@@ -125,6 +128,36 @@ describe('nanoviews', () => {
         await Promise.resolve()
 
         expect(container.innerHTML).toBe('<div><ul><li>Item #0: Number one</li><b>Loading...</b></ul></div>')
+      })
+
+      it('should handle async iterable in reversed order', async () => {
+        const [stream, promises] = mockStream<string>()
+        const { container } = render(ReversedDemo({
+          getStream: () => stream
+        }))
+
+        expect(container.innerHTML).toBe('<div><ul><b>Loading...</b></ul></div>')
+
+        promises[0].resolve('First')
+
+        await promises[0].promise
+        // Step over next async generator microtask
+        await Promise.resolve()
+
+        expect(container.innerHTML).toBe('<div><ul><b>Loading...</b><li>Item #0: First</li></ul></div>')
+
+        promises[1].resolve('Second')
+
+        await promises[1].promise
+        // Step over next async generator microtask
+        await Promise.resolve()
+
+        expect(container.innerHTML).toBe('<div><ul><b>Loading...</b><li>Item #1: Second</li><li>Item #0: First</li></ul></div>')
+
+        // Step over next async generator microtask
+        await Promise.resolve()
+
+        expect(container.innerHTML).toBe('<div><ul><b>Total: 2</b><li>Item #1: Second</li><li>Item #0: First</li></ul></div>')
       })
     })
   })

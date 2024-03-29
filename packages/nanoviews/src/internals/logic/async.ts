@@ -85,6 +85,7 @@ export function getAbortFromController(
  * Create host block that can asynchronously render children list
  * @param initialFooter - Initial footer child
  * @param mutator - Mutator callback function
+ * @param reverse - Reverse order of children
  * @returns Host block
  */
 export function createAsyncList(
@@ -93,8 +94,10 @@ export function createAsyncList(
     add: GetChildHook,
     setFooter: GetChildHook,
     reset: GetChildHook
-  ) => Effect<void> | void
+  ) => Effect<void> | void,
+  reverse?: boolean
 ) {
+  const insertMode = reverse ? 1 : -1
   const [getCurrentContextStack, provideContext] = getContextDiftsContainer()
   const context = getCurrentContextStack()
   let footer: Block | null = childToBlock(initialFooter)
@@ -103,7 +106,7 @@ export function createAsyncList(
     const child = provideContext(context, getChild)
 
     if (!isEmpty(child)) {
-      blocks!.splice(-1, 0, swap(footer!, childToBlock(child), true))
+      blocks!.splice(-1, 0, swap(footer!, childToBlock(child), insertMode))
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       proxyBlock.n = blocks![0].n
     }

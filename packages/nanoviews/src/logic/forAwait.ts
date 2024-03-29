@@ -64,13 +64,18 @@ function cancellableForAwait<T>(
 /**
  * Iterate over async iterable and render each value, pending, resolved or rejected state
  * @param $asyncIterable - Async iterable or store with it
- * @param $abortController - AbortController or store with it
+ * @param $abortControllerOrReverse - AbortController or store with it, or render items in reversed order
+ * @param maybeReverse - Render items in reversed order
  * @returns Async iterable renderer
  */
 export function forAwait$<T>(
   $asyncIterable: ValueOrStore<AsyncIterable<T>>,
-  $abortController?: ValueOrStore<AbortController | EmptyValue>
+  $abortControllerOrReverse?: ValueOrStore<AbortController | EmptyValue> | boolean,
+  maybeReverse?: boolean
 ): ChildrenBlockWithOnlySlots<[PendingSlot, EachSlot<T>, ThenSlot<number>, CatchSlot], Node> {
+  const [$abortController, reverse] = typeof $abortControllerOrReverse === 'boolean'
+    ? [undefined, $abortControllerOrReverse]
+    : [$abortControllerOrReverse, maybeReverse]
   const abort = getAbortFromController($abortController)
 
   return getChildren(
@@ -113,6 +118,6 @@ export function forAwait$<T>(
         unsubscribe = null
         cancel = null
       }
-    })
+    }, reverse)
   )
 }

@@ -14,24 +14,27 @@ import { getContextDiftsContainer } from './context.js'
  * Swap blocks
  * @param prevBlock - Previous block
  * @param nextBlock - Next block
- * @param insertOnly - Insert next block without removing previous block
+ * @param insertOnlyMode - Insert next block before or after without removing previous block
  * @returns Next block
  */
 export function swap(
   prevBlock: Block,
   nextBlock: Block,
-  insertOnly?: boolean
+  insertOnlyMode?: 1 | -1
 ) {
   if (prevBlock === nextBlock) {
     return prevBlock
   }
 
-  const anchor = prevBlock.n
+  const prevNode = prevBlock.n
+  const anchor = insertOnlyMode as number > 0
+    ? prevNode!.nextSibling
+    : prevNode
 
   nextBlock.c()
-  nextBlock.m(anchor!.parentNode!, anchor)
+  nextBlock.m(prevNode!.parentNode!, anchor)
 
-  if (!insertOnly) {
+  if (!insertOnlyMode) {
     prevBlock.d()
   }
 

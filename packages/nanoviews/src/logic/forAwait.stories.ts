@@ -44,6 +44,17 @@ function Demo({ getStream }: { getStream(): AtomStream }) {
   )
 }
 
+function ReversedDemo({ getStream }: { getStream(): AtomStream }) {
+  return ul()(
+    forAwait$(getStream(), true)(
+      pending$(() => b()('Loading...')),
+      each$((value, i) => li()(`Item #${i}: ${value}`)),
+      then$(value => b()('Total: ', value)),
+      catch$(error => b()('Rejected: ', String(error)))
+    )
+  )
+}
+
 export const PendingState: Story = {
   args: {
     getStream: mockStream(() => new Promise(() => { /* pending */ }), 3)
@@ -121,4 +132,18 @@ export const DelayedReject: Story = {
     }, 3)
   },
   render: nanoStory(Demo)
+}
+
+export const Reversed: Story = {
+  args: {
+    getStream: mockStream(i => Promise.resolve(`${i * i}`), 3)
+  },
+  render: nanoStory(ReversedDemo)
+}
+
+export const DelayedReversed: Story = {
+  args: {
+    getStream: mockStream(i => delayedResolve(`${i * i}`, 2000), 3)
+  },
+  render: nanoStory(ReversedDemo)
 }
