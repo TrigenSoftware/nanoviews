@@ -1,0 +1,62 @@
+{
+  "name": "@nanoviews/storybook-vite",
+  "type": "commonjs",
+  "version": "0.0.0",
+  "description": "nanostores + vite framework for storybook",
+  "author": "dangreen",
+  "license": "MIT",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nanoviews.git",
+    "directory": "packages/storybook-vite"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
+  },
+  "keywords": [
+    "ui",
+    "directdom",
+    "test",
+    "storybook",
+    "vite"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./src/index.d.ts",
+      "require": "./src/index.js"
+    },
+    "./preset": "./src/preset.js"
+  },
+  "publishConfig": {
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear": "del ./package ./coverage",
+    "prepublishOnly": "run clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "lint": "eslint --parser-options tsconfigRootDir:. '**/*.{js,ts}'",
+    "test": "run lint"
+  },
+  "peerDependencies": {
+    "@nanoviews/storybook": "workspace:^",
+    "vite": "^3.0.0 || ^4.0.0 || ^5.0.0"
+  },
+  "dependencies": {
+    "@storybook/builder-vite": "^7.6.17",
+    "@storybook/types": "^7.6.17"
+  },
+  "devDependencies": {
+    "@nanoviews/storybook": "workspace:^",
+    "vite": "^5.0.8"
+  }
+}

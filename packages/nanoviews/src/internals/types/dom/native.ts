@@ -1,0 +1,13 @@
+export type NativeEvent = Event
+export type NativeAnimationEvent = AnimationEvent
+export type NativeClipboardEvent = ClipboardEvent
+export type NativeCompositionEvent = CompositionEvent
+export type NativeDragEvent = DragEvent
+export type NativeFocusEvent = FocusEvent
+export type NativeKeyboardEvent = KeyboardEvent
+export type NativeMouseEvent = MouseEvent
+export type NativeTouchEvent = TouchEvent
+export type NativePointerEvent = PointerEvent
+export type NativeTransitionEvent = TransitionEvent
+export type NativeUIEvent = UIEvent
+export type NativeWheelEvent = WheelEvent

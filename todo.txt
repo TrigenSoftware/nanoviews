@@ -1,0 +1,15 @@
+- queue effects/updates? raf?
+
+- universal dom
+- ssr
+- html + head components
+- hydration
+
+- enhance events / modifiers?
+- svg ?
+- transitions ?
+
+- error boundaries
+
+- hmr
+- more informative errors

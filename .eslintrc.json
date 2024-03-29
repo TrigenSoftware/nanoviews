@@ -1,0 +1,19 @@
+{
+  "root": true,
+  "extends": [
+    "@trigen/eslint-config",
+    "@trigen/eslint-config/tsm",
+    "@trigen/eslint-config/esm",
+    "@trigen/eslint-config/jest"
+  ],
+  "env": {
+    "browser": true
+  },
+  "rules": {
+  },
+  "ignorePatterns": [
+    "packages/*/dist/**/*",
+    "rollup.config.js",
+    "!.storybook"
+  ]
+}
