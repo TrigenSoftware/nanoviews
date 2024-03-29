@@ -1,0 +1,10 @@
+[
+  {
+    "path": "dist/index.production.js",
+    "limit": "4.4 kB"
+  },
+  {
+    "path": "dist/internals.production.js",
+    "limit": "1.8 kB"
+  }
+]

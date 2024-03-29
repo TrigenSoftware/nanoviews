@@ -1,0 +1,48 @@
+{
+  "name": "nanoviews",
+  "type": "module",
+  "private": true,
+  "version": "0.0.0",
+  "description": "A small library for building UI.",
+  "author": "dangreen",
+  "license": "MIT",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nanoviews.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "clear": "pnpm -r --parallel clear",
+    "build": "pnpm -r --parallel build",
+    "lint": "pnpm -r --parallel --if-present lint",
+    "test:unit": "pnpm -r --parallel --if-present test:unit",
+    "test:size": "pnpm -r --parallel --if-present test:size",
+    "test": "run -p lint test:unit",
+    "commit": "cz",
+    "updateGitHooks": "simple-git-hooks"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.0.0",
+    "@commitlint/config-conventional": "^18.0.0",
+    "@commitlint/config-pnpm-scopes": "^18.0.0",
+    "@commitlint/cz-commitlint": "^18.0.0",
+    "@nanoviews/storybook-vite": "workspace:^",
+    "@trigen/browserslist-config": "8.0.0-alpha.27",
+    "@trigen/eslint-config": "8.0.0-alpha.32",
+    "@trigen/scripts": "8.0.0-alpha.29",
+    "@types/node": "^20.0.0",
+    "clean-publish": "^4.0.1",
+    "commitizen": "^4.2.4",
+    "del-cli": "^5.0.0",
+    "eslint": "^8.28.0",
+    "nano-staged": "^0.8.0",
+    "simple-git-hooks": "^2.7.0",
+    "typescript": "^5.0.0"
+  }
+}

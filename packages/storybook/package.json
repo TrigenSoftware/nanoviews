@@ -1,0 +1,58 @@
+{
+  "name": "@nanoviews/storybook",
+  "type": "commonjs",
+  "version": "0.0.0",
+  "description": "nanoviews storybook renderer",
+  "author": "dangreen",
+  "license": "MIT",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nanoviews.git",
+    "directory": "packages/storybook"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
+  },
+  "keywords": [
+    "ui",
+    "directdom",
+    "test",
+    "storybook"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs"
+    },
+    "./preset": "./src/preset.js",
+    "./src/client/entryPreview.mjs": "./src/client/entryPreview.mjs"
+  },
+  "publishConfig": {
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "src",
+    "preset.js"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear": "del ./package ./coverage",
+    "prepublishOnly": "run clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "lint": "eslint --parser-options tsconfigRootDir:. '**/*.{js,ts}'",
+    "test": "run lint"
+  },
+  "dependencies": {
+    "@storybook/global": "^5.0.0",
+    "@storybook/preview-api": "^7.6.17",
+    "@storybook/types": "^7.6.17",
+    "nanostores": "0.10.0",
+    "type-fest": "^4.12.0"
+  }
+}

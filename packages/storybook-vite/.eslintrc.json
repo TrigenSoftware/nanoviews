@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "@trigen/eslint-config/commonjs",
+    "@trigen/eslint-config/typescript"
+  ],
+  "parserOptions": {
+    "tsconfigRootDir": "./packages/storybook-vite"
+  },
+  "env": {
+    "node": true
+  },
+  "rules": {}
+}

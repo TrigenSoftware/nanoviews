@@ -1,0 +1,65 @@
+{
+  "name": "@nanoviews/testing-library",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "nanoviews testing utilities.",
+  "author": "dangreen",
+  "license": "MIT",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nanoviews.git",
+    "directory": "packages/testing-library"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
+  },
+  "keywords": [
+    "ui",
+    "directdom",
+    "test"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./vitest": "./src/vitest.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./vitest": {
+        "types": "./dist/vitest.d.ts",
+        "import": "./dist/vitest.js"
+      }
+    },
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear": "del ./package ./dist ./coverage",
+    "prepublishOnly": "run build clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "build": "tsc",
+    "lint": "eslint --parser-options tsconfigRootDir:. '**/*.{js,ts}'",
+    "test": "run lint"
+  },
+  "peerDependencies": {
+    "@testing-library/dom": "^9",
+    "nanoviews": "workspace:^"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^9.3.1",
+    "nanoviews": "workspace:^",
+    "vitest": "^0.34.4"
+  }
+}

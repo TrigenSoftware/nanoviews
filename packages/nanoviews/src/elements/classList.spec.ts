@@ -1,0 +1,115 @@
+import {
+  describe,
+  it,
+  expect
+} from 'vitest'
+import { composeStories } from '@nanoviews/storybook'
+import { render } from '@nanoviews/testing-library'
+import { atom } from 'nanostores'
+import * as Stories from './classList.stories.js'
+
+const {
+  StaticString,
+  ReactiveString,
+  StaticStrings,
+  ReactiveStringsArray,
+  ReactiveStrings,
+  NestedStrings,
+  EmptyValues
+} = composeStories(Stories)
+
+describe('nanoviews', () => {
+  describe('elements', () => {
+    describe('classList$', () => {
+      it('should render static string', () => {
+        const { container } = render(StaticString())
+
+        expect(container.innerHTML).toBe('<div><div class="static-class">Hello, world!</div></div>')
+      })
+
+      it('should render reactive string', () => {
+        const className = atom('class-a')
+        const { container } = render(ReactiveString({
+          className
+        }))
+
+        expect(container.innerHTML).toBe('<div><div class="class-a">Hello, world!</div></div>')
+
+        className.set('class-b')
+
+        expect(container.innerHTML).toBe('<div><div class="class-b">Hello, world!</div></div>')
+      })
+
+      it('should render static strings', () => {
+        const { container } = render(StaticStrings())
+
+        expect(container.innerHTML).toBe('<div><div class="class-a class-b">Hello, world!</div></div>')
+      })
+
+      it('should render reactive strings array', () => {
+        const classList = atom(['class-a', 'class-b'])
+        const { container } = render(ReactiveStringsArray({
+          classList
+        }))
+
+        expect(container.innerHTML).toBe('<div><div class="class-a class-b">Hello, world!</div></div>')
+
+        classList.set(['class-c', 'class-d'])
+
+        expect(container.innerHTML).toBe('<div><div class="class-c class-d">Hello, world!</div></div>')
+      })
+
+      it('should render reactive strings', () => {
+        const className = atom('class-a')
+        const { container } = render(ReactiveStrings({
+          className
+        }))
+
+        expect(container.innerHTML).toBe('<div><div class="class-a">Hello, world!</div></div>')
+
+        className.set('class-b')
+
+        expect(container.innerHTML).toBe('<div><div class="class-b">Hello, world!</div></div>')
+      })
+
+      it('should render nested strings', () => {
+        const className = atom('class-a')
+        const { container } = render(NestedStrings({
+          className
+        }))
+
+        expect(container.innerHTML).toBe('<div><div class="class-a class-b class-c">Hello, world!</div></div>')
+
+        className.set('class-d')
+
+        expect(container.innerHTML).toBe('<div><div class="class-b class-c class-d">Hello, world!</div></div>')
+      })
+
+      it('should render empty values', () => {
+        const className = atom('class-a')
+        const { container } = render(EmptyValues({
+          className
+        }))
+
+        expect(container.innerHTML).toBe('<div><div class="class-a">Hello, world!</div></div>')
+
+        className.set('')
+
+        expect(container.innerHTML).toBe('<div><div class="">Hello, world!</div></div>')
+      })
+
+      it('should handle className string', () => {
+        const className = atom('class-a class-b')
+        const { container } = render(ReactiveString({
+          className
+        }))
+
+        expect(container.innerHTML).toBe('<div><div class="class-a class-b">Hello, world!</div></div>')
+
+        className.set('class-c')
+
+        expect(container.innerHTML).toBe('<div><div class="class-c">Hello, world!</div></div>')
+      })
+    })
+  })
+})
