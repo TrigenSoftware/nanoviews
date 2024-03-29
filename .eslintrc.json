@@ -12,8 +12,6 @@
   "rules": {
   },
   "ignorePatterns": [
-    "packages/*/dist/**/*",
-    "rollup.config.js",
-    "!.storybook"
+    "packages/*/dist/**/*"
   ]
 }

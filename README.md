@@ -6,7 +6,6 @@
 [![Install size][size]][size-url]
 [![Build status][build]][build-url]
 [![Coverage status][coverage]][coverage-url]
-[![Documentation badge][documentation]][documentation-url]
 
 [package]: https://img.shields.io/badge/package-ESM--only-ffe536.svg
 [package-url]: https://nodejs.org/api/esm.html
@@ -20,7 +19,7 @@
 [size]: https://packagephobia.com/badge?p=nanoviews
 [size-url]: https://packagephobia.com/result?p=nanoviews
 
-[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=master
+[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=main
 [build-url]: https://github.com/TrigenSoftware/nanoviews/actions
 
 [coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nanoviews.svg
