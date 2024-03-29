@@ -129,26 +129,23 @@ export function getChildren<
   slotsSplitterOrRender: SlotsSplitter<D> | Renderer<TNode>,
   maybeRender?: RendererWithSlots<D, TNode>
 ) {
+  type AnyRenderer = (...args: unknown[]) => Block<TNode>
+
   const [slotsSplitter, render] = maybeRender
-    ? [slotsSplitterOrRender as SlotsSplitter<D>, maybeRender]
-    : [undefined, slotsSplitterOrRender as Renderer<TNode>]
+    ? [slotsSplitterOrRender as SlotsSplitter<D>, maybeRender as AnyRenderer]
+    : [undefined, slotsSplitterOrRender as AnyRenderer]
   let children: Children | undefined
-  let block: Block<TNode>
   let setChildren
+  let slots = [] as MapSlotDefsToContents<D>
+  const block: Block<TNode> = createLazyBlock(() => render(...slots, children))
 
   if (slotsSplitter) {
-    let slots: MapSlotDefsToContents<D>
-
-    block = createLazyBlock(() => render(...slots, children))
-
     setChildren = (...nextChildren: ChildrenWithSlots<MapSlotDefsToSlot<D>>) => {
       [slots, children] = slotsSplitter(nextChildren)
 
       return block
     }
   } else {
-    block = createLazyBlock(() => render(children))
-
     setChildren = (...nextChildren: Children) => {
       children = nextChildren
 

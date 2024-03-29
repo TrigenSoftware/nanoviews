@@ -18,8 +18,8 @@ export function createText<T extends Primitive>($value: ValueOrStore<T>) {
 
   if (isStore($value)) {
     create = () => document.createTextNode(getText($value.get()))
-    effect = (node: Node) => $value.listen((value) => {
-      node.textContent = getText(value)
+    effect = (node: Text) => $value.listen((value) => {
+      node.data = getText(value)
     })
   } else {
     create = () => document.createTextNode(getText($value))

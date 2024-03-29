@@ -11,10 +11,7 @@ import {
   isEmpty,
   composeEffects
 } from '../utils.js'
-import {
-  isEffectAttribute,
-  getEffectAttribute
-} from './effectAttribute.js'
+import { getEffectAttribute } from './effectAttribute.js'
 
 type AttributeValue = PrimitiveAttributeValue | TargetEventHandler
 
@@ -129,8 +126,10 @@ export function setAttributes<A extends object>(element: Element, attributes: A)
       element,
       tAttributes,
       (element, attributeName, value) => {
-        if (isEffectAttribute(attributeName)) {
-          return getEffectAttribute(attributeName)?.(element, value, tAttributes)
+        const effectAttribute = getEffectAttribute(attributeName)
+
+        if (effectAttribute) {
+          return effectAttribute(element, value, tAttributes)
         }
       }
     ),

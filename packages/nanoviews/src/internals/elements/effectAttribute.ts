@@ -25,12 +25,8 @@ export function createEffectAttribute<
   return id as unknown as `${ID}$`
 }
 
-export function getEffectAttribute(id: EffectAttributeId) {
-  return store.get(id)
-}
-
-export function isEffectAttribute(id: unknown): id is EffectAttributeId {
-  return typeof id === 'symbol' && store.has(id)
+export function getEffectAttribute(id: unknown) {
+  return store.get(id as EffectAttributeId)
 }
 
 /**
