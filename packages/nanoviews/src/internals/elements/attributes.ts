@@ -5,6 +5,8 @@ import type {
   Effect
 } from '../types/index.js'
 import {
+  isString,
+  isFunction,
   isStore,
   isEmpty,
   composeEffects
@@ -67,7 +69,7 @@ function setAttribute(element: Element, name: string, $value: PrimitiveAttribute
 }
 
 function isEventListener(name: string, value: unknown): value is TargetEventHandler {
-  return /^on[A-Z]/.test(name) && typeof value === 'function'
+  return /^on[A-Z]/.test(name) && isFunction(value)
 }
 
 function setEventListener(element: Element, name: string, value: TargetEventHandler) {
@@ -136,7 +138,7 @@ export function setAttributes<A extends object>(element: Element, attributes: A)
       element,
       tAttributes,
       (element, attributeName, value) => {
-        if (typeof attributeName === 'string') {
+        if (isString(attributeName)) {
           return (
             isEventListener(attributeName, value)
               ? setEventListener(element, attributeName, value)

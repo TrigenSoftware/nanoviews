@@ -4,6 +4,7 @@ import type {
   ChildrenBlock
 } from '../internals/index.js'
 import {
+  isFunction,
   createBlock,
   createFragment
 } from '../internals/index.js'
@@ -17,7 +18,7 @@ import {
 export function attachShadow<
   T extends (Block<Element> | ChildrenBlock<Element>)
 >(block: T, options: ShadowRootInit) {
-  const targetBlock = typeof block === 'function' ? block() : block
+  const targetBlock = isFunction(block) ? block() : block
 
   return (...children: Children) => {
     const childrenBlock = createFragment(children)

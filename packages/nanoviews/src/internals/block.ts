@@ -1,13 +1,14 @@
-import type { EmptyValue } from './types/common.js'
 import type {
+  EmptyValue,
   Block,
   CreateBlock,
   MountBlock,
   Effect,
   Destroy,
   DestroyBlock
-} from './types/block.js'
+} from './types/index.js'
 import { isBlockSymbol } from './types/block.js'
+import { isFunction } from './utils.js'
 
 export { isBlockSymbol }
 
@@ -115,7 +116,7 @@ export function createBlockFromNode<TNode extends Node>(
 type BlockOrGetter = (() => Block[] | EmptyValue) | Block[] | EmptyValue
 
 function getBlocks(blocksOrGetter: BlockOrGetter) {
-  return typeof blocksOrGetter === 'function' ? blocksOrGetter() : blocksOrGetter
+  return isFunction(blocksOrGetter) ? blocksOrGetter() : blocksOrGetter
 }
 
 function createBlocksLifesycle(

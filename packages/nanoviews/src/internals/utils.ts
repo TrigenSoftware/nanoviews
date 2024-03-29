@@ -1,18 +1,25 @@
 import type {
+  AnyFn,
   Store,
   EmptyValue,
   NonEmptyValue,
-  NestedMaybeEmptyItem
-} from './types/common.js'
-import type {
+  NestedMaybeEmptyItem,
   Effect,
   Destroy,
   StrictEffect
-} from './types/block.js'
+} from './types/index.js'
 
 export const { isArray } = Array
 
 export const isReadonlyArray = isArray as unknown as (array: unknown) => array is readonly unknown[]
+
+export function isFunction(value: unknown): value is AnyFn {
+  return typeof value === 'function'
+}
+
+export function isString(value: unknown): value is string {
+  return typeof value === 'string'
+}
 
 /**
  * Check if value is a store
@@ -22,12 +29,9 @@ export const isReadonlyArray = isArray as unknown as (array: unknown) => array i
 export function isStore(value: unknown): value is Store {
   return (
     !!value
-    // @ts-expect-error - Smaller way to check if value is a store
-    && typeof value.listen === 'function'
-    // @ts-expect-error - Smaller way to check if value is a store
-    && typeof value.get === 'function'
-    // @ts-expect-error - Smaller way to check if value is a store
-    && typeof value.set === 'function'
+    && isFunction((value as Store).listen)
+    && isFunction((value as Store).get)
+    && isFunction((value as Store).set)
   )
 }
 

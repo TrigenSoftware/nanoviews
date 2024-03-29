@@ -5,6 +5,7 @@ import type {
   Destroy
 } from '../internals/index.js'
 import {
+  isString,
   isReadonlyArray,
   isStore,
   composeEffects,
@@ -15,11 +16,11 @@ import {
 export type ClassList = ValueOrStore<string | EmptyValue | readonly ClassList[]>
 
 function isClassName(cls: string) {
-  return typeof cls === 'string' && cls.includes(' ')
+  return isString(cls) && cls.includes(' ')
 }
 
 function addClass(classList: DOMTokenList, cls: string | EmptyValue) {
-  if (typeof cls === 'string' && cls) {
+  if (isString(cls) && cls) {
     if (isClassName(cls)) {
       const classes = cls.split(' ')
 

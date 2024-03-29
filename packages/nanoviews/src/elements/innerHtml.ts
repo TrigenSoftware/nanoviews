@@ -4,6 +4,7 @@ import type {
   ChildrenBlock
 } from '../internals/index.js'
 import {
+  isFunction,
   isStore,
   addEffects
 } from '../internals/index.js'
@@ -17,7 +18,7 @@ import {
 export function dangerouslySetInnerHtml<
   T extends (Block<Element> | ChildrenBlock<Element>)
 >(block: T, $html: ValueOrStore<string>) {
-  const sealedBlock = typeof block === 'function' ? block() : block
+  const sealedBlock = isFunction(block) ? block() : block
   const superMount = sealedBlock.m
   let mount
 

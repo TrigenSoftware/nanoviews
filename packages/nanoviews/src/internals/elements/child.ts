@@ -1,4 +1,4 @@
-import type { PrimitiveChild } from '../types/children.js'
+import type { PrimitiveChild } from '../types/index.js'
 import { isBlock } from '../block.js'
 import { createText } from './text.js'
 
