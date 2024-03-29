@@ -33,7 +33,7 @@
     "@commitlint/config-pnpm-scopes": "^18.0.0",
     "@commitlint/cz-commitlint": "^18.0.0",
     "@nanoviews/storybook-vite": "workspace:^",
-    "@trigen/browserslist-config": "8.0.0-alpha.27",
+    "@trigen/browserslist-config": "8.0.0-alpha.30",
     "@trigen/eslint-config": "8.0.0-alpha.31",
     "@trigen/scripts": "8.0.0-alpha.29",
     "@types/node": "^20.0.0",
