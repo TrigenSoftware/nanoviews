@@ -1,5 +1,3 @@
-- queue effects/updates? raf?
-
 - universal dom
 - ssr
 - html + head components

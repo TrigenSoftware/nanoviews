@@ -2,7 +2,7 @@
   "name": "@nanoviews/storybook",
   "type": "commonjs",
   "version": "0.0.0",
-  "description": "nanoviews storybook renderer",
+  "description": "Nanoviews storybook renderer.",
   "author": "dangreen",
   "license": "MIT",
   "funding": "https://ko-fi.com/dangreen",
