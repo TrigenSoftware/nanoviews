@@ -128,25 +128,9 @@ function createBlocksLifesycle(
 
 function createBlocksMount(blocksOrGetter: BlockOrGetter) {
   return (parentNode: Node, anchor?: Node | null | undefined) => {
-    const blocks = getBlocks(blocksOrGetter)
+    getBlocks(blocksOrGetter)?.forEach(block => block.m(parentNode, anchor))
 
-    if (!blocks?.length) {
-      return null
-    }
-
-    if (blocks.length === 1) {
-      return blocks[0].m(parentNode, anchor)
-    }
-
-    const fragment = document.createDocumentFragment()
-
-    blocks?.forEach(block => block.m(fragment))
-
-    const firstNode = fragment.firstChild
-
-    parentNode.insertBefore(fragment, anchor || null)
-
-    return firstNode
+    return parentNode.firstChild as Node
   }
 }
 
