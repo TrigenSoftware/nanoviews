@@ -7,7 +7,7 @@ import {
 /**
  * Effect attribute to set auto focus on element
  */
-export const autoFocus$ = /* @__PURE__ */ createEffectAttribute<'autoFocus', HTMLElement | SVGElement, ValueOrStore<boolean>>(
+export const autoFocus$ = createEffectAttribute<'autoFocus', HTMLElement | SVGElement, ValueOrStore<boolean>>(
   (element, $value) => {
     if (isStore($value) && $value.get() || $value) {
       return () => {

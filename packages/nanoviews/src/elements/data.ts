@@ -27,7 +27,7 @@ function setData(
 /**
  * Effect attribute to set data attributes on element
  */
-export const data$ = /* @__PURE__ */ createEffectAttribute<'data', HTMLElement | SVGElement, DataProps>(
+export const data$ = createEffectAttribute<'data', HTMLElement | SVGElement, DataProps>(
   (element, data, attributes) => {
     if (import.meta.env.DEV) {
       effectAttributeValidate(

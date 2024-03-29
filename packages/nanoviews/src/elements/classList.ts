@@ -93,7 +93,7 @@ function createClassListEffect(
 /**
  * Effect attribute to control class list of element
  */
-export const classList$ = /* @__PURE__ */ createEffectAttribute<'classList', Element, ClassList>(
+export const classList$ = createEffectAttribute<'classList', Element, ClassList>(
   (element, $classList) => createClassListEffect(element.classList, $classList)
 )
 

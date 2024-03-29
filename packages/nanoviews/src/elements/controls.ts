@@ -245,19 +245,19 @@ function setSelected(
 /**
  * Effect attribute to set and read checked value of checkbox or radio button element
  */
-export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked', CheckboxElement, Checked>(
+export const checked$ = createEffectAttribute<'checked', CheckboxElement, Checked>(
   (control, $checked, attributes) => setControlAttribute(control, attributes, onChangeEvent, checkedAttribute, $checked)
 )
 
 /**
  * Effect attribute to set and read text value of input element
  */
-export const value$ = /* @__PURE__ */ createEffectAttribute<'value', TextboxElement, Value>(setValue)
+export const value$ = createEffectAttribute<'value', TextboxElement, Value>(setValue)
 
 /**
  * Effect attribute to set and read selected value of combobox element
  */
-export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected', ComboboxElement, Selected>(setSelected)
+export const selected$ = createEffectAttribute<'selected', ComboboxElement, Selected>(setSelected)
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
