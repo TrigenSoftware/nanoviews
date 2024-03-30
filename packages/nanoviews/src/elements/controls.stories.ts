@@ -11,16 +11,16 @@ import {
   value$,
   Indeterminate,
   checked$,
-  selected$
+  selected$,
+  files$
 } from './controls.js'
 
-type ValueType = string | readonly string[] | boolean | typeof Indeterminate | undefined
-
 const meta: Meta<{
-  onChange?(value: ValueType, prevValue: ValueType): void
+  onChange?(value: unknown, prevValue: unknown): void
   value?: string
   values?: string[]
   checked?: boolean | typeof Indeterminate
+  files?: File[]
 }> = {
   title: 'Elements/Effect Attributes/Controls'
 }
@@ -161,3 +161,19 @@ export const Checkbox: Story = {
   })
 }
 
+export const Files: Story = {
+  args: {
+    onChange: fn(),
+    files: []
+  },
+  render: nanoStory(({ onChange, files }) => {
+    if (onChange && files) {
+      files.listen(onChange)
+    }
+
+    return input({
+      type: 'file',
+      [files$]: files
+    })
+  })
+}

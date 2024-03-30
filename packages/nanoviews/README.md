@@ -26,7 +26,7 @@
 [coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nanoviews
 
 
-A small library for creating user interfaces.
+A small Direct DOM library for creating user interfaces.
 
 ## Install
 

@@ -37,9 +37,7 @@ export const style$ = createEffectAttribute<'style', HTMLElement | SVGAElement, 
       )
     }
 
-    if (style) {
-      return createAttributesEffect(element, style, setStyle)
-    }
+    return createAttributesEffect(element, style, setStyle)
   }
 )
 

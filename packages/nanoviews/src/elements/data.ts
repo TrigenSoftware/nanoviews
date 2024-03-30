@@ -37,9 +37,7 @@ export const data$ = createEffectAttribute<'data', HTMLElement | SVGElement, Dat
       )
     }
 
-    if (data) {
-      return createAttributesEffect(element, data, setData)
-    }
+    return createAttributesEffect(element, data, setData)
   }
 )
 

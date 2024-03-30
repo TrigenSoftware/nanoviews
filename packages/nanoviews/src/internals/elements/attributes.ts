@@ -45,9 +45,9 @@ export function setProperty(
 
   if (isStore($value)) {
     setunset(set, unset, $value.get())
-    listen = () => $value.listen((value) => {
-      setunset(set, unset, value)
-    })
+    listen = () => $value.listen(
+      value => setunset(set, unset, value)
+    )
   } else {
     setunset(set, unset, $value)
   }

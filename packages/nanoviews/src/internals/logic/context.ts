@@ -19,9 +19,9 @@ function pushContext(context: Context | Context[] | ContextLayer) {
   } else {
     layer = new Map(getCurrentContextStack())
 
-    toArray(context).forEach((ctx) => {
-      layer.set(ctx.i, ctx.v)
-    })
+    toArray(context).forEach(
+      ctx => layer.set(ctx.i, ctx.v)
+    )
   }
 
   contextStack.push(layer)

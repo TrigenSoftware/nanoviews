@@ -40,9 +40,7 @@ export const aria$ = createEffectAttribute<'aria', Element, AriaProps>(
       )
     }
 
-    if (aria) {
-      return createAttributesEffect(element, aria, setAriaAttribute)
-    }
+    return createAttributesEffect(element, aria, setAriaAttribute)
   }
 )
 

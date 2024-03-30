@@ -23,9 +23,6 @@ importers:
       '@nanoviews/storybook-vite':
         specifier: workspace:^
         version: link:packages/storybook-vite
-      '@trigen/browserslist-config':
-        specifier: 8.0.0-alpha.27
-        version: 8.0.0-alpha.27
       '@trigen/eslint-config':
         specifier: 8.0.0-alpha.32
         version: 8.0.0-alpha.32(eslint@8.57.0)(typescript@5.3.3)
@@ -83,6 +80,9 @@ importers:
       '@testing-library/jest-dom':
         specifier: ^6.4.2
         version: 6.4.2(vitest@0.34.6)
+      '@testing-library/user-event':
+        specifier: ^14.5.2
+        version: 14.5.2(@testing-library/dom@9.3.4)
       '@vitest/coverage-v8':
         specifier: ^0.34.4
         version: 0.34.6(vitest@0.34.6)
@@ -3934,9 +3934,13 @@ packages:
       '@testing-library/dom': 9.3.4
     dev: true
 
-  /@trigen/browserslist-config@8.0.0-alpha.27:
-    resolution: {integrity: sha512-bRn08aBW+MOKJf0R5LyTR6ie2NW5f1jr+NUyMtOGrIs2VNAcayIKCxRiAltfnVcDgvzeLcu2gL7RmAA6mEpaFA==}
-    engines: {node: '>=10'}
+  /@testing-library/user-event@14.5.2(@testing-library/dom@9.3.4):
+    resolution: {integrity: sha512-YAh82Wh4TIrxYLmfGcixwD18oIjyC1pFQC2Y01F2lzV2HTMiYrI0nze0FD0ocB//CKS/7jIUgae+adPqxK5yCQ==}
+    engines: {node: '>=12', npm: '>=6'}
+    peerDependencies:
+      '@testing-library/dom': '>=7.21.4'
+    dependencies:
+      '@testing-library/dom': 9.3.4
     dev: true
 
   /@trigen/eslint-config@8.0.0-alpha.32(eslint@8.57.0)(typescript@5.3.3):

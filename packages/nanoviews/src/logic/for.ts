@@ -33,9 +33,9 @@ function setDeltasFromOldIndexes(
   oldIndexes: IndexMap,
   i: number
 ) {
-  oldIndexes.forEach((index, key) => {
-    deltasMap.set(key, Math.abs(i - index))
-  })
+  oldIndexes.forEach(
+    (index, key) => deltasMap.set(key, Math.abs(i - index))
+  )
 }
 
 function sync<T>(

@@ -1,190 +1,197 @@
+/* eslint-disable jsdoc/require-param */
+/* eslint-disable jsdoc/require-returns */
 import type {
   ValueOrStore,
   EmptyValue,
   UnknownAttributes,
-  StrictEffect,
+  Effect,
   Destroy
 } from '../internals/index.js'
 import {
-  valueAttribute,
-  checkedAttribute,
+  valueProperty,
+  checkedProperty,
+  indeterminateProperty,
+  optionsProperty,
+  multipleProperty,
+  selectedProperty,
   onChangeEvent,
   onInputEvent,
   isStore,
   isEmpty,
   isReadonlyArray,
   isArray,
+  noop,
   createEffectAttribute,
   effectAttributeValidate
 } from '../internals/index.js'
 
+// https://caniuse.com/?search=oninput onInput doesn't fire an input event when (un)checking a checkbox or radio button, or when changing the selected file(s) of an <input type="file">
+
 export const Indeterminate = Symbol.for('Indeterminate')
 
-type Value = ValueOrStore<string | EmptyValue>
+type ValuePrimitive = string | EmptyValue
 
-type Checked = ValueOrStore<boolean | typeof Indeterminate | EmptyValue>
+type Value = ValueOrStore<ValuePrimitive>
+
+type CheckedPrimitive = boolean | typeof Indeterminate | EmptyValue
+
+type Checked = ValueOrStore<CheckedPrimitive>
+
+type SelectedPrimitive = string | string[] | EmptyValue
 
 type Selected = ValueOrStore<string | EmptyValue> | ValueOrStore<string[] | EmptyValue>
 
-type TextboxElement = HTMLInputElement | HTMLTextAreaElement
+type FilesPrimitive = File[] | EmptyValue
 
-type ComboboxElement = HTMLSelectElement
+type Files = ValueOrStore<FilesPrimitive>
+
+type TextboxElement = HTMLInputElement | HTMLTextAreaElement
 
 type CheckboxElement = HTMLInputElement
 
-// I don't want do additional runtime check, input data is guaranteed to be correct
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ControlElement = Record<string, any> & Element
+type ComboboxElement = HTMLSelectElement
 
-function setAttribute(
-  control: ControlElement,
-  name: string,
-  value: unknown,
-  prevValue?: unknown
+type FileElement = HTMLInputElement
+
+function createElementPropertySetter<E extends Element, V>(
+  eventName: string,
+  create: (control: E, value: V) => void,
+  mount: (control: E, value: V) => void,
+  update: (control: E, value: V) => void,
+  getValue: (control: E) => V,
+  validate?: (attributes: UnknownAttributes) => void
 ) {
-  if (name === checkedAttribute) {
-    if (value === Indeterminate) {
-      control.indeterminate = value
-    } else if (prevValue === Indeterminate) {
-      control.indeterminate = false
+  return (
+    control: E,
+    $value: ValueOrStore<V>,
+    attributes: UnknownAttributes
+  ): Effect<void> | void => {
+    if (import.meta.env.DEV) {
+      validate?.(attributes)
     }
-  }
 
-  control[name] = value
-}
+    if (!isEmpty($value)) {
+      if (isStore($value)) {
+        const eventListener = () => $value.set(getValue(control))
+        const value = $value.get()
 
-function getAttribute(
-  control: ControlElement,
-  name: string
-) {
-  if (control.indeterminate) {
-    return Indeterminate
-  }
-
-  return control[name] as unknown
-}
-
-function setControlAttribute(
-  control: TextboxElement,
-  attributes: UnknownAttributes,
-  eventName: typeof onChangeEvent | typeof onInputEvent,
-  name: typeof valueAttribute,
-  $value: Value
-): StrictEffect<void>
-
-function setControlAttribute(
-  control: CheckboxElement,
-  attributes: UnknownAttributes,
-  eventName: typeof onChangeEvent | typeof onInputEvent,
-  name: typeof checkedAttribute,
-  $value: Checked
-): StrictEffect<void>
-
-function setControlAttribute(
-  control: ControlElement,
-  attributes: UnknownAttributes,
-  eventName: typeof onChangeEvent | typeof onInputEvent,
-  name: string,
-  $value: unknown
-) {
-  if (import.meta.env.DEV) {
-    effectAttributeValidate(
-      attributes,
-      name,
-      `${name}$`
-    )
-  }
-
-  if (!isEmpty($value)) {
-    if (isStore($value)) {
-      const eventListener = () => {
-        $value.set(getAttribute(control, name))
-      }
-
-      setAttribute(control, name, $value.get())
-
-      return () => {
-        control.addEventListener(eventName, eventListener)
-
-        let destroy: Destroy | null = $value.listen((value, prevValue) => {
-          setAttribute(control, name, value, prevValue)
-        })
+        create(control, value)
 
         return () => {
-          control.removeEventListener(eventName, eventListener)
-          destroy!()
-          destroy = null
+          mount(control, value)
+          control.addEventListener(eventName, eventListener)
+
+          let destroy: Destroy | null = $value.listen(
+            value => update(control, value)
+          )
+
+          return () => {
+            control.removeEventListener(eventName, eventListener)
+            destroy!()
+            destroy = null
+          }
         }
       }
+
+      create(control, $value)
+
+      return () => mount(control, $value)
     }
-
-    setAttribute(control, name, $value)
   }
-}
-
-function setValueByType(
-  control: TextboxElement,
-  attributes: UnknownAttributes,
-  type: string | undefined,
-  $value: Value
-) {
-  // https://caniuse.com/?search=oninput onInput doesn't fire an input event when (un)checking a checkbox or radio button, or when changing the selected file(s) of an <input type="file">
-  const eventName = type === 'file' ? onChangeEvent : onInputEvent
-
-  return setControlAttribute(control, attributes, eventName, valueAttribute, $value)
 }
 
 function setValue(
   control: TextboxElement,
-  $value: Value,
-  attributes: { type?: ValueOrStore<string> }
+  value: ValuePrimitive
 ) {
-  const { type } = attributes
-
-  if (isStore(type)) {
-    let effect: StrictEffect<void> | null = setValueByType(control, attributes, type.get(), $value)
-
-    return () => {
-      let destroy: Destroy | null = effect!()
-
-      effect = null
-
-      let unsubscribe: Destroy | null = type.listen((type) => {
-        destroy!()
-        destroy = setValueByType(control, attributes, type, $value)()
-      })
-
-      return () => {
-        unsubscribe!()
-        destroy!()
-        destroy = null
-        unsubscribe = null
-      }
-    }
-  }
-
-  return setValueByType(control, attributes, type, $value)
+  control[valueProperty] = value || ''
 }
 
-function setSelectedOptions(options: HTMLOptionsCollection, values: string | readonly string[] | EmptyValue) {
+function getValue(control: TextboxElement): ValuePrimitive {
+  return control[valueProperty]
+}
+
+/**
+ * Effect attribute to set and read text value of input element
+ */
+export const value$ = createEffectAttribute<'value', TextboxElement, Value>(
+  createElementPropertySetter(
+    onInputEvent,
+    setValue,
+    noop,
+    setValue,
+    getValue,
+    import.meta.env.DEV
+      ? attributes => effectAttributeValidate(
+        attributes,
+        'value',
+        'value$'
+      )
+      : undefined
+  )
+)
+
+function setChecked(
+  control: CheckboxElement,
+  value: CheckedPrimitive
+) {
+  if (value === Indeterminate) {
+    control[indeterminateProperty] = true
+  } else {
+    control[indeterminateProperty] = false
+    control.checked = value as boolean
+  }
+}
+
+function getChecked(control: CheckboxElement): CheckedPrimitive {
+  return control[indeterminateProperty] ? Indeterminate : control[checkedProperty]
+}
+
+/**
+ * Effect attribute to set and read checked value of checkbox or radio button element
+ */
+export const checked$ = createEffectAttribute<'checked', CheckboxElement, Checked>(
+  createElementPropertySetter(
+    onChangeEvent,
+    setChecked,
+    noop,
+    setChecked,
+    getChecked,
+    import.meta.env.DEV
+      ? attributes => effectAttributeValidate(
+        attributes,
+        'checked',
+        'checked$'
+      )
+      : undefined
+  )
+)
+
+function setSelected(
+  control: ComboboxElement,
+  values: SelectedPrimitive
+) {
+  const options = control[optionsProperty]
   const test = isReadonlyArray(values)
     ? (v: string) => values.includes(v)
     : (v: string) => values === v
 
   for (let i = 0, len = options.length, option = options[i]; i < len; option = options[++i]) {
-    option.selected = test(option.value)
+    option[selectedProperty] = test(option[valueProperty])
   }
 }
 
-function getSelectedOptions(options: HTMLOptionsCollection, isMultiple?: boolean) {
+function getSelected(control: ComboboxElement): SelectedPrimitive {
+  const isMultiple = control[multipleProperty]
+  const options = control[optionsProperty]
   const values: string[] = []
 
   for (let i = 0, len = options.length, option = options[i]; i < len; option = options[++i]) {
-    if (option.selected) {
+    if (option[selectedProperty]) {
       if (isMultiple) {
-        values.push(option.value)
+        values.push(option[valueProperty])
       } else {
-        return option.value
+        return option[valueProperty]
       }
     }
   }
@@ -192,83 +199,57 @@ function getSelectedOptions(options: HTMLOptionsCollection, isMultiple?: boolean
   return values
 }
 
-function setSelected(
-  control: ComboboxElement,
-  $value: ValueOrStore<string | string[] | EmptyValue>,
-  attributes: UnknownAttributes
-) {
-  if (import.meta.env.DEV) {
-    effectAttributeValidate(
-      attributes,
-      ['value', 'multiple'],
-      'selected$'
-    )
-  }
-
-  if (!isEmpty($value)) {
-    const set = (value: string | readonly string[] | EmptyValue) => setSelectedOptions(control.options, value)
-
-    if (isStore($value)) {
-      const value = $value.get()
-      const isMultiple = isArray(value)
-      const get = () => getSelectedOptions(control.options, isMultiple)
-      const eventListener = () => {
-        $value.set(get())
-      }
-
-      if (isMultiple) {
-        control.multiple = true
-      }
-
-      return () => {
-        set(value)
-        control.addEventListener(onChangeEvent, eventListener)
-
-        let destroy: Destroy | null = $value.listen(set)
-
-        return () => {
-          control.removeEventListener(onChangeEvent, eventListener)
-          destroy!()
-          destroy = null
-        }
-      }
-    }
-
-    if (isArray($value)) {
-      control.multiple = true
-    }
-
-    return () => set($value)
-  }
-}
-
-/**
- * Effect attribute to set and read checked value of checkbox or radio button element
- */
-export const checked$ = createEffectAttribute<'checked', CheckboxElement, Checked>(
-  (control, $checked, attributes) => setControlAttribute(control, attributes, onChangeEvent, checkedAttribute, $checked)
-)
-
-/**
- * Effect attribute to set and read text value of input element
- */
-export const value$ = createEffectAttribute<'value', TextboxElement, Value>(setValue)
-
 /**
  * Effect attribute to set and read selected value of combobox element
  */
-export const selected$ = createEffectAttribute<'selected', ComboboxElement, Selected>(setSelected)
+export const selected$ = createEffectAttribute<'selected', ComboboxElement, Selected>(
+  createElementPropertySetter(
+    onChangeEvent,
+    (control: ComboboxElement, value: SelectedPrimitive) => {
+      control.multiple = isArray(value)
+    },
+    setSelected,
+    setSelected,
+    getSelected,
+    import.meta.env.DEV
+      ? attributes => effectAttributeValidate(
+        attributes,
+        ['value', 'multiple'],
+        'selected$'
+      )
+      : undefined
+  )
+)
+
+function getFiles(control: FileElement): FilesPrimitive {
+  return Array.from(control.files!)
+}
+
+/**
+ * Effect attribute to read files of file input element
+ */
+export const files$ = createEffectAttribute<'files', FileElement, Files>(
+  createElementPropertySetter(
+    onChangeEvent,
+    noop,
+    noop,
+    noop,
+    getFiles
+  )
+)
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
-    [checked$]: Checked
     [value$]: Value
+    [checked$]: Checked
     [selected$]: Selected
+    [files$]: Files
   }
 
   interface EffectAttributeTargets {
-    [checked$]: CheckboxElement
     [value$]: TextboxElement
+    [checked$]: CheckboxElement
     [selected$]: ComboboxElement
+    [files$]: FileElement
   }
 }

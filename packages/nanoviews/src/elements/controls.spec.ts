@@ -9,6 +9,7 @@ import {
   screen,
   fireEvent
 } from '@nanoviews/testing-library'
+import { userEvent } from '@testing-library/user-event'
 import { atom } from 'nanostores'
 import * as Stories from './controls.stories.js'
 
@@ -17,7 +18,8 @@ const {
   Textarea,
   Select,
   MultipleSelect,
-  Checkbox
+  Checkbox,
+  Files
 } = composeStories(Stories)
 
 describe('nanoviews', () => {
@@ -146,6 +148,25 @@ describe('nanoviews', () => {
           })
 
           expect(checkbox.checked).toBe(true)
+        })
+      })
+
+      describe('files$', () => {
+        it('should save files to atom', async () => {
+          const files = atom([])
+          const user = userEvent.setup()
+          const file = new File(['hello'], 'hello.png', {
+            type: 'image/png'
+          })
+          const { container } = render(Files({
+            files
+          }))
+          // eslint-disable-next-line testing-library/no-node-access
+          const fileInput = container.firstChild?.firstChild as HTMLInputElement
+
+          await user.upload(fileInput, file)
+
+          expect(files.get()[0]).toBe(file)
         })
       })
     })

@@ -1,7 +1,7 @@
 [
   {
     "path": "dist/index.production.js",
-    "limit": "4.4 kB"
+    "limit": "3.65 kB"
   },
   {
     "path": "dist/internals.production.js",

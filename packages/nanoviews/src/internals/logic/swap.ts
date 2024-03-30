@@ -65,9 +65,7 @@ export function createSwapper(
     proxyBlock.n = childBlock.n
   }
   const proxyBlock = createBlock(
-    () => {
-      childBlock!.c()
-    },
+    () => childBlock!.c(),
     (node, anchor) => childBlock!.m(node, anchor),
     () => {
       childBlock!.e()

@@ -70,9 +70,7 @@ export function createLazyBlock<TNode extends Node>(getBlock: () => Block<TNode>
       block.c()
     },
     (parentNode, anchor) => block!.m(parentNode, anchor) || null,
-    () => {
-      block!.e()
-    },
+    () => block!.e(),
     () => {
       block!.d()
       block = null
@@ -102,9 +100,7 @@ export function createBlockFromNode<TNode extends Node>(
       parentNode.insertBefore(node!, anchor || null)
       return node!
     },
-    () => {
-      childBlock?.e()
-    },
+    () => childBlock?.e(),
     () => {
       childBlock?.d()
       node!.parentNode?.removeChild(node!)
