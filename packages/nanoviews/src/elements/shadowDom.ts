@@ -1,10 +1,8 @@
 import type {
-  Block,
   Children,
   ChildrenBlock
 } from '../internals/index.js'
 import {
-  isFunction,
   createBlock,
   createFragment
 } from '../internals/index.js'
@@ -16,37 +14,28 @@ import {
  * @returns Block
  */
 export function attachShadow<
-  T extends (Block<Element> | ChildrenBlock<Element>)
->(block: T, options: ShadowRootInit) {
-  const targetBlock = isFunction(block) ? block() : block
-
+  T extends Element
+>(block: ChildrenBlock<T>, options: ShadowRootInit) {
   return (...children: Children) => {
     const childrenBlock = createFragment(children)
     let shadowRoot: ShadowRoot | null
 
-    return createBlock(
-      () => {
-        targetBlock.c()
-        childrenBlock.c()
-      },
-      (parentNode, anchor) => {
-        const target = targetBlock.m(parentNode, anchor)
+    return block(
+      createBlock(
+        childrenBlock.c,
+        (parentNode) => {
+          shadowRoot = (parentNode as Element).attachShadow(options)
 
-        shadowRoot = target!.attachShadow(options)
+          childrenBlock.m(shadowRoot)
 
-        childrenBlock.m(shadowRoot)
-
-        return target
-      },
-      () => {
-        targetBlock.e()
-        childrenBlock.e()
-      },
-      () => {
-        shadowRoot = null
-        childrenBlock.d()
-        targetBlock.d()
-      }
+          return shadowRoot
+        },
+        childrenBlock.e,
+        () => {
+          shadowRoot = null
+          childrenBlock.d()
+        }
+      )
     )
   }
 }

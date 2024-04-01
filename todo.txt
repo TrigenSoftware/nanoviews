@@ -1,6 +1,6 @@
+- html + head components
 - universal dom
 - ssr
-- html + head components
 - hydration
 
 - enhance events / modifiers?
