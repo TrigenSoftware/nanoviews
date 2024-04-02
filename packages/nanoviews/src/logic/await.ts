@@ -2,7 +2,8 @@ import type {
   ValueOrStore,
   EmptyValue,
   Destroy,
-  ChildrenBlockWithOnlySlots,
+  MapSlotDefsToSlot,
+  ChildrenBlock,
   PendingSlot,
   ThenSlot,
   CatchSlot
@@ -12,7 +13,7 @@ import {
   noop,
   createSwapper,
   getChildren,
-  createSlotsSplitter as slots,
+  getSlots,
   pendingSlot as pending$,
   thenSlot as then$,
   catchSlot as catch$,
@@ -62,46 +63,48 @@ function cancellablePromise<T>(
 export function await$<T>(
   $promise: ValueOrStore<Promise<T>>,
   $abortController?: ValueOrStore<AbortController | EmptyValue>
-): ChildrenBlockWithOnlySlots<[PendingSlot, ThenSlot<T>, CatchSlot], Node> {
+): ChildrenBlock<Node, MapSlotDefsToSlot<[PendingSlot, ThenSlot<T>, CatchSlot]>[]> {
   const abort = getAbortFromController($abortController)
 
   return getChildren(
-    slots(
-      pending$,
-      then$ as ThenSlot<T>,
-      catch$
-    ),
-    (
-      getPending = noop,
-      getThen = noop,
-      getCatch = noop
-    ) => createSwapper(getPending(), (swap) => {
-      let unsubscribe: Destroy | null
-      let cancel: Destroy | null
-      const start = (promise: Promise<T>) => cancellablePromise(
-        promise,
-        abort,
-        (value: T) => swap(() => getThen(value)),
-        (error: unknown) => swap(() => getCatch(error))
-      )
+    getSlots(
+      [
+        pending$,
+        then$ as ThenSlot<T>,
+        catch$
+      ],
+      (
+        getPending = noop,
+        getThen = noop,
+        getCatch = noop
+      ) => createSwapper(getPending(), (swap) => {
+        let unsubscribe: Destroy | null
+        let cancel: Destroy | null
+        const start = (promise: Promise<T>) => cancellablePromise(
+          promise,
+          abort,
+          (value: T) => swap(() => getThen(value)),
+          (error: unknown) => swap(() => getCatch(error))
+        )
 
-      if (isStore($promise)) {
-        cancel = start($promise.get())
-        unsubscribe = $promise.listen((promise) => {
+        if (isStore($promise)) {
+          cancel = start($promise.get())
+          unsubscribe = $promise.listen((promise) => {
+            cancel!()
+            swap(getPending)
+            cancel = start(promise)
+          })
+        } else {
+          cancel = start($promise)
+        }
+
+        return () => {
+          unsubscribe?.()
           cancel!()
-          swap(getPending)
-          cancel = start(promise)
-        })
-      } else {
-        cancel = start($promise)
-      }
-
-      return () => {
-        unsubscribe?.()
-        cancel!()
-        unsubscribe = null
-        cancel = null
-      }
-    })
+          unsubscribe = null
+          cancel = null
+        }
+      })
+    )
   )
 }

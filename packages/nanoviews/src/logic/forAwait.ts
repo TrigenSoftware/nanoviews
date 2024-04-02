@@ -2,7 +2,8 @@ import type {
   ValueOrStore,
   EmptyValue,
   Destroy,
-  ChildrenBlockWithOnlySlots,
+  MapSlotDefsToSlot,
+  ChildrenBlock,
   PendingSlot,
   EachSlot,
   ThenSlot,
@@ -11,8 +12,8 @@ import type {
 import {
   isStore,
   noop,
+  getSlots,
   getChildren,
-  createSlotsSplitter as slots,
   pendingSlot as pending$,
   eachSlot as each$,
   thenSlot as then$,
@@ -72,52 +73,54 @@ export function forAwait$<T>(
   $asyncIterable: ValueOrStore<AsyncIterable<T>>,
   $abortControllerOrReverse?: ValueOrStore<AbortController | EmptyValue> | boolean,
   maybeReverse?: boolean
-): ChildrenBlockWithOnlySlots<[PendingSlot, EachSlot<T>, ThenSlot<number>, CatchSlot], Node> {
+): ChildrenBlock<Node, MapSlotDefsToSlot<[PendingSlot, EachSlot<T>, ThenSlot<number>, CatchSlot]>[]> {
   const [$abortController, reverse] = typeof $abortControllerOrReverse === 'boolean'
     ? [undefined, $abortControllerOrReverse]
     : [$abortControllerOrReverse, maybeReverse]
   const abort = getAbortFromController($abortController)
 
   return getChildren(
-    slots(
-      pending$,
-      each$ as EachSlot<T>,
-      then$ as ThenSlot<number>,
-      catch$
-    ),
-    (
-      getPending = noop,
-      getEach = noop,
-      getThen = noop,
-      getCatch = noop
-    ) => createAsyncList(getPending(), (add, setFooter, reset) => {
-      let unsubscribe: Destroy | null
-      let cancel: Destroy | null
-      const start = (asyncIterable: AsyncIterable<T>) => cancellableForAwait(
-        asyncIterable,
-        abort,
-        (value: T, i: number) => add(() => getEach(value, i)),
-        (i: number) => setFooter(() => getThen(i)),
-        (error: unknown) => setFooter(() => getCatch(error))
-      )
+    getSlots(
+      [
+        pending$,
+        each$ as EachSlot<T>,
+        then$ as ThenSlot<number>,
+        catch$
+      ],
+      (
+        getPending = noop,
+        getEach = noop,
+        getThen = noop,
+        getCatch = noop
+      ) => createAsyncList(getPending(), (add, setFooter, reset) => {
+        let unsubscribe: Destroy | null
+        let cancel: Destroy | null
+        const start = (asyncIterable: AsyncIterable<T>) => cancellableForAwait(
+          asyncIterable,
+          abort,
+          (value: T, i: number) => add(() => getEach(value, i)),
+          (i: number) => setFooter(() => getThen(i)),
+          (error: unknown) => setFooter(() => getCatch(error))
+        )
 
-      if (isStore($asyncIterable)) {
-        cancel = start($asyncIterable.get())
-        unsubscribe = $asyncIterable.listen((asyncIterable) => {
+        if (isStore($asyncIterable)) {
+          cancel = start($asyncIterable.get())
+          unsubscribe = $asyncIterable.listen((asyncIterable) => {
+            cancel!()
+            reset(getPending)
+            cancel = start(asyncIterable)
+          })
+        } else {
+          cancel = start($asyncIterable)
+        }
+
+        return () => {
+          unsubscribe?.()
           cancel!()
-          reset(getPending)
-          cancel = start(asyncIterable)
-        })
-      } else {
-        cancel = start($asyncIterable)
-      }
-
-      return () => {
-        unsubscribe?.()
-        cancel!()
-        unsubscribe = null
-        cancel = null
-      }
-    }, reverse)
+          unsubscribe = null
+          cancel = null
+        }
+      }, reverse)
+    )
   )
 }

@@ -1,5 +1,5 @@
 export {
   createSlot,
-  createSlotsSplitter as slots$,
+  getSlots as slots$,
   getChildren as children$
 } from '../internals/index.js'

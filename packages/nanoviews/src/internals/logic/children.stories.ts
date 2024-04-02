@@ -3,7 +3,7 @@ import { nanoStory } from '@nanoviews/storybook'
 import { createElement } from '../elements/index.js'
 import {
   createSlot,
-  createSlotsSplitter as slots,
+  getSlots,
   getChildren
 } from './children.js'
 
@@ -52,8 +52,10 @@ const testSlot = createSlot<string>()
 export const NoSlot: Story = {
   render: nanoStory(
     () => getChildren(
-      slots(testSlot),
-      (testSlot, children) => createElement('div')('Children: ', children, testSlot)
+      getSlots(
+        [testSlot],
+        (testSlot, children) => createElement('div')('Children: ', children, testSlot)
+      )
     )('Hello!')
   )
 }
@@ -61,8 +63,10 @@ export const NoSlot: Story = {
 export const Slot: Story = {
   render: nanoStory(
     () => getChildren(
-      slots(testSlot),
-      (testSlot, children) => createElement('div')('Children: ', children, testSlot)
+      getSlots(
+        [testSlot],
+        (testSlot, children) => createElement('div')('Children: ', children, testSlot)
+      )
     )('Hello! ', testSlot('World!'))
   )
 }
@@ -73,8 +77,14 @@ const postSlot = createSlot<string>()
 export const Slots: Story = {
   render: nanoStory(
     () => getChildren(
-      slots(preSlot, postSlot, testSlot),
-      (preSlot, postSlot, testSlot, children) => createElement('div')(preSlot, children, testSlot, postSlot)
+      getSlots(
+        [
+          preSlot,
+          postSlot,
+          testSlot
+        ],
+        (preSlot, postSlot, testSlot, children) => createElement('div')(preSlot, children, testSlot, postSlot)
+      )
     )(
       'World! ',
       postSlot('From Slot!'),

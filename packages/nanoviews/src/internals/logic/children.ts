@@ -6,17 +6,15 @@ import type {
   Block,
   Children,
   ChildrenWithSlots,
+  ChildrenBlock,
   SlotId,
   Slot,
   SlotDef,
   AnySlotDef,
   MapSlotDefsToContents,
   MapSlotDefsToSlot,
-  SlotsSplitter,
   Renderer,
-  RendererWithSlots,
-  ChildrenBlock,
-  ChildrenBlockWithSlots
+  RendererWithSlots
 } from '../types/index.js'
 
 const isSlotSymbol = Symbol()
@@ -63,16 +61,23 @@ export function createSlot() {
 }
 
 /**
- * Define slots in children
+ * Get defined slots from children
  * @param slotDefs - Slot definitions
- * @returns Slots splitter
+ * @param render - Function to render block with given slots and children
+ * @returns Function that accepts children
  */
-export function createSlotsSplitter<D extends AnySlotDef[]>(...slotDefs: [...D]): SlotsSplitter<D> {
+export function getSlots<
+  D extends AnySlotDef[],
+  TNode extends Node
+>(
+  slotDefs: [...D],
+  render: RendererWithSlots<D, TNode>
+): Renderer<TNode, ChildrenWithSlots<MapSlotDefsToSlot<D>>> {
   return (children) => {
     const slots = Array(slotDefs.length) as unknown[]
     const restChildren: Children = []
 
-    children.forEach((child) => {
+    children?.forEach((child) => {
       if (isSlot(child)) {
         let content: unknown
         const slotIndex = slotDefs.findIndex((slot) => {
@@ -93,65 +98,25 @@ export function createSlotsSplitter<D extends AnySlotDef[]>(...slotDefs: [...D])
       restChildren.push(child)
     })
 
-    return [slots as MapSlotDefsToContents<D>, restChildren]
+    return render(...(slots as MapSlotDefsToContents<D>), restChildren)
   }
 }
 
 /**
  * Create children setter for a component
- * @param renderer - Component blocks renderer
+ * @param render - Component blocks renderer
  * @returns Component block with children setter
  */
 export function getChildren<
-  TNode extends Node
->(
-  renderer: Renderer<TNode>
-): ChildrenBlock<TNode>
+  T extends Node,
+  C extends unknown[] = Children
+>(render: Renderer<T, C>): ChildrenBlock<T, C> {
+  let children: C
+  const block: Block<T> = createLazyBlock(() => render(children))
 
-/**
- * Create children setter for a component with slots
- * @param slotsSplitter - Slots splitter
- * @param renderer - Component blocks renderer with slots
- * @returns Component block with children setter
- */
-export function getChildren<
-  D extends AnySlotDef[],
-  TNode extends Node
->(
-  slotsSplitter: SlotsSplitter<D>,
-  renderer: RendererWithSlots<D, TNode>
-): ChildrenBlockWithSlots<D, TNode>
+  return Object.assign((...nextChildren: C) => {
+    children = nextChildren
 
-export function getChildren<
-  D extends AnySlotDef[],
-  TNode extends Node
->(
-  slotsSplitterOrRender: SlotsSplitter<D> | Renderer<TNode>,
-  maybeRender?: RendererWithSlots<D, TNode>
-) {
-  type AnyRenderer = (...args: unknown[]) => Block<TNode>
-
-  const [slotsSplitter, render] = maybeRender
-    ? [slotsSplitterOrRender as SlotsSplitter<D>, maybeRender as AnyRenderer]
-    : [undefined, slotsSplitterOrRender as AnyRenderer]
-  let children: Children | undefined
-  let setChildren
-  let slots = [] as MapSlotDefsToContents<D>
-  const block: Block<TNode> = createLazyBlock(() => render(...slots, children))
-
-  if (slotsSplitter) {
-    setChildren = (...nextChildren: ChildrenWithSlots<MapSlotDefsToSlot<D>>) => {
-      [slots, children] = slotsSplitter(nextChildren)
-
-      return block
-    }
-  } else {
-    setChildren = (...nextChildren: Children) => {
-      children = nextChildren
-
-      return block
-    }
-  }
-
-  return Object.assign(setChildren, block)
+    return block
+  }, block)
 }

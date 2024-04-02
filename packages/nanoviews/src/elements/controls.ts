@@ -163,7 +163,7 @@ export const checked$ = createEffectAttribute<'checked', CheckboxElement, Checke
         'checked',
         'checked$'
       )
-      : undefined
+      : noop
   )
 )
 
@@ -217,7 +217,7 @@ export const selected$ = createEffectAttribute<'selected', ComboboxElement, Sele
         ['value', 'multiple'],
         'selected$'
       )
-      : undefined
+      : noop
   )
 )
 
