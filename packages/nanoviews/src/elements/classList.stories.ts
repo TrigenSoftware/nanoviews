@@ -1,11 +1,15 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
 import { div } from './elements.js'
-import { classList$ } from './classList.js'
+import {
+  classList$,
+  classIf
+} from './classList.js'
 
 const meta: Meta<{
   className?: string
   classList?: string[]
+  enabled?: boolean
 }> = {
   title: 'Elements/Effect Attributes/Class List'
 }
@@ -76,5 +80,15 @@ export const EmptyValues: Story = {
       null,
       undefined
     ]
+  })('Hello, world!'))
+}
+
+export const ClassIf: Story = {
+  args: {
+    className: 'class-a',
+    enabled: true
+  },
+  render: nanoStory(({ className, enabled }) => div({
+    [classList$]: classIf(className, enabled)
   })('Hello, world!'))
 }

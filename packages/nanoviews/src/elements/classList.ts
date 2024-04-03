@@ -1,4 +1,5 @@
 import type {
+  Store,
   ValueOrStore,
   EmptyValue,
   StrictEffect,
@@ -10,16 +11,23 @@ import {
   isStore,
   composeEffects,
   noop,
+  isFunction,
   createEffectAttribute
 } from '../internals/index.js'
 
-export type ClassList = ValueOrStore<string | EmptyValue | readonly ClassList[]>
+export type ClassListPrimitive = string | boolean | EmptyValue
+
+export type ClassIf = (set: (classList: ClassList) => StrictEffect<void>) => StrictEffect<void>
+
+export type ClassList = ValueOrStore<ClassListPrimitive | ClassIf | readonly ClassList[]>
+
+export type ClassListStore = Store<ClassListPrimitive | ClassIf | readonly ClassList[]>
 
 function isClassName(cls: string) {
   return isString(cls) && cls.includes(' ')
 }
 
-function addClass(classList: DOMTokenList, cls: string | EmptyValue) {
+function addClass(classList: DOMTokenList, cls: ClassListPrimitive) {
   if (isString(cls) && cls) {
     if (isClassName(cls)) {
       const classes = cls.split(' ')
@@ -41,6 +49,31 @@ function composeClassListEffects(domClassList: DOMTokenList, classList: readonly
   return composeEffects(classList.map(cls => createClassListEffect(domClassList, cls)))
 }
 
+function createDynamicEffect<T>(
+  $store: Store<T>,
+  createEffect: (value: T) => StrictEffect<void>
+) {
+  let effect: StrictEffect<void> | EmptyValue = createEffect($store.get())
+  let destroy: Destroy | EmptyValue
+
+  return () => {
+    destroy = effect!()
+    effect = null
+
+    let unsubscribe: Destroy | null = $store.listen((value) => {
+      destroy?.()
+      destroy = createEffect(value)()
+    })
+
+    return () => {
+      unsubscribe!()
+      destroy!()
+      destroy = null
+      unsubscribe = null
+    }
+  }
+}
+
 function createClassListEffect(
   domClassList: DOMTokenList,
   $classList: ClassList
@@ -48,35 +81,11 @@ function createClassListEffect(
   let destroy: Destroy | EmptyValue
 
   if (isStore($classList)) {
-    const classList = $classList.get()
-    const subscribe = () => {
-      let unsubscribe: Destroy | null = $classList.listen((classList) => {
-        destroy?.()
-        destroy = createClassListEffect(domClassList, classList)()
-      })
+    return createDynamicEffect($classList, classList => createClassListEffect(domClassList, classList))
+  }
 
-      return () => {
-        unsubscribe!()
-        destroy!()
-        destroy = null
-        unsubscribe = null
-      }
-    }
-
-    if (isReadonlyArray(classList)) {
-      let effect: StrictEffect<void> | null = composeClassListEffects(domClassList, classList)
-
-      return () => {
-        destroy = effect!()
-        effect = null
-
-        return subscribe()
-      }
-    }
-
-    destroy = addClass(domClassList, classList)
-
-    return subscribe
+  if (isFunction($classList)) {
+    return $classList(classList => createClassListEffect(domClassList, classList))
   }
 
   if (isReadonlyArray($classList)) {
@@ -89,6 +98,17 @@ function createClassListEffect(
     destroy!()
     destroy = null
   }
+}
+
+export function classIf(
+  classList: ClassList,
+  $condition: ValueOrStore<boolean | EmptyValue>
+): ClassList {
+  if (isStore($condition)) {
+    return set => createDynamicEffect($condition, condition => set(condition && classList))
+  }
+
+  return $condition && classList
 }
 
 /**
