@@ -413,7 +413,7 @@ function App() {
 }
 
   return effect$(
-    effect,
+    effect, // or array of effects
     div()('Hello, Nanoviews!')
   )
 }
@@ -421,7 +421,7 @@ function App() {
 
 ### decide$
 
-`decide$` is a method that can switch between different blocks.
+`decide$` is a method that can switch between different childs.
 
 ```js
 import { atom } from 'nanostores'
@@ -595,14 +595,14 @@ portal$(
 
 ```js
 import { atom } from 'nanostores'
-import { i, b, await$, $pending, $then, $catch } from 'nanoviews'
+import { i, b, await$, pending$, then$, catch$ } from 'nanoviews'
 
 const $promise = atom(Promise.resolve('Hello, Nanoviews!'))
 
 await$($promise)(
-  $pending(() => i()('Loading...')),
-  $then((value) => b()(value)),
-  $catch((error) => String(error))
+  pending$(() => i()('Loading...')),
+  then$((value) => b()(value)),
+  catch$((error) => String(error))
 )
 ```
 
