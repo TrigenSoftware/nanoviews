@@ -21,6 +21,7 @@
   "engines": {
     "node": ">=16"
   },
+  "sideEffects": false,
   "exports": "./src/index.ts",
   "publishConfig": {
     "exports": {
