@@ -611,7 +611,7 @@ await$($promise)(
 `forAwait$` is a method that can handle and render async iterables.
 
 ```js
-import { ul, li, forAwait$, pending$, eah$, then$, catch$ } from 'nanoviews'
+import { ul, li, forAwait$, pending$, each$, then$, catch$ } from 'nanoviews'
 
 ul()(
   forAwait$(fetchProducts())(
@@ -626,7 +626,7 @@ ul()(
 Also you can render list in reversed order:
 
 ```js
-import { main, div, forAwait$, pending$, eah$, then$, catch$ } from 'nanoviews'
+import { main, div, forAwait$, pending$, each$, then$, catch$ } from 'nanoviews'
 
 main()(
   forAwait$(fetchNewsFeed(), true)(
