@@ -3,18 +3,18 @@
     "name": "All publics",
     "path": "dist/index.production.js",
     "import": "*",
-    "limit": "4.8 kB"
+    "limit": "4.77 kB"
   },
   {
     "name": "All internals",
     "path": "dist/internals.production.js",
     "import": "*",
-    "limit": "2.15 kB"
+    "limit": "2.14 kB"
   },
   {
     "name": "Average usage",
     "path": "dist/index.production.js",
     "import": "{ div, input, button, label, fragment, decide$, for$, classList$, classIf, value$, children$, effect$ }",
-    "limit": "2.81 kB"
+    "limit": "2.78 kB"
   }
 ]
