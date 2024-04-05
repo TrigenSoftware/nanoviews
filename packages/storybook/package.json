@@ -52,7 +52,7 @@
     "@storybook/global": "^5.0.0",
     "@storybook/preview-api": "^7.6.17",
     "@storybook/types": "^7.6.17",
-    "nanostores": "0.10.0",
+    "nanostores": "0.10.3",
     "type-fest": "^4.12.0"
   }
 }
