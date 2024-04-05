@@ -21,7 +21,7 @@ export default defineConfig({
     setupFiles: ['./test/setup.ts'],
     coverage: {
       reporter: ['lcovonly', 'text'],
-      include: ['**', '!**/*.stories.ts']
+      include: ['src/**/*', '!**/*.stories.ts']
     }
   }
 })
