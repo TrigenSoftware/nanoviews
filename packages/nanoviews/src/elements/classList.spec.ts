@@ -16,7 +16,8 @@ const {
   ReactiveStrings,
   NestedStrings,
   EmptyValues,
-  ClassIf
+  ClassIf,
+  ClassGet
 } = composeStories(Stories)
 
 describe('nanoviews', () => {
@@ -112,7 +113,7 @@ describe('nanoviews', () => {
         expect(container.innerHTML).toBe('<div><div class="class-c">Hello, world!</div></div>')
       })
 
-      it('should hanlde classIf utility', () => {
+      it('should hanlde classIf$ utility', () => {
         const className = atom('class-a')
         const enabled = atom(true)
         const { container } = render(ClassIf({
@@ -125,6 +126,19 @@ describe('nanoviews', () => {
         enabled.set(false)
 
         expect(container.innerHTML).toBe('<div><div class="">Hello, world!</div></div>')
+      })
+
+      it('should handle classGet$ utility', () => {
+        const theme = atom('primary')
+        const { container } = render(ClassGet({
+          theme
+        }))
+
+        expect(container.innerHTML).toBe('<div><div class="theme-primary">Hello, world!</div></div>')
+
+        theme.set('secondary')
+
+        expect(container.innerHTML).toBe('<div><div class="theme-secondary">Hello, world!</div></div>')
       })
     })
   })

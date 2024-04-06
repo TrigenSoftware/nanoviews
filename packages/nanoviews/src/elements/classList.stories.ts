@@ -3,13 +3,15 @@ import { nanoStory } from '@nanoviews/storybook'
 import { div } from './elements.js'
 import {
   classList$,
-  classIf
+  classIf$,
+  classGet$
 } from './classList.js'
 
 const meta: Meta<{
   className?: string
   classList?: string[]
   enabled?: boolean
+  theme?: string
 }> = {
   title: 'Elements/Effect Attributes/Class List'
 }
@@ -89,6 +91,24 @@ export const ClassIf: Story = {
     enabled: true
   },
   render: nanoStory(({ className, enabled }) => div({
-    [classList$]: classIf(className, enabled)
+    [classList$]: classIf$(className, enabled)
+  })('Hello, world!'))
+}
+
+export const ClassGet: Story = {
+  argTypes: {
+    theme: {
+      control: 'radio',
+      options: ['primary', 'secondary']
+    }
+  },
+  args: {
+    theme: 'primary'
+  },
+  render: nanoStory(({ theme }) => div({
+    [classList$]: classGet$({
+      primary: 'theme-primary',
+      secondary: 'theme-secondary'
+    }, theme)
   })('Hello, world!'))
 }

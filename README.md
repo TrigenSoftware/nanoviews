@@ -254,14 +254,16 @@ button({
 `classList$` is an effect attribute that manages class names of the element.
 
 ```js
-import { button, classList$, classIf } from 'nanoviews'
+import { button, classList$, classIf$, classGet$ } from 'nanoviews'
+import * as styles from './styles.css'
 
 function MyButton({
   class: className,
-  primary
+  theme = 'primary',
+  rounded = false
 }) {
   return button({
-    [classList$]: [className, 'myButton', classIf('primary', primary)]
+    [classList$]: [className, 'myButton', classIf$(styles.rounded, rounded), classGet$(styles, theme)]
   })
 }
 ```

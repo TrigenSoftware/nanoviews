@@ -1,5 +1,5 @@
 {
   "withoutPublish": true,
   "tempDir": "package",
-  "fields": ["scripts"]
+  "fields": ["scripts", "publishConfig"]
 }

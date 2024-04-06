@@ -17,11 +17,11 @@ import {
 
 export type ClassListPrimitive = string | boolean | EmptyValue
 
-export type ClassIf = (set: (classList: ClassList) => StrictEffect<void>) => StrictEffect<void>
+export type ClassListEffect = (set: (classList: ClassList) => StrictEffect<void>) => StrictEffect<void>
 
-export type ClassList = ValueOrStore<ClassListPrimitive | ClassIf | readonly ClassList[]>
+export type ClassList = ValueOrStore<ClassListPrimitive | ClassListEffect | readonly ClassList[]>
 
-export type ClassListStore = Store<ClassListPrimitive | ClassIf | readonly ClassList[]>
+export type ClassListStore = Store<ClassListPrimitive | ClassListEffect | readonly ClassList[]>
 
 function isClassName(cls: string) {
   return isString(cls) && cls.includes(' ')
@@ -100,7 +100,7 @@ function createClassListEffect(
   }
 }
 
-export function classIf(
+export function classIf$(
   classList: ClassList,
   $condition: ValueOrStore<boolean | EmptyValue>
 ): ClassList {
@@ -109,6 +109,17 @@ export function classIf(
   }
 
   return $condition && classList
+}
+
+export function classGet$(
+  classMap: Record<string, string>,
+  $key: ValueOrStore<string | EmptyValue>
+): ClassList {
+  if (isStore($key)) {
+    return set => createDynamicEffect($key, key => set(classMap[key!]))
+  }
+
+  return classMap[$key!]
 }
 
 /**
