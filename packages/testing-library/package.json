@@ -54,11 +54,11 @@
     "test": "run lint"
   },
   "peerDependencies": {
-    "@testing-library/dom": "^9",
+    "@testing-library/dom": "^10.0.0",
     "nanoviews": "workspace:^"
   },
   "devDependencies": {
-    "@testing-library/dom": "^9.3.1",
+    "@testing-library/dom": "^10.0.0",
     "nanoviews": "workspace:^",
     "vitest": "^1.0.0"
   }
