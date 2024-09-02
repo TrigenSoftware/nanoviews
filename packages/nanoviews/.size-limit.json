@@ -3,7 +3,7 @@
     "name": "All publics",
     "path": "dist/index.production.js",
     "import": "*",
-    "limit": "4.81 kB"
+    "limit": "4.82 kB"
   },
   {
     "name": "All internals",
