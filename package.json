@@ -23,7 +23,8 @@
     "lint": "pnpm -r --parallel --if-present lint",
     "test:unit": "pnpm -r --parallel --if-present test:unit",
     "test:size": "pnpm -r --parallel --if-present test:size",
-    "test": "run -p lint test:unit",
+    "test:types": "pnpm -r --parallel --if-present test:types",
+    "test": "run -p lint test:unit test:types",
     "commit": "cz",
     "updateGitHooks": "simple-git-hooks"
   },

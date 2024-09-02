@@ -12,6 +12,7 @@
   "rules": {
   },
   "ignorePatterns": [
-    "packages/*/dist/**/*"
+    "packages/*/dist/**/*",
+    "packages/*/package/**/*"
   ]
 }
