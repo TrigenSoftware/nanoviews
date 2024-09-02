@@ -33,8 +33,8 @@ importers:
         specifier: ^20.0.0
         version: 20.11.25
       clean-publish:
-        specifier: ^4.4.0
-        version: 4.4.0
+        specifier: ^5.0.0
+        version: 5.0.0
       commitizen:
         specifier: ^4.2.4
         version: 4.3.0(@types/node@20.11.25)(typescript@5.3.3)
@@ -5236,9 +5236,9 @@ packages:
       consola: 3.2.3
     dev: true
 
-  /clean-publish@4.4.0:
-    resolution: {integrity: sha512-wAJxoegQKPN/BhAp1cOb7XID5Q3LBMpMUOmLjr1zWUwOOR7QDM+3zN3ViJQVAy4WbCXLI8bTJrFglIO1ldkE0g==}
-    engines: {node: '>= 16.0.0'}
+  /clean-publish@5.0.0:
+    resolution: {integrity: sha512-1qjtqP3piZL4t8SqGojOyA12bg8AtbFPIQstNvxmss1fhwfma3CqMJ/Y/kbRvAllLX2/c4ZKjcCCKDqEtpcymA==}
+    engines: {node: '>= 18.0.0'}
     hasBin: true
     dependencies:
       cross-spawn: 7.0.3
