@@ -127,7 +127,7 @@ describe('nanoviews', () => {
         it('should render no elements without children', () => {
           const { container } = render(NoChildren())
 
-          expect(container.innerHTML).toBe('<div><div><hr>^ hr, br ><br>^ br, hr ><hr></div></div>')
+          expect(container.innerHTML).toBe('<div><div><hr>^ hr, br &gt;<br>^ br, hr &gt;<hr></div></div>')
         })
       })
     })
