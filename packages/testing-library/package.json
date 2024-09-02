@@ -60,6 +60,6 @@
   "devDependencies": {
     "@testing-library/dom": "^9.3.1",
     "nanoviews": "workspace:^",
-    "vitest": "^1.0.0"
+    "vitest": "^2.0.0"
   }
 }
