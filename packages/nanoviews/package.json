@@ -1,7 +1,7 @@
 {
   "name": "nanoviews",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.0.0-alpha.2",
   "description": "A small Direct DOM library for creating user interfaces.",
   "author": "dangreen",
   "license": "MIT",
@@ -62,7 +62,8 @@
     "test:unit": "vitest run --coverage",
     "test:unit:watch": "vitest watch",
     "test:size": "size-limit",
-    "test": "run -p lint test:unit",
+    "test:types": "tsc --noEmit",
+    "test": "run -p lint test:unit test:types",
     "storybook": "storybook dev -p 6006 --no-open"
   },
   "peerDependencies": {
@@ -81,7 +82,7 @@
     "@storybook/addon-essentials": "^7.6.17",
     "@storybook/test": "^7.0.0",
     "@testing-library/dom": "^10.0.0",
-    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/user-event": "^14.5.2",
     "@vitest/coverage-v8": "^2.0.0",
     "csstype": "^3.1.3",

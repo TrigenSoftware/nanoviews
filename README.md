@@ -25,7 +25,6 @@
 [coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nanoviews.svg
 [coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nanoviews
 
-
 A small Direct DOM library for creating user interfaces.
 
 - **Small**. Between 2.71 and 4.77 kB (minified and brotlied). Zero dependencies[*](#reactivity).

@@ -1,0 +1,22 @@
+{
+  "extends": [
+    "@trigen/eslint-config/typescript",
+    "@trigen/eslint-config/typescript-requiring-type-checking",
+    "@trigen/eslint-config/jest"
+  ],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parserOptions": {
+    "tsconfigRootDir": "./packages/stores",
+    "project": ["./tsconfig.json"]
+  },
+  "rules": {
+    "@typescript-eslint/no-invalid-void-type": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "no-implicit-coercion": "off",
+    "consistent-return": "off",
+    "symbol-description": "off"
+  }
+}

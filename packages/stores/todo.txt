@@ -1,0 +1,4 @@
+- readme
+next ver
+- asyncIterable?
+- table (map/list of entities) https://redux-toolkit.js.org/api/createEntityAdapter
