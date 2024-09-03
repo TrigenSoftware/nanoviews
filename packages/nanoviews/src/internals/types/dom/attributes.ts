@@ -409,7 +409,7 @@ export interface KeygenHTMLAttributes<T extends HTMLElement> extends HTMLAttribu
 
 export interface LabelHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   form?: ValueOrStore<string | undefined>
-  htmlFor?: ValueOrStore<string | undefined>
+  for?: ValueOrStore<string | undefined>
 }
 
 export interface LiHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
@@ -507,7 +507,7 @@ export interface OptionHTMLAttributes<T extends HTMLElement> extends HTMLAttribu
 
 export interface OutputHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   form?: ValueOrStore<string | undefined>
-  htmlFor?: ValueOrStore<string | undefined>
+  for?: ValueOrStore<string | undefined>
   name?: ValueOrStore<string | undefined>
 }
 

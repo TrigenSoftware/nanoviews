@@ -5,7 +5,8 @@ import type {
   MountBlock,
   Effect,
   Destroy,
-  DestroyBlock
+  DestroyBlock,
+  GetNode
 } from './types/index.js'
 import { isBlockSymbol } from './types/block.js'
 import { isFunction } from './utils.js'
@@ -22,24 +23,26 @@ export function isBlock(value: unknown): value is Block {
  * @param mount - Function to mount block to target
  * @param effect - Function to run effects
  * @param destroy - Function to destroy block
+ * @param getNode - Function to get node
  * @returns Block object
  */
 export function createBlock<TNode extends Node>(
   create: CreateBlock,
   mount: MountBlock<TNode>,
   effect: Effect<void>,
-  destroy: DestroyBlock
+  destroy: DestroyBlock,
+  getNode?: GetNode<TNode>
 ) {
   let destroyEffect: Destroy | EmptyValue
+  let node: TNode | null = null
   const block: Block<TNode> = {
     [isBlockSymbol]: true,
     k: null,
-    n: null,
     c: create,
-    m(node, anchor) {
-      block.n = mount(node, anchor)
+    m(target, anchor) {
+      node = mount(target, anchor)
 
-      return block.n
+      return node
     },
     e() {
       destroyEffect = effect()
@@ -48,9 +51,9 @@ export function createBlock<TNode extends Node>(
       destroyEffect?.()
       destroy()
       destroyEffect = null
-      block.k = null
-      block.n = null
-    }
+      node = null
+    },
+    n: getNode || (() => node)
   }
 
   return block
@@ -69,7 +72,7 @@ export function createLazyBlock<TNode extends Node>(getBlock: () => Block<TNode>
       block = getBlock()
       block.c()
     },
-    (parentNode, anchor) => block!.m(parentNode, anchor) || null,
+    (parentNode, anchor) => block!.m(parentNode, anchor),
     () => block!.e(),
     () => {
       block!.d()
@@ -98,7 +101,7 @@ export function createBlockFromNode<TNode extends Node>(
     (parentNode, anchor) => {
       childBlock?.m(node!)
       parentNode.insertBefore(node!, anchor || null)
-      return node!
+      return node
     },
     () => childBlock?.e(),
     () => {
@@ -117,29 +120,39 @@ function getBlocks(blocksOrGetter: BlockOrGetter) {
 
 function createBlocksLifesycle(
   blocksOrGetter: BlockOrGetter,
-  lifecycle: (block: Block) => void
+  lifecycle: (block: Block) => void,
+  cleanup?: () => void
 ) {
-  return () => getBlocks(blocksOrGetter)?.forEach(lifecycle)
+  return () => {
+    getBlocks(blocksOrGetter)?.forEach(lifecycle)
+    cleanup?.()
+  }
 }
 
 function createBlocksMount(blocksOrGetter: BlockOrGetter) {
-  return (parentNode: Node, anchor?: Node | null | undefined) => {
-    getBlocks(blocksOrGetter)?.forEach(block => block.m(parentNode, anchor))
-
-    return parentNode.firstChild as Node
-  }
+  return (
+    parentNode: Node,
+    anchor?: Node | null | undefined
+  ) => getBlocks(blocksOrGetter)?.map(
+    block => block.m(parentNode, anchor)
+  )[0] || null
 }
 
 /**
  * Create block from blocks or blocks getter
  * @param blocksOrGetter - Blocks or blocks getter function
+ * @param destroy - Destroy function
  * @returns Block of blocks
  */
-export function createBlockFromBlocks(blocksOrGetter: BlockOrGetter) {
+export function createBlockFromBlocks(
+  blocksOrGetter: BlockOrGetter,
+  destroy?: Destroy
+) {
   return createBlock(
     createBlocksLifesycle(blocksOrGetter, block => block.c()),
     createBlocksMount(blocksOrGetter),
     createBlocksLifesycle(blocksOrGetter, block => block.e()),
-    createBlocksLifesycle(blocksOrGetter, block => block.d())
+    createBlocksLifesycle(blocksOrGetter, block => block.d(), destroy),
+    () => getBlocks(blocksOrGetter)?.[0]?.n() || null
   )
 }

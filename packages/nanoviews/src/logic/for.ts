@@ -73,6 +73,8 @@ function sync<T>(
       block = trackedEachBlock(nextItems[i], i)
       block.c()
       effects.push(block.e)
+    } else {
+      // update code
     }
 
     nextBlocks[i] = block
@@ -86,7 +88,7 @@ function sync<T>(
   const insert = (block: Block) => {
     block.m(parentNode, next || null)
     lookupMap.set(block.k, block)
-    next = block.n
+    next = block.n()
     nextItemsCount--
   }
 
@@ -99,7 +101,7 @@ function sync<T>(
 
     if (nextBlock === prevBlock) {
       // do nothing
-      next = nextBlock.n
+      next = nextBlock.n()
       prevBlocksCount--
       nextItemsCount--
     } else if (!nextLookupMap.has(prevKey)) {
@@ -214,25 +216,21 @@ export function for$<T>(
         const prevItemsCount = prevItems?.length
 
         if (itemsCount) {
-          fragment ||= addEffects(
-            () => () => {
-              blocksMap.clear()
-              blocks = null
-            },
-            createBlockFromBlocks(() => blocks)
-          )
+          fragment ||= createBlockFromBlocks(() => blocks, () => {
+            blocksMap.clear()
+            blocks = null
+          })
 
           if (prevItemsCount) {
             // [...n] -> [...n1]
             blocks = sync(
-              fragment.n!.parentNode!,
+              fragment.n()!.parentNode!,
               blocksMap,
               tracker,
               trackedEachBlock,
               blocks!,
               items
             )
-            fragment.n = blocks[0].n
           } else {
             // [] -> [...n]
             blocks = createEachBlocks(blocksMap, tracker, trackedEachBlock, items)

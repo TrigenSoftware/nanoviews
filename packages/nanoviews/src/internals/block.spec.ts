@@ -32,7 +32,7 @@ describe('nanoviews', () => {
           block.c()
           block.m(root, anchor)
 
-          expect(block.n).toBe(node)
+          expect(block.n()).toBe(node)
           expect(root.firstChild).toBe(node)
 
           block.m(root)
@@ -60,8 +60,8 @@ describe('nanoviews', () => {
           block.c()
           block.m(root, anchor)
 
-          expect(block.n).toBe(node)
-          expect(childBlock.n).toBe(childNode)
+          expect(block.n()).toBe(node)
+          expect(childBlock.n()).toBe(childNode)
           expect(root.firstChild).toBe(node)
           expect(node.firstChild).toBe(childNode)
 

@@ -36,6 +36,8 @@ export type RunEffects = () => void
  */
 export type DestroyBlock = Destroy
 
+export type GetNode<T extends Node> = () => T | null
+
 /**
  * Symbol to mark object as block
  */
@@ -50,10 +52,6 @@ export interface Block<TNode extends Node = Node> {
    * Key
    */
   k: unknown
-  /**
-   * First node
-   */
-  n: TNode | null
   /**
    * Create required data
    */
@@ -73,6 +71,10 @@ export interface Block<TNode extends Node = Node> {
    * Destroy block
    */
   d: DestroyBlock
+  /**
+   * Get node
+   */
+  n: GetNode<TNode>
 }
 
 export type PickBlockNode<T extends Block> = T extends Block<infer TNode> ? TNode : never

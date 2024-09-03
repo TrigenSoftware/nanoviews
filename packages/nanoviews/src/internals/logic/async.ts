@@ -107,8 +107,6 @@ export function createAsyncList(
 
     if (!isEmpty(child)) {
       blocks!.splice(-1, 0, swap(footer!, childToBlock(child), insertMode))
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      proxyBlock.n = blocks![0].n
     }
   }
   const setFooter = (getFooterBlock: GetChild = noop) => {
@@ -116,22 +114,17 @@ export function createAsyncList(
 
     // eslint-disable-next-line no-multi-assign
     blocks![blocks!.length - 1] = footer = swap(footer!, block)
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    proxyBlock.n = blocks![0].n
   }
   const reset = (getFooterBlock?: GetChild) => {
     blocks!.splice(0, blocks!.length - 1).forEach(block => block.d())
     setFooter(getFooterBlock)
   }
   const proxyBlock = addEffects(
-    [
-      () => mutator(add, setFooter, reset),
-      () => () => {
-        footer = null
-        blocks = null
-      }
-    ],
-    createBlockFromBlocks(() => blocks)
+    () => mutator(add, setFooter, reset),
+    createBlockFromBlocks(() => blocks, () => {
+      footer = null
+      blocks = null
+    })
   )
 
   return proxyBlock

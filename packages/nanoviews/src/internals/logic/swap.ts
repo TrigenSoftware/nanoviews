@@ -26,13 +26,13 @@ export function swap(
     return prevBlock
   }
 
-  const prevNode = prevBlock.n
+  const prevNode = prevBlock.n()!
   const anchor = insertOnlyMode as number > 0
-    ? prevNode!.nextSibling
+    ? prevNode.nextSibling
     : prevNode
 
   nextBlock.c()
-  nextBlock.m(prevNode!.parentNode!, anchor)
+  nextBlock.m(prevNode.parentNode!, anchor)
 
   if (!insertOnlyMode) {
     prevBlock.d()
@@ -57,12 +57,12 @@ export function createSwapper(
   const context = getCurrentContextStack()
   let childBlock: Block | null = childToBlock(initial)
   const swapNextBlock = (getNextChild: GetChild = noop) => {
-    childBlock = swap(
-      childBlock!,
-      childToBlock(provideContext(context, getNextChild))
-    )
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    proxyBlock.n = childBlock.n
+    if (childBlock) {
+      childBlock = swap(
+        childBlock,
+        childToBlock(provideContext(context, getNextChild))
+      )
+    }
   }
   const proxyBlock = createBlock(
     () => childBlock!.c(),
@@ -75,7 +75,8 @@ export function createSwapper(
     () => {
       childBlock!.d()
       childBlock = null
-    }
+    },
+    () => childBlock!.n()
   )
 
   return proxyBlock

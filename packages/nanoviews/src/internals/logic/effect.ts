@@ -27,7 +27,7 @@ export function addEffects<T extends Block>(
 
   block.e = () => {
     superEffect()
-    destroy = effect(block.n! as PickBlockNode<T>)
+    destroy = effect(block.n()! as PickBlockNode<T>)
   }
 
   block.d = () => {
