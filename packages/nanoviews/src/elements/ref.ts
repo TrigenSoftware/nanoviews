@@ -4,7 +4,7 @@ import { createEffectAttribute } from '../internals/index.js'
 /**
  * Effect attribute to get element reference
  */
-export const ref$ = createEffectAttribute<'ref', Element, Store<Element | null>>(
+export const ref$ = /* @__PURE__ */ createEffectAttribute<'ref', Element, Store<Element | null>>(
   (element, $ref) => () => {
     $ref.set(element)
 

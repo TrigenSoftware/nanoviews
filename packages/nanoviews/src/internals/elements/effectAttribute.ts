@@ -19,7 +19,7 @@ export function createEffectAttribute<
 >(callback: EffectAttributeCallback<TargetElement, Value>) {
   const id = Symbol()
 
-  /* @__PURE__ */ store.set(id, callback as EffectAttributeCallback)
+  store.set(id, callback as EffectAttributeCallback)
 
   // Symbols is better for minification / Constant string type is better for smart types
   return id as unknown as `${ID}$`

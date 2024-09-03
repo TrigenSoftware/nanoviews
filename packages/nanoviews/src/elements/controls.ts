@@ -114,7 +114,7 @@ function getValue(control: TextboxElement): ValuePrimitive {
 /**
  * Effect attribute to set and read text value of input element
  */
-export const value$ = createEffectAttribute<'value', TextboxElement, Value>(
+export const value$ = /* @__PURE__ */ createEffectAttribute<'value', TextboxElement, Value>(
   createElementPropertySetter(
     onInputEvent,
     setValue,
@@ -150,7 +150,7 @@ function getChecked(control: CheckboxElement): CheckedPrimitive {
 /**
  * Effect attribute to set and read checked value of checkbox or radio button element
  */
-export const checked$ = createEffectAttribute<'checked', CheckboxElement, Checked>(
+export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked', CheckboxElement, Checked>(
   createElementPropertySetter(
     onChangeEvent,
     setChecked,
@@ -202,7 +202,7 @@ function getSelected(control: ComboboxElement): SelectedPrimitive {
 /**
  * Effect attribute to set and read selected value of combobox element
  */
-export const selected$ = createEffectAttribute<'selected', ComboboxElement, Selected>(
+export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected', ComboboxElement, Selected>(
   createElementPropertySetter(
     onChangeEvent,
     (control: ComboboxElement, value: SelectedPrimitive) => {
@@ -228,7 +228,7 @@ function getFiles(control: FileElement): FilesPrimitive {
 /**
  * Effect attribute to read files of file input element
  */
-export const files$ = createEffectAttribute<'files', FileElement, Files>(
+export const files$ = /* @__PURE__ */ createEffectAttribute<'files', FileElement, Files>(
   createElementPropertySetter(
     onChangeEvent,
     noop,

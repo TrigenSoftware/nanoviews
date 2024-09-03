@@ -27,7 +27,7 @@ function setStyle(
 /**
  * Effect attribute to set style properties on element
  */
-export const style$ = createEffectAttribute<'style', HTMLElement | SVGAElement, StyleProps>(
+export const style$ = /* @__PURE__ */ createEffectAttribute<'style', HTMLElement | SVGAElement, StyleProps>(
   (element, style, attributes) => {
     if (import.meta.env.DEV) {
       effectAttributeValidate(
