@@ -90,7 +90,7 @@ export function isFunction(value: unknown): value is AnyFn {
  * @returns True if value is store
  */
 export function isStore(value: unknown): value is AnyStore {
-  return !!value && LevelSymbol in (value as AnyObject)
+  return (value as AnyStore)?.[LevelSymbol] >= 0
 }
 
 /**
