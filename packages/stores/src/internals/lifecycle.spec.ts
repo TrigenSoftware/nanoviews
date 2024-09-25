@@ -8,6 +8,7 @@ import {
 } from 'vitest'
 import { atom } from './atom.js'
 import {
+  STORE_UNMOUNT_DELAY,
   listen,
   onStart,
   onStop,
@@ -149,6 +150,35 @@ describe('stores', () => {
 
           expect(mount).toHaveBeenCalledTimes(1)
           expect(unmount).toHaveBeenCalledTimes(1)
+        })
+
+        it('should debounce unmount callback', () => {
+          const $atom = atom(1)
+          const unmount = vi.fn()
+          const mount = vi.fn(() => unmount)
+          let off1: () => void
+
+          onMount($atom, mount)
+
+          off1 = listen($atom, () => {})
+          off1()
+          vi.advanceTimersByTime(100)
+          off1 = listen($atom, () => {})
+          off1()
+          vi.advanceTimersByTime(100)
+          off1 = listen($atom, () => {})
+          off1()
+          vi.advanceTimersByTime(STORE_UNMOUNT_DELAY + 1)
+
+          expect(mount).toHaveBeenCalledTimes(1)
+          expect(unmount).toHaveBeenCalledTimes(1)
+
+          off1 = listen($atom, () => {})
+          off1()
+          vi.advanceTimersByTime(STORE_UNMOUNT_DELAY + 1)
+
+          expect(mount).toHaveBeenCalledTimes(2)
+          expect(unmount).toHaveBeenCalledTimes(2)
         })
       })
     })

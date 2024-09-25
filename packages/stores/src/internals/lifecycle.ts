@@ -81,17 +81,20 @@ export function onMount<T, S extends AnyObject = EmptyObject>(
   $store: Store<T>,
   listener: (shared: S) => (() => void) | void
 ) {
-  let timerId: ReturnType<typeof setTimeout> | undefined
+  let active = false
   let destroy: (() => void) | void
   const offStart = onStart($store, (shared: S) => {
-    clearTimeout(timerId)
-    destroy = listener(shared)
-  })
-  const offStop = onStop($store, () => {
-    if (destroy) {
-      timerId = setTimeout(destroy, STORE_UNMOUNT_DELAY)
+    if (!active) {
+      destroy = listener(shared)
+      active = true
     }
   })
+  const offStop = onStop($store, () => setTimeout(() => {
+    if (active) {
+      destroy?.()
+      active = false
+    }
+  }, STORE_UNMOUNT_DELAY))
 
   return () => {
     offStart()
