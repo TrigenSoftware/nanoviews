@@ -27,7 +27,7 @@
 
 A small state management library for Nanoviews inspired by [Nano Stores](https://github.com/nanostores/nanostores).
 
-- **Small**. Between 297 B and 2.36 kB (minified and brotlied). Zero dependencies.
+- **Small**. Between 298 B and 2.33 kB (minified and brotlied). Zero dependencies.
 - **Fast**. With small atomic and computed stores, you do not need to call the selector function for all components on every store change.
 - Designed for best **Tree-Shaking**: only the code you use is included in your bundle.
 - **TypeScript**-first.

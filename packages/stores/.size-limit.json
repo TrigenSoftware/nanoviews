@@ -3,7 +3,7 @@
     "name": "All publics",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "2.36 kB"
+    "limit": "2.33 kB"
   },
   {
     "name": "All internals",
@@ -15,12 +15,12 @@
     "name": "Atom",
     "path": "dist/index.js",
     "import": "{ atom }",
-    "limit": "297 B"
+    "limit": "298 B"
   },
   {
     "name": "Popular set",
     "path": "dist/index.js",
-    "import": "{ atom, record, computed, listen, subscribe }",
-    "limit": "963 B"
+    "import": "{ atom, list, entities, record, computed, effect, channel }",
+    "limit": "1.43 kB"
   }
 ]
