@@ -26,3 +26,7 @@ export type ToStore<T> = T extends AnyStore ? T : Store<T>
 export type StoresValues<T> = T extends [infer F, ...infer R]
   ? [StoreValue<F>, ...StoresValues<R>]
   : []
+
+export type StoresValuesOrUndefined<T> = T extends [infer F, ...infer R]
+  ? [StoreValue<F> | undefined, ...StoresValuesOrUndefined<R>]
+  : []

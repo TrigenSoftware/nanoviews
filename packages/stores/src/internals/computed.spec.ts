@@ -12,10 +12,8 @@ import {
 } from './events/index.js'
 import { atom } from './atom.js'
 import { listen } from './lifecycle.js'
-import {
-  computed,
-  batch
-} from './computed.js'
+import { batch } from './effect.js'
+import { computed } from './computed.js'
 
 describe('stores', () => {
   describe('internals', () => {
@@ -66,7 +64,7 @@ describe('stores', () => {
 
       it('should compute single value with debounce', () => {
         const $a = atom(1)
-        const $b = computed(batch, $a, value => `${value + 1}`)
+        const $b = computed($a, value => `${value + 1}`, batch)
         const listener = vi.fn()
         const off = listen($b, listener)
 
@@ -140,7 +138,7 @@ describe('stores', () => {
       it('should compute multiple values with debounce', () => {
         const $a = atom(1)
         const $b = atom(2)
-        const $c = computed(batch, [$a, $b], (a, b) => `${a + b}`)
+        const $c = computed([$a, $b], (a, b) => `${a + b}`, batch)
         const listener = vi.fn()
         const off = listen($c, listener)
 
@@ -209,7 +207,7 @@ describe('stores', () => {
         const $c = computed($b, replacer('b', 'c'))
         const $d = computed($c, replacer('c', 'd'))
         const $e = computed($d, replacer('d', 'e'))
-        const $combined = computed([$a, $e], (...args) => args.join(''))
+        const $combined = computed([$a, $e], (a, e) => `${a}${e}`)
         const unsubscribe = listen($combined, (v) => {
           values.push(v)
         })
@@ -256,7 +254,7 @@ describe('stores', () => {
         const $store2 = atom(0)
         const values: string[] = []
         const fn =
-          (name: string) => (...v: (number | string)[]) => `${name}${v.join('')}`
+          (name: string) => (...v: (number | string)[]) => `${name}${v.slice(0, v.length / 2).join('')}`
         const $a = computed($store1, fn('a'))
         const $b = computed($store2, fn('b'))
         const $c = computed([$a, $b], fn('c'))
@@ -264,8 +262,8 @@ describe('stores', () => {
         const $e = computed([$c, $d], fn('e'))
         const $f = computed($e, fn('f'))
         const $g = computed($f, fn('g'))
-        const $combined1 = computed($e, (...args) => args.join(''))
-        const $combined2 = computed([$e, $g], (...args) => args.join(''))
+        const $combined1 = computed($e, e => `${e}`)
+        const $combined2 = computed([$e, $g], (e, g) => `${e}${g}`)
         const unsubscribe1 = listen($combined1, (v) => {
           values.push(v)
         })

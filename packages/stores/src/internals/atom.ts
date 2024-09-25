@@ -1,7 +1,4 @@
-import type {
-  Store,
-  AnyStore
-} from './types/index.js'
+import type { Store } from './types/index.js'
 import { LevelSymbol } from './types/index.js'
 import {
   EventTargetSymbol,
@@ -43,17 +40,6 @@ export function atom<T>(initialValue?: T) {
   }
 
   return $atom
-}
-
-/**
- * Set the priority level of the store.
- * @param $store
- * @param level
- * @returns The store.
- */
-export function setLevel<T extends AnyStore>($store: T, level: number) {
-  $store[LevelSymbol] = level
-  return $store
 }
 
 /**

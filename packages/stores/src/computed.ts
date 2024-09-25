@@ -1,4 +1,1 @@
-export {
-  computed,
-  batch
-} from './internals/index.js'
+export { computed } from './internals/computed.js'
