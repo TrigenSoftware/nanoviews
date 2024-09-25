@@ -1,4 +1,4 @@
 export {
   atom,
   update
-} from './internals/index.js'
+} from './internals/atom.js'

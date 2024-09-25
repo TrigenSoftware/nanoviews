@@ -20,7 +20,7 @@ import {
   dispatch
 } from './internals/index.js'
 
-export * from './internals/index.js'
+export * from './internals/lifecycle.js'
 
 /**
  * Subscribe to store changes. It's like `listen` but also calls the listener immediately.

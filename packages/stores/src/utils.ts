@@ -1,7 +1,7 @@
 import type { Store } from './internals/index.js'
 import { computed } from './internals/index.js'
 
-export * from './internals/index.js'
+export * from './internals/utils.js'
 
 /**
  * Create a computed store for the length property of an object.
