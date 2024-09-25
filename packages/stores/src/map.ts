@@ -6,6 +6,7 @@ import type {
 import {
   collection,
   update,
+  accessKey,
   assignKey,
   toStore,
   atom
@@ -28,6 +29,7 @@ export function map<
 ) {
   return collection(
     toStore(source || {}, atom),
+    accessKey,
     assignKey,
     itemType
   ) as MapStore<S, I>

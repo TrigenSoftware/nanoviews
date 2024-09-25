@@ -19,6 +19,41 @@ export function toArray<T>(value: T | T[]): T[] {
 }
 
 /**
+ * Get value by key
+ * @param object
+ * @param key
+ * @returns Value
+ */
+export function accessKey<
+  T extends AnyObject,
+  K extends PropertyKey
+>(
+  object: T,
+  key: K
+) {
+  return object[key]
+}
+
+/**
+ * Set value by index
+ * @param array
+ * @param index
+ * @param value
+ * @returns Array copy with value set
+ */
+export function assignIndex<T>(
+  array: T[],
+  index: number,
+  value: T
+) {
+  const copy = array.slice()
+
+  copy[index] = value
+
+  return copy
+}
+
+/**
  * Assign key to object
  * @param object
  * @param key
@@ -26,7 +61,7 @@ export function toArray<T>(value: T | T[]): T[] {
  * @returns Object with key assigned
  */
 export function assignKey<
-  T,
+  T extends AnyObject,
   K extends PropertyKey,
   V
 >(

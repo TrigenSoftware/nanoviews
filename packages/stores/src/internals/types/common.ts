@@ -4,7 +4,7 @@ export type AnyFn = (...args: any) => any
 
 export type EmptyObject = Record<never, never>
 
-export type EmptyValue = undefined | null
+export type EmptyValue = undefined | null | void
 
 export type PickNonEmptyValue<T> = T extends EmptyValue ? never : T
 

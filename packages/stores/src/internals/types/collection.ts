@@ -24,7 +24,7 @@ export type CollectionValue<C extends AnyCollection> = C extends Collection<Prop
   : never
 
 export type AnyCollectionStore = Store<AnyCollection> & {
-  at(key: PropertyKey): AnyStore
+  at(key: PropertyKey | Store<PropertyKey>): AnyStore
 }
 
 export type CollectionStoreKey<T extends AnyCollection | Store<AnyCollection>> = CollectionKey<MaybeStoreValue<T>>
@@ -40,5 +40,5 @@ export type CollectionStore<
    * @param key
    * @returns Element store.
    */
-  at(key: CollectionStoreKey<T>): I
+  at(key: CollectionStoreKey<T> | Store<CollectionStoreKey<T>>): I
 }

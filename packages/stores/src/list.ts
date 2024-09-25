@@ -6,6 +6,8 @@ import type {
 import {
   collection,
   update,
+  accessKey,
+  assignIndex,
   toStore,
   atom
 } from './internals/index.js'
@@ -26,13 +28,8 @@ export function list<
 ) {
   return collection(
     toStore(source || [], atom),
-    (state, index, value) => {
-      const copy = (state as unknown[]).slice()
-
-      copy[index as number] = value
-
-      return copy
-    },
+    accessKey,
+    assignIndex,
     itemType
   ) as ListStore<S, I>
 }
