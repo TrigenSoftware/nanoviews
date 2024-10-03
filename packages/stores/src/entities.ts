@@ -102,7 +102,7 @@ export function entities<
 
   return {
     ...$collection,
-    set(value) {
+    set(value: T[]) {
       [indexIdMap, idIndexMap] = extractMaps(value, selectId)
       superSet(value)
     },
@@ -114,5 +114,5 @@ export function entities<
       )
     },
     byId: superAt
-  } as EntitiesStore<S, I>
+  }
 }

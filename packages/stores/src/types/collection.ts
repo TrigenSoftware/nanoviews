@@ -2,6 +2,7 @@ import type {
   Store,
   AnyList,
   AnyMap,
+  AnyObject,
   CollectionStore,
   CollectionValueStore
 } from '../internals/types/index.js'
@@ -17,7 +18,7 @@ export type MapStore<
 > = CollectionStore<T, I>
 
 export type EntitiesStore<
-  T extends AnyList | Store<AnyList>,
+  T extends AnyObject[] | Store<AnyObject[]>,
   I extends CollectionValueStore<T> = CollectionValueStore<T>
 > = CollectionStore<T, I> & {
   /**

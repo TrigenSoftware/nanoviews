@@ -32,7 +32,7 @@ export function map<
     accessKey,
     assignKey,
     itemType
-  ) as MapStore<S, I>
+  ) as unknown as MapStore<S, I>
 }
 
 /**

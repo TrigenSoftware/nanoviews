@@ -31,7 +31,7 @@ export function list<
     accessKey,
     assignIndex,
     itemType
-  ) as ListStore<S, I>
+  ) as unknown as ListStore<S, I>
 }
 
 /**
