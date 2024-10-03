@@ -254,7 +254,7 @@ describe('stores', () => {
         const $store2 = atom(0)
         const values: string[] = []
         const fn =
-          (name: string) => (...v: (number | string)[]) => `${name}${v.slice(0, v.length / 2).join('')}`
+          (name: string) => (...v: (number | string | undefined)[]) => `${name}${v.slice(0, v.length / 2).join('')}`
         const $a = computed($store1, fn('a'))
         const $b = computed($store2, fn('b'))
         const $c = computed([$a, $b], fn('c'))

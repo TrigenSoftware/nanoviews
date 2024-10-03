@@ -1,16 +1,16 @@
 import type {
   Store,
   AnyStore,
+  AnyFn,
+  AnyDependency,
   StoreValue,
   StoresValues,
+  StoresValuesOrUndefined,
   Runner
 } from './types/index.js'
 import { onMount } from './lifecycle.js'
 import { atom } from './atom.js'
 import { effect } from './effect.js'
-
-type UnknownDependency = AnyStore | AnyStore[]
-type UnknownCompute = (...values: any[]) => unknown
 
 function compareValues(values: unknown[]) {
   for (let i = 0, offset = values.length / 2; i < offset; i++) {
@@ -34,7 +34,7 @@ export function computed<
   V
 >(
   dependency: D,
-  compute: (value: StoreValue<D>) => V,
+  compute: (value: StoreValue<D>, prevValue: StoreValue<D> | undefined) => V,
   runner?: Runner
 ): Store<V>
 
@@ -50,13 +50,13 @@ export function computed<
   V
 >(
   dependencies: [...D],
-  compute: (...values: StoresValues<D>) => V,
+  compute: (...values: [...StoresValues<D>, ...StoresValuesOrUndefined<D>]) => V,
   runner?: Runner
 ): Store<V>
 
 export function computed(
-  dependency: UnknownDependency,
-  compute: UnknownCompute,
+  dependency: AnyDependency,
+  compute: AnyFn,
   runner?: Runner
 ) {
   const $computed = atom()
