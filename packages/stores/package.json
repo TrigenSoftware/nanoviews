@@ -24,7 +24,11 @@
     "node": ">=16"
   },
   "sideEffects": false,
-  "exports": "./src/index.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./internals": "./src/internals/index.ts"
+  },
   "publishConfig": {
     "exports": {
       "./package.json": "./package.json",
