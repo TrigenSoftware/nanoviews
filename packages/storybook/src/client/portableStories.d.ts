@@ -1,35 +1,40 @@
 import type {
   Args,
   ProjectAnnotations,
-  StoryAnnotationsOrFn,
-  Store_CSFExports,
-  StoriesWithPartialProps,
+  StoryAnnotations,
   ComponentAnnotations,
   ComposedStoryFn
 } from '@storybook/types'
 import type {
+  AnyProps,
   NanoviewsRenderer,
-  UniversalProps
+  UniversalProps,
+  NanoviewsStoryResult
 } from './types'
+
+type RenderFn<Props extends AnyProps> = (...args: any[]) => NanoviewsStoryResult<Props>
 
 export function setProjectAnnotations(
   projectAnnotations: ProjectAnnotations<NanoviewsRenderer> | ProjectAnnotations<NanoviewsRenderer>[]
 ): void
 
-export function composeStory<TArgs extends Args = Args>(
-  story: StoryAnnotationsOrFn<NanoviewsRenderer, TArgs>,
+export function composeStory<TArgs extends Args = Args, TStory extends { render?: RenderFn<TArgs> } & StoryAnnotations>(
+  story: TStory,
   componentAnnotations: ComponentAnnotations<NanoviewsRenderer, TArgs>,
   projectAnnotations?: ProjectAnnotations<NanoviewsRenderer>,
   exportsName?: string
 ): ComposedStoryFn<NanoviewsRenderer, UniversalProps<Partial<TArgs>>>
 
-type PortableStoriesProps<S extends Record<string, ComposedStoryFn>> = {
-  [K in keyof S]: S[K] extends ComposedStoryFn<infer TRenderer, infer TProps>
-    ? ComposedStoryFn<TRenderer, UniversalProps<TProps>>
+type StoriesWithPartialProps<TModule> = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  [K in keyof TModule as K extends 'default' ? never : TModule[K] extends StoryAnnotations<infer _, infer __> ? K : never]: TModule[K] extends { render?: RenderFn<infer TProps> }
+    ? ComposedStoryFn<NanoviewsRenderer<TProps>, Partial<UniversalProps<TProps>>>
     : never
 }
 
-export function composeStories<Module extends Store_CSFExports<NanoviewsRenderer, any>>(
+export function composeStories<Module extends {
+  default: Omit<ComponentAnnotations<NanoviewsRenderer<any>, any>, 'decorators'>
+}>(
   csfExports: Module,
   projectAnnotations?: ProjectAnnotations<NanoviewsRenderer>
-): PortableStoriesProps<Omit<StoriesWithPartialProps<NanoviewsRenderer, Module>, keyof Store_CSFExports>>
+): StoriesWithPartialProps<Module>

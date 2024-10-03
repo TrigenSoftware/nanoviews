@@ -1,4 +1,7 @@
-import { atom } from 'nanostores'
+import {
+  isStore,
+  atom
+} from '@nanoviews/stores'
 
 export function render(args, context) {
   const { id, component } = context
@@ -10,54 +13,48 @@ export function render(args, context) {
   return [component, args]
 }
 
-function isAtom(value) {
-  return value
-    && typeof value.listen === 'function'
-    && typeof value.get === 'function'
-    && typeof value.set === 'function'
-}
-
-function propsToAtoms(props) {
+function propsToStores(props, argTypes) {
   const entries = Object.entries(props).map(
     ([key, value]) => [
       key,
-      typeof value === 'function' || isAtom(value)
+      typeof value === 'function' || isStore(value)
         ? value
-        : atom(value)
+        : argTypes[key]?.$store?.(value) || atom(value)
     ]
   )
 
   return Object.fromEntries(entries)
 }
 
-const atomsByDomElement = new Map()
+const storesByDomElement = new Map()
 
-function updateAtoms(canvasElement, props) {
-  const reactiveProps = atomsByDomElement.get(canvasElement)
+function updateProps(canvasElement, props, argTypes) {
+  const reactiveProps = storesByDomElement.get(canvasElement)
 
   if (reactiveProps) {
     Object.entries(props).forEach(([key, value]) => {
-      const atom = reactiveProps[key]
+      const store = reactiveProps[key]
 
-      if (atom && typeof atom !== 'function' && !isAtom(value)) {
-        atom.set(value)
+      if (store && typeof store !== 'function' && !isStore(value)) {
+        store.set(value)
       }
     })
 
     return reactiveProps
   }
 
-  const newReactiveProps = propsToAtoms(props)
+  const newReactiveProps = propsToStores(props, argTypes)
 
-  atomsByDomElement.set(canvasElement, newReactiveProps)
+  storesByDomElement.set(canvasElement, newReactiveProps)
+
   return newReactiveProps
 }
 
 const blocksByDomElement = new Map()
 
-export function renderToCanvas({ storyFn, showMain, forceRemount }, canvasElement) {
+export function renderToCanvas({ storyFn, showMain, forceRemount, storyContext: { argTypes } }, canvasElement) {
   const [component, props] = storyFn()
-  const reactiveProps = updateAtoms(canvasElement, props)
+  const reactiveProps = updateProps(canvasElement, props, argTypes)
   let block = blocksByDomElement.get(canvasElement)
 
   if (forceRemount && block) {
@@ -78,6 +75,6 @@ export function renderToCanvas({ storyFn, showMain, forceRemount }, canvasElemen
   return () => {
     block?.d()
     blocksByDomElement.delete(canvasElement)
-    atomsByDomElement.delete(canvasElement)
+    storesByDomElement.delete(canvasElement)
   }
 }

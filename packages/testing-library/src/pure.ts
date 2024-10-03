@@ -12,6 +12,7 @@ interface Block {
   m(target: Node, anchor?: Node | null): Node | null
   e(): void
   d(): void
+  n(): Node | null
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

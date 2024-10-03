@@ -14,7 +14,5 @@ export function composeStory(story, componentAnnotations, projectAnnotations, ex
 }
 
 export function composeStories(csfExports, projectAnnotations) {
-  const composedStories = originalComposeStories(csfExports, projectAnnotations, composeStory)
-
-  return composedStories
+  return originalComposeStories(csfExports, projectAnnotations, composeStory)
 }
