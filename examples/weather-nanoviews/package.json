@@ -1,0 +1,19 @@
+{
+  "name": "weather-nanoviews",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@nanoviews/stores": "file:../../packages/stores/package",
+    "nanoviews": "file:../../packages/nanoviews/package"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "vite": "^5.2.7"
+  }
+}

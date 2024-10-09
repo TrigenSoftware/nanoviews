@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
 
 export default defineConfig({
   build: {
@@ -22,7 +23,7 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     setupFiles: ['./test/setup.ts'],
-    exclude: ['./package'],
+    exclude: [...configDefaults.exclude, './package'],
     coverage: {
       reporter: ['lcovonly', 'text'],
       include: ['src/**/*', '!**/*.stories.ts']

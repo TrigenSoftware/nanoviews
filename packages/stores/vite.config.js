@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
 
 export default defineConfig({
   build: {
@@ -17,7 +18,7 @@ export default defineConfig({
     emptyOutDir: false
   },
   test: {
-    exclude: ['./package'],
+    exclude: [...configDefaults.exclude, './package'],
     coverage: {
       reporter: ['lcovonly', 'text'],
       include: ['src/**/*']
