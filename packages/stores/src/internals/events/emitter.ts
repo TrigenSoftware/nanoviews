@@ -40,11 +40,11 @@ export function on(
     return wasLastListener
   }
 
+  handlers.push(handler, level)
+
   if (isFirstListener && onFirstListener) {
     onFirstListener()
   }
-
-  handlers.push(handler, level)
 
   return off
 }

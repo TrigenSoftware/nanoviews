@@ -87,6 +87,21 @@ describe('stores', () => {
 
           off1()
         })
+
+        it('should call listener while set value in onStart', () => {
+          const $atom = atom(1)
+          const listener = vi.fn()
+
+          onStart($atom, () => {
+            $atom.set(2)
+          })
+
+          const off1 = listen($atom, listener)
+
+          expect(listener).toHaveBeenCalledWith(2, 1, {})
+
+          off1()
+        })
       })
 
       describe('onStop', () => {
@@ -179,6 +194,21 @@ describe('stores', () => {
 
           expect(mount).toHaveBeenCalledTimes(2)
           expect(unmount).toHaveBeenCalledTimes(2)
+        })
+
+        it('should call listener while set value in onMount', () => {
+          const $atom = atom(1)
+          const listener = vi.fn()
+
+          onMount($atom, () => {
+            $atom.set(2)
+          })
+
+          const off1 = listen($atom, listener)
+
+          expect(listener).toHaveBeenCalledWith(2, 1, {})
+
+          off1()
         })
       })
     })
