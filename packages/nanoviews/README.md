@@ -34,7 +34,7 @@ A small Direct DOM library for creating user interfaces.
 - **TypeScript**-first.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { div, a, img, h1, button, p, render } from 'nanoviews'
 
 function App() {
@@ -92,7 +92,7 @@ yarn add -D nanoviews
 Nanoviews is designed to be used with [Nano Stores](https://github.com/nanostores/nanostores) for reactivity. But Nano Stores is not a direct dependency of Nanoviews, so you can use any other reactive library that implements [store interface](./src/internals/types/common.ts#L29).
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { fragment, input, p } from 'nanoviews'
 
 const $text = atom('')
@@ -114,7 +114,7 @@ Nanoviews provides a set of methods for creating HTML elements with the specifie
 Child can be an another element, primitive value (string, number, boolean, `null` or `undefined`), store with primitive or array of children. Attributes also can be a primitive value or store.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { ul, li } from 'nanoviews'
 
 const $boolean = atom(true)
@@ -133,7 +133,7 @@ ul({ class: 'list' })(
 `text$` is a method that creates text node block with the specified value or store.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { text$, effect$ } from 'nanoviews'
 
 function TickTak() {
@@ -158,7 +158,7 @@ function TickTak() {
 `fragment` is a method that creates a fragment block with the specified children.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { fragment, effect$ } from 'nanoviews'
 
 function TickTak() {
@@ -217,7 +217,7 @@ Effect attributes are special attributes that can control element's behavior.
 `ref$` is an effect attribute that can provide a reference to the DOM node.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { div, ref$ } from 'nanoviews'
 
 const $ref = atom(null)
@@ -234,7 +234,7 @@ div({
 `style$` is an effect attribute that manages the style of the element.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { button, style$ } from 'nanoviews'
 
 const $color = atom('white')
@@ -286,7 +286,7 @@ input({
 `value$` is an effect attribute that manages the value of text inputs.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { textarea, value$ } from 'nanoviews'
 
 const $review = atom('')
@@ -304,7 +304,7 @@ textarea({
 `checked$` is an effect attribute that manages the checked state of checkboxes and radio buttons.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { input, checked$, Indeterminate } from 'nanoviews'
 
 const $checked = atom(false)
@@ -326,7 +326,7 @@ $checked.set(Indeterminate)
 `selected$` is an effect attribute that manages the selected state of select's options.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { select, option, selected$ } from 'nanoviews'
 
 const $selected = atom('mid')
@@ -385,7 +385,7 @@ select({
 `files$` is an effect attribute that can provide the files of file inputs.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { input, files$ } from 'nanoviews'
 
 const $files = atom([])
@@ -412,7 +412,7 @@ function App() {
     return () => {
       console.log('Unmounted')
     }
-}
+  }
 
   return effect$(
     effect, // or array of effects
@@ -426,7 +426,7 @@ function App() {
 `decide$` is a method that can switch between different childs.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { decide$, div, p } from 'nanoviews'
 
 const $show = atom(false)
@@ -449,7 +449,7 @@ decide$($toggle, toggle => (
 `for$` is a method that can iterate over an array to render a list of blocks.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { for$, ul, li } from 'nanoviews'
 
 const $players = atom([
@@ -552,7 +552,7 @@ List([
 `context$` is a method that can provide a context to the children.
 
 ```js
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { div, context$, createContext } from 'nanoviews'
 
 const [ThemeContext, getTheme] = createContext(atom('light')) // default value
@@ -588,55 +588,6 @@ import { div, portal$ } from 'nanoviews'
 portal$(
   document.body,
   div()('I am in the body!')
-)
-```
-
-### await$
-
-`await$` is a method that can handle and render promises.
-
-```js
-import { atom } from 'nanostores'
-import { i, b, await$, pending$, then$, catch$ } from 'nanoviews'
-
-const $promise = atom(Promise.resolve('Hello, Nanoviews!'))
-
-await$($promise)(
-  pending$(() => i()('Loading...')),
-  then$((value) => b()(value)),
-  catch$((error) => String(error))
-)
-```
-
-### forAwait$
-
-`forAwait$` is a method that can handle and render async iterables.
-
-```js
-import { ul, li, forAwait$, pending$, each$, then$, catch$ } from 'nanoviews'
-
-ul()(
-  forAwait$(fetchProducts())(
-    pending$(() => li()('Loading...')),
-    each$((product) => ProductView(product)),
-    then$((count) => li()('Loaded products count: ', count)),
-    catch$((error) => li()('Error: ', error))
-  )
-)
-```
-
-Also you can render list in reversed order:
-
-```js
-import { main, div, forAwait$, pending$, each$, then$, catch$ } from 'nanoviews'
-
-main()(
-  forAwait$(fetchNewsFeed(), true)(
-    pending$(() => div()('Loading...')),
-    each$((product) => PostView(product)),
-    then$((count) => div()('Loaded products count: ', count)),
-    catch$((error) => div()('Error: ', error))
-  )
 )
 ```
 

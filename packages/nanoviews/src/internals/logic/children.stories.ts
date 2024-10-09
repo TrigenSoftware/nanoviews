@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
+import type { Child } from '../types/index.js'
 import { createElement } from '../elements/index.js'
 import {
   createSlot,
@@ -47,44 +48,56 @@ export const Children: Story = {
   )
 }
 
-const testSlot = createSlot<string>()
+const testSlot = createSlot<string, 'test'>()
 
 export const NoSlot: Story = {
   render: nanoStory(
     () => getChildren(
-      getSlots(
-        [testSlot],
-        (testSlot, children) => createElement('div')('Children: ', children, testSlot)
-      )
+      (children) => {
+        const [testChild, restChildren] = getSlots([testSlot], children)
+
+        return createElement('div')('Children: ', restChildren, testChild)
+      }
     )('Hello!')
   )
 }
 
+type SlotStoryChildren = (Child | ReturnType<typeof testSlot>)[]
+
 export const Slot: Story = {
   render: nanoStory(
-    () => getChildren(
-      getSlots(
-        [testSlot],
-        (testSlot, children) => createElement('div')('Children: ', children, testSlot)
-      )
+    () => getChildren<HTMLDivElement, SlotStoryChildren>(
+      (children) => {
+        const [testChild, restChildren] = getSlots([testSlot], children)
+
+        return createElement('div')('Children: ', restChildren, testChild)
+      }
     )('Hello! ', testSlot('World!'))
   )
 }
 
-const preSlot = createSlot<string>()
-const postSlot = createSlot<string>()
+const preSlot = createSlot<string, 'pre'>()
+const postSlot = createSlot<string, 'post'>()
+
+type SlotsStoryChildren = (Child | ReturnType<typeof preSlot> | ReturnType<typeof postSlot> | ReturnType<typeof testSlot>)[]
 
 export const Slots: Story = {
   render: nanoStory(
-    () => getChildren(
-      getSlots(
-        [
+    () => getChildren<HTMLDivElement, SlotsStoryChildren>(
+      (children) => {
+        const [
+          preChild,
+          postChild,
+          testChild,
+          restChildren
+        ] = getSlots([
           preSlot,
           postSlot,
           testSlot
-        ],
-        (preSlot, postSlot, testSlot, children) => createElement('div')(preSlot, children, testSlot, postSlot)
-      )
+        ], children)
+
+        return createElement('div')(preChild, restChildren, testChild, postChild)
+      }
     )(
       'World! ',
       postSlot('From Slot!'),

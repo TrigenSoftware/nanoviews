@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import * as Stories from './innerHtml.stories.js'
 
 const {

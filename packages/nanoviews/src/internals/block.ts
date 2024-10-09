@@ -52,6 +52,7 @@ export function createBlock<TNode extends Node>(
       destroy()
       destroyEffect = null
       node = null
+      block.k = null
     },
     n: getNode || (() => node)
   }

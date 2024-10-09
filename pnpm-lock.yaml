@@ -56,6 +56,9 @@ importers:
 
   packages/nanoviews:
     devDependencies:
+      '@nanoviews/stores':
+        specifier: workspace:^
+        version: link:../stores
       '@nanoviews/storybook':
         specifier: workspace:^
         version: link:../storybook
@@ -92,9 +95,6 @@ importers:
       happy-dom:
         specifier: ^15.0.0
         version: 15.7.3
-      nanostores:
-        specifier: 0.11.3
-        version: 0.11.3
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -142,6 +142,9 @@ importers:
 
   packages/storybook:
     dependencies:
+      '@nanoviews/stores':
+        specifier: workspace:^
+        version: link:../stores
       '@storybook/global':
         specifier: ^5.0.0
         version: 5.0.0
@@ -151,9 +154,6 @@ importers:
       '@storybook/types':
         specifier: ^7.6.17
         version: 7.6.17
-      nanostores:
-        specifier: 0.11.3
-        version: 0.11.3
       type-fest:
         specifier: ^4.12.0
         version: 4.12.0
@@ -4457,10 +4457,6 @@ packages:
 
   nanospinner@1.1.0:
     resolution: {integrity: sha512-yFvNYMig4AthKYfHFl1sLj7B2nkHL4lzdig4osvl9/LdGbXwrdFRoqBS98gsEsOakr0yH+r5NZ/1Y9gdVB8trA==}
-
-  nanostores@0.11.3:
-    resolution: {integrity: sha512-TUes3xKIX33re4QzdxwZ6tdbodjmn3tWXCEc1uokiEmo14sI1EaGYNs2k3bU2pyyGNmBqFGAVl6jAGWd06AVIg==}
-    engines: {node: ^18.0.0 || >=20.0.0}
 
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
@@ -10927,8 +10923,6 @@ snapshots:
   nanospinner@1.1.0:
     dependencies:
       picocolors: 1.0.0
-
-  nanostores@0.11.3: {}
 
   natural-compare@1.4.0: {}
 

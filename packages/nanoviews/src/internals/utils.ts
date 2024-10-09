@@ -1,6 +1,4 @@
 import type {
-  AnyFn,
-  Store,
   EmptyValue,
   NonEmptyValue,
   NestedMaybeEmptyItem,
@@ -9,30 +7,14 @@ import type {
   StrictEffect
 } from './types/index.js'
 
-export const { isArray } = Array
-
-export const isReadonlyArray = isArray as unknown as (array: unknown) => array is readonly unknown[]
-
-export function isFunction(value: unknown): value is AnyFn {
-  return typeof value === 'function'
-}
+export {
+  isFunction,
+  toArray,
+  noop
+} from '@nanoviews/stores'
 
 export function isString(value: unknown): value is string {
   return typeof value === 'string'
-}
-
-/**
- * Check if value is a store
- * @param value - Value to check
- * @returns True if value is a store
- */
-export function isStore(value: unknown): value is Store {
-  return (
-    !!value
-    && isFunction((value as Store).listen)
-    && isFunction((value as Store).get)
-    && isFunction((value as Store).set)
-  )
 }
 
 /**
@@ -55,7 +37,7 @@ export function mapFlatNotEmpty<T, R>(
   callback: (item: T) => R
 ): NonEmptyValue<R>[] {
   return items.reduce<NonEmptyValue<R>[]>((results, item) => {
-    if (isArray(item)) {
+    if (Array.isArray(item)) {
       results.push(...mapFlatNotEmpty(item, callback))
     } else if (!isEmpty(item)) {
       const result = callback(item)
@@ -90,18 +72,3 @@ export function composeEffects<T>(
     }
   }
 }
-
-/**
- * Convert value to array
- * @param value - Value to convert
- * @returns Array value
- */
-export function toArray<T>(value: T | T[]): T[] {
-  return isArray(value) ? value : [value]
-}
-
-/**
- * No operation function
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-export const noop = () => {}

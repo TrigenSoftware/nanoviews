@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
 import { div } from './elements.js'
-import { attachShadow } from './shadowDom.js'
+import { shadow } from './shadowDom.js'
 
 const meta: Meta = {
   title: 'Elements/Shadow DOM'
@@ -12,7 +12,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  render: nanoStory(() => attachShadow(
+  render: nanoStory(() => shadow(
     div({
       'data-testid': 'shadow-root'
     }),

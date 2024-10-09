@@ -13,8 +13,7 @@ import type {
   AnySlotDef,
   MapSlotDefsToContents,
   MapSlotDefsToSlot,
-  Renderer,
-  RendererWithSlots
+  Renderer
 } from '../types/index.js'
 
 const isSlotSymbol = Symbol()
@@ -63,43 +62,41 @@ export function createSlot() {
 /**
  * Get defined slots from children
  * @param slotDefs - Slot definitions
- * @param render - Function to render block with given slots and children
- * @returns Function that accepts children
+ * @param children - Input children with possible slots
+ * @returns Slots and rest children
  */
 export function getSlots<
   D extends AnySlotDef[],
-  TNode extends Node
+  C extends unknown[] = Children
 >(
   slotDefs: [...D],
-  render: RendererWithSlots<D, TNode>
-): Renderer<TNode, ChildrenWithSlots<MapSlotDefsToSlot<D>>> {
-  return (children) => {
-    const slots = Array(slotDefs.length) as unknown[]
-    const restChildren: Children = []
+  children: ChildrenWithSlots<MapSlotDefsToSlot<D>, C> | undefined
+): [...MapSlotDefsToContents<D>, C | undefined] {
+  const slots = Array(slotDefs.length) as unknown[]
+  const restChildren: unknown[] = []
 
-    children?.forEach((child) => {
-      if (isSlot(child)) {
-        let content: unknown
-        const slotIndex = slotDefs.findIndex((slot) => {
-          content = child[slot.i]
+  children?.forEach((child) => {
+    if (isSlot(child)) {
+      let content: unknown
+      const slotIndex = slotDefs.findIndex((slot) => {
+        content = child[slot.i]
 
-          return content
-        })
+        return content
+      })
 
-        if (slotIndex > -1) {
-          slots[slotIndex] = content
-        } else if (import.meta.env.DEV) {
-          throw new Error('Unexpected slot')
-        }
-
-        return
+      if (slotIndex > -1) {
+        slots[slotIndex] = content
+      } else if (import.meta.env.DEV) {
+        throw new Error('Unexpected slot')
       }
 
-      restChildren.push(child)
-    })
+      return
+    }
 
-    return render(...(slots as MapSlotDefsToContents<D>), restChildren)
-  }
+    restChildren.push(child)
+  })
+
+  return [...(slots as MapSlotDefsToContents<D>), restChildren as C]
 }
 
 /**

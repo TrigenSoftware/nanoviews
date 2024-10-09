@@ -1,8 +1,6 @@
+import { isStore } from '@nanoviews/stores'
 import type { ValueOrStore } from '../internals/index.js'
-import {
-  isStore,
-  createEffectAttribute
-} from '../internals/index.js'
+import { createEffectAttribute } from '../internals/index.js'
 
 /**
  * Effect attribute to set auto focus on element

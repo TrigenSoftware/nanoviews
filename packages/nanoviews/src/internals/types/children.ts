@@ -10,7 +10,11 @@ export type Child = PrimitiveChild | Child[]
 
 export type Children = Child[]
 
-export type ChildrenWithSlots<S extends AnySlot> = (Child | S)[]
+export type NoChildren = [] | undefined
+
+export type ChildrenWithSlots<S extends AnySlot, C extends unknown[] = Children> = C extends (infer D)[]
+  ? (D | S)[]
+  : never
 
 export type SlotId = string | symbol
 
@@ -24,11 +28,9 @@ export interface SlotDef<C, I extends SlotId = SlotId> {
 }
 
 // It's impossible to define a type that extends Slot<unknown>
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnySlot = Slot<any>
 
 // It's impossible to define a type that extends SlotDef<unknown>
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnySlotDef = SlotDef<any>
 
 export type MapSlotDefsToContents<D extends unknown[]> = D extends [infer F, ...infer R]
@@ -46,11 +48,6 @@ export type Renderer<
   T extends Node,
   C extends unknown[] = Children
 > = (children: C | undefined) => Block<T>
-
-export type RendererWithSlots<
-  D extends AnySlotDef[],
-  TNode extends Node
-> = (...children: [...MapSlotDefsToContents<D>, Children | undefined]) => Block<TNode>
 
 export type ChildrenBlock<
   T extends Node,

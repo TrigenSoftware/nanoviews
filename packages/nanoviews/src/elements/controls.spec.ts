@@ -10,7 +10,7 @@ import {
   fireEvent
 } from '@nanoviews/testing-library'
 import { userEvent } from '@testing-library/user-event'
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import * as Stories from './controls.stories.js'
 
 const {

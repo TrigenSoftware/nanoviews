@@ -1,5 +1,12 @@
-import type { ValueOrStore, Primitive } from '../types/index.js'
-import { isStore, isEmpty } from '../utils.js'
+import {
+  isStore,
+  listen
+} from '@nanoviews/stores'
+import type {
+  ValueOrStore,
+  Primitive
+} from '../types/index.js'
+import { isEmpty } from '../utils.js'
 import { createBlockFromNode } from '../block.js'
 import { addEffects } from '../logic/index.js'
 
@@ -18,7 +25,7 @@ export function createText<T extends Primitive>($value: ValueOrStore<T>) {
 
   if (isStore($value)) {
     create = () => document.createTextNode(getText($value.get()))
-    effect = (node: Text) => $value.listen((value) => {
+    effect = (node: Text) => listen($value, (value) => {
       node.data = getText(value)
     })
   } else {

@@ -1,7 +1,17 @@
-/**
- * Empty value type
- */
-export type EmptyValue = undefined | null | void
+import type {
+  AnyFn,
+  AnyObject,
+  Store,
+  EmptyValue
+} from '@nanoviews/stores'
+
+export type {
+  AnyFn,
+  AnyObject,
+  EmptyValue
+}
+
+export type FalsyValue = EmptyValue | false | '' | 0
 
 export type NestedMaybeEmptyItem<T> = T | EmptyValue | NestedMaybeEmptyItem<T>[]
 
@@ -12,26 +22,6 @@ export type Primitive = string | number | boolean | EmptyValue
  */
 export type NonEmptyValue<T> = T extends EmptyValue ? never : T
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyFn = (...args: any) => any
-
-export type ReadonlyIfObject<Value> = Value extends Primitive
-  ? Value
-  : Value extends AnyFn
-    ? Value
-    : Value extends object
-      ? Readonly<Value>
-      : Value
-
-/**
- * Store interface
- */
-export interface Store<T = unknown> {
-  get(): T
-  set(value: T): void
-  listen(callback: (value: ReadonlyIfObject<T>, prevValue: ReadonlyIfObject<T> | undefined) => void): () => void
-}
-
 export type ValueOrStore<T> = T | Store<T>
 
 export type StoresObject<T> = {
@@ -39,3 +29,33 @@ export type StoresObject<T> = {
     ? T[K]
     : ValueOrStore<T[K]>
 }
+
+export type TruthyStore<T> = T extends Store<infer U>
+  ? U extends FalsyValue
+    ? never
+    : T
+  : never
+
+export type TruthyValueOrStore<T> = T extends Store<infer U>
+  ? U extends FalsyValue
+    ? never
+    : T
+  : T extends FalsyValue
+    ? never
+    : T
+
+export type FalsyStore<T> = T extends Store<infer U>
+  ? U extends FalsyValue
+    ? T
+    : never
+  : never
+
+export type FalsyValueOrStore<T> = T extends Store<infer U>
+  ? U extends FalsyValue
+    ? T
+    : never
+  : T extends FalsyValue
+    ? T
+    : never
+
+export type IsReadonlyArray = (array: unknown) => array is readonly unknown[]

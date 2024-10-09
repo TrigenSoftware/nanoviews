@@ -1,5 +1,11 @@
-import type { Context, ContextLayer } from '../types/index.js'
-import { isArray, toArray, noop } from '../utils.js'
+import type {
+  Context,
+  ContextLayer
+} from '../types/index.js'
+import {
+  toArray,
+  noop
+} from '../utils.js'
 
 const contextStack: ContextLayer[] = []
 
@@ -76,7 +82,7 @@ function setDiftsContainer(
  * @returns Rendered value
  */
 export function provideContext<R>(context: Context | Context[] | ContextLayer | undefined, render: () => R) {
-  if (!context || isArray(context) && !context.length) {
+  if (!context || Array.isArray(context) && !context.length) {
     return render()
   }
 

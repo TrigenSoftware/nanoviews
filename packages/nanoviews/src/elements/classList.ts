@@ -1,14 +1,17 @@
+import type { Store } from '@nanoviews/stores'
+import {
+  isStore,
+  listen
+} from '@nanoviews/stores'
 import type {
-  Store,
   ValueOrStore,
   EmptyValue,
   StrictEffect,
-  Destroy
+  Destroy,
+  IsReadonlyArray
 } from '../internals/index.js'
 import {
   isString,
-  isReadonlyArray,
-  isStore,
   composeEffects,
   noop,
   isFunction,
@@ -60,7 +63,7 @@ function createDynamicEffect<T>(
     destroy = effect!()
     effect = null
 
-    let unsubscribe: Destroy | null = $store.listen((value) => {
+    let unsubscribe: Destroy | null = listen($store, (value) => {
       destroy?.()
       destroy = createEffect(value)()
     })
@@ -88,7 +91,7 @@ function createClassListEffect(
     return $classList(classList => createClassListEffect(domClassList, classList))
   }
 
-  if (isReadonlyArray($classList)) {
+  if ((Array.isArray as IsReadonlyArray)($classList)) {
     return composeClassListEffects(domClassList, $classList)
   }
 
@@ -101,8 +104,8 @@ function createClassListEffect(
 }
 
 export function classIf$(
-  classList: ClassList,
-  $condition: ValueOrStore<boolean | EmptyValue>
+  $condition: ValueOrStore<boolean | EmptyValue>,
+  classList: ClassList
 ): ClassList {
   if (isStore($condition)) {
     return set => createDynamicEffect($condition, condition => set(condition && classList))
@@ -111,9 +114,9 @@ export function classIf$(
   return $condition && classList
 }
 
-export function classGet$(
-  classMap: Record<string, string>,
-  $key: ValueOrStore<string | EmptyValue>
+export function classSwitch$<T extends Record<string, string>>(
+  $key: ValueOrStore<keyof T | EmptyValue>,
+  classMap: T
 ): ClassList {
   if (isStore($key)) {
     return set => createDynamicEffect($key, key => set(classMap[key!]))

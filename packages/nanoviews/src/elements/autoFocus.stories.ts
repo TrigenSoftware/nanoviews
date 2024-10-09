@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { textarea } from './elements.js'
 import { autoFocus$ } from './autoFocus.js'
 

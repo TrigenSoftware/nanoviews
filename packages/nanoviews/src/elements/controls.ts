@@ -1,5 +1,9 @@
 /* eslint-disable jsdoc/require-param */
 /* eslint-disable jsdoc/require-returns */
+import {
+  isStore,
+  listen
+} from '@nanoviews/stores'
 import type {
   ValueOrStore,
   EmptyValue,
@@ -16,10 +20,7 @@ import {
   selectedProperty,
   onChangeEvent,
   onInputEvent,
-  isStore,
   isEmpty,
-  isReadonlyArray,
-  isArray,
   noop,
   createEffectAttribute,
   effectAttributeValidate
@@ -81,7 +82,8 @@ function createElementPropertySetter<E extends Element, V>(
           mount(control, value)
           control.addEventListener(eventName, eventListener)
 
-          let destroy: Destroy | null = $value.listen(
+          let destroy: Destroy | null = listen(
+            $value,
             value => update(control, value)
           )
 
@@ -172,7 +174,7 @@ function setSelected(
   values: SelectedPrimitive
 ) {
   const options = control[optionsProperty]
-  const test = isReadonlyArray(values)
+  const test = Array.isArray(values)
     ? (v: string) => values.includes(v)
     : (v: string) => values === v
 
@@ -206,7 +208,7 @@ export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected', Combo
   createElementPropertySetter(
     onChangeEvent,
     (control: ComboboxElement, value: SelectedPrimitive) => {
-      control.multiple = isArray(value)
+      control.multiple = Array.isArray(value)
     },
     setSelected,
     setSelected,

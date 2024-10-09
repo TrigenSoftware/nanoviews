@@ -1,11 +1,12 @@
+import {
+  isStore,
+  listen
+} from '@nanoviews/stores'
 import type {
   ValueOrStore,
   ChildrenBlock
 } from '../internals/index.js'
-import {
-  isStore,
-  addEffects
-} from '../internals/index.js'
+import { addEffects } from '../internals/index.js'
 
 /**
  * Dangerously set inner HTML to element block
@@ -31,7 +32,7 @@ export function dangerouslySetInnerHtml<
   }
 
   if (isHtmlStore) {
-    addEffects(element => $html.listen((value) => {
+    addEffects(element => listen($html, (value) => {
       element.innerHTML = value
     }), sealedBlock)
   }

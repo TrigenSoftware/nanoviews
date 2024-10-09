@@ -4,14 +4,14 @@ import { div } from './elements.js'
 import {
   classList$,
   classIf$,
-  classGet$
+  classSwitch$
 } from './classList.js'
 
 const meta: Meta<{
   className?: string
   classList?: string[]
   enabled?: boolean
-  theme?: string
+  theme?: 'primary' | 'secondary'
 }> = {
   title: 'Elements/Effect Attributes/Class List'
 }
@@ -91,11 +91,11 @@ export const ClassIf: Story = {
     enabled: true
   },
   render: nanoStory(({ className, enabled }) => div({
-    [classList$]: classIf$(className, enabled)
+    [classList$]: classIf$(enabled, className)
   })('Hello, world!'))
 }
 
-export const ClassGet: Story = {
+export const ClassSwitch: Story = {
   argTypes: {
     theme: {
       control: 'radio',
@@ -106,9 +106,9 @@ export const ClassGet: Story = {
     theme: 'primary'
   },
   render: nanoStory(({ theme }) => div({
-    [classList$]: classGet$({
+    [classList$]: classSwitch$(theme, {
       primary: 'theme-primary',
       secondary: 'theme-secondary'
-    }, theme)
+    })
   })('Hello, world!'))
 }

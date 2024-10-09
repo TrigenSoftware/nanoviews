@@ -13,6 +13,8 @@
   },
   "ignorePatterns": [
     "packages/*/dist/**/*",
-    "packages/*/package/**/*"
+    "packages/*/package/**/*",
+    "examples/*/dist/**/*",
+    "vite-env.d.ts"
   ]
 }

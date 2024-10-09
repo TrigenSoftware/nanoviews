@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { fn } from '@storybook/test'
 import { nanoStory } from '@nanoviews/storybook'
+import { listen } from '@nanoviews/stores'
 import {
   input,
   textarea,
@@ -36,7 +37,7 @@ export const TextInput: Story = {
   },
   render: nanoStory(({ onChange, value }) => {
     if (onChange && value) {
-      value.listen(onChange)
+      listen(value, onChange)
     }
 
     return input({
@@ -53,7 +54,7 @@ export const Textarea: Story = {
   },
   render: nanoStory(({ onChange, value }) => {
     if (onChange && value) {
-      value.listen(onChange)
+      listen(value, onChange)
     }
 
     return textarea({
@@ -79,7 +80,7 @@ export const Select: Story = {
   },
   render: nanoStory(({ onChange, value }) => {
     if (onChange && value) {
-      value.listen(onChange)
+      listen(value, onChange)
     }
 
     return select({
@@ -115,7 +116,7 @@ export const MultipleSelect: Story = {
   },
   render: nanoStory(({ onChange, values }) => {
     if (onChange && values) {
-      values.listen(onChange)
+      listen(values, onChange)
     }
 
     return select({
@@ -151,7 +152,7 @@ export const Checkbox: Story = {
   },
   render: nanoStory(({ onChange, checked }) => {
     if (onChange && checked) {
-      checked.listen(onChange)
+      listen(checked, onChange)
     }
 
     return input({
@@ -168,7 +169,7 @@ export const Files: Story = {
   },
   render: nanoStory(({ onChange, files }) => {
     if (onChange && files) {
-      files.listen(onChange)
+      listen(files, onChange)
     }
 
     return input({

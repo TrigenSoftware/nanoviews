@@ -12,6 +12,9 @@ export default defineConfig({
         return `${entryName}.${process.env.NODE_ENV}.js`
       }
     },
+    rollupOptions: {
+      external: ['@nanoviews/stores']
+    },
     sourcemap: true,
     minify: false,
     emptyOutDir: false
@@ -19,6 +22,7 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     setupFiles: ['./test/setup.ts'],
+    exclude: ['./package'],
     coverage: {
       reporter: ['lcovonly', 'text'],
       include: ['src/**/*', '!**/*.stories.ts']

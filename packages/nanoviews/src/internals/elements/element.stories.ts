@@ -6,7 +6,7 @@ import { createElement } from './element.js'
 
 const meta: Meta<{
   text: string
-  href: string
+  href: string | undefined
   onClick: MouseEventHandler
 }> = {
   title: 'Internals/Elements/Element'

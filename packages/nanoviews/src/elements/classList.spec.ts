@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import * as Stories from './classList.stories.js'
 
 const {
@@ -17,7 +17,7 @@ const {
   NestedStrings,
   EmptyValues,
   ClassIf,
-  ClassGet
+  ClassSwitch
 } = composeStories(Stories)
 
 describe('nanoviews', () => {
@@ -128,9 +128,9 @@ describe('nanoviews', () => {
         expect(container.innerHTML).toBe('<div><div class="">Hello, world!</div></div>')
       })
 
-      it('should handle classGet$ utility', () => {
-        const theme = atom('primary')
-        const { container } = render(ClassGet({
+      it('should handle classSwitch$ utility', () => {
+        const theme = atom<'primary' | 'secondary'>('primary')
+        const { container } = render(ClassSwitch({
           theme
         }))
 

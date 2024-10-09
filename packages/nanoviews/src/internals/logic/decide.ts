@@ -1,14 +1,13 @@
+import {
+  isStore,
+  listen
+} from '@nanoviews/stores'
 import type {
   ValueOrStore,
   PrimitiveChild
-} from '../internals/index.js'
-import {
-  isStore,
-  createSwapper,
-  childToBlock
-} from '../internals/index.js'
-
-export type Decider<T, R> = (value: T, prevValue?: T | undefined) => R
+} from '../types/index.js'
+import { childToBlock } from '../elements/child.js'
+import { createSwapper } from './swap.js'
 
 /**
  * Dinamicly decide which child to render based on condition
@@ -16,15 +15,16 @@ export type Decider<T, R> = (value: T, prevValue?: T | undefined) => R
  * @param decider - Function that returns child based on condition
  * @returns Block that renders decided child
  */
-export function decide$<T, R extends PrimitiveChild>(
+export function decide<T>(
   $condition: ValueOrStore<T>,
-  decider: Decider<T, R>
+  decider: (value: T, prevValue?: T | undefined) => PrimitiveChild
 ) {
   if (isStore($condition)) {
     return createSwapper(
       decider($condition.get()),
-      swap => $condition.listen(
-        (value, prevValue) => swap(() => decider(value, prevValue))
+      swap => listen(
+        $condition,
+        (condition, prevCondition) => swap(() => decider(condition, prevCondition))
       )
     )
   }

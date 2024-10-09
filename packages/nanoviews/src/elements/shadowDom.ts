@@ -13,7 +13,7 @@ import {
  * @param options - Shadow root options
  * @returns Block
  */
-export function attachShadow<
+export function shadow<
   T extends Element
 >(block: ChildrenBlock<T>, options: ShadowRootInit) {
   return (...children: Children) => {

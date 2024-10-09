@@ -1,3 +1,7 @@
+import {
+  isStore,
+  listen
+} from '@nanoviews/stores'
 import type {
   PrimitiveAttributeValue,
   Primitive,
@@ -7,7 +11,6 @@ import type {
 import {
   isString,
   isFunction,
-  isStore,
   isEmpty,
   composeEffects
 } from '../utils.js'
@@ -41,18 +44,19 @@ export function setProperty(
   unset: () => void,
   $value: PrimitiveAttributeValue
 ) {
-  let listen
+  let startListen
 
   if (isStore($value)) {
     setunset(set, unset, $value.get())
-    listen = () => $value.listen(
+    startListen = () => listen(
+      $value,
       value => setunset(set, unset, value)
     )
   } else {
     setunset(set, unset, $value)
   }
 
-  return listen
+  return startListen
 }
 
 function setAttribute(element: Element, name: string, $value: PrimitiveAttributeValue) {

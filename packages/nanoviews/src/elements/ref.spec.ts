@@ -4,7 +4,7 @@ import {
   expect
 } from 'vitest'
 import { render } from '@nanoviews/testing-library'
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import { button } from './elements.js'
 import { ref$ } from './ref.js'
 

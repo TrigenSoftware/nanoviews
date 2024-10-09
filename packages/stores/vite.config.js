@@ -17,6 +17,7 @@ export default defineConfig({
     emptyOutDir: false
   },
   test: {
+    exclude: ['./package'],
     coverage: {
       reporter: ['lcovonly', 'text'],
       include: ['src/**/*']

@@ -1,4 +1,4 @@
-import type { Store } from '../internals/index.js'
+import type { Store } from '@nanoviews/stores'
 import { createEffectAttribute } from '../internals/index.js'
 
 /**

@@ -10,7 +10,7 @@ import {
   screen,
   fireEvent
 } from '@nanoviews/testing-library'
-import { atom } from 'nanostores'
+import { atom } from '@nanoviews/stores'
 import * as Stories from './element.stories.js'
 import { createElement } from './element.js'
 
