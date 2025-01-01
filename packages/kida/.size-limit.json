@@ -1,0 +1,26 @@
+[
+  {
+    "name": "All publics",
+    "path": "dist/index.production.js",
+    "import": "*",
+    "limit": "2.78 kB"
+  },
+  {
+    "name": "All internals",
+    "path": "dist/internals.production.js",
+    "import": "*",
+    "limit": "2.06 kB"
+  },
+  {
+    "name": "Atom",
+    "path": "dist/index.production.js",
+    "import": "{ signal }",
+    "limit": "368 B"
+  },
+  {
+    "name": "Popular set",
+    "path": "dist/index.production.js",
+    "import": "{ signal, record, computed, effect, channel }",
+    "limit": "1.28 kB"
+  }
+]

@@ -1,0 +1,84 @@
+{
+  "name": "kida",
+  "type": "module",
+  "version": "1.0.0-alpha.1",
+  "description": "A small state management library inspired by Nano Stores.",
+  "author": "dangreen",
+  "license": "MIT",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nanoviews.git",
+    "directory": "packages/kida"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
+  },
+  "keywords": [
+    "store",
+    "state",
+    "state manager",
+    "atom",
+    "signal",
+    "nanoviews"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./internals": "./src/internals/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "node": "./dist/index.development.js",
+        "development": "./dist/index.development.js",
+        "production": "./dist/index.production.js",
+        "default": "./dist/index.production.js"
+      },
+      "./internals": {
+        "types": "./dist/internals/index.d.ts",
+        "node": "./dist/internals.development.js",
+        "development": "./dist/internals.development.js",
+        "production": "./dist/internals.production.js",
+        "default": "./dist/internals.production.js"
+      }
+    },
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear:dist": "del ./dist",
+    "clear": "del ./package ./dist ./coverage",
+    "prepublishOnly": "run build clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "emitDeclarations": "tsc -p ./tsconfig.build.json --emitDeclarationOnly",
+    "build:dev": "NODE_ENV=development vite build",
+    "build:prod": "NODE_ENV=production vite build",
+    "build:dist": "run -p emitDeclarations build:dev build:prod",
+    "build": "run clear:dist build:dist",
+    "lint": "eslint --parser-options tsconfigRootDir:. '**/*.{js,ts}'",
+    "test:unit": "vitest run --coverage",
+    "test:unit:watch": "vitest watch",
+    "test:size": "size-limit",
+    "test:types": "tsc --noEmit",
+    "test": "run -p lint test:unit test:types"
+  },
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^11.1.2",
+    "@vitest/coverage-v8": "^2.0.0",
+    "size-limit": "^11.1.2",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8",
+    "vitest": "^2.0.0"
+  }
+}
