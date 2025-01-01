@@ -48,11 +48,18 @@
     "lint": "eslint --parser-options tsconfigRootDir:. '**/*.{js,ts}'",
     "test": "run lint"
   },
+  "peerDependencies": {
+    "kida": "workspace:^",
+    "nanoviews": "workspace:^"
+  },
   "dependencies": {
-    "@nanoviews/stores": "workspace:^",
     "@storybook/global": "^5.0.0",
     "@storybook/preview-api": "^7.6.17",
     "@storybook/types": "^7.6.17",
     "type-fest": "^4.12.0"
+  },
+  "devDependencies": {
+    "kida": "workspace:^",
+    "nanoviews": "workspace:^"
   }
 }

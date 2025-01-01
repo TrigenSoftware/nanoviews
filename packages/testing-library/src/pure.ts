@@ -4,24 +4,24 @@ import {
   getQueriesForElement,
   prettyDOM
 } from '@testing-library/dom'
+import {
+  type Block,
+  type Destroy,
+  mount
+} from 'nanoviews'
 
 export * from '@testing-library/dom'
 
-interface Block {
-  c(): void
-  m(target: Node, anchor?: Node | null): Node | null
-  e(): void
-  d(): void
-  n(): Node | null
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BlockCreator = readonly [(...args: any[]) => Block, ...unknown[]]
+
+type App = () => Block
 
 interface ContainerCacheEntry {
   container: HTMLElement
   target: HTMLElement
   block: Block
+  unmount: Destroy
 }
 
 export interface RenderOptions<Q extends Queries = typeof defaultQueries> {
@@ -39,40 +39,54 @@ const blockCache = new Set<Block>()
  * @param renderOptions - Options to customize the render
  * @returns An object with utilities to interact with the rendered block
  */
-export function render<Q extends Queries = typeof defaultQueries>(blockCreator: Block | BlockCreator, renderOptions: RenderOptions<Q> = {}) {
+export function render<Q extends Queries = typeof defaultQueries>(blockCreator: BlockCreator | App, renderOptions: RenderOptions<Q> = {}) {
   const { queries } = renderOptions
   const container = renderOptions.container || document.body
   const target = renderOptions.target || container.appendChild(document.createElement('div'))
   let block: Block
+  let unmount: Destroy
 
-  if (Array.isArray(blockCreator)) {
-    const [creator, ...args] = blockCreator as BlockCreator
+  try {
+    if (Array.isArray(blockCreator)) {
+      const [creator, ...args] = blockCreator as BlockCreator
 
-    block = creator(...args)
-  } else {
-    block = blockCreator as Block
+      unmount = mount(() => {
+        block = creator(...args)
+        return block
+      }, target)
+    } else if (typeof blockCreator === 'function') {
+      unmount = mount(() => {
+        block = blockCreator()
+        return block
+      }, target)
+    } else {
+      throw new Error('Invalid block creator. Expected a function.')
+    }
+  } catch (error) {
+    if (target.parentNode === document.body) {
+      document.body.removeChild(target)
+    }
+
+    throw error
   }
-
-  block.c()
-  block.m(target)
-  block.e()
 
   containerCache.add({
     container,
     target,
-    block
+    block: block!,
+    unmount
   })
-  blockCache.add(block)
+  blockCache.add(block!)
 
   return {
     container,
-    block,
+    block: block!,
     debug(el: HTMLElement = container) {
       console.log(prettyDOM(el))
     },
     destroy() {
       if (blockCache.has(block)) {
-        block.d()
+        unmount()
         blockCache.delete(block)
       }
     },
@@ -81,16 +95,15 @@ export function render<Q extends Queries = typeof defaultQueries>(blockCreator: 
 }
 
 function cleanupAtContainer(cached: ContainerCacheEntry) {
-  const { target, block } = cached
+  const { target, block, unmount } = cached
 
   if (blockCache.has(block)) {
+    // Block can be destroyed in the test
     try {
-      block.d()
-    } catch {
-      // Block can be destroyed in the test
+      unmount()
+    } finally {
+      blockCache.delete(block)
     }
-
-    blockCache.delete(block)
   }
 
   if (target.parentNode === document.body) {

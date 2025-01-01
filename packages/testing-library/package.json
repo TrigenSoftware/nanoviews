@@ -46,10 +46,12 @@
   ],
   "scripts": {
     "clear:package": "del ./package",
+    "clear:dist": "del ./dist",
     "clear": "del ./package ./dist ./coverage",
     "prepublishOnly": "run build clear:package clean-publish",
     "postpublish": "pnpm clear:package",
-    "build": "tsc",
+    "build:dist": "tsc",
+    "build": "run clear:dist build:dist",
     "lint": "eslint --parser-options tsconfigRootDir:. '**/*.{js,ts}'",
     "test": "run lint"
   },
@@ -60,6 +62,7 @@
   "devDependencies": {
     "@testing-library/dom": "^10.0.0",
     "nanoviews": "workspace:^",
+    "vite": "^5.0.8",
     "vitest": "^2.0.0"
   }
 }

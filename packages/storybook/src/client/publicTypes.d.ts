@@ -17,8 +17,7 @@ import type {
 import type {
   NanoviewsRenderer,
   ComponentType,
-  RawProps,
-  ArgStoresAnnotation
+  RawProps
 } from './types'
 
 export type { Args, ArgTypes, Parameters, StrictArgs } from '@storybook/types'
@@ -29,9 +28,7 @@ export type { Args, ArgTypes, Parameters, StrictArgs } from '@storybook/types'
  */
 export type Meta<CmpOrArgs = Args> = CmpOrArgs extends ComponentType<infer Props>
   ? ComponentAnnotations<NanoviewsRenderer<Props>, RawProps<Props>>
-    & ArgStoresAnnotation<Props>
   : ComponentAnnotations<NanoviewsRenderer<CmpOrArgs>, RawProps<CmpOrArgs>>
-    & ArgStoresAnnotation<CmpOrArgs>
 
 /**
  * Story function that represents a CSFv2 component example.
@@ -55,9 +52,7 @@ export type StoryObj<MetaOrCmpOrArgs = Args> = MetaOrCmpOrArgs extends {
     : never
   : MetaOrCmpOrArgs extends ComponentType<infer Props>
     ? StoryAnnotations<NanoviewsRenderer<Props>, RawProps<Props>>
-      & ArgStoresAnnotation<Props>
     : StoryAnnotations<NanoviewsRenderer<MetaOrCmpOrArgs>, RawProps<MetaOrCmpOrArgs>>
-      & ArgStoresAnnotation<MetaOrCmpOrArgs>
 
 export type { NanoviewsRenderer }
 

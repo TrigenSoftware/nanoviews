@@ -2,7 +2,7 @@
   "name": "@nanoviews/storybook-vite",
   "type": "commonjs",
   "version": "0.0.0",
-  "description": "Nanostores + Vite framework for storybook.",
+  "description": "Nanoviews + Vite framework for storybook.",
   "author": "dangreen",
   "license": "MIT",
   "funding": "https://ko-fi.com/dangreen",

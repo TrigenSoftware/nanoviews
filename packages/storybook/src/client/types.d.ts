@@ -3,18 +3,11 @@ import type {
   WebRenderer
 } from '@storybook/types'
 import type {
-  AnyStore,
-  Store,
+  AnyWritableSignal,
+  WritableSignal,
   AnyFn
-} from '@nanoviews/stores'
-
-interface Block {
-  c(): void
-  m(target: Node, anchor?: Node | null): Node | null
-  e(): void
-  d(): void
-  n(): Node | null
-}
+} from 'kida'
+import type { Block } from 'nanoviews'
 
 export type AnyProps = Record<string, any>
 
@@ -29,10 +22,10 @@ export type UniversalProps<T extends AnyProps> = {
     ? T[K]
     : NonEmptyValue<T[K]> extends AnyFn
       ? T[K]
-      : T[K] extends AnyStore
+      : T[K] extends AnyWritableSignal
         ? T[K]
-        : Exclude<T[K], AnyStore> extends infer Primitive
-          ? Primitive | Store<Primitive> | Extract<T[K], AnyStore>
+        : Exclude<T[K], AnyWritableSignal> extends infer Primitive
+          ? Primitive | WritableSignal<Primitive> | Extract<T[K], AnyWritableSignal>
           : never
 }
 
@@ -41,10 +34,10 @@ export type StoreProps<T extends AnyProps> = {
     ? T[K]
     : NonEmptyValue<T[K]> extends AnyFn
       ? T[K]
-      : T[K] extends AnyStore
+      : T[K] extends AnyWritableSignal
         ? T[K]
-        : Exclude<T[K], AnyStore> extends infer Primitive
-          ? Store<Primitive> | Extract<T[K], AnyStore>
+        : Exclude<T[K], AnyWritableSignal> extends infer Primitive
+          ? WritableSignal<Primitive> | Extract<T[K], AnyWritableSignal>
           : never
 }
 
@@ -54,34 +47,11 @@ export type RawProps<T extends AnyProps> = {
     : NonEmptyValue<T[K]> extends AnyFn
       ? T[K]
       : T[K] extends infer V
-        ? V extends Store<infer U>
+        ? V extends WritableSignal<infer U>
           ? U
           : V
         : never
 }
-
-export type ArgStores<T extends AnyProps> = {
-  [K in keyof T as (Extract<T[K], AnyStore> extends infer S
-    ? S extends AnyStore
-      ? AnyStore extends S
-        ? never
-        : K
-      : never
-    : never)
-  ]: T[K] extends Store<infer U>
-    ? {
-      $store(value: U): T[K]
-    }
-    : never
-}
-
-export type ArgStoresAnnotation<T extends AnyProps> = ArgStores<T> extends infer A
-  ? {} extends A
-    ? {}
-    : {
-      argTypes: A
-    }
-  : never
 
 export type ComponentType<Props extends AnyProps = AnyProps> = (props: Props) => Block
 

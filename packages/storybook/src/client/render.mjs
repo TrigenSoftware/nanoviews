@@ -1,7 +1,8 @@
 import {
-  isStore,
-  atom
-} from '@nanoviews/stores'
+  isSignal,
+  signal
+} from 'kida'
+import { mount } from 'nanoviews'
 
 export function render(args, context) {
   const { id, component } = context
@@ -13,13 +14,13 @@ export function render(args, context) {
   return [component, args]
 }
 
-function propsToStores(props, argTypes) {
+function propsToStores(props) {
   const entries = Object.entries(props).map(
     ([key, value]) => [
       key,
-      typeof value === 'function' || isStore(value)
+      typeof value === 'function' || isSignal(value)
         ? value
-        : argTypes[key]?.$store?.(value) || atom(value)
+        : signal(value)
     ]
   )
 
@@ -28,14 +29,14 @@ function propsToStores(props, argTypes) {
 
 const storesByDomElement = new Map()
 
-function updateProps(canvasElement, props, argTypes) {
+function updateProps(canvasElement, props) {
   const reactiveProps = storesByDomElement.get(canvasElement)
 
   if (reactiveProps) {
     Object.entries(props).forEach(([key, value]) => {
       const store = reactiveProps[key]
 
-      if (store && typeof store !== 'function' && !isStore(value)) {
+      if (store && typeof store !== 'function' && !isSignal(value)) {
         store.set(value)
       }
     })
@@ -43,7 +44,7 @@ function updateProps(canvasElement, props, argTypes) {
     return reactiveProps
   }
 
-  const newReactiveProps = propsToStores(props, argTypes)
+  const newReactiveProps = propsToStores(props)
 
   storesByDomElement.set(canvasElement, newReactiveProps)
 
@@ -52,28 +53,28 @@ function updateProps(canvasElement, props, argTypes) {
 
 const blocksByDomElement = new Map()
 
-export function renderToCanvas({ storyFn, showMain, forceRemount, storyContext: { argTypes } }, canvasElement) {
+export function renderToCanvas({ storyFn, showMain, forceRemount }, canvasElement) {
   const [component, props] = storyFn()
-  const reactiveProps = updateProps(canvasElement, props, argTypes)
-  let block = blocksByDomElement.get(canvasElement)
+  const reactiveProps = updateProps(canvasElement, props)
+  let [block, unmount] = blocksByDomElement.get(canvasElement) || []
 
   if (forceRemount && block) {
-    block.d()
+    unmount()
     block = undefined
   }
 
   if (!block) {
-    block = component(reactiveProps)
-    blocksByDomElement.set(canvasElement, block)
-    block.c()
-    block.m(canvasElement)
-    block.e()
+    unmount = mount(() => {
+      block = component(reactiveProps)
+      return block
+    }, canvasElement)
+    blocksByDomElement.set(canvasElement, [block, unmount])
   }
 
   showMain()
 
   return () => {
-    block?.d()
+    unmount?.()
     blocksByDomElement.delete(canvasElement)
     storesByDomElement.delete(canvasElement)
   }
