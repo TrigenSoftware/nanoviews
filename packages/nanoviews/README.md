@@ -623,6 +623,9 @@ function App() {
 App() // <div>Current theme: dark</div>
 ```
 
+> [!NOTE]
+> Nanoviews contexts are powered by [Kida's dependency injection system](../kida#dependency-injection).
+
 ### portal$
 
 `portal$` is a method that can render a block in a different place in the DOM.
