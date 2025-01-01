@@ -1,4 +1,0 @@
-- readme
-- readablestore type?
-next ver
-- asyncIterable?
