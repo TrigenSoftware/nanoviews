@@ -16,8 +16,8 @@
 [deps]: https://img.shields.io/librariesio/release/npm/kida
 [deps-url]: https://libraries.io/npm/kida/tree
 
-[size]: https://packagephobia.com/badge?p=kida
-[size-url]: https://packagephobia.com/result?p=kida
+[size]: https://deno.bundlejs.com/badge?q=kida
+[size-url]: https://bundlejs.com/?q=kida
 
 [build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=main
 [build-url]: https://github.com/TrigenSoftware/nanoviews/actions
