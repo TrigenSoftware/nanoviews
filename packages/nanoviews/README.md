@@ -16,8 +16,8 @@
 [deps]: https://img.shields.io/librariesio/release/npm/nanoviews
 [deps-url]: https://libraries.io/npm/nanoviews/tree
 
-[size]: https://packagephobia.com/badge?p=nanoviews
-[size-url]: https://packagephobia.com/result?p=nanoviews
+[size]: https://deno.bundlejs.com/badge?q=nanoviews
+[size-url]: https://bundlejs.com/?q=nanoviews
 
 [build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=main
 [build-url]: https://github.com/TrigenSoftware/nanoviews/actions
