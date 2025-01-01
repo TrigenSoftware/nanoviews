@@ -27,8 +27,8 @@ importers:
         specifier: 8.0.0-alpha.32
         version: 8.0.0-alpha.32(@testing-library/dom@9.3.4)(eslint@8.57.0)(typescript@5.3.3)
       '@trigen/scripts':
-        specifier: 8.0.0-alpha.30
-        version: 8.0.0-alpha.30
+        specifier: 8.0.0-alpha.33
+        version: 8.0.0-alpha.33
       '@types/node':
         specifier: ^20.0.0
         version: 20.11.25
@@ -2396,9 +2396,9 @@ packages:
       '@testing-library/dom':
         optional: true
 
-  '@trigen/scripts@8.0.0-alpha.30':
-    resolution: {integrity: sha512-WM6npRXrGrsoeDL6b1HnRpWa0yGraQ+1Kwdtfas72DFJf9UdVWf4w7jhETE41JzIzcpDysTO1PpmLAZqwuZu8A==}
-    engines: {node: '>=14'}
+  '@trigen/scripts@8.0.0-alpha.33':
+    resolution: {integrity: sha512-CNeDTiiM7Kxkb9+U5dFWKA8QxVhxVY9t2DVYslux2fpp3dImXPG7gU/OYFgJwjKXzj6TZnLQ774NWl1YTOIY/Q==}
+    engines: {node: '>=20'}
     hasBin: true
 
   '@types/aria-query@5.0.4':
@@ -8596,7 +8596,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@trigen/scripts@8.0.0-alpha.30':
+  '@trigen/scripts@8.0.0-alpha.33':
     dependencies:
       argue-cli: 2.1.0
       dotenv: 16.4.5
