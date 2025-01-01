@@ -1,7 +1,7 @@
 {
   "name": "nanoviews",
   "type": "module",
-  "version": "0.0.0-alpha.2",
+  "version": "1.0.0-alpha.1",
   "description": "A small Direct DOM library for creating user interfaces.",
   "author": "dangreen",
   "license": "MIT",
@@ -25,6 +25,7 @@
   "exports": {
     "./package.json": "./package.json",
     ".": "./src/index.ts",
+    "./store": "./src/store.ts",
     "./internals": "./src/internals/index.ts"
   },
   "publishConfig": {
@@ -36,6 +37,13 @@
         "development": "./dist/index.development.js",
         "production": "./dist/index.production.js",
         "default": "./dist/index.production.js"
+      },
+      "./store": {
+        "types": "./dist/store.d.ts",
+        "node": "./dist/store.development.js",
+        "development": "./dist/store.development.js",
+        "production": "./dist/store.production.js",
+        "default": "./dist/store.production.js"
       },
       "./internals": {
         "types": "./dist/internals/index.d.ts",
@@ -71,7 +79,6 @@
     "storybook": "storybook dev -p 6006 --no-open"
   },
   "peerDependencies": {
-    "@nanoviews/stores": "workspace:^",
     "csstype": "^3.1.3"
   },
   "peerDependenciesMeta": {
@@ -79,8 +86,10 @@
       "optional": true
     }
   },
+  "dependencies": {
+    "kida": "workspace:^"
+  },
   "devDependencies": {
-    "@nanoviews/stores": "workspace:^",
     "@nanoviews/storybook": "workspace:^",
     "@nanoviews/storybook-vite": "workspace:^",
     "@nanoviews/testing-library": "workspace:^",

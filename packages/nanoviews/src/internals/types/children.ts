@@ -1,34 +1,30 @@
-import type { Block } from './block.js'
+import type { Slot } from '../logic/children.js'
+import type { Block } from '../block.js'
 import type {
-  ValueOrStore,
-  Primitive
+  ValueOrSignal,
+  Primitive,
+  AnyFn
 } from './common.js'
 
-export type PrimitiveChild = Block | ValueOrStore<Primitive>
+export type LazyBlock = () => Block
+
+export type PrimitiveChild = Block | LazyBlock | ValueOrSignal<Primitive>
 
 export type Child = PrimitiveChild | Child[]
 
 export type Children = Child[]
 
-export type NoChildren = [] | undefined
-
 export type ChildrenWithSlots<S extends AnySlot, C extends unknown[] = Children> = C extends (infer D)[]
   ? (D | S)[]
   : never
 
-export type SlotId = string | symbol
-
-export type Slot<C, I extends SlotId = SlotId> = {
-  [K in I]: C
-}
-
-export interface SlotDef<C, I extends SlotId = SlotId> {
-  (slotContent: C): Slot<C, I>
-  i: I
+export interface SlotDef<C> {
+  // eslint-disable-next-line @typescript-eslint/prefer-function-type
+  (slotContent: C): Slot<C, this>
 }
 
 // It's impossible to define a type that extends Slot<unknown>
-export type AnySlot = Slot<any>
+export type AnySlot = Slot<any, AnyFn>
 
 // It's impossible to define a type that extends SlotDef<unknown>
 export type AnySlotDef = SlotDef<any>
@@ -49,13 +45,7 @@ export type Renderer<
   C extends unknown[] = Children
 > = (children: C | undefined) => Block<T>
 
-export type ChildrenBlock<
+export type RendererWithSlots<
   T extends Node,
-  C extends unknown[] = Children
-> = (
-  (...children: C) => Block<T>
-) & Block<T>
-
-export type GetChild = () => PrimitiveChild
-
-export type GetChildHook = (getChild?: GetChild) => void
+  D extends AnySlotDef[]
+> = (...children: [...MapSlotDefsToContents<D>, Children | undefined]) => Block<T>

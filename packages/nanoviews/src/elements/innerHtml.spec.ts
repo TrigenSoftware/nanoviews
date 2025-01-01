@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
-import { atom } from '@nanoviews/stores'
+import { signal } from 'kida'
 import * as Stories from './innerHtml.stories.js'
 
 const {
@@ -23,7 +23,7 @@ describe('nanoviews', () => {
       })
 
       it('should render reactive markup', () => {
-        const html = atom('<p>Hello, world!</p>')
+        const html = signal('<p>Hello, world!</p>')
         const { container } = render(ReactiveValue({
           html
         }))

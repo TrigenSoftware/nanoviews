@@ -1,14 +1,14 @@
 import {
-  isStore,
-  listen
-} from '@nanoviews/stores'
+  isSignal,
+  subscribeLater
+} from 'kida'
 import type {
-  ValueOrStore,
+  ValueOrSignal,
   Primitive
 } from '../types/index.js'
 import { isEmpty } from '../utils.js'
-import { createBlockFromNode } from '../block.js'
-import { addEffects } from '../logic/index.js'
+import { NodeBlock } from '../block.js'
+import { addEffect } from '../effects.js'
 
 function getText(value: Primitive) {
   return isEmpty(value) ? '' : `${value}`
@@ -19,18 +19,17 @@ function getText(value: Primitive) {
  * @param $value - Reactive or static value
  * @returns Text block
  */
-export function createText<T extends Primitive>($value: ValueOrStore<T>) {
-  let create
-  let effect
+export function createText<T extends Primitive>($value: ValueOrSignal<T>) {
+  const node = document.createTextNode('')
+  const block = new NodeBlock(node)
 
-  if (isStore($value)) {
-    create = () => document.createTextNode(getText($value.get()))
-    effect = (node: Text) => listen($value, (value) => {
-      node.data = getText(value)
-    })
+  if (isSignal($value)) {
+    addEffect(
+      subscribeLater($value, value => node.data = getText(value))
+    )
   } else {
-    create = () => document.createTextNode(getText($value))
+    node.data = getText($value)
   }
 
-  return addEffects(effect, createBlockFromNode(create))
+  return block
 }

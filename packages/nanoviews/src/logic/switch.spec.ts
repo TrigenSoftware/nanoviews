@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
-import { atom } from '@nanoviews/stores'
+import { signal } from 'kida'
 import * as Stories from './switch.stories.js'
 
 const {
@@ -23,7 +23,7 @@ describe('nanoviews', () => {
       })
 
       it('should handle reactive value', () => {
-        const state = atom<'loading' | 'success' | 'error'>('loading')
+        const state = signal<'loading' | 'success' | 'error'>('loading')
         const { container } = render(ReactiveValue({
           state
         }))

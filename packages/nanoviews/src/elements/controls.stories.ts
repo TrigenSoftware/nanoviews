@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { fn } from '@storybook/test'
 import { nanoStory } from '@nanoviews/storybook'
-import { listen } from '@nanoviews/stores'
+import { listen } from 'kida'
 import {
   input,
   textarea,

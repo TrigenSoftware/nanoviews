@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
-import { atom } from '@nanoviews/stores'
+import { signal } from 'kida'
 import { textarea } from './elements.js'
 import { autoFocus$ } from './autoFocus.js'
 
@@ -20,6 +20,6 @@ export const StaticValue: Story = {
 
 export const ReactiveValue: Story = {
   render: nanoStory(() => textarea({
-    [autoFocus$]: atom(true)
+    [autoFocus$]: signal(true)
   })('Hello, world!'))
 }

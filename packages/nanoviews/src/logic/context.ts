@@ -1,4 +1,6 @@
 export {
-  createContext,
-  provideContext as context$
+  provide,
+  context as context$,
+  isolate as isolate$,
+  inject
 } from '../internals/index.js'

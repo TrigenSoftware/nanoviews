@@ -1,5 +1,5 @@
 import type {
-  ValueOrStore,
+  ValueOrSignal,
   Primitive
 } from './common.js'
 import type {
@@ -9,7 +9,7 @@ import type {
 } from './dom/elements.js'
 import type { PickEffectAttributesByTarget } from './effectAttribute.js'
 
-export type PrimitiveAttributeValue = ValueOrStore<Primitive>
+export type PrimitiveAttributeValue = ValueOrSignal<Primitive>
 
 export type Attributes<Tag extends ElementName> =
   & PickEffectAttributesByTarget<PickElementType<Tag>>

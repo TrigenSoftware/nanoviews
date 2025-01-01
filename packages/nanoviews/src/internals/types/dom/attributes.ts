@@ -1,6 +1,6 @@
 import * as CSS from 'csstype'
 import type {
-  ValueOrStore,
+  ValueOrSignal,
   EmptyValue
 } from '../common.js'
 import type {
@@ -30,79 +30,79 @@ export interface CSSProperties extends CSS.Properties<string | number> {
 
 export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, DOMAttributes<T> {
   // React-specific Attributes
-  defaultChecked?: ValueOrStore<boolean | EmptyValue>
-  defaultValue?: ValueOrStore<string | number | readonly string[] | EmptyValue>
-  suppressContentEditableWarning?: ValueOrStore<boolean | EmptyValue>
-  suppressHydrationWarning?: ValueOrStore<boolean | EmptyValue>
+  defaultChecked?: ValueOrSignal<boolean | EmptyValue>
+  defaultValue?: ValueOrSignal<string | number | readonly string[] | EmptyValue>
+  suppressContentEditableWarning?: ValueOrSignal<boolean | EmptyValue>
+  suppressHydrationWarning?: ValueOrSignal<boolean | EmptyValue>
 
   // Standard HTML Attributes
-  accessKey?: ValueOrStore<string | EmptyValue>
-  autoFocus?: ValueOrStore<boolean | EmptyValue>
-  class?: ValueOrStore<string | EmptyValue>
-  contentEditable?: ValueOrStore<Booleanish | 'inherit' | 'plaintext-only' | EmptyValue>
-  contextMenu?: ValueOrStore<string | EmptyValue>
-  dir?: ValueOrStore<string | EmptyValue>
-  draggable?: ValueOrStore<Booleanish | EmptyValue>
-  hidden?: ValueOrStore<boolean | EmptyValue>
-  id?: ValueOrStore<string | EmptyValue>
-  lang?: ValueOrStore<string | EmptyValue>
-  nonce?: ValueOrStore<string | EmptyValue>
-  slot?: ValueOrStore<string | EmptyValue>
-  spellCheck?: ValueOrStore<Booleanish | EmptyValue>
-  style?: ValueOrStore<string | EmptyValue>
-  tabIndex?: ValueOrStore<number | EmptyValue>
-  title?: ValueOrStore<string | EmptyValue>
-  translate?: ValueOrStore<'yes' | 'no' | EmptyValue>
+  accessKey?: ValueOrSignal<string | EmptyValue>
+  autoFocus?: ValueOrSignal<boolean | EmptyValue>
+  class?: ValueOrSignal<string | EmptyValue>
+  contentEditable?: ValueOrSignal<Booleanish | 'inherit' | 'plaintext-only' | EmptyValue>
+  contextMenu?: ValueOrSignal<string | EmptyValue>
+  dir?: ValueOrSignal<string | EmptyValue>
+  draggable?: ValueOrSignal<Booleanish | EmptyValue>
+  hidden?: ValueOrSignal<boolean | EmptyValue>
+  id?: ValueOrSignal<string | EmptyValue>
+  lang?: ValueOrSignal<string | EmptyValue>
+  nonce?: ValueOrSignal<string | EmptyValue>
+  slot?: ValueOrSignal<string | EmptyValue>
+  spellCheck?: ValueOrSignal<Booleanish | EmptyValue>
+  style?: ValueOrSignal<string | EmptyValue>
+  tabIndex?: ValueOrSignal<number | EmptyValue>
+  title?: ValueOrSignal<string | EmptyValue>
+  translate?: ValueOrSignal<'yes' | 'no' | EmptyValue>
 
   // Unknown
-  radioGroup?: ValueOrStore<string | EmptyValue> // <command>, <menuitem>
+  radioGroup?: ValueOrSignal<string | EmptyValue> // <command>, <menuitem>
 
   // WAI-ARIA
-  role?: ValueOrStore<AriaRole | EmptyValue>
+  role?: ValueOrSignal<AriaRole | EmptyValue>
 
   // RDFa Attributes
-  about?: ValueOrStore<string | EmptyValue>
-  content?: ValueOrStore<string | EmptyValue>
-  datatype?: ValueOrStore<string | EmptyValue>
-  inlist?: ValueOrStore<any>
-  prefix?: ValueOrStore<string | EmptyValue>
-  property?: ValueOrStore<string | EmptyValue>
-  rel?: ValueOrStore<string | EmptyValue>
-  resource?: ValueOrStore<string | EmptyValue>
-  rev?: ValueOrStore<string | EmptyValue>
-  typeof?: ValueOrStore<string | EmptyValue>
-  vocab?: ValueOrStore<string | EmptyValue>
+  about?: ValueOrSignal<string | EmptyValue>
+  content?: ValueOrSignal<string | EmptyValue>
+  datatype?: ValueOrSignal<string | EmptyValue>
+  inlist?: ValueOrSignal<any>
+  prefix?: ValueOrSignal<string | EmptyValue>
+  property?: ValueOrSignal<string | EmptyValue>
+  rel?: ValueOrSignal<string | EmptyValue>
+  resource?: ValueOrSignal<string | EmptyValue>
+  rev?: ValueOrSignal<string | EmptyValue>
+  typeof?: ValueOrSignal<string | EmptyValue>
+  vocab?: ValueOrSignal<string | EmptyValue>
 
   // Non-standard Attributes
-  autoCapitalize?: ValueOrStore<string | EmptyValue>
-  autoCorrect?: ValueOrStore<string | EmptyValue>
-  autoSave?: ValueOrStore<string | EmptyValue>
-  color?: ValueOrStore<string | EmptyValue>
-  itemProp?: ValueOrStore<string | EmptyValue>
-  itemScope?: ValueOrStore<boolean | EmptyValue>
-  itemType?: ValueOrStore<string | EmptyValue>
-  itemID?: ValueOrStore<string | EmptyValue>
-  itemRef?: ValueOrStore<string | EmptyValue>
-  results?: ValueOrStore<number | EmptyValue>
-  security?: ValueOrStore<string | EmptyValue>
-  unselectable?: ValueOrStore<'on' | 'off' | EmptyValue>
+  autoCapitalize?: ValueOrSignal<string | EmptyValue>
+  autoCorrect?: ValueOrSignal<string | EmptyValue>
+  autoSave?: ValueOrSignal<string | EmptyValue>
+  color?: ValueOrSignal<string | EmptyValue>
+  itemProp?: ValueOrSignal<string | EmptyValue>
+  itemScope?: ValueOrSignal<boolean | EmptyValue>
+  itemType?: ValueOrSignal<string | EmptyValue>
+  itemID?: ValueOrSignal<string | EmptyValue>
+  itemRef?: ValueOrSignal<string | EmptyValue>
+  results?: ValueOrSignal<number | EmptyValue>
+  security?: ValueOrSignal<string | EmptyValue>
+  unselectable?: ValueOrSignal<'on' | 'off' | EmptyValue>
 
   // Living Standard
   /**
    * Hints at the type of data that might be entered by the user while editing the element or its contents
    * @see {@link https://html.spec.whatwg.org/multipage/interaction.html#input-modalities:-the-inputmode-attribute}
    */
-  inputMode?: ValueOrStore<'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' | EmptyValue>
+  inputMode?: ValueOrSignal<'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' | EmptyValue>
   /**
    * Specify that a standard HTML element should behave like a defined custom built-in element
    * @see {@link https://html.spec.whatwg.org/multipage/custom-elements.html#attr-is}
    */
-  is?: ValueOrStore<string | EmptyValue>
+  is?: ValueOrSignal<string | EmptyValue>
 
   /**
    * Data attributes
    */
-  [key: `data-${string}`]: ValueOrStore<unknown>
+  [key: `data-${string}`]: ValueOrSignal<unknown>
 }
 
 export type HTMLAttributeReferrerPolicy =
@@ -124,156 +124,156 @@ export type HTMLAttributeAnchorTarget =
   | (string & {})
 
 export interface AnchorHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  download?: ValueOrStore<any>
-  href?: ValueOrStore<string | EmptyValue>
-  hrefLang?: ValueOrStore<string | EmptyValue>
-  media?: ValueOrStore<string | EmptyValue>
-  ping?: ValueOrStore<string | EmptyValue>
-  target?: ValueOrStore<HTMLAttributeAnchorTarget | EmptyValue>
-  type?: ValueOrStore<string | EmptyValue>
-  referrerPolicy?: ValueOrStore<HTMLAttributeReferrerPolicy | EmptyValue>
+  download?: ValueOrSignal<any>
+  href?: ValueOrSignal<string | EmptyValue>
+  hrefLang?: ValueOrSignal<string | EmptyValue>
+  media?: ValueOrSignal<string | EmptyValue>
+  ping?: ValueOrSignal<string | EmptyValue>
+  target?: ValueOrSignal<HTMLAttributeAnchorTarget | EmptyValue>
+  type?: ValueOrSignal<string | EmptyValue>
+  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
 }
 
 export interface AudioHTMLAttributes<T extends HTMLElement> extends MediaHTMLAttributes<T> {}
 
 export interface AreaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  alt?: ValueOrStore<string | EmptyValue>
-  coords?: ValueOrStore<string | EmptyValue>
-  download?: ValueOrStore<any>
-  href?: ValueOrStore<string | EmptyValue>
-  hrefLang?: ValueOrStore<string | EmptyValue>
-  media?: ValueOrStore<string | EmptyValue>
-  referrerPolicy?: ValueOrStore<HTMLAttributeReferrerPolicy | EmptyValue>
-  shape?: ValueOrStore<string | EmptyValue>
-  target?: ValueOrStore<string | EmptyValue>
+  alt?: ValueOrSignal<string | EmptyValue>
+  coords?: ValueOrSignal<string | EmptyValue>
+  download?: ValueOrSignal<any>
+  href?: ValueOrSignal<string | EmptyValue>
+  hrefLang?: ValueOrSignal<string | EmptyValue>
+  media?: ValueOrSignal<string | EmptyValue>
+  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
+  shape?: ValueOrSignal<string | EmptyValue>
+  target?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface BaseHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  href?: ValueOrStore<string | EmptyValue>
-  target?: ValueOrStore<string | EmptyValue>
+  href?: ValueOrSignal<string | EmptyValue>
+  target?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface BlockquoteHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrStore<string | EmptyValue>
+  cite?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface ButtonHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrStore<boolean | EmptyValue>
-  form?: ValueOrStore<string | EmptyValue>
-  formAction?: ValueOrStore<string | EmptyValue>
-  formEncType?: ValueOrStore<string | EmptyValue>
-  formMethod?: ValueOrStore<string | EmptyValue>
-  formNoValidate?: ValueOrStore<boolean | EmptyValue>
-  formTarget?: ValueOrStore<string | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
-  type?: ValueOrStore<'submit' | 'reset' | 'button' | EmptyValue>
-  value?: ValueOrStore<string | readonly string[] | number | EmptyValue>
+  disabled?: ValueOrSignal<boolean | EmptyValue>
+  form?: ValueOrSignal<string | EmptyValue>
+  formAction?: ValueOrSignal<string | EmptyValue>
+  formEncType?: ValueOrSignal<string | EmptyValue>
+  formMethod?: ValueOrSignal<string | EmptyValue>
+  formNoValidate?: ValueOrSignal<boolean | EmptyValue>
+  formTarget?: ValueOrSignal<string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
+  type?: ValueOrSignal<'submit' | 'reset' | 'button' | EmptyValue>
+  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
 }
 
 export interface CanvasHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  height?: ValueOrStore<number | string | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
+  height?: ValueOrSignal<number | string | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
 }
 
 export interface ColHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  span?: ValueOrStore<number | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
+  span?: ValueOrSignal<number | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
 }
 
 export interface ColgroupHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  span?: ValueOrStore<number | EmptyValue>
+  span?: ValueOrSignal<number | EmptyValue>
 }
 
 export interface DataHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  value?: ValueOrStore<string | readonly string[] | number | EmptyValue>
+  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
 }
 
 export interface DetailsHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  open?: ValueOrStore<boolean | EmptyValue>
+  open?: ValueOrSignal<boolean | EmptyValue>
   onToggle?: TargetEventHandler<T> | EmptyValue
-  name?: ValueOrStore<string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface DelHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrStore<string | EmptyValue>
-  dateTime?: ValueOrStore<string | EmptyValue>
+  cite?: ValueOrSignal<string | EmptyValue>
+  dateTime?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface DialogHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   onCancel?: TargetEventHandler<T> | EmptyValue
   onClose?: TargetEventHandler<T> | EmptyValue
-  open?: ValueOrStore<boolean | EmptyValue>
+  open?: ValueOrSignal<boolean | EmptyValue>
 }
 
 export interface EmbedHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  height?: ValueOrStore<number | string | EmptyValue>
-  src?: ValueOrStore<string | EmptyValue>
-  type?: ValueOrStore<string | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
+  height?: ValueOrSignal<number | string | EmptyValue>
+  src?: ValueOrSignal<string | EmptyValue>
+  type?: ValueOrSignal<string | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
 }
 
 export interface FieldsetHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrStore<boolean | EmptyValue>
-  form?: ValueOrStore<string | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
+  disabled?: ValueOrSignal<boolean | EmptyValue>
+  form?: ValueOrSignal<string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface FormHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  acceptCharset?: ValueOrStore<string | EmptyValue>
-  action?: ValueOrStore<string | EmptyValue>
-  autoComplete?: ValueOrStore<string | EmptyValue>
-  encType?: ValueOrStore<string | EmptyValue>
-  method?: ValueOrStore<string | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
-  noValidate?: ValueOrStore<boolean | EmptyValue>
-  target?: ValueOrStore<string | EmptyValue>
+  acceptCharset?: ValueOrSignal<string | EmptyValue>
+  action?: ValueOrSignal<string | EmptyValue>
+  autoComplete?: ValueOrSignal<string | EmptyValue>
+  encType?: ValueOrSignal<string | EmptyValue>
+  method?: ValueOrSignal<string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
+  noValidate?: ValueOrSignal<boolean | EmptyValue>
+  target?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface HtmlHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  manifest?: ValueOrStore<string | EmptyValue>
+  manifest?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface IframeHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  allow?: ValueOrStore<string | EmptyValue>
-  allowFullScreen?: ValueOrStore<boolean | EmptyValue>
-  allowTransparency?: ValueOrStore<boolean | EmptyValue>
+  allow?: ValueOrSignal<string | EmptyValue>
+  allowFullScreen?: ValueOrSignal<boolean | EmptyValue>
+  allowTransparency?: ValueOrSignal<boolean | EmptyValue>
   /** @deprecated */
-  frameBorder?: ValueOrStore<number | string | EmptyValue>
-  height?: ValueOrStore<number | string | EmptyValue>
-  loading?: ValueOrStore<'eager' | 'lazy' | EmptyValue>
+  frameBorder?: ValueOrSignal<number | string | EmptyValue>
+  height?: ValueOrSignal<number | string | EmptyValue>
+  loading?: ValueOrSignal<'eager' | 'lazy' | EmptyValue>
   /** @deprecated */
-  marginHeight?: ValueOrStore<number | EmptyValue>
+  marginHeight?: ValueOrSignal<number | EmptyValue>
   /** @deprecated */
-  marginWidth?: ValueOrStore<number | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
-  referrerPolicy?: ValueOrStore<HTMLAttributeReferrerPolicy | EmptyValue>
-  sandbox?: ValueOrStore<string | EmptyValue>
+  marginWidth?: ValueOrSignal<number | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
+  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
+  sandbox?: ValueOrSignal<string | EmptyValue>
   /** @deprecated */
-  scrolling?: ValueOrStore<string | EmptyValue>
-  seamless?: ValueOrStore<boolean | EmptyValue>
-  src?: ValueOrStore<string | EmptyValue>
-  srcDoc?: ValueOrStore<string | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
+  scrolling?: ValueOrSignal<string | EmptyValue>
+  seamless?: ValueOrSignal<boolean | EmptyValue>
+  src?: ValueOrSignal<string | EmptyValue>
+  srcDoc?: ValueOrSignal<string | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
 }
 
 export interface ImgHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  alt?: ValueOrStore<string | EmptyValue>
-  crossOrigin?: ValueOrStore<CrossOrigin>
-  decoding?: ValueOrStore<'async' | 'auto' | 'sync' | EmptyValue>
-  fetchPriority?: ValueOrStore<'high' | 'low' | 'auto'>
-  height?: ValueOrStore<number | string | EmptyValue>
-  loading?: ValueOrStore<'eager' | 'lazy' | EmptyValue>
-  referrerPolicy?: ValueOrStore<HTMLAttributeReferrerPolicy | EmptyValue>
-  sizes?: ValueOrStore<string | EmptyValue>
-  src?: ValueOrStore<string | EmptyValue>
-  srcSet?: ValueOrStore<string | EmptyValue>
-  useMap?: ValueOrStore<string | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
+  alt?: ValueOrSignal<string | EmptyValue>
+  crossOrigin?: ValueOrSignal<CrossOrigin>
+  decoding?: ValueOrSignal<'async' | 'auto' | 'sync' | EmptyValue>
+  fetchPriority?: ValueOrSignal<'high' | 'low' | 'auto'>
+  height?: ValueOrSignal<number | string | EmptyValue>
+  loading?: ValueOrSignal<'eager' | 'lazy' | EmptyValue>
+  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
+  sizes?: ValueOrSignal<string | EmptyValue>
+  src?: ValueOrSignal<string | EmptyValue>
+  srcSet?: ValueOrSignal<string | EmptyValue>
+  useMap?: ValueOrSignal<string | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
 }
 
 export interface InsHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrStore<string | EmptyValue>
-  dateTime?: ValueOrStore<string | EmptyValue>
+  cite?: ValueOrSignal<string | EmptyValue>
+  dateTime?: ValueOrSignal<string | EmptyValue>
 }
 
 export type HTMLInputTypeAttribute =
@@ -364,280 +364,280 @@ export type AutoFill =
 export type HTMLInputAutoCompleteAttribute = AutoFill | (string & {})
 
 export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  accept?: ValueOrStore<string | EmptyValue>
-  alt?: ValueOrStore<string | EmptyValue>
-  autoComplete?: ValueOrStore<HTMLInputAutoCompleteAttribute | EmptyValue>
-  capture?: ValueOrStore<boolean | 'user' | 'environment' | EmptyValue> // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
-  checked?: ValueOrStore<boolean | EmptyValue>
-  disabled?: ValueOrStore<boolean | EmptyValue>
-  enterKeyHint?: ValueOrStore<'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' | EmptyValue>
-  form?: ValueOrStore<string | EmptyValue>
-  formAction?: ValueOrStore<string | EmptyValue>
-  formEncType?: ValueOrStore<string | EmptyValue>
-  formMethod?: ValueOrStore<string | EmptyValue>
-  formNoValidate?: ValueOrStore<boolean | EmptyValue>
-  formTarget?: ValueOrStore<string | EmptyValue>
-  height?: ValueOrStore<number | string | EmptyValue>
-  list?: ValueOrStore<string | EmptyValue>
-  max?: ValueOrStore<number | string | EmptyValue>
-  maxLength?: ValueOrStore<number | EmptyValue>
-  min?: ValueOrStore<number | string | EmptyValue>
-  minLength?: ValueOrStore<number | EmptyValue>
-  multiple?: ValueOrStore<boolean | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
-  pattern?: ValueOrStore<string | EmptyValue>
-  placeholder?: ValueOrStore<string | EmptyValue>
-  readOnly?: ValueOrStore<boolean | EmptyValue>
-  required?: ValueOrStore<boolean | EmptyValue>
-  size?: ValueOrStore<number | EmptyValue>
-  src?: ValueOrStore<string | EmptyValue>
-  step?: ValueOrStore<number | string | EmptyValue>
-  type?: ValueOrStore<HTMLInputTypeAttribute | EmptyValue>
-  value?: ValueOrStore<string | readonly string[] | number | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
+  accept?: ValueOrSignal<string | EmptyValue>
+  alt?: ValueOrSignal<string | EmptyValue>
+  autoComplete?: ValueOrSignal<HTMLInputAutoCompleteAttribute | EmptyValue>
+  capture?: ValueOrSignal<boolean | 'user' | 'environment' | EmptyValue> // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
+  checked?: ValueOrSignal<boolean | EmptyValue>
+  disabled?: ValueOrSignal<boolean | EmptyValue>
+  enterKeyHint?: ValueOrSignal<'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' | EmptyValue>
+  form?: ValueOrSignal<string | EmptyValue>
+  formAction?: ValueOrSignal<string | EmptyValue>
+  formEncType?: ValueOrSignal<string | EmptyValue>
+  formMethod?: ValueOrSignal<string | EmptyValue>
+  formNoValidate?: ValueOrSignal<boolean | EmptyValue>
+  formTarget?: ValueOrSignal<string | EmptyValue>
+  height?: ValueOrSignal<number | string | EmptyValue>
+  list?: ValueOrSignal<string | EmptyValue>
+  max?: ValueOrSignal<number | string | EmptyValue>
+  maxLength?: ValueOrSignal<number | EmptyValue>
+  min?: ValueOrSignal<number | string | EmptyValue>
+  minLength?: ValueOrSignal<number | EmptyValue>
+  multiple?: ValueOrSignal<boolean | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
+  pattern?: ValueOrSignal<string | EmptyValue>
+  placeholder?: ValueOrSignal<string | EmptyValue>
+  readOnly?: ValueOrSignal<boolean | EmptyValue>
+  required?: ValueOrSignal<boolean | EmptyValue>
+  size?: ValueOrSignal<number | EmptyValue>
+  src?: ValueOrSignal<string | EmptyValue>
+  step?: ValueOrSignal<number | string | EmptyValue>
+  type?: ValueOrSignal<HTMLInputTypeAttribute | EmptyValue>
+  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
 
   onChange?: ChangeEventHandler<T> | undefined
 }
 
 export interface KeygenHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  challenge?: ValueOrStore<string | EmptyValue>
-  disabled?: ValueOrStore<boolean | EmptyValue>
-  form?: ValueOrStore<string | EmptyValue>
-  keyType?: ValueOrStore<string | EmptyValue>
-  keyParams?: ValueOrStore<string | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
+  challenge?: ValueOrSignal<string | EmptyValue>
+  disabled?: ValueOrSignal<boolean | EmptyValue>
+  form?: ValueOrSignal<string | EmptyValue>
+  keyType?: ValueOrSignal<string | EmptyValue>
+  keyParams?: ValueOrSignal<string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface LabelHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  form?: ValueOrStore<string | EmptyValue>
-  for?: ValueOrStore<string | EmptyValue>
+  form?: ValueOrSignal<string | EmptyValue>
+  for?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface LiHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  value?: ValueOrStore<string | readonly string[] | number | EmptyValue>
+  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
 }
 
 export interface LinkHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  as?: ValueOrStore<string | EmptyValue>
-  crossOrigin?: ValueOrStore<CrossOrigin>
-  fetchPriority?: ValueOrStore<'high' | 'low' | 'auto'>
-  href?: ValueOrStore<string | EmptyValue>
-  hrefLang?: ValueOrStore<string | EmptyValue>
-  integrity?: ValueOrStore<string | EmptyValue>
-  media?: ValueOrStore<string | EmptyValue>
-  imageSrcSet?: ValueOrStore<string | EmptyValue>
-  imageSizes?: ValueOrStore<string | EmptyValue>
-  referrerPolicy?: ValueOrStore<HTMLAttributeReferrerPolicy | EmptyValue>
-  sizes?: ValueOrStore<string | EmptyValue>
-  type?: ValueOrStore<string | EmptyValue>
-  charSet?: ValueOrStore<string | EmptyValue>
+  as?: ValueOrSignal<string | EmptyValue>
+  crossOrigin?: ValueOrSignal<CrossOrigin>
+  fetchPriority?: ValueOrSignal<'high' | 'low' | 'auto'>
+  href?: ValueOrSignal<string | EmptyValue>
+  hrefLang?: ValueOrSignal<string | EmptyValue>
+  integrity?: ValueOrSignal<string | EmptyValue>
+  media?: ValueOrSignal<string | EmptyValue>
+  imageSrcSet?: ValueOrSignal<string | EmptyValue>
+  imageSizes?: ValueOrSignal<string | EmptyValue>
+  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
+  sizes?: ValueOrSignal<string | EmptyValue>
+  type?: ValueOrSignal<string | EmptyValue>
+  charSet?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface MapHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  name?: ValueOrStore<string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface MenuHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  type?: ValueOrStore<string | EmptyValue>
+  type?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface MediaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  autoPlay?: ValueOrStore<boolean | EmptyValue>
-  controls?: ValueOrStore<boolean | EmptyValue>
-  controlsList?: ValueOrStore<string | EmptyValue>
-  crossOrigin?: ValueOrStore<CrossOrigin>
-  loop?: ValueOrStore<boolean | EmptyValue>
-  mediaGroup?: ValueOrStore<string | EmptyValue>
-  muted?: ValueOrStore<boolean | EmptyValue>
-  playsInline?: ValueOrStore<boolean | EmptyValue>
-  preload?: ValueOrStore<string | EmptyValue>
-  src?: ValueOrStore<string | EmptyValue>
+  autoPlay?: ValueOrSignal<boolean | EmptyValue>
+  controls?: ValueOrSignal<boolean | EmptyValue>
+  controlsList?: ValueOrSignal<string | EmptyValue>
+  crossOrigin?: ValueOrSignal<CrossOrigin>
+  loop?: ValueOrSignal<boolean | EmptyValue>
+  mediaGroup?: ValueOrSignal<string | EmptyValue>
+  muted?: ValueOrSignal<boolean | EmptyValue>
+  playsInline?: ValueOrSignal<boolean | EmptyValue>
+  preload?: ValueOrSignal<string | EmptyValue>
+  src?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface MetaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  charSet?: ValueOrStore<string | EmptyValue>
-  content?: ValueOrStore<string | EmptyValue>
-  httpEquiv?: ValueOrStore<string | EmptyValue>
-  media?: ValueOrStore<string | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
+  charSet?: ValueOrSignal<string | EmptyValue>
+  content?: ValueOrSignal<string | EmptyValue>
+  httpEquiv?: ValueOrSignal<string | EmptyValue>
+  media?: ValueOrSignal<string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface MeterHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  form?: ValueOrStore<string | EmptyValue>
-  high?: ValueOrStore<number | EmptyValue>
-  low?: ValueOrStore<number | EmptyValue>
-  max?: ValueOrStore<number | string | EmptyValue>
-  min?: ValueOrStore<number | string | EmptyValue>
-  optimum?: ValueOrStore<number | EmptyValue>
-  value?: ValueOrStore<string | readonly string[] | number | EmptyValue>
+  form?: ValueOrSignal<string | EmptyValue>
+  high?: ValueOrSignal<number | EmptyValue>
+  low?: ValueOrSignal<number | EmptyValue>
+  max?: ValueOrSignal<number | string | EmptyValue>
+  min?: ValueOrSignal<number | string | EmptyValue>
+  optimum?: ValueOrSignal<number | EmptyValue>
+  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
 }
 
 export interface QuoteHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrStore<string | EmptyValue>
+  cite?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface ObjectHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  classID?: ValueOrStore<string | EmptyValue>
-  data?: ValueOrStore<string | EmptyValue>
-  form?: ValueOrStore<string | EmptyValue>
-  height?: ValueOrStore<number | string | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
-  type?: ValueOrStore<string | EmptyValue>
-  useMap?: ValueOrStore<string | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
-  wmode?: ValueOrStore<string | EmptyValue>
+  classID?: ValueOrSignal<string | EmptyValue>
+  data?: ValueOrSignal<string | EmptyValue>
+  form?: ValueOrSignal<string | EmptyValue>
+  height?: ValueOrSignal<number | string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
+  type?: ValueOrSignal<string | EmptyValue>
+  useMap?: ValueOrSignal<string | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
+  wmode?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface OlHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  reversed?: ValueOrStore<boolean | EmptyValue>
-  start?: ValueOrStore<number | EmptyValue>
-  type?: ValueOrStore<'1' | 'a' | 'A' | 'i' | 'I' | EmptyValue>
+  reversed?: ValueOrSignal<boolean | EmptyValue>
+  start?: ValueOrSignal<number | EmptyValue>
+  type?: ValueOrSignal<'1' | 'a' | 'A' | 'i' | 'I' | EmptyValue>
 }
 
 export interface OptgroupHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrStore<boolean | EmptyValue>
-  label?: ValueOrStore<string | EmptyValue>
+  disabled?: ValueOrSignal<boolean | EmptyValue>
+  label?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface OptionHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrStore<boolean | EmptyValue>
-  label?: ValueOrStore<string | EmptyValue>
-  selected?: ValueOrStore<boolean | EmptyValue>
-  value?: ValueOrStore<string | readonly string[] | number | EmptyValue>
+  disabled?: ValueOrSignal<boolean | EmptyValue>
+  label?: ValueOrSignal<string | EmptyValue>
+  selected?: ValueOrSignal<boolean | EmptyValue>
+  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
 }
 
 export interface OutputHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  form?: ValueOrStore<string | EmptyValue>
-  for?: ValueOrStore<string | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
+  form?: ValueOrSignal<string | EmptyValue>
+  for?: ValueOrSignal<string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface ParamHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  name?: ValueOrStore<string | EmptyValue>
-  value?: ValueOrStore<string | readonly string[] | number | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
+  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
 }
 
 export interface ProgressHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  max?: ValueOrStore<number | string | EmptyValue>
-  value?: ValueOrStore<string | readonly string[] | number | EmptyValue>
+  max?: ValueOrSignal<number | string | EmptyValue>
+  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
 }
 
 export interface SlotHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  name?: ValueOrStore<string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface ScriptHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  async?: ValueOrStore<boolean | EmptyValue>
+  async?: ValueOrSignal<boolean | EmptyValue>
   /** @deprecated */
-  charSet?: ValueOrStore<string | EmptyValue>
-  crossOrigin?: ValueOrStore<CrossOrigin>
-  defer?: ValueOrStore<boolean | EmptyValue>
-  integrity?: ValueOrStore<string | EmptyValue>
-  noModule?: ValueOrStore<boolean | EmptyValue>
-  referrerPolicy?: ValueOrStore<HTMLAttributeReferrerPolicy | EmptyValue>
-  src?: ValueOrStore<string | EmptyValue>
-  type?: ValueOrStore<string | EmptyValue>
+  charSet?: ValueOrSignal<string | EmptyValue>
+  crossOrigin?: ValueOrSignal<CrossOrigin>
+  defer?: ValueOrSignal<boolean | EmptyValue>
+  integrity?: ValueOrSignal<string | EmptyValue>
+  noModule?: ValueOrSignal<boolean | EmptyValue>
+  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
+  src?: ValueOrSignal<string | EmptyValue>
+  type?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface SelectHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  autoComplete?: ValueOrStore<string | EmptyValue>
-  disabled?: ValueOrStore<boolean | EmptyValue>
-  form?: ValueOrStore<string | EmptyValue>
-  multiple?: ValueOrStore<boolean | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
-  required?: ValueOrStore<boolean | EmptyValue>
-  size?: ValueOrStore<number | EmptyValue>
-  value?: ValueOrStore<string | readonly string[] | number | EmptyValue>
+  autoComplete?: ValueOrSignal<string | EmptyValue>
+  disabled?: ValueOrSignal<boolean | EmptyValue>
+  form?: ValueOrSignal<string | EmptyValue>
+  multiple?: ValueOrSignal<boolean | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
+  required?: ValueOrSignal<boolean | EmptyValue>
+  size?: ValueOrSignal<number | EmptyValue>
+  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
   onChange?: ChangeEventHandler<T> | undefined
 }
 
 export interface SourceHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  height?: ValueOrStore<number | string | EmptyValue>
-  media?: ValueOrStore<string | EmptyValue>
-  sizes?: ValueOrStore<string | EmptyValue>
-  src?: ValueOrStore<string | EmptyValue>
-  srcSet?: ValueOrStore<string | EmptyValue>
-  type?: ValueOrStore<string | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
+  height?: ValueOrSignal<number | string | EmptyValue>
+  media?: ValueOrSignal<string | EmptyValue>
+  sizes?: ValueOrSignal<string | EmptyValue>
+  src?: ValueOrSignal<string | EmptyValue>
+  srcSet?: ValueOrSignal<string | EmptyValue>
+  type?: ValueOrSignal<string | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
 }
 
 export interface StyleHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  media?: ValueOrStore<string | EmptyValue>
-  scoped?: ValueOrStore<boolean | EmptyValue>
-  type?: ValueOrStore<string | EmptyValue>
+  media?: ValueOrSignal<string | EmptyValue>
+  scoped?: ValueOrSignal<boolean | EmptyValue>
+  type?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface TableHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  align?: ValueOrStore<'left' | 'center' | 'right' | EmptyValue>
-  bgcolor?: ValueOrStore<string | EmptyValue>
-  border?: ValueOrStore<number | EmptyValue>
-  cellPadding?: ValueOrStore<number | string | EmptyValue>
-  cellSpacing?: ValueOrStore<number | string | EmptyValue>
-  frame?: ValueOrStore<boolean | EmptyValue>
-  rules?: ValueOrStore<'none' | 'groups' | 'rows' | 'columns' | 'all' | EmptyValue>
-  summary?: ValueOrStore<string | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
+  align?: ValueOrSignal<'left' | 'center' | 'right' | EmptyValue>
+  bgcolor?: ValueOrSignal<string | EmptyValue>
+  border?: ValueOrSignal<number | EmptyValue>
+  cellPadding?: ValueOrSignal<number | string | EmptyValue>
+  cellSpacing?: ValueOrSignal<number | string | EmptyValue>
+  frame?: ValueOrSignal<boolean | EmptyValue>
+  rules?: ValueOrSignal<'none' | 'groups' | 'rows' | 'columns' | 'all' | EmptyValue>
+  summary?: ValueOrSignal<string | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
 }
 
 export interface TextareaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  autoComplete?: ValueOrStore<string | EmptyValue>
-  cols?: ValueOrStore<number | EmptyValue>
-  dirName?: ValueOrStore<string | EmptyValue>
-  disabled?: ValueOrStore<boolean | EmptyValue>
-  form?: ValueOrStore<string | EmptyValue>
-  maxLength?: ValueOrStore<number | EmptyValue>
-  minLength?: ValueOrStore<number | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
-  placeholder?: ValueOrStore<string | EmptyValue>
-  readOnly?: ValueOrStore<boolean | EmptyValue>
-  required?: ValueOrStore<boolean | EmptyValue>
-  rows?: ValueOrStore<number | EmptyValue>
-  value?: ValueOrStore<string | readonly string[] | number | EmptyValue>
-  wrap?: ValueOrStore<string | EmptyValue>
+  autoComplete?: ValueOrSignal<string | EmptyValue>
+  cols?: ValueOrSignal<number | EmptyValue>
+  dirName?: ValueOrSignal<string | EmptyValue>
+  disabled?: ValueOrSignal<boolean | EmptyValue>
+  form?: ValueOrSignal<string | EmptyValue>
+  maxLength?: ValueOrSignal<number | EmptyValue>
+  minLength?: ValueOrSignal<number | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
+  placeholder?: ValueOrSignal<string | EmptyValue>
+  readOnly?: ValueOrSignal<boolean | EmptyValue>
+  required?: ValueOrSignal<boolean | EmptyValue>
+  rows?: ValueOrSignal<number | EmptyValue>
+  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
+  wrap?: ValueOrSignal<string | EmptyValue>
 
   onChange?: ChangeEventHandler<T> | undefined
 }
 
 export interface TdHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  align?: ValueOrStore<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
-  colSpan?: ValueOrStore<number | EmptyValue>
-  headers?: ValueOrStore<string | EmptyValue>
-  rowSpan?: ValueOrStore<number | EmptyValue>
-  scope?: ValueOrStore<string | EmptyValue>
-  abbr?: ValueOrStore<string | EmptyValue>
-  height?: ValueOrStore<number | string | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
-  valign?: ValueOrStore<'top' | 'middle' | 'bottom' | 'baseline' | EmptyValue>
+  align?: ValueOrSignal<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
+  colSpan?: ValueOrSignal<number | EmptyValue>
+  headers?: ValueOrSignal<string | EmptyValue>
+  rowSpan?: ValueOrSignal<number | EmptyValue>
+  scope?: ValueOrSignal<string | EmptyValue>
+  abbr?: ValueOrSignal<string | EmptyValue>
+  height?: ValueOrSignal<number | string | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
+  valign?: ValueOrSignal<'top' | 'middle' | 'bottom' | 'baseline' | EmptyValue>
 }
 
 export interface ThHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  align?: ValueOrStore<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
-  colSpan?: ValueOrStore<number | EmptyValue>
-  headers?: ValueOrStore<string | EmptyValue>
-  rowSpan?: ValueOrStore<number | EmptyValue>
-  scope?: ValueOrStore<string | EmptyValue>
-  abbr?: ValueOrStore<string | EmptyValue>
+  align?: ValueOrSignal<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
+  colSpan?: ValueOrSignal<number | EmptyValue>
+  headers?: ValueOrSignal<string | EmptyValue>
+  rowSpan?: ValueOrSignal<number | EmptyValue>
+  scope?: ValueOrSignal<string | EmptyValue>
+  abbr?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface TimeHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  dateTime?: ValueOrStore<string | EmptyValue>
+  dateTime?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface TrackHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  default?: ValueOrStore<boolean | EmptyValue>
-  kind?: ValueOrStore<string | EmptyValue>
-  label?: ValueOrStore<string | EmptyValue>
-  src?: ValueOrStore<string | EmptyValue>
-  srcLang?: ValueOrStore<string | EmptyValue>
+  default?: ValueOrSignal<boolean | EmptyValue>
+  kind?: ValueOrSignal<string | EmptyValue>
+  label?: ValueOrSignal<string | EmptyValue>
+  src?: ValueOrSignal<string | EmptyValue>
+  srcLang?: ValueOrSignal<string | EmptyValue>
 }
 
 export interface VideoHTMLAttributes<T extends HTMLElement> extends MediaHTMLAttributes<T> {
-  height?: ValueOrStore<number | string | EmptyValue>
-  playsInline?: ValueOrStore<boolean | EmptyValue>
-  poster?: ValueOrStore<string | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
-  disablePictureInPicture?: ValueOrStore<boolean | EmptyValue>
-  disableRemotePlayback?: ValueOrStore<boolean | EmptyValue>
+  height?: ValueOrSignal<number | string | EmptyValue>
+  playsInline?: ValueOrSignal<boolean | EmptyValue>
+  poster?: ValueOrSignal<string | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
+  disablePictureInPicture?: ValueOrSignal<boolean | EmptyValue>
+  disableRemotePlayback?: ValueOrSignal<boolean | EmptyValue>
 }
 
 // The three broad type categories are (in order of restrictiveness):
@@ -647,31 +647,31 @@ export interface VideoHTMLAttributes<T extends HTMLElement> extends MediaHTMLAtt
 export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAttributes<T> {
   // Attributes which also defined in HTMLAttributes
   // See comment in SVGDOMPropertyConfig.js
-  class?: ValueOrStore<string | EmptyValue>
-  color?: ValueOrStore<string | EmptyValue>
-  height?: ValueOrStore<number | string | EmptyValue>
-  id?: ValueOrStore<string | EmptyValue>
-  lang?: ValueOrStore<string | EmptyValue>
-  max?: ValueOrStore<number | string | EmptyValue>
-  media?: ValueOrStore<string | EmptyValue>
-  method?: ValueOrStore<string | EmptyValue>
-  min?: ValueOrStore<number | string | EmptyValue>
-  name?: ValueOrStore<string | EmptyValue>
-  style?: ValueOrStore<string | EmptyValue>
-  target?: ValueOrStore<string | EmptyValue>
-  type?: ValueOrStore<string | EmptyValue>
-  width?: ValueOrStore<number | string | EmptyValue>
+  class?: ValueOrSignal<string | EmptyValue>
+  color?: ValueOrSignal<string | EmptyValue>
+  height?: ValueOrSignal<number | string | EmptyValue>
+  id?: ValueOrSignal<string | EmptyValue>
+  lang?: ValueOrSignal<string | EmptyValue>
+  max?: ValueOrSignal<number | string | EmptyValue>
+  media?: ValueOrSignal<string | EmptyValue>
+  method?: ValueOrSignal<string | EmptyValue>
+  min?: ValueOrSignal<number | string | EmptyValue>
+  name?: ValueOrSignal<string | EmptyValue>
+  style?: ValueOrSignal<string | EmptyValue>
+  target?: ValueOrSignal<string | EmptyValue>
+  type?: ValueOrSignal<string | EmptyValue>
+  width?: ValueOrSignal<number | string | EmptyValue>
 
   // Other HTML properties supported by SVG elements in browsers
-  role?: ValueOrStore<AriaRole | EmptyValue>
-  tabIndex?: ValueOrStore<number | EmptyValue>
-  crossOrigin?: ValueOrStore<CrossOrigin>
+  role?: ValueOrSignal<AriaRole | EmptyValue>
+  tabIndex?: ValueOrSignal<number | EmptyValue>
+  crossOrigin?: ValueOrSignal<CrossOrigin>
 
   // SVG Specific attributes
-  accentHeight?: ValueOrStore<number | string | EmptyValue>
-  accumulate?: ValueOrStore<'none' | 'sum' | EmptyValue>
-  additive?: ValueOrStore<'replace' | 'sum' | EmptyValue>
-  alignmentBaseline?: ValueOrStore<
+  accentHeight?: ValueOrSignal<number | string | EmptyValue>
+  accumulate?: ValueOrSignal<'none' | 'sum' | EmptyValue>
+  additive?: ValueOrSignal<'replace' | 'sum' | EmptyValue>
+  alignmentBaseline?: ValueOrSignal<
     | 'auto'
     | 'baseline'
     | 'before-edge'
@@ -687,242 +687,242 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
     | 'inherit'
     | EmptyValue
   >
-  allowReorder?: ValueOrStore<'no' | 'yes' | EmptyValue>
-  alphabetic?: ValueOrStore<number | string | EmptyValue>
-  amplitude?: ValueOrStore<number | string | EmptyValue>
-  arabicForm?: ValueOrStore<'initial' | 'medial' | 'terminal' | 'isolated' | EmptyValue>
-  ascent?: ValueOrStore<number | string | EmptyValue>
-  attributeName?: ValueOrStore<string | EmptyValue>
-  attributeType?: ValueOrStore<string | EmptyValue>
-  autoReverse?: ValueOrStore<Booleanish | EmptyValue>
-  azimuth?: ValueOrStore<number | string | EmptyValue>
-  baseFrequency?: ValueOrStore<number | string | EmptyValue>
-  baselineShift?: ValueOrStore<number | string | EmptyValue>
-  baseProfile?: ValueOrStore<number | string | EmptyValue>
-  bbox?: ValueOrStore<number | string | EmptyValue>
-  begin?: ValueOrStore<number | string | EmptyValue>
-  bias?: ValueOrStore<number | string | EmptyValue>
-  by?: ValueOrStore<number | string | EmptyValue>
-  calcMode?: ValueOrStore<number | string | EmptyValue>
-  capHeight?: ValueOrStore<number | string | EmptyValue>
-  clip?: ValueOrStore<number | string | EmptyValue>
-  clipPath?: ValueOrStore<string | EmptyValue>
-  clipPathUnits?: ValueOrStore<number | string | EmptyValue>
-  clipRule?: ValueOrStore<number | string | EmptyValue>
-  colorInterpolation?: ValueOrStore<number | string | EmptyValue>
-  colorInterpolationFilters?: ValueOrStore<'auto' | 'sRGB' | 'linearRGB' | 'inherit' | EmptyValue>
-  colorProfile?: ValueOrStore<number | string | EmptyValue>
-  colorRendering?: ValueOrStore<number | string | EmptyValue>
-  contentScriptType?: ValueOrStore<number | string | EmptyValue>
-  contentStyleType?: ValueOrStore<number | string | EmptyValue>
-  cursor?: ValueOrStore<number | string | EmptyValue>
-  cx?: ValueOrStore<number | string | EmptyValue>
-  cy?: ValueOrStore<number | string | EmptyValue>
-  d?: ValueOrStore<string | EmptyValue>
-  decelerate?: ValueOrStore<number | string | EmptyValue>
-  descent?: ValueOrStore<number | string | EmptyValue>
-  diffuseConstant?: ValueOrStore<number | string | EmptyValue>
-  direction?: ValueOrStore<number | string | EmptyValue>
-  display?: ValueOrStore<number | string | EmptyValue>
-  divisor?: ValueOrStore<number | string | EmptyValue>
-  dominantBaseline?: ValueOrStore<number | string | EmptyValue>
-  dur?: ValueOrStore<number | string | EmptyValue>
-  dx?: ValueOrStore<number | string | EmptyValue>
-  dy?: ValueOrStore<number | string | EmptyValue>
-  edgeMode?: ValueOrStore<number | string | EmptyValue>
-  elevation?: ValueOrStore<number | string | EmptyValue>
-  enableBackground?: ValueOrStore<number | string | EmptyValue>
-  end?: ValueOrStore<number | string | EmptyValue>
-  exponent?: ValueOrStore<number | string | EmptyValue>
-  externalResourcesRequired?: ValueOrStore<Booleanish | EmptyValue>
-  fill?: ValueOrStore<string | EmptyValue>
-  fillOpacity?: ValueOrStore<number | string | EmptyValue>
-  fillRule?: ValueOrStore<'nonzero' | 'evenodd' | 'inherit' | EmptyValue>
-  filter?: ValueOrStore<string | EmptyValue>
-  filterRes?: ValueOrStore<number | string | EmptyValue>
-  filterUnits?: ValueOrStore<number | string | EmptyValue>
-  floodColor?: ValueOrStore<number | string | EmptyValue>
-  floodOpacity?: ValueOrStore<number | string | EmptyValue>
-  focusable?: ValueOrStore<Booleanish | 'auto' | EmptyValue>
-  fontFamily?: ValueOrStore<string | EmptyValue>
-  fontSize?: ValueOrStore<number | string | EmptyValue>
-  fontSizeAdjust?: ValueOrStore<number | string | EmptyValue>
-  fontStretch?: ValueOrStore<number | string | EmptyValue>
-  fontStyle?: ValueOrStore<number | string | EmptyValue>
-  fontVariant?: ValueOrStore<number | string | EmptyValue>
-  fontWeight?: ValueOrStore<number | string | EmptyValue>
-  format?: ValueOrStore<number | string | EmptyValue>
-  fr?: ValueOrStore<number | string | EmptyValue>
-  from?: ValueOrStore<number | string | EmptyValue>
-  fx?: ValueOrStore<number | string | EmptyValue>
-  fy?: ValueOrStore<number | string | EmptyValue>
-  g1?: ValueOrStore<number | string | EmptyValue>
-  g2?: ValueOrStore<number | string | EmptyValue>
-  glyphName?: ValueOrStore<number | string | EmptyValue>
-  glyphOrientationHorizontal?: ValueOrStore<number | string | EmptyValue>
-  glyphOrientationVertical?: ValueOrStore<number | string | EmptyValue>
-  glyphRef?: ValueOrStore<number | string | EmptyValue>
-  gradientTransform?: ValueOrStore<string | EmptyValue>
-  gradientUnits?: ValueOrStore<string | EmptyValue>
-  hanging?: ValueOrStore<number | string | EmptyValue>
-  horizAdvX?: ValueOrStore<number | string | EmptyValue>
-  horizOriginX?: ValueOrStore<number | string | EmptyValue>
-  href?: ValueOrStore<string | EmptyValue>
-  ideographic?: ValueOrStore<number | string | EmptyValue>
-  imageRendering?: ValueOrStore<number | string | EmptyValue>
-  in2?: ValueOrStore<number | string | EmptyValue>
-  in?: ValueOrStore<string | EmptyValue>
-  intercept?: ValueOrStore<number | string | EmptyValue>
-  k1?: ValueOrStore<number | string | EmptyValue>
-  k2?: ValueOrStore<number | string | EmptyValue>
-  k3?: ValueOrStore<number | string | EmptyValue>
-  k4?: ValueOrStore<number | string | EmptyValue>
-  k?: ValueOrStore<number | string | EmptyValue>
-  kernelMatrix?: ValueOrStore<number | string | EmptyValue>
-  kernelUnitLength?: ValueOrStore<number | string | EmptyValue>
-  kerning?: ValueOrStore<number | string | EmptyValue>
-  keyPoints?: ValueOrStore<number | string | EmptyValue>
-  keySplines?: ValueOrStore<number | string | EmptyValue>
-  keyTimes?: ValueOrStore<number | string | EmptyValue>
-  lengthAdjust?: ValueOrStore<number | string | EmptyValue>
-  letterSpacing?: ValueOrStore<number | string | EmptyValue>
-  lightingColor?: ValueOrStore<number | string | EmptyValue>
-  limitingConeAngle?: ValueOrStore<number | string | EmptyValue>
-  local?: ValueOrStore<number | string | EmptyValue>
-  markerEnd?: ValueOrStore<string | EmptyValue>
-  markerHeight?: ValueOrStore<number | string | EmptyValue>
-  markerMid?: ValueOrStore<string | EmptyValue>
-  markerStart?: ValueOrStore<string | EmptyValue>
-  markerUnits?: ValueOrStore<number | string | EmptyValue>
-  markerWidth?: ValueOrStore<number | string | EmptyValue>
-  mask?: ValueOrStore<string | EmptyValue>
-  maskContentUnits?: ValueOrStore<number | string | EmptyValue>
-  maskUnits?: ValueOrStore<number | string | EmptyValue>
-  mathematical?: ValueOrStore<number | string | EmptyValue>
-  mode?: ValueOrStore<number | string | EmptyValue>
-  numOctaves?: ValueOrStore<number | string | EmptyValue>
-  offset?: ValueOrStore<number | string | EmptyValue>
-  opacity?: ValueOrStore<number | string | EmptyValue>
-  operator?: ValueOrStore<number | string | EmptyValue>
-  order?: ValueOrStore<number | string | EmptyValue>
-  orient?: ValueOrStore<number | string | EmptyValue>
-  orientation?: ValueOrStore<number | string | EmptyValue>
-  origin?: ValueOrStore<number | string | EmptyValue>
-  overflow?: ValueOrStore<number | string | EmptyValue>
-  overlinePosition?: ValueOrStore<number | string | EmptyValue>
-  overlineThickness?: ValueOrStore<number | string | EmptyValue>
-  paintOrder?: ValueOrStore<number | string | EmptyValue>
-  panose1?: ValueOrStore<number | string | EmptyValue>
-  path?: ValueOrStore<string | EmptyValue>
-  pathLength?: ValueOrStore<number | string | EmptyValue>
-  patternContentUnits?: ValueOrStore<string | EmptyValue>
-  patternTransform?: ValueOrStore<number | string | EmptyValue>
-  patternUnits?: ValueOrStore<string | EmptyValue>
-  pointerEvents?: ValueOrStore<number | string | EmptyValue>
-  points?: ValueOrStore<string | EmptyValue>
-  pointsAtX?: ValueOrStore<number | string | EmptyValue>
-  pointsAtY?: ValueOrStore<number | string | EmptyValue>
-  pointsAtZ?: ValueOrStore<number | string | EmptyValue>
-  preserveAlpha?: ValueOrStore<Booleanish | EmptyValue>
-  preserveAspectRatio?: ValueOrStore<string | EmptyValue>
-  primitiveUnits?: ValueOrStore<number | string | EmptyValue>
-  r?: ValueOrStore<number | string | EmptyValue>
-  radius?: ValueOrStore<number | string | EmptyValue>
-  refX?: ValueOrStore<number | string | EmptyValue>
-  refY?: ValueOrStore<number | string | EmptyValue>
-  renderingIntent?: ValueOrStore<number | string | EmptyValue>
-  repeatCount?: ValueOrStore<number | string | EmptyValue>
-  repeatDur?: ValueOrStore<number | string | EmptyValue>
-  requiredExtensions?: ValueOrStore<number | string | EmptyValue>
-  requiredFeatures?: ValueOrStore<number | string | EmptyValue>
-  restart?: ValueOrStore<number | string | EmptyValue>
-  result?: ValueOrStore<string | EmptyValue>
-  rotate?: ValueOrStore<number | string | EmptyValue>
-  rx?: ValueOrStore<number | string | EmptyValue>
-  ry?: ValueOrStore<number | string | EmptyValue>
-  scale?: ValueOrStore<number | string | EmptyValue>
-  seed?: ValueOrStore<number | string | EmptyValue>
-  shapeRendering?: ValueOrStore<number | string | EmptyValue>
-  slope?: ValueOrStore<number | string | EmptyValue>
-  spacing?: ValueOrStore<number | string | EmptyValue>
-  specularConstant?: ValueOrStore<number | string | EmptyValue>
-  specularExponent?: ValueOrStore<number | string | EmptyValue>
-  speed?: ValueOrStore<number | string | EmptyValue>
-  spreadMethod?: ValueOrStore<string | EmptyValue>
-  startOffset?: ValueOrStore<number | string | EmptyValue>
-  stdDeviation?: ValueOrStore<number | string | EmptyValue>
-  stemh?: ValueOrStore<number | string | EmptyValue>
-  stemv?: ValueOrStore<number | string | EmptyValue>
-  stitchTiles?: ValueOrStore<number | string | EmptyValue>
-  stopColor?: ValueOrStore<string | EmptyValue>
-  stopOpacity?: ValueOrStore<number | string | EmptyValue>
-  strikethroughPosition?: ValueOrStore<number | string | EmptyValue>
-  strikethroughThickness?: ValueOrStore<number | string | EmptyValue>
-  string?: ValueOrStore<number | string | EmptyValue>
-  stroke?: ValueOrStore<string | EmptyValue>
-  strokeDasharray?: ValueOrStore<string | number | EmptyValue>
-  strokeDashoffset?: ValueOrStore<string | number | EmptyValue>
-  strokeLinecap?: ValueOrStore<'butt' | 'round' | 'square' | 'inherit' | EmptyValue>
-  strokeLinejoin?: ValueOrStore<'miter' | 'round' | 'bevel' | 'inherit' | EmptyValue>
-  strokeMiterlimit?: ValueOrStore<number | string | EmptyValue>
-  strokeOpacity?: ValueOrStore<number | string | EmptyValue>
-  strokeWidth?: ValueOrStore<number | string | EmptyValue>
-  surfaceScale?: ValueOrStore<number | string | EmptyValue>
-  systemLanguage?: ValueOrStore<number | string | EmptyValue>
-  tableValues?: ValueOrStore<number | string | EmptyValue>
-  targetX?: ValueOrStore<number | string | EmptyValue>
-  targetY?: ValueOrStore<number | string | EmptyValue>
-  textAnchor?: ValueOrStore<string | EmptyValue>
-  textDecoration?: ValueOrStore<number | string | EmptyValue>
-  textLength?: ValueOrStore<number | string | EmptyValue>
-  textRendering?: ValueOrStore<number | string | EmptyValue>
-  to?: ValueOrStore<number | string | EmptyValue>
-  transform?: ValueOrStore<string | EmptyValue>
-  u1?: ValueOrStore<number | string | EmptyValue>
-  u2?: ValueOrStore<number | string | EmptyValue>
-  underlinePosition?: ValueOrStore<number | string | EmptyValue>
-  underlineThickness?: ValueOrStore<number | string | EmptyValue>
-  unicode?: ValueOrStore<number | string | EmptyValue>
-  unicodeBidi?: ValueOrStore<number | string | EmptyValue>
-  unicodeRange?: ValueOrStore<number | string | EmptyValue>
-  unitsPerEm?: ValueOrStore<number | string | EmptyValue>
-  vAlphabetic?: ValueOrStore<number | string | EmptyValue>
-  values?: ValueOrStore<string | EmptyValue>
-  vectorEffect?: ValueOrStore<number | string | EmptyValue>
-  version?: ValueOrStore<string | EmptyValue>
-  vertAdvY?: ValueOrStore<number | string | EmptyValue>
-  vertOriginX?: ValueOrStore<number | string | EmptyValue>
-  vertOriginY?: ValueOrStore<number | string | EmptyValue>
-  vHanging?: ValueOrStore<number | string | EmptyValue>
-  vIdeographic?: ValueOrStore<number | string | EmptyValue>
-  viewBox?: ValueOrStore<string | EmptyValue>
-  viewTarget?: ValueOrStore<number | string | EmptyValue>
-  visibility?: ValueOrStore<number | string | EmptyValue>
-  vMathematical?: ValueOrStore<number | string | EmptyValue>
-  widths?: ValueOrStore<number | string | EmptyValue>
-  wordSpacing?: ValueOrStore<number | string | EmptyValue>
-  writingMode?: ValueOrStore<number | string | EmptyValue>
-  x1?: ValueOrStore<number | string | EmptyValue>
-  x2?: ValueOrStore<number | string | EmptyValue>
-  x?: ValueOrStore<number | string | EmptyValue>
-  xChannelSelector?: ValueOrStore<string | EmptyValue>
-  xHeight?: ValueOrStore<number | string | EmptyValue>
-  xlinkActuate?: ValueOrStore<string | EmptyValue>
-  xlinkArcrole?: ValueOrStore<string | EmptyValue>
-  xlinkHref?: ValueOrStore<string | EmptyValue>
-  xlinkRole?: ValueOrStore<string | EmptyValue>
-  xlinkShow?: ValueOrStore<string | EmptyValue>
-  xlinkTitle?: ValueOrStore<string | EmptyValue>
-  xlinkType?: ValueOrStore<string | EmptyValue>
-  xmlBase?: ValueOrStore<string | EmptyValue>
-  xmlLang?: ValueOrStore<string | EmptyValue>
-  xmlns?: ValueOrStore<string | EmptyValue>
-  xmlnsXlink?: ValueOrStore<string | EmptyValue>
-  xmlSpace?: ValueOrStore<string | EmptyValue>
-  y1?: ValueOrStore<number | string | EmptyValue>
-  y2?: ValueOrStore<number | string | EmptyValue>
-  y?: ValueOrStore<number | string | EmptyValue>
-  yChannelSelector?: ValueOrStore<string | EmptyValue>
-  z?: ValueOrStore<number | string | EmptyValue>
-  zoomAndPan?: ValueOrStore<string | EmptyValue>
+  allowReorder?: ValueOrSignal<'no' | 'yes' | EmptyValue>
+  alphabetic?: ValueOrSignal<number | string | EmptyValue>
+  amplitude?: ValueOrSignal<number | string | EmptyValue>
+  arabicForm?: ValueOrSignal<'initial' | 'medial' | 'terminal' | 'isolated' | EmptyValue>
+  ascent?: ValueOrSignal<number | string | EmptyValue>
+  attributeName?: ValueOrSignal<string | EmptyValue>
+  attributeType?: ValueOrSignal<string | EmptyValue>
+  autoReverse?: ValueOrSignal<Booleanish | EmptyValue>
+  azimuth?: ValueOrSignal<number | string | EmptyValue>
+  baseFrequency?: ValueOrSignal<number | string | EmptyValue>
+  baselineShift?: ValueOrSignal<number | string | EmptyValue>
+  baseProfile?: ValueOrSignal<number | string | EmptyValue>
+  bbox?: ValueOrSignal<number | string | EmptyValue>
+  begin?: ValueOrSignal<number | string | EmptyValue>
+  bias?: ValueOrSignal<number | string | EmptyValue>
+  by?: ValueOrSignal<number | string | EmptyValue>
+  calcMode?: ValueOrSignal<number | string | EmptyValue>
+  capHeight?: ValueOrSignal<number | string | EmptyValue>
+  clip?: ValueOrSignal<number | string | EmptyValue>
+  clipPath?: ValueOrSignal<string | EmptyValue>
+  clipPathUnits?: ValueOrSignal<number | string | EmptyValue>
+  clipRule?: ValueOrSignal<number | string | EmptyValue>
+  colorInterpolation?: ValueOrSignal<number | string | EmptyValue>
+  colorInterpolationFilters?: ValueOrSignal<'auto' | 'sRGB' | 'linearRGB' | 'inherit' | EmptyValue>
+  colorProfile?: ValueOrSignal<number | string | EmptyValue>
+  colorRendering?: ValueOrSignal<number | string | EmptyValue>
+  contentScriptType?: ValueOrSignal<number | string | EmptyValue>
+  contentStyleType?: ValueOrSignal<number | string | EmptyValue>
+  cursor?: ValueOrSignal<number | string | EmptyValue>
+  cx?: ValueOrSignal<number | string | EmptyValue>
+  cy?: ValueOrSignal<number | string | EmptyValue>
+  d?: ValueOrSignal<string | EmptyValue>
+  decelerate?: ValueOrSignal<number | string | EmptyValue>
+  descent?: ValueOrSignal<number | string | EmptyValue>
+  diffuseConstant?: ValueOrSignal<number | string | EmptyValue>
+  direction?: ValueOrSignal<number | string | EmptyValue>
+  display?: ValueOrSignal<number | string | EmptyValue>
+  divisor?: ValueOrSignal<number | string | EmptyValue>
+  dominantBaseline?: ValueOrSignal<number | string | EmptyValue>
+  dur?: ValueOrSignal<number | string | EmptyValue>
+  dx?: ValueOrSignal<number | string | EmptyValue>
+  dy?: ValueOrSignal<number | string | EmptyValue>
+  edgeMode?: ValueOrSignal<number | string | EmptyValue>
+  elevation?: ValueOrSignal<number | string | EmptyValue>
+  enableBackground?: ValueOrSignal<number | string | EmptyValue>
+  end?: ValueOrSignal<number | string | EmptyValue>
+  exponent?: ValueOrSignal<number | string | EmptyValue>
+  externalResourcesRequired?: ValueOrSignal<Booleanish | EmptyValue>
+  fill?: ValueOrSignal<string | EmptyValue>
+  fillOpacity?: ValueOrSignal<number | string | EmptyValue>
+  fillRule?: ValueOrSignal<'nonzero' | 'evenodd' | 'inherit' | EmptyValue>
+  filter?: ValueOrSignal<string | EmptyValue>
+  filterRes?: ValueOrSignal<number | string | EmptyValue>
+  filterUnits?: ValueOrSignal<number | string | EmptyValue>
+  floodColor?: ValueOrSignal<number | string | EmptyValue>
+  floodOpacity?: ValueOrSignal<number | string | EmptyValue>
+  focusable?: ValueOrSignal<Booleanish | 'auto' | EmptyValue>
+  fontFamily?: ValueOrSignal<string | EmptyValue>
+  fontSize?: ValueOrSignal<number | string | EmptyValue>
+  fontSizeAdjust?: ValueOrSignal<number | string | EmptyValue>
+  fontStretch?: ValueOrSignal<number | string | EmptyValue>
+  fontStyle?: ValueOrSignal<number | string | EmptyValue>
+  fontVariant?: ValueOrSignal<number | string | EmptyValue>
+  fontWeight?: ValueOrSignal<number | string | EmptyValue>
+  format?: ValueOrSignal<number | string | EmptyValue>
+  fr?: ValueOrSignal<number | string | EmptyValue>
+  from?: ValueOrSignal<number | string | EmptyValue>
+  fx?: ValueOrSignal<number | string | EmptyValue>
+  fy?: ValueOrSignal<number | string | EmptyValue>
+  g1?: ValueOrSignal<number | string | EmptyValue>
+  g2?: ValueOrSignal<number | string | EmptyValue>
+  glyphName?: ValueOrSignal<number | string | EmptyValue>
+  glyphOrientationHorizontal?: ValueOrSignal<number | string | EmptyValue>
+  glyphOrientationVertical?: ValueOrSignal<number | string | EmptyValue>
+  glyphRef?: ValueOrSignal<number | string | EmptyValue>
+  gradientTransform?: ValueOrSignal<string | EmptyValue>
+  gradientUnits?: ValueOrSignal<string | EmptyValue>
+  hanging?: ValueOrSignal<number | string | EmptyValue>
+  horizAdvX?: ValueOrSignal<number | string | EmptyValue>
+  horizOriginX?: ValueOrSignal<number | string | EmptyValue>
+  href?: ValueOrSignal<string | EmptyValue>
+  ideographic?: ValueOrSignal<number | string | EmptyValue>
+  imageRendering?: ValueOrSignal<number | string | EmptyValue>
+  in2?: ValueOrSignal<number | string | EmptyValue>
+  in?: ValueOrSignal<string | EmptyValue>
+  intercept?: ValueOrSignal<number | string | EmptyValue>
+  k1?: ValueOrSignal<number | string | EmptyValue>
+  k2?: ValueOrSignal<number | string | EmptyValue>
+  k3?: ValueOrSignal<number | string | EmptyValue>
+  k4?: ValueOrSignal<number | string | EmptyValue>
+  k?: ValueOrSignal<number | string | EmptyValue>
+  kernelMatrix?: ValueOrSignal<number | string | EmptyValue>
+  kernelUnitLength?: ValueOrSignal<number | string | EmptyValue>
+  kerning?: ValueOrSignal<number | string | EmptyValue>
+  keyPoints?: ValueOrSignal<number | string | EmptyValue>
+  keySplines?: ValueOrSignal<number | string | EmptyValue>
+  keyTimes?: ValueOrSignal<number | string | EmptyValue>
+  lengthAdjust?: ValueOrSignal<number | string | EmptyValue>
+  letterSpacing?: ValueOrSignal<number | string | EmptyValue>
+  lightingColor?: ValueOrSignal<number | string | EmptyValue>
+  limitingConeAngle?: ValueOrSignal<number | string | EmptyValue>
+  local?: ValueOrSignal<number | string | EmptyValue>
+  markerEnd?: ValueOrSignal<string | EmptyValue>
+  markerHeight?: ValueOrSignal<number | string | EmptyValue>
+  markerMid?: ValueOrSignal<string | EmptyValue>
+  markerStart?: ValueOrSignal<string | EmptyValue>
+  markerUnits?: ValueOrSignal<number | string | EmptyValue>
+  markerWidth?: ValueOrSignal<number | string | EmptyValue>
+  mask?: ValueOrSignal<string | EmptyValue>
+  maskContentUnits?: ValueOrSignal<number | string | EmptyValue>
+  maskUnits?: ValueOrSignal<number | string | EmptyValue>
+  mathematical?: ValueOrSignal<number | string | EmptyValue>
+  mode?: ValueOrSignal<number | string | EmptyValue>
+  numOctaves?: ValueOrSignal<number | string | EmptyValue>
+  offset?: ValueOrSignal<number | string | EmptyValue>
+  opacity?: ValueOrSignal<number | string | EmptyValue>
+  operator?: ValueOrSignal<number | string | EmptyValue>
+  order?: ValueOrSignal<number | string | EmptyValue>
+  orient?: ValueOrSignal<number | string | EmptyValue>
+  orientation?: ValueOrSignal<number | string | EmptyValue>
+  origin?: ValueOrSignal<number | string | EmptyValue>
+  overflow?: ValueOrSignal<number | string | EmptyValue>
+  overlinePosition?: ValueOrSignal<number | string | EmptyValue>
+  overlineThickness?: ValueOrSignal<number | string | EmptyValue>
+  paintOrder?: ValueOrSignal<number | string | EmptyValue>
+  panose1?: ValueOrSignal<number | string | EmptyValue>
+  path?: ValueOrSignal<string | EmptyValue>
+  pathLength?: ValueOrSignal<number | string | EmptyValue>
+  patternContentUnits?: ValueOrSignal<string | EmptyValue>
+  patternTransform?: ValueOrSignal<number | string | EmptyValue>
+  patternUnits?: ValueOrSignal<string | EmptyValue>
+  pointerEvents?: ValueOrSignal<number | string | EmptyValue>
+  points?: ValueOrSignal<string | EmptyValue>
+  pointsAtX?: ValueOrSignal<number | string | EmptyValue>
+  pointsAtY?: ValueOrSignal<number | string | EmptyValue>
+  pointsAtZ?: ValueOrSignal<number | string | EmptyValue>
+  preserveAlpha?: ValueOrSignal<Booleanish | EmptyValue>
+  preserveAspectRatio?: ValueOrSignal<string | EmptyValue>
+  primitiveUnits?: ValueOrSignal<number | string | EmptyValue>
+  r?: ValueOrSignal<number | string | EmptyValue>
+  radius?: ValueOrSignal<number | string | EmptyValue>
+  refX?: ValueOrSignal<number | string | EmptyValue>
+  refY?: ValueOrSignal<number | string | EmptyValue>
+  renderingIntent?: ValueOrSignal<number | string | EmptyValue>
+  repeatCount?: ValueOrSignal<number | string | EmptyValue>
+  repeatDur?: ValueOrSignal<number | string | EmptyValue>
+  requiredExtensions?: ValueOrSignal<number | string | EmptyValue>
+  requiredFeatures?: ValueOrSignal<number | string | EmptyValue>
+  restart?: ValueOrSignal<number | string | EmptyValue>
+  result?: ValueOrSignal<string | EmptyValue>
+  rotate?: ValueOrSignal<number | string | EmptyValue>
+  rx?: ValueOrSignal<number | string | EmptyValue>
+  ry?: ValueOrSignal<number | string | EmptyValue>
+  scale?: ValueOrSignal<number | string | EmptyValue>
+  seed?: ValueOrSignal<number | string | EmptyValue>
+  shapeRendering?: ValueOrSignal<number | string | EmptyValue>
+  slope?: ValueOrSignal<number | string | EmptyValue>
+  spacing?: ValueOrSignal<number | string | EmptyValue>
+  specularConstant?: ValueOrSignal<number | string | EmptyValue>
+  specularExponent?: ValueOrSignal<number | string | EmptyValue>
+  speed?: ValueOrSignal<number | string | EmptyValue>
+  spreadMethod?: ValueOrSignal<string | EmptyValue>
+  startOffset?: ValueOrSignal<number | string | EmptyValue>
+  stdDeviation?: ValueOrSignal<number | string | EmptyValue>
+  stemh?: ValueOrSignal<number | string | EmptyValue>
+  stemv?: ValueOrSignal<number | string | EmptyValue>
+  stitchTiles?: ValueOrSignal<number | string | EmptyValue>
+  stopColor?: ValueOrSignal<string | EmptyValue>
+  stopOpacity?: ValueOrSignal<number | string | EmptyValue>
+  strikethroughPosition?: ValueOrSignal<number | string | EmptyValue>
+  strikethroughThickness?: ValueOrSignal<number | string | EmptyValue>
+  string?: ValueOrSignal<number | string | EmptyValue>
+  stroke?: ValueOrSignal<string | EmptyValue>
+  strokeDasharray?: ValueOrSignal<string | number | EmptyValue>
+  strokeDashoffset?: ValueOrSignal<string | number | EmptyValue>
+  strokeLinecap?: ValueOrSignal<'butt' | 'round' | 'square' | 'inherit' | EmptyValue>
+  strokeLinejoin?: ValueOrSignal<'miter' | 'round' | 'bevel' | 'inherit' | EmptyValue>
+  strokeMiterlimit?: ValueOrSignal<number | string | EmptyValue>
+  strokeOpacity?: ValueOrSignal<number | string | EmptyValue>
+  strokeWidth?: ValueOrSignal<number | string | EmptyValue>
+  surfaceScale?: ValueOrSignal<number | string | EmptyValue>
+  systemLanguage?: ValueOrSignal<number | string | EmptyValue>
+  tableValues?: ValueOrSignal<number | string | EmptyValue>
+  targetX?: ValueOrSignal<number | string | EmptyValue>
+  targetY?: ValueOrSignal<number | string | EmptyValue>
+  textAnchor?: ValueOrSignal<string | EmptyValue>
+  textDecoration?: ValueOrSignal<number | string | EmptyValue>
+  textLength?: ValueOrSignal<number | string | EmptyValue>
+  textRendering?: ValueOrSignal<number | string | EmptyValue>
+  to?: ValueOrSignal<number | string | EmptyValue>
+  transform?: ValueOrSignal<string | EmptyValue>
+  u1?: ValueOrSignal<number | string | EmptyValue>
+  u2?: ValueOrSignal<number | string | EmptyValue>
+  underlinePosition?: ValueOrSignal<number | string | EmptyValue>
+  underlineThickness?: ValueOrSignal<number | string | EmptyValue>
+  unicode?: ValueOrSignal<number | string | EmptyValue>
+  unicodeBidi?: ValueOrSignal<number | string | EmptyValue>
+  unicodeRange?: ValueOrSignal<number | string | EmptyValue>
+  unitsPerEm?: ValueOrSignal<number | string | EmptyValue>
+  vAlphabetic?: ValueOrSignal<number | string | EmptyValue>
+  values?: ValueOrSignal<string | EmptyValue>
+  vectorEffect?: ValueOrSignal<number | string | EmptyValue>
+  version?: ValueOrSignal<string | EmptyValue>
+  vertAdvY?: ValueOrSignal<number | string | EmptyValue>
+  vertOriginX?: ValueOrSignal<number | string | EmptyValue>
+  vertOriginY?: ValueOrSignal<number | string | EmptyValue>
+  vHanging?: ValueOrSignal<number | string | EmptyValue>
+  vIdeographic?: ValueOrSignal<number | string | EmptyValue>
+  viewBox?: ValueOrSignal<string | EmptyValue>
+  viewTarget?: ValueOrSignal<number | string | EmptyValue>
+  visibility?: ValueOrSignal<number | string | EmptyValue>
+  vMathematical?: ValueOrSignal<number | string | EmptyValue>
+  widths?: ValueOrSignal<number | string | EmptyValue>
+  wordSpacing?: ValueOrSignal<number | string | EmptyValue>
+  writingMode?: ValueOrSignal<number | string | EmptyValue>
+  x1?: ValueOrSignal<number | string | EmptyValue>
+  x2?: ValueOrSignal<number | string | EmptyValue>
+  x?: ValueOrSignal<number | string | EmptyValue>
+  xChannelSelector?: ValueOrSignal<string | EmptyValue>
+  xHeight?: ValueOrSignal<number | string | EmptyValue>
+  xlinkActuate?: ValueOrSignal<string | EmptyValue>
+  xlinkArcrole?: ValueOrSignal<string | EmptyValue>
+  xlinkHref?: ValueOrSignal<string | EmptyValue>
+  xlinkRole?: ValueOrSignal<string | EmptyValue>
+  xlinkShow?: ValueOrSignal<string | EmptyValue>
+  xlinkTitle?: ValueOrSignal<string | EmptyValue>
+  xlinkType?: ValueOrSignal<string | EmptyValue>
+  xmlBase?: ValueOrSignal<string | EmptyValue>
+  xmlLang?: ValueOrSignal<string | EmptyValue>
+  xmlns?: ValueOrSignal<string | EmptyValue>
+  xmlnsXlink?: ValueOrSignal<string | EmptyValue>
+  xmlSpace?: ValueOrSignal<string | EmptyValue>
+  y1?: ValueOrSignal<number | string | EmptyValue>
+  y2?: ValueOrSignal<number | string | EmptyValue>
+  y?: ValueOrSignal<number | string | EmptyValue>
+  yChannelSelector?: ValueOrSignal<string | EmptyValue>
+  z?: ValueOrSignal<number | string | EmptyValue>
+  zoomAndPan?: ValueOrSignal<string | EmptyValue>
 }

@@ -3,12 +3,12 @@ import type {
   EffectAttributeCallback,
   UnknownAttributes
 } from '../types/index.js'
-import { toArray } from '../utils.js'
 
 const store = new Map<EffectAttributeId, EffectAttributeCallback>()
 
 /**
  * Create effect attribute
+ * @param id - Effect attribute id
  * @param callback - Effect attribute handler
  * @returns Effect attribute id
  */
@@ -16,17 +16,19 @@ export function createEffectAttribute<
   ID extends string,
   TargetElement extends Element,
   Value
->(callback: EffectAttributeCallback<TargetElement, Value>) {
-  const id = Symbol()
-
+>(id: ID, callback: EffectAttributeCallback<TargetElement, Value>) {
   store.set(id, callback as EffectAttributeCallback)
 
-  // Symbols is better for minification / Constant string type is better for smart types
-  return id as unknown as `${ID}$`
+  return id
 }
 
-export function getEffectAttribute(id: unknown) {
-  return store.get(id as EffectAttributeId)
+/**
+ * Get effect attribute by id
+ * @param id - Effect attribute id
+ * @returns Effect attribute function
+ */
+export function getEffectAttribute(id: EffectAttributeId) {
+  return store.get(id)
 }
 
 /**
@@ -40,7 +42,7 @@ export function effectAttributeValidate<T extends UnknownAttributes>(
   names: keyof T | (keyof T)[],
   effectAttributeName: string
 ) {
-  toArray(names).forEach((name) => {
+  (Array.isArray(names) ? names : [names]).forEach((name) => {
     if (name in attributes) {
       throw new Error(
         `You can't use ${effectAttributeName} effect attribute and ${String(name)} attribute together.`

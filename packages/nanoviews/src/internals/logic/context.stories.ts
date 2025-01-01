@@ -2,8 +2,9 @@ import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
 import { createElement } from '../elements/index.js'
 import {
-  createContext,
-  provideContext
+  provide,
+  context,
+  inject
 } from './context.js'
 
 const meta: Meta = {
@@ -14,30 +15,33 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-const [ThemeContext, getTheme] = createContext('light')
-const [UserContext, getUser] = createContext('Guest')
+const ThemeContext = () => 'light'
+const UserContext = () => 'Guest'
 
 export const DefaultValue: Story = {
   render: nanoStory(
-    () => createElement('div')('Default theme: ', getTheme())
+    () => context(() => createElement('div')('Default theme: ', inject(ThemeContext)))
   )
 }
 
 export const OneContext: Story = {
   render: nanoStory(
-    () => provideContext(ThemeContext('dark'), () => createElement('div')('Theme: ', getTheme()))
+    () => context(
+      [provide(ThemeContext, 'dark')],
+      () => createElement('div')('Theme: ', inject(ThemeContext))
+    )
   )
 }
 
 export const FewContexts: Story = {
   render: nanoStory(
-    () => provideContext(
-      [ThemeContext('dark'), UserContext('Admin')],
+    () => context(
+      [provide(ThemeContext, 'dark'), provide(UserContext, 'Admin')],
       () => createElement('div')(
         'Theme: ',
-        getTheme(),
+        inject(ThemeContext),
         ' User: ',
-        getUser()
+        inject(UserContext)
       )
     )
   )

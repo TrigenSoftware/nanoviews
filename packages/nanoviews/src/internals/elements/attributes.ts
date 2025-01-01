@@ -1,19 +1,18 @@
 import {
-  isStore,
-  listen
-} from '@nanoviews/stores'
+  isSignal,
+  subscribeLater
+} from 'kida'
 import type {
   PrimitiveAttributeValue,
   Primitive,
   TargetEventHandler,
-  Effect
+  EffectAttributeCallback
 } from '../types/index.js'
 import {
-  isString,
   isFunction,
-  isEmpty,
-  composeEffects
+  isEmpty
 } from '../utils.js'
+import { addEffect } from '../effects.js'
 import { getEffectAttribute } from './effectAttribute.js'
 
 type AttributeValue = PrimitiveAttributeValue | TargetEventHandler
@@ -37,80 +36,35 @@ function setunset(
  * @param set - Function to set property
  * @param unset - Function to unset property
  * @param $value - Reactive or static value
- * @returns Effect function
  */
 export function setProperty(
   set: (value: string) => void,
   unset: () => void,
   $value: PrimitiveAttributeValue
 ) {
-  let startListen
-
-  if (isStore($value)) {
-    setunset(set, unset, $value.get())
-    startListen = () => listen(
+  if (isSignal($value)) {
+    addEffect(subscribeLater(
       $value,
       value => setunset(set, unset, value)
-    )
+    ))
   } else {
     setunset(set, unset, $value)
   }
-
-  return startListen
 }
 
 function setAttribute(element: Element, name: string, $value: PrimitiveAttributeValue) {
   const lowerCaseName = name.toLowerCase()
 
-  return setProperty(
+  setProperty(
     value => element.setAttribute(lowerCaseName, value),
     () => element.removeAttribute(lowerCaseName),
     $value
   )
 }
 
-function isEventListener(name: string, value: unknown): value is TargetEventHandler {
-  return /^on[A-Z]/.test(name) && isFunction(value)
-}
-
 function setEventListener(element: Element, name: string, value: TargetEventHandler) {
-  const eventName = name.toLowerCase()
-
-  return () => {
-    // @ts-expect-error - Maybe temporary, but it very simple realization
-    element[eventName] = value
-
-    return () => {
-      // @ts-expect-error - Maybe temporary, but it very simple realization
-      element[eventName] = null
-    }
-  }
-}
-
-/**
- * Create attributes effects function
- * @param element - Target element
- * @param attributes - Target attributes
- * @param createAttributeEffect - Function to create effect for each attribute
- * @returns Effect function
- */
-export function createAttributesEffect<
-  E extends Element,
-  T extends Record<string | symbol, unknown>
->(
-  element: E,
-  attributes: T,
-  createAttributeEffect: (
-    target: E,
-    attributeName: keyof T,
-    value: T[keyof T]
-  ) => Effect<void> | void
-) {
-  return composeEffects(
-    Reflect.ownKeys(attributes).map(
-      (attributeName: keyof T) => createAttributeEffect(element, attributeName, attributes[attributeName])
-    )
-  )
+  // @ts-expect-error - Maybe temporary, but it very simple realization
+  element[name.toLowerCase()] = value
 }
 
 /**
@@ -120,35 +74,24 @@ export function createAttributesEffect<
  *       https://github.com/facebook/react/blob/2f8f7760223241665f472a2a9be16650473bce39/packages/react-dom-bindings/src/client/ReactDOMComponent.js
  * @param element - Target element
  * @param attributes - Target attributes
- * @returns Effect function
  */
 export function setAttributes<A extends object>(element: Element, attributes: A) {
-  const { ...tAttributes } = attributes as Attributes
+  const keys = Object.keys(attributes)
+  const len = keys.length
+  let tEffectAttr: EffectAttributeCallback | undefined
 
-  return composeEffects(
-    createAttributesEffect(
-      element,
-      tAttributes,
-      (element, attributeName, value) => {
-        const effectAttribute = getEffectAttribute(attributeName)
+  if (len) {
+    for (let i = 0, key: string, value: AttributeValue; i < len; i++) {
+      key = keys[i]
+      value = (attributes as Attributes)[key]
 
-        if (effectAttribute) {
-          return effectAttribute(element, value, tAttributes)
-        }
+      if (isFunction(value)) {
+        setEventListener(element, key, value)
+      } else if (tEffectAttr = getEffectAttribute(key)) {
+        tEffectAttr(element, value, attributes as Attributes)
+      } else {
+        setAttribute(element, key, value)
       }
-    ),
-    createAttributesEffect(
-      element,
-      tAttributes,
-      (element, attributeName, value) => {
-        if (isString(attributeName)) {
-          return (
-            isEventListener(attributeName, value)
-              ? setEventListener(element, attributeName, value)
-              : setAttribute(element, attributeName, value as PrimitiveAttributeValue)
-          )
-        }
-      }
-    )
-  )
+    }
+  }
 }

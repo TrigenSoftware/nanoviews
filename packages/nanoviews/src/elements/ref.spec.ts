@@ -4,7 +4,7 @@ import {
   expect
 } from 'vitest'
 import { render } from '@nanoviews/testing-library'
-import { atom } from '@nanoviews/stores'
+import { signal } from 'kida'
 import { button } from './elements.js'
 import { ref$ } from './ref.js'
 
@@ -12,9 +12,9 @@ describe('nanoviews', () => {
   describe('elements', () => {
     describe('ref$', () => {
       it('should set ref', () => {
-        const ref = atom<HTMLButtonElement | null>(null)
+        const ref = signal<HTMLButtonElement | null>(null)
 
-        render(button({
+        render(() => button({
           [ref$]: ref
         })('Click me!'))
 

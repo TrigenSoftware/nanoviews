@@ -10,7 +10,7 @@ import {
   screen,
   fireEvent
 } from '@nanoviews/testing-library'
-import { atom } from '@nanoviews/stores'
+import { signal } from 'kida'
 import * as Stories from './element.stories.js'
 import { createElement } from './element.js'
 
@@ -35,7 +35,7 @@ describe('nanoviews', () => {
         })
 
         it('should render reactive primitive child', () => {
-          const text = atom('Hello, world!')
+          const text = signal('Hello, world!')
           const { container } = render(ReactivePrimitiveChild({
             text
           }))
@@ -54,7 +54,7 @@ describe('nanoviews', () => {
         })
 
         it('should render reactive primitive attribute', () => {
-          const href = atom('#')
+          const href = signal('#')
           const { container } = render(ReactivePrimitiveAttribute({
             href
           }))
@@ -67,7 +67,7 @@ describe('nanoviews', () => {
         })
 
         it('should remove reactive attribute', () => {
-          const href = atom<string | undefined>('#')
+          const href = signal<string | undefined>('#')
           const { container } = render(ReactivePrimitiveAttribute({
             href
           }))
@@ -89,8 +89,8 @@ describe('nanoviews', () => {
         })
 
         it('should render boolean reactive attribute', () => {
-          const dataValue = atom<string | boolean>('#')
-          const { container } = render(createElement('span', {
+          const dataValue = signal<string | boolean>('#')
+          const { container } = render(() => createElement('span', {
             'data-value': dataValue
           })('Data attribute test'))
 

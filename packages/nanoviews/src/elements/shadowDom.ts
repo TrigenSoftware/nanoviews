@@ -1,10 +1,7 @@
-import type {
-  Children,
-  ChildrenBlock
-} from '../internals/index.js'
 import {
-  createBlock,
-  createFragment
+  type Block,
+  type Children,
+  ShadowBlock
 } from '../internals/index.js'
 
 /**
@@ -13,29 +10,9 @@ import {
  * @param options - Shadow root options
  * @returns Block
  */
-export function shadow<
-  T extends Element
->(block: ChildrenBlock<T>, options: ShadowRootInit) {
-  return (...children: Children) => {
-    const childrenBlock = createFragment(children)
-    let shadowRoot: ShadowRoot | null
-
-    return block(
-      createBlock(
-        childrenBlock.c,
-        (parentNode) => {
-          shadowRoot = (parentNode as Element).attachShadow(options)
-
-          childrenBlock.m(shadowRoot)
-
-          return shadowRoot
-        },
-        childrenBlock.e,
-        () => {
-          shadowRoot = null
-          childrenBlock.d()
-        }
-      )
-    )
-  }
+export function shadow<T extends Element>(
+  block: (child: Block) => Block<T>,
+  options: ShadowRootInit
+) {
+  return (...children: Children) => block(new ShadowBlock(children, options))
 }

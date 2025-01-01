@@ -3,10 +3,12 @@ import { configDefaults } from 'vitest/config'
 
 export default defineConfig({
   build: {
+    target: 'esnext',
     lib: {
       formats: ['es'],
       entry: {
         index: './src/index.ts',
+        store: './src/store.ts',
         internals: './src/internals/index.ts'
       },
       fileName(_, entryName) {
@@ -14,7 +16,7 @@ export default defineConfig({
       }
     },
     rollupOptions: {
-      external: ['@nanoviews/stores']
+      external: ['kida']
     },
     sourcemap: true,
     minify: false,

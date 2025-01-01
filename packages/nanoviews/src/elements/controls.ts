@@ -1,17 +1,14 @@
 /* eslint-disable jsdoc/require-param */
 /* eslint-disable jsdoc/require-returns */
 import {
-  isStore,
+  type WritableSignal,
+  isSignal,
   listen
-} from '@nanoviews/stores'
-import type {
-  ValueOrStore,
-  EmptyValue,
-  UnknownAttributes,
-  Effect,
-  Destroy
-} from '../internals/index.js'
+} from 'kida'
 import {
+  type ValueOrWritableSignal,
+  type EmptyValue,
+  type UnknownAttributes,
   valueProperty,
   checkedProperty,
   indeterminateProperty,
@@ -23,7 +20,8 @@ import {
   isEmpty,
   noop,
   createEffectAttribute,
-  effectAttributeValidate
+  effectAttributeValidate,
+  addEffect
 } from '../internals/index.js'
 
 // https://caniuse.com/?search=oninput onInput doesn't fire an input event when (un)checking a checkbox or radio button, or when changing the selected file(s) of an <input type="file">
@@ -32,19 +30,19 @@ export const Indeterminate = Symbol.for('Indeterminate')
 
 type ValuePrimitive = string | EmptyValue
 
-type Value = ValueOrStore<ValuePrimitive>
+type Value = ValueOrWritableSignal<ValuePrimitive>
 
 type CheckedPrimitive = boolean | typeof Indeterminate | EmptyValue
 
-type Checked = ValueOrStore<CheckedPrimitive>
+type Checked = ValueOrWritableSignal<CheckedPrimitive>
 
 type SelectedPrimitive = string | string[] | EmptyValue
 
-type Selected = ValueOrStore<string | EmptyValue> | ValueOrStore<string[] | EmptyValue>
+type Selected = ValueOrWritableSignal<string | EmptyValue> | ValueOrWritableSignal<string[] | EmptyValue>
 
 type FilesPrimitive = File[] | EmptyValue
 
-type Files = ValueOrStore<FilesPrimitive>
+type Files = ValueOrWritableSignal<FilesPrimitive>
 
 type TextboxElement = HTMLInputElement | HTMLTextAreaElement
 
@@ -64,40 +62,38 @@ function createElementPropertySetter<E extends Element, V>(
 ) {
   return (
     control: E,
-    $value: ValueOrStore<V>,
+    $value: ValueOrWritableSignal<V>,
     attributes: UnknownAttributes
-  ): Effect<void> | void => {
+  ): void => {
     if (import.meta.env.DEV) {
       validate?.(attributes)
     }
 
     if (!isEmpty($value)) {
-      if (isStore($value)) {
+      if (isSignal<WritableSignal<V>>($value)) {
         const eventListener = () => $value.set(getValue(control))
         const value = $value.get()
 
         create(control, value)
 
-        return () => {
+        addEffect(() => {
           mount(control, value)
           control.addEventListener(eventName, eventListener)
 
-          let destroy: Destroy | null = listen(
+          const destroy = listen(
             $value,
             value => update(control, value)
           )
 
           return () => {
             control.removeEventListener(eventName, eventListener)
-            destroy!()
-            destroy = null
+            destroy()
           }
-        }
+        })
+      } else {
+        create(control, $value)
+        addEffect(() => mount(control, $value))
       }
-
-      create(control, $value)
-
-      return () => mount(control, $value)
     }
   }
 }
@@ -116,7 +112,8 @@ function getValue(control: TextboxElement): ValuePrimitive {
 /**
  * Effect attribute to set and read text value of input element
  */
-export const value$ = /* @__PURE__ */ createEffectAttribute<'value', TextboxElement, Value>(
+export const value$ = /* @__PURE__ */ createEffectAttribute<'value$', TextboxElement, Value>(
+  'value$',
   createElementPropertySetter(
     onInputEvent,
     setValue,
@@ -152,7 +149,8 @@ function getChecked(control: CheckboxElement): CheckedPrimitive {
 /**
  * Effect attribute to set and read checked value of checkbox or radio button element
  */
-export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked', CheckboxElement, Checked>(
+export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, Checked>(
+  'checked$',
   createElementPropertySetter(
     onChangeEvent,
     setChecked,
@@ -174,26 +172,35 @@ function setSelected(
   values: SelectedPrimitive
 ) {
   const options = control[optionsProperty]
+  const len = options.length
   const test = Array.isArray(values)
     ? (v: string) => values.includes(v)
     : (v: string) => values === v
 
-  for (let i = 0, len = options.length, option = options[i]; i < len; option = options[++i]) {
-    option[selectedProperty] = test(option[valueProperty])
+  if (len) {
+    for (let i = 0, option: HTMLOptionElement; i < len; i++) {
+      option = options[i]
+      option[selectedProperty] = test(option[valueProperty])
+    }
   }
 }
 
 function getSelected(control: ComboboxElement): SelectedPrimitive {
   const isMultiple = control[multipleProperty]
   const options = control[optionsProperty]
+  const len = options.length
   const values: string[] = []
 
-  for (let i = 0, len = options.length, option = options[i]; i < len; option = options[++i]) {
-    if (option[selectedProperty]) {
-      if (isMultiple) {
-        values.push(option[valueProperty])
-      } else {
-        return option[valueProperty]
+  if (len) {
+    for (let i = 0, option: HTMLOptionElement; i < len; i++) {
+      option = options[i]
+
+      if (option[selectedProperty]) {
+        if (isMultiple) {
+          values.push(option[valueProperty])
+        } else {
+          return option[valueProperty]
+        }
       }
     }
   }
@@ -204,7 +211,8 @@ function getSelected(control: ComboboxElement): SelectedPrimitive {
 /**
  * Effect attribute to set and read selected value of combobox element
  */
-export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected', ComboboxElement, Selected>(
+export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, Selected>(
+  'selected$',
   createElementPropertySetter(
     onChangeEvent,
     (control: ComboboxElement, value: SelectedPrimitive) => {
@@ -230,7 +238,8 @@ function getFiles(control: FileElement): FilesPrimitive {
 /**
  * Effect attribute to read files of file input element
  */
-export const files$ = /* @__PURE__ */ createEffectAttribute<'files', FileElement, Files>(
+export const files$ = /* @__PURE__ */ createEffectAttribute<'files$', FileElement, Files>(
+  'files$',
   createElementPropertySetter(
     onChangeEvent,
     noop,
@@ -242,16 +251,16 @@ export const files$ = /* @__PURE__ */ createEffectAttribute<'files', FileElement
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
-    [value$]: Value
-    [checked$]: Checked
-    [selected$]: Selected
-    [files$]: Files
+    value$: Value
+    checked$: Checked
+    selected$: Selected
+    files$: Files
   }
 
   interface EffectAttributeTargets {
-    [value$]: TextboxElement
-    [checked$]: CheckboxElement
-    [selected$]: ComboboxElement
-    [files$]: FileElement
+    value$: TextboxElement
+    checked$: CheckboxElement
+    selected$: ComboboxElement
+    files$: FileElement
   }
 }

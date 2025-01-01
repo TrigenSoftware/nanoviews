@@ -1,97 +1,68 @@
-import type {
-  Context,
-  ContextLayer
-} from '../types/index.js'
 import {
-  toArray,
-  noop
-} from '../utils.js'
+  type InjectionProvider,
+  type InjectionFactory,
+  InjectionContext,
+  getContext,
+  run,
+  inject,
+  isFunction
+} from 'kida'
 
-const contextStack: ContextLayer[] = []
-
-/**
- * Get current context stack
- * @returns Current context stack
- */
-export function getCurrentContextStack() {
-  return contextStack.at(-1)
+export {
+  getContext,
+  run,
+  inject
 }
 
-function pushContext(context: Context | Context[] | ContextLayer) {
-  let layer: ContextLayer
+/**
+ * Provide a dependency.
+ * @param token - The factory function to create or get the dependency.
+ * @param value - The value of the dependency.
+ * @returns The provider.
+ */
+export function provide<T>(token: InjectionFactory<T>, value: T): InjectionProvider {
+  return [token, value]
+}
 
-  if (context instanceof Map) {
-    layer = context
+/**
+ * Run a function within an current injection context.
+ * @param fn - The function to run.
+ * @returns The return value of the function.
+ */
+export function context<R>(fn: () => R): R
+
+/**
+ * Run a function within a new injection context with the given values.
+ * @param providers - The values to use in the context.
+ * @param fn - The function to run.
+ * @returns The return value of the function.
+ */
+export function context<R>(providers: InjectionProvider[], fn: () => R): R
+
+export function context<R>(providersOrFn: InjectionProvider[] | (() => R), maybeFn?: () => R) {
+  const currentContext = getContext()
+  let providers: InjectionProvider[] | undefined
+  let fn: () => R
+
+  if (isFunction(providersOrFn)) {
+    fn = providersOrFn
+
+    if (currentContext) {
+      return run(currentContext, fn)
+    }
   } else {
-    layer = new Map(getCurrentContextStack())
-
-    toArray(context).forEach(
-      ctx => layer.set(ctx.i, ctx.v)
-    )
+    providers = providersOrFn
+    fn = maybeFn!
   }
 
-  contextStack.push(layer)
-
-  return layer
-}
-
-function popContext() {
-  contextStack.pop()
+  return run(new InjectionContext(currentContext, providers), fn)
 }
 
 /**
- * Create context
- * @param defaultValue - Default value
- * @returns Context provider and getter
+ * Run a function within a new isolated injection context.
+ * @param fn - The function to run.
+ * @returns The return value of the function.
  */
-export function createContext<T = unknown>(defaultValue: T) {
-  const id = Symbol()
-  const provider = (value: T): Context<T> => ({
-    i: id,
-    v: value
-  })
-  const getContext = () => getCurrentContextStack()?.get(id) as T || defaultValue
-
-  return [provider, getContext] as const
-}
-
-type ContextDifsContainer = [typeof getCurrentContextStack, typeof provideContext]
-
-// "DI For Tree Shaking" Container
-let diftsContainer: ContextDifsContainer
-
-/**
- * Get context's "DI For Tree Shaking" Container
- * @returns Context difts container
- */
-export function getContextDiftsContainer(): ContextDifsContainer {
-  return diftsContainer || [noop, (_, r) => r()]
-}
-
-function setDiftsContainer(
-  getCurrentContextStackFn: typeof getCurrentContextStack,
-  provideContextFn: typeof provideContext
-) {
-  diftsContainer ||= [getCurrentContextStackFn, provideContextFn]
-}
-
-/**
- * Provide context
- * @param context - Context or contexts
- * @param render - Render function
- * @returns Rendered value
- */
-export function provideContext<R>(context: Context | Context[] | ContextLayer | undefined, render: () => R) {
-  if (!context || Array.isArray(context) && !context.length) {
-    return render()
-  }
-
-  setDiftsContainer(getCurrentContextStack, provideContext)
-  pushContext(context)
-
-  const block = render()
-
-  popContext()
-
-  return block
+export function isolate<R>(fn: () => R): R {
+  return run(undefined, fn)
 }

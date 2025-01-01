@@ -1,4 +1,3 @@
-import type { Effect } from './block.js'
 import type { UnknownAttributes } from './attributes.js'
 
 declare module 'nanoviews' {
@@ -19,10 +18,10 @@ export type PickEffectAttributesByTarget<Target extends Element> = {
     : never
 }
 
-export type EffectAttributeId = symbol | string
+export type EffectAttributeId = string
 
 export type EffectAttributeCallback<Target extends Element = Element, Value = unknown> = (
   target: Target,
   value: Value,
-  attributes: UnknownAttributes
-) => Effect<void> | void | undefined
+  attributes: Readonly<UnknownAttributes>
+) => void

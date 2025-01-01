@@ -8,11 +8,7 @@ import {
   render,
   screen
 } from '@nanoviews/testing-library'
-import {
-  list,
-  entities,
-  record
-} from '@nanoviews/stores'
+import { signal } from 'kida'
 import * as Stories from './for.stories.js'
 
 const {
@@ -31,7 +27,7 @@ describe('nanoviews', () => {
       })
 
       it('should handle reactive array', () => {
-        const items = list([
+        const items = signal([
           'Yatoro',
           'Larl',
           'Collapse',
@@ -56,7 +52,7 @@ describe('nanoviews', () => {
       })
 
       it('should render placeholder', () => {
-        const items = list([
+        const items = signal([
           'Yatoro',
           'Larl',
           'Collapse',
@@ -75,7 +71,7 @@ describe('nanoviews', () => {
       })
 
       it('should not recreate nodes', () => {
-        const items = list([
+        const items = signal([
           'Satanic',
           'Larl',
           'Collapse',
@@ -118,7 +114,7 @@ describe('nanoviews', () => {
       })
 
       it('should reorder nodes', () => {
-        const items = entities([
+        const items = signal([
           {
             id: 1,
             name: 'Satanic'
@@ -139,7 +135,7 @@ describe('nanoviews', () => {
             id: 5,
             name: 'Miposhka'
           }
-        ], record)
+        ])
         const { container } = render(EntitiesValue({
           items
         }))

@@ -28,17 +28,17 @@
 
 A small Direct DOM library for creating user interfaces.
 
-- **Small**. Between 2.71 and 4.77 kB (minified and brotlied). Zero dependencies[*](#reactivity).
+- **Small**. Between 3.4 and 6 kB (minified and brotlied). Zero external dependencies[*](#reactivity).
 - **Direct DOM**. Less CPU and memory usage compared to Virtual DOM.
 - Designed for best **Tree-Shaking**: only the code you use is included in your bundle.
 - **TypeScript**-first.
 
 ```js
-import { atom } from '@nanoviews/stores'
-import { div, a, img, h1, button, p, render } from 'nanoviews'
+import { signal } from 'nanoviews/stores'
+import { div, a, img, h1, button, p, mount } from 'nanoviews'
 
 function App() {
-  const $counter = atom(0)
+  const $counter = signal(0)
 
   return div()(
     a({ href: 'https://vitejs.dev', target: '_blank' })(
@@ -59,7 +59,7 @@ function App() {
   )
 }
 
-render(App(), document.querySelector('#app'))
+mount(App, document.querySelector('#app'))
 ```
 
 <hr />
@@ -89,13 +89,13 @@ yarn add -D nanoviews
 
 ## Reactivity
 
-Nanoviews is designed to be used with [Nano Stores](https://github.com/nanostores/nanostores) for reactivity. But Nano Stores is not a direct dependency of Nanoviews, so you can use any other reactive library that implements [store interface](./src/internals/types/common.ts#L29).
+Nanoviews is using [Kida](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida) under the hood for reactivity. This library is inspired by [Nano Stores](https://github.com/nanostores/nanostores) and was build specially for Nanoviews.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal } from 'nanoviews/stores' // or import { signal } from 'kida'
 import { fragment, input, p } from 'nanoviews'
 
-const $text = atom('')
+const $text = signal('')
 
 fragment(
   input({
@@ -114,16 +114,34 @@ Nanoviews provides a set of methods for creating HTML elements with the specifie
 Child can be an another element, primitive value (string, number, boolean, `null` or `undefined`), store with primitive or array of children. Attributes also can be a primitive value or store.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal } from 'nanoviews/stores'
 import { ul, li } from 'nanoviews'
 
-const $boolean = atom(true)
+const $boolean = signal(true)
 
 ul({ class: 'list' })(
   li()('String value'),
   li()('Number value', 42),
   li()('Boolean value', $boolean)
 )
+```
+
+### mount
+
+`mount` is a method that mounts the component to the specified container.
+
+```js
+import { signal } from 'nanoviews/stores'
+import { div, h1, p, mount } from 'nanoviews'
+
+function App() {
+  return div()(
+    h1()('Nanoviews App'),
+    p()('Hello World!')
+  )
+}
+
+mount(App, document.querySelector('#app'))
 ```
 
 ## Special methods
@@ -133,23 +151,21 @@ ul({ class: 'list' })(
 `text$` is a method that creates text node block with the specified value or store.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal } from 'nanoviews/stores'
 import { text$, effect$ } from 'nanoviews'
 
 function TickTak() {
-  const $tick = atom(0)
-  const effect = () => {
+  const $tick = signal(0)
+
+  effect$(() => {
     const id = setInterval(() => {
       $tick.set($tick.get() + 1)
     }, 1000)
 
     return () => clearInterval(id)
-  }
+  })
 
-  return effect$(
-    effect,
-    text$($tick)
-  )
+  return text$($tick)
 }
 ```
 
@@ -158,23 +174,21 @@ function TickTak() {
 `fragment` is a method that creates a fragment block with the specified children.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal } from 'nanoviews/stores'
 import { fragment, effect$ } from 'nanoviews'
 
 function TickTak() {
-  const $tick = atom(0)
-  const effect = () => {
+  const $tick = signal(0)
+
+  effect$(() => {
     const id = setInterval(() => {
       $tick.set($tick.get() + 1)
     }, 1000)
 
     return () => clearInterval(id)
-  }
+  })
 
-  return effect$(
-    effect,
-    fragment('Tick tak: ', $tick)
-  )
+  return fragment('Tick tak: ', $tick)
 }
 ```
 
@@ -191,14 +205,14 @@ dangerouslySetInnerHTML(
 )
 ```
 
-### attachShadow
+### shadow
 
-`attachShadow` is a method that attaches a shadow DOM to the specified element block.
+`shadow` is a method that attaches a shadow DOM to the specified element block.
 
 ```js
-import { div, attachShadow } from 'nanoviews'
+import { div, shadow } from 'nanoviews'
 
-attachShadow(
+shadow(
   div({ id: 'custom-element' }),
   {
     mode: 'open'
@@ -217,10 +231,10 @@ Effect attributes are special attributes that can control element's behavior.
 `ref$` is an effect attribute that can provide a reference to the DOM node.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal } from 'nanoviews/stores'
 import { div, ref$ } from 'nanoviews'
 
-const $ref = atom(null)
+const $ref = signal(null)
 
 div({
   [ref$]: $ref
@@ -234,10 +248,10 @@ div({
 `style$` is an effect attribute that manages the style of the element.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal } from 'nanoviews/stores'
 import { button, style$ } from 'nanoviews'
 
-const $color = atom('white')
+const $color = signal('white')
 
 button({
   [style$]: {
@@ -247,25 +261,6 @@ button({
 })(
   'Click me'
 )
-```
-
-### classList$
-
-`classList$` is an effect attribute that manages class names of the element.
-
-```js
-import { button, classList$, classIf$, classGet$ } from 'nanoviews'
-import * as styles from './styles.css'
-
-function MyButton({
-  class: className,
-  theme = 'primary',
-  rounded = false
-}) {
-  return button({
-    [classList$]: [className, 'myButton', classIf$(styles.rounded, rounded), classGet$(styles, theme)]
-  })
-}
 ```
 
 ### autoFocus$
@@ -286,10 +281,10 @@ input({
 `value$` is an effect attribute that manages the value of text inputs.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal } from 'nanoviews/stores'
 import { textarea, value$ } from 'nanoviews'
 
-const $review = atom('')
+const $review = signal('')
 
 textarea({
   name: 'review',
@@ -304,10 +299,10 @@ textarea({
 `checked$` is an effect attribute that manages the checked state of checkboxes and radio buttons.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal } from 'nanoviews/stores'
 import { input, checked$, Indeterminate } from 'nanoviews'
 
-const $checked = atom(false)
+const $checked = signal(false)
 
 input({
   type: 'checkbox',
@@ -326,10 +321,10 @@ $checked.set(Indeterminate)
 `selected$` is an effect attribute that manages the selected state of select's options.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal } from 'nanoviews/stores'
 import { select, option, selected$ } from 'nanoviews'
 
-const $selected = atom('mid')
+const $selected = signal('mid')
 
 select({
   name: 'player-pos',
@@ -356,7 +351,7 @@ select({
 Multiple select:
 
 ```js
-const $selected = atom(['mid', 'carry'])
+const $selected = signal(['mid', 'carry'])
 
 select({
   name: 'player-pos',
@@ -385,10 +380,10 @@ select({
 `files$` is an effect attribute that can provide the files of file inputs.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal } from 'nanoviews/stores'
 import { input, files$ } from 'nanoviews'
 
-const $files = atom([])
+const $files = signal([])
 
 input({
   type: 'file',
@@ -400,48 +395,87 @@ input({
 
 ### effect$
 
-`effect$` is a method that add effects to the element block.
+`effect$` is a method that add effects to the component.
 
 ```js
 import { div, effect$ } from 'nanoviews'
 
 function App() {
-  const effect = (element) => {
-    console.log('Mounted', element.outerHTML) // Mounted <div>Hello, Nanoviews!</div>
+  effect$(() => {
+    console.log('Mounted')
 
     return () => {
       console.log('Unmounted')
     }
-  }
+  })
 
-  return effect$(
-    effect, // or array of effects
-    div()('Hello, Nanoviews!')
-  )
+  return div()('Hello, Nanoviews!')
 }
 ```
 
-### decide$
+### observe$
 
-`decide$` is a method that can switch between different childs.
+`observe$` is a method to observe stores on component mount.
 
 ```js
-import { atom } from '@nanoviews/stores'
-import { decide$, div, p } from 'nanoviews'
+import { div, observe$ } from 'nanoviews'
 
-const $show = atom(false)
+const $timeout = signal(1000)
 
-decide$($show, (show) => {
-  if (show) {
-    return div()('Hello, Nanoviews!')
-  }
-})
+function App() {
+  let intervalId
 
-const $toggle = atom(false)
+  observe$((get) => {
+    intervalId = setInterval(() => {
+      console.log('Tick')
+    }, get($timeout))
 
-decide$($toggle, toggle => (
-  toggle ? p()('Toggle is true') : div()('Toggle is false')
-))
+    return () => {
+      clearInterval(intervalId)
+    }
+  })
+
+  return div()('Hello, Nanoviews!')
+}
+```
+
+### if$
+
+`if$` is a method that can render different childs based on the condition.
+
+```js
+import { signal } from 'nanoviews/stores'
+import { if$, div, p } from 'nanoviews'
+
+const $show = signal(false)
+
+if$($show)(
+  () => div()('Hello, Nanoviews!')
+)
+
+const $toggle = signal(false)
+
+if$($toggle)(
+  () => p()('Toggle is true'),
+  () => div()('Toggle is false')
+)
+```
+
+### switch$
+
+`switch$` is a method like `if$` but with multiple conditions.
+
+```js
+import { signal } from 'nanoviews/stores'
+import { switch$, case$, default$, div, p } from 'nanoviews'
+
+const $state = signal('loading')
+
+switch$(state)(
+  case$('loading', () => b()('Loading')),
+  case$('error', () => b()('Error')),
+  default$(() => 'Success')
+)
 ```
 
 ### for$
@@ -449,10 +483,10 @@ decide$($toggle, toggle => (
 `for$` is a method that can iterate over an array to render a list of blocks.
 
 ```js
-import { atom } from '@nanoviews/stores'
+import { signal, record } from 'nanoviews/stores'
 import { for$, ul, li } from 'nanoviews'
 
-const $players = atom([
+const $players = signal([
   { id: 0, name: 'chopper' },
   { id: 1, name: 'magixx' },
   { id: 2, name: 'zont1x' },
@@ -462,7 +496,11 @@ const $players = atom([
 ])
 
 ul()(
-  for$($players, (player) => player.id, (player) => li()(player))
+  for$($players, player => player.id)(
+    $player => li()(
+      record($player).name
+    )
+  )
 )
 ```
 
@@ -474,7 +512,7 @@ ul()(
 import { div, children$ } from 'nanoviews'
 
 function MyComponent(props) {
-  return children$((children) => div(props)(
+  return children$(children => div(props)(
     'My component children: ',
     children || 'empty'
   ))
@@ -487,30 +525,33 @@ MyComponent()('Hello, Nanoviews!') // <div>My component children: Hello, Nanovie
 
 ### slots$
 
-`slots$` is a method that should be used with `children$` to receive slots.
+`slots$` is a method to receive slots and rest children.
 
 ```js
-import { main, header, footer, children$, slots$, createSlot } from 'nanoviews'
+import { main, header, footer, slot$, slots$ } from 'nanoviews'
 
-const LayoutHeaderSlot = createSlot()
-const LayoutFooterSlot = createSlot()
+function LayoutHeader(text) {
+  return slot$(LayoutHeader, text)
+}
+
+function LayoutFooter(text) {
+  return slot$(LayoutFooter, text)
+}
 
 function Layout() {
-  return children$(
-    slots$(
-      [LayoutHeaderSlot, LayoutFooterSlot],
-      (headerSlot, footerSlot, children) => main()(
-        header()(headerSlot),
-        children,
-        footer()(footerSlot)
-      )
+  return slots$(
+    [LayoutHeader, LayoutFooter],
+    (headerSlot, footerSlot, children) => main()(
+      header()(headerSlot),
+      children,
+      footer()(footerSlot)
     )
   )
 }
 
 Layout()(
-  LayoutHeaderSlot('Header content'),
-  LayoutFooterSlot('Footer content'),
+  LayoutHeader('Header content'),
+  LayoutFooter('Footer content'),
   'Main content'
 )
 ```
@@ -518,18 +559,20 @@ Layout()(
 Slot's content can be anything, including functions, that can be used to render lists:
 
 ```js
-import { ul, li, b, children$, slots$ createSlot, for$ } from 'nanoviews'
+import { ul, li, b, slot$, slots$, for$ } from 'nanoviews'
 
-const ListItemSlot = createSlot()
+function ListItem(renderItem) {
+  return slot$(ListItem, renderItem)
+}
 
 function List(items) {
-  return children$(
-    slots$(
-      [ListItemSlot],
-      (listItemSlot) => ul()(
-        for$(items, (item) => item.id, (item) => li()(
+  return slots$(
+    [ListItem],
+    (listItemSlot) => ul()(
+      for$(items)(
+        item => li()(
           listItemSlot(item.name)
-        ))
+        )
       )
     )
   )
@@ -543,7 +586,7 @@ List([
   { id: 4, name: 'sh1ro' },
   { id: 5, name: 'hally' }
 ])(
-  ListItemSlot((name) => b()('Player: ', name))
+  ListItem(name => b()('Player: ', name))
 )
 ```
 
@@ -552,25 +595,27 @@ List([
 `context$` is a method that can provide a context to the children.
 
 ```js
-import { atom } from '@nanoviews/stores'
-import { div, context$, createContext } from 'nanoviews'
+import { signal } from 'nanoviews/stores'
+import { div, context$, provide, inject } from 'nanoviews'
 
-const [ThemeContext, getTheme] = createContext(atom('light')) // default value
+function ThemeContext() {
+  return signal('light') // default value
+}
 
 function MyComponent() {
-  const theme = getTheme()
+  const $theme = inject(ThemeContext)
 
   return div()(
     'Current theme: ',
-    theme
+    $theme
   )
 }
 
 function App() {
-  const $theme = atom('dark')
+  const $theme = signal('dark')
 
   return context$(
-    ThemeContext($theme),
+    [provide(ThemeContext, $theme)],
     () => MyComponent()
   )
 }

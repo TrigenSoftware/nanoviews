@@ -1,23 +1,27 @@
-import type { Store } from '@nanoviews/stores'
-import { createEffectAttribute } from '../internals/index.js'
+import type { WritableSignal } from 'kida'
+import {
+  createEffectAttribute,
+  addEffect
+} from '../internals/index.js'
 
 /**
  * Effect attribute to get element reference
  */
-export const ref$ = /* @__PURE__ */ createEffectAttribute<'ref', Element, Store<Element | null>>(
-  (element, $ref) => () => {
+export const ref$ = /* @__PURE__ */ createEffectAttribute<'ref$', Element, WritableSignal<Element | null>>(
+  'ref$',
+  (element, $ref) => {
     $ref.set(element)
 
-    return () => $ref.set(null)
+    addEffect(() => () => $ref.set(null))
   }
 )
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
-    [ref$]: Store<Element | null>
+    ref$: WritableSignal<Element | null>
   }
 
   interface EffectAttributeTargets {
-    [ref$]: Element
+    ref$: Element
   }
 }

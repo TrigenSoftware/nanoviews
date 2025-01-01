@@ -1,5 +1,4 @@
 import type { Block } from '../internals/index.js'
-import { createBlock } from '../internals/index.js'
 
 /**
  * Render block in the target node
@@ -8,10 +7,9 @@ import { createBlock } from '../internals/index.js'
  * @returns Portal block
  */
 export function portal$<T extends Block>(target: Node, block: T) {
-  return createBlock(
-    block.c,
-    () => block.m(target),
-    block.e,
-    block.d
-  )
+  const superMount = block.m.bind(block)
+
+  block.m = () => superMount(target)
+
+  return block
 }

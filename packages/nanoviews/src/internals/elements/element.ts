@@ -1,57 +1,12 @@
 import type {
   ElementName,
   PickElementType,
-  StrictEffect,
-  Destroy,
-  Block,
-  Attributes
+  Attributes,
+  Children
 } from '../types/index.js'
-import { createBlockFromNode } from '../block.js'
-import {
-  addEffects,
-  getChildren
-} from '../logic/index.js'
-import { createFragment } from './fragment.js'
+import { NodeBlock } from '../block.js'
+import { childrenToBlocks } from './child.js'
 import { setAttributes } from './attributes.js'
-
-/**
- * Create HTML element block with possible children
- * @param tag - Tag name
- * @param attributes - Element attributes
- * @param childrenBlock - Children block
- * @returns Element block
- */
-export function createElementBase<Tag extends ElementName>(
-  tag: Tag,
-  attributes: Attributes<Tag> = {},
-  childrenBlock?: Block
-) {
-  let effect: StrictEffect<void> | null
-
-  return addEffects(
-    () => {
-      let destroy: Destroy | null = effect!()
-
-      effect = null
-
-      return () => {
-        destroy!()
-        destroy = null
-      }
-    },
-    createBlockFromNode(
-      () => {
-        // @todo: remove `as` when full SVG support will be added
-        const element = document.createElement(tag) as PickElementType<Tag>
-
-        effect = setAttributes(element, attributes)
-
-        return element
-      },
-      childrenBlock
-    )
-  )
-}
 
 /**
  * Create [void HTML element](https://developer.mozilla.org/en-US/docs/Glossary/Void_element)
@@ -61,9 +16,16 @@ export function createElementBase<Tag extends ElementName>(
  */
 export function createVoidElement<Tag extends ElementName>(
   tag: Tag,
-  attributes: Attributes<Tag> = {}
+  attributes?: Attributes<Tag>
 ) {
-  return createElementBase(tag, attributes)
+  // @todo: remove `as` when full SVG support will be added
+  const element = document.createElement(tag) as PickElementType<Tag>
+
+  if (attributes) {
+    setAttributes(element, attributes)
+  }
+
+  return new NodeBlock(element)
 }
 
 /**
@@ -74,7 +36,7 @@ export function createVoidElement<Tag extends ElementName>(
 export function createVoidElementFactory<Tag extends ElementName>(
   tag: Tag
 ) {
-  return (attributes: Attributes<Tag> = {}) => createElementBase(tag, attributes)
+  return (attributes?: Attributes<Tag>) => createVoidElement(tag, attributes)
 }
 
 /**
@@ -85,11 +47,18 @@ export function createVoidElementFactory<Tag extends ElementName>(
  */
 export function createElement<Tag extends ElementName>(
   tag: Tag,
-  attributes: Attributes<Tag> = {}
+  attributes?: Attributes<Tag>
 ) {
-  return getChildren(
-    children => createElementBase(tag, attributes, createFragment(children))
-  )
+  const block = createVoidElement(tag, attributes)
+  const node = block.n
+
+  return (...children: Children) => {
+    if (children.length) {
+      childrenToBlocks(children, block => block.m(node))
+    }
+
+    return block
+  }
 }
 
 /**
@@ -100,5 +69,5 @@ export function createElement<Tag extends ElementName>(
 export function createElementFactory<Tag extends ElementName>(
   tag: Tag
 ) {
-  return (attributes: Attributes<Tag> = {}) => createElement(tag, attributes)
+  return (attributes?: Attributes<Tag>) => createElement(tag, attributes)
 }

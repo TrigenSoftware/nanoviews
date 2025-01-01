@@ -18,6 +18,9 @@
     "@typescript-eslint/restrict-template-expressions": "off",
     "no-implicit-coercion": "off",
     "consistent-return": "off",
-    "symbol-description": "off"
+    "symbol-description": "off",
+    "no-cond-assign": "off",
+    "no-return-assign": "off",
+    "no-multi-assign": "off"
   }
 }

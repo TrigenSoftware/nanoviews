@@ -1,13 +1,11 @@
 import {
-  isStore,
+  isSignal,
   boolean$
-} from '@nanoviews/stores'
-import type {
-  TruthyValueOrStore,
-  FalsyValueOrStore,
-  PrimitiveChild
-} from '../internals/index.js'
+} from 'kida'
 import {
+  type TruthyValueOrSignal,
+  type FalsyValueOrSignal,
+  type PrimitiveChild,
   noop,
   decide
 } from '../internals/index.js'
@@ -25,14 +23,14 @@ export function if$<T>($value: T) {
    * @returns Block that renders decided child
    */
   return (
-    then$: (value: TruthyValueOrStore<T>) => PrimitiveChild,
-    else$: (value: FalsyValueOrStore<T>) => PrimitiveChild = noop
+    then$: (value: TruthyValueOrSignal<T>) => PrimitiveChild,
+    else$: (value: FalsyValueOrSignal<T>) => PrimitiveChild = noop
   ) => decide(
-    isStore($value) ? boolean$($value) : $value as boolean,
+    isSignal($value) ? boolean$($value) : $value as boolean,
     confition => (
       confition
-        ? then$($value as TruthyValueOrStore<T>)
-        : else$($value as FalsyValueOrStore<T>)
+        ? then$($value as TruthyValueOrSignal<T>)
+        : else$($value as FalsyValueOrSignal<T>)
     )
   )
 }

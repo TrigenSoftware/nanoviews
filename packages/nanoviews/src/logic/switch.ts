@@ -1,6 +1,6 @@
-import type { MaybeStoreValue } from '@nanoviews/stores'
+import type { MaybeSignalValue } from 'kida'
 import type {
-  ValueOrStore,
+  ValueOrSignal,
   PrimitiveChild
 } from '../internals/index.js'
 import { decide } from '../internals/index.js'
@@ -12,8 +12,8 @@ export type SwitchCase<T> = readonly [T | typeof default$, () => PrimitiveChild]
  * @param $value - Static value or store
  * @returns Function that accepts cases and returns Block that renders decided child
  */
-export function switch$<T>($value: ValueOrStore<T>) {
-  type Value = MaybeStoreValue<T>
+export function switch$<T>($value: ValueOrSignal<T>) {
+  type Value = MaybeSignalValue<T>
 
   /**
    * Decide which child to render based on switch cases

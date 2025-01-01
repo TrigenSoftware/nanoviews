@@ -10,7 +10,7 @@ import {
   fireEvent
 } from '@nanoviews/testing-library'
 import { userEvent } from '@testing-library/user-event'
-import { atom } from '@nanoviews/stores'
+import { signal } from 'kida'
 import * as Stories from './controls.stories.js'
 
 const {
@@ -27,7 +27,7 @@ describe('nanoviews', () => {
     describe('controls', () => {
       describe('value$', () => {
         it('should handle value of text input', () => {
-          const value = atom('Hello, world!')
+          const value = signal('Hello, world!')
 
           render(TextInput({
             value
@@ -51,7 +51,7 @@ describe('nanoviews', () => {
         })
 
         it('should handle value of textarea', () => {
-          const value = atom('Hello, world!')
+          const value = signal('Hello, world!')
 
           render(Textarea({
             value
@@ -77,7 +77,7 @@ describe('nanoviews', () => {
 
       describe('selected$', () => {
         it('should handle value of select', () => {
-          const value = atom('green')
+          const value = signal('green')
 
           render(Select({
             value
@@ -101,7 +101,7 @@ describe('nanoviews', () => {
         })
 
         it('should handle multiple values of select', () => {
-          const values = atom(['green', 'blue'])
+          const values = signal(['green', 'blue'])
 
           render(MultipleSelect({
             values
@@ -127,7 +127,7 @@ describe('nanoviews', () => {
 
       describe('checked$', () => {
         it('should handle checked state of checkbox', () => {
-          const checked = atom(true)
+          const checked = signal(true)
 
           render(Checkbox({
             checked
@@ -152,8 +152,8 @@ describe('nanoviews', () => {
       })
 
       describe('files$', () => {
-        it('should save files to atom', async () => {
-          const files = atom([])
+        it('should save files to signal', async () => {
+          const files = signal([])
           const user = userEvent.setup()
           const file = new File(['hello'], 'hello.png', {
             type: 'image/png'

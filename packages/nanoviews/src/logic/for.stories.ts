@@ -1,27 +1,13 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
-import type {
-  ListStore,
-  EntitiesStore,
-  RecordStore
-} from '@nanoviews/stores'
-import {
-  list,
-  entities,
-  record
-} from '@nanoviews/stores'
+import { record } from 'kida'
 import { nanoStory } from '@nanoviews/storybook'
 import { ul, li } from '../elements/elements.js'
 import { for$ } from './for.js'
 
 const meta: Meta<{
-  items: ListStore<string[]>
+  items: string[]
 }> = {
-  title: 'Logic/for$',
-  argTypes: {
-    items: {
-      $store: list
-    }
-  }
+  title: 'Logic/for$'
 }
 
 export default meta
@@ -66,13 +52,8 @@ interface Player {
 }
 
 export const EntitiesValue: StoryObj<{
-  items: EntitiesStore<Player[], RecordStore<Player | undefined>>
+  items: Player[]
 }> = {
-  argTypes: {
-    items: {
-      $store: value => entities(value, record)
-    }
-  },
   args: {
     items: [
       {
@@ -98,8 +79,8 @@ export const EntitiesValue: StoryObj<{
     ]
   },
   render: nanoStory(({ items }) => ul()(
-    for$(items)(
-      item => li()(item.name)
+    for$(items, player => player.id)(
+      item => li()(record(item).name)
     )
   ))
 }

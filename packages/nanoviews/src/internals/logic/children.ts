@@ -1,62 +1,62 @@
-import {
-  createLazyBlock,
-  isBlockSymbol
-} from '../block.js'
 import type {
-  Block,
+  AnyFn,
   Children,
   ChildrenWithSlots,
-  ChildrenBlock,
-  SlotId,
-  Slot,
-  SlotDef,
   AnySlotDef,
   MapSlotDefsToContents,
   MapSlotDefsToSlot,
-  Renderer
+  Renderer,
+  RendererWithSlots
 } from '../types/index.js'
 
-const isSlotSymbol = Symbol()
+/**
+ * Collect children
+ * @param render - Function to render block with given children
+ * @returns Function that accepts children
+ */
+export function collectChildren<
+  T extends Node,
+  C extends unknown[] = Children
+>(render: Renderer<T, C>) {
+  return (...children: C) => render(children.length ? children : undefined)
+}
+
+export class Slot<
+  C,
+  F extends (...args: any[]) => Slot<C, F>
+> {
+  readonly f: F
+  readonly c: C
+
+  constructor(
+    factory: F,
+    content: C
+  ) {
+    this.f = factory
+    this.c = content
+  }
+}
 
 /**
  * Check if value is a slot
  * @param value
  * @returns Is a slot
  */
-export function isSlot(value: unknown): value is Slot<unknown> {
-  return !!(value as Slot<unknown>)?.[isSlotSymbol]
+export function isSlot(value: unknown): value is Slot<unknown, AnyFn> {
+  return value instanceof Slot
 }
 
-export function createSlot<S extends AnySlotDef>(): S
-
-export function createSlot<C = Block, I extends SlotId = SlotId>(): SlotDef<C, I>
-
 /**
- * Create slot definition
- * @returns Slot definition
+ * Create slot
+ * @param factory - Slot factory identifier
+ * @param content - Slot content
+ * @returns Slot
  */
-export function createSlot() {
-  const id: symbol = Symbol()
-  const slotDef = (slotContent: unknown) => {
-    const slot = {
-      [isSlotSymbol]: true as const,
-      [id]: slotContent
-    }
-
-    if (import.meta.env.DEV) {
-      Object.defineProperty(slot, isBlockSymbol, {
-        get() {
-          throw new Error('Slot cannot be used as a block')
-        }
-      })
-    }
-
-    return slot
-  }
-
-  slotDef.i = id
-
-  return slotDef
+export function createSlot<
+  C,
+  F extends (...args: any[]) => Slot<C, F>
+>(factory: F, content: C) {
+  return new Slot(factory, content)
 }
 
 /**
@@ -72,48 +72,52 @@ export function getSlots<
   slotDefs: [...D],
   children: ChildrenWithSlots<MapSlotDefsToSlot<D>, C> | undefined
 ): [...MapSlotDefsToContents<D>, C | undefined] {
-  const slots = Array(slotDefs.length) as unknown[]
+  const slotDefsLen = slotDefs.length
+  const slots = Array(slotDefsLen + 1) as unknown[]
   const restChildren: unknown[] = []
+  const len = children?.length
 
-  children?.forEach((child) => {
-    if (isSlot(child)) {
-      let content: unknown
-      const slotIndex = slotDefs.findIndex((slot) => {
-        content = child[slot.i]
+  slots[slotDefsLen] = restChildren
 
-        return content
-      })
+  if (len) {
+    for (let i = 0, child: unknown; i < len; i++) {
+      child = children[i]
 
-      if (slotIndex > -1) {
-        slots[slotIndex] = content
-      } else if (import.meta.env.DEV) {
-        throw new Error('Unexpected slot')
+      if (isSlot(child)) {
+        let found = false
+
+        for (let j = 0; j < slotDefsLen; j++) {
+          if (child.f === slotDefs[j]) {
+            slots[j] = child.c
+            found = true
+            break
+          }
+        }
+
+        if (!found && import.meta.env.DEV) {
+          throw new Error('Unexpected slot')
+        }
+      } else {
+        restChildren.push(child)
       }
-
-      return
     }
+  }
 
-    restChildren.push(child)
-  })
-
-  return [...(slots as MapSlotDefsToContents<D>), restChildren as C]
+  return slots as [...MapSlotDefsToContents<D>, C | undefined]
 }
 
 /**
- * Create children setter for a component
- * @param render - Component blocks renderer
- * @returns Component block with children setter
+ * Collect defined slots from children
+ * @param slotDefs - Slot definitions
+ * @param render - Function to render block with given slots and children
+ * @returns Function that accepts children
  */
-export function getChildren<
+export function collectSlots<
   T extends Node,
-  C extends unknown[] = Children
->(render: Renderer<T, C>): ChildrenBlock<T, C> {
-  let children: C
-  const block: Block<T> = createLazyBlock(() => render(children))
-
-  return Object.assign((...nextChildren: C) => {
-    children = nextChildren
-
-    return block
-  }, block)
+  D extends AnySlotDef[]
+>(
+  slotDefs: [...D],
+  render: RendererWithSlots<T, D>
+) {
+  return (...children: ChildrenWithSlots<MapSlotDefsToSlot<D>>) => render(...getSlots(slotDefs, children))
 }

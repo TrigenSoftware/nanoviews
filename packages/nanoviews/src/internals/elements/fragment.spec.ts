@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
-import { atom } from '@nanoviews/stores'
+import { signal } from 'kida'
 import * as Stories from './fragment.stories.js'
 
 const {
@@ -25,9 +25,9 @@ describe('nanoviews', () => {
         })
 
         it('should render reactive primitives', () => {
-          const text = atom('text')
-          const number = atom(548)
-          const boolean = atom(true)
+          const text = signal('text')
+          const number = signal(548)
+          const boolean = signal(true)
           const { container } = render(ReactivePrimitives({
             text,
             number,

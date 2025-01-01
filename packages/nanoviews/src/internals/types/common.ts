@@ -1,9 +1,10 @@
 import type {
   AnyFn,
   AnyObject,
-  Store,
+  ReadableSignal,
+  WritableSignal,
   EmptyValue
-} from '@nanoviews/stores'
+} from 'kida'
 
 export type {
   AnyFn,
@@ -13,8 +14,6 @@ export type {
 
 export type FalsyValue = EmptyValue | false | '' | 0
 
-export type NestedMaybeEmptyItem<T> = T | EmptyValue | NestedMaybeEmptyItem<T>[]
-
 export type Primitive = string | number | boolean | EmptyValue
 
 /**
@@ -22,21 +21,25 @@ export type Primitive = string | number | boolean | EmptyValue
  */
 export type NonEmptyValue<T> = T extends EmptyValue ? never : T
 
-export type ValueOrStore<T> = T | Store<T>
+export type ValueOrSignal<T> = T | ReadableSignal<T>
 
-export type StoresObject<T> = {
-  [K in keyof T]?: NonEmptyValue<T[K]> extends AnyFn
+export type ValueOrWritableSignal<T> = T | WritableSignal<T>
+
+export type Props<T, E extends string = never> = {
+  [K in keyof T]?: K extends E
     ? T[K]
-    : ValueOrStore<T[K]>
+    : NonEmptyValue<T[K]> extends AnyFn
+      ? T[K]
+      : ValueOrSignal<T[K]>
 }
 
-export type TruthyStore<T> = T extends Store<infer U>
+export type TruthySignal<T> = T extends ReadableSignal<infer U>
   ? U extends FalsyValue
     ? never
     : T
   : never
 
-export type TruthyValueOrStore<T> = T extends Store<infer U>
+export type TruthyValueOrSignal<T> = T extends ReadableSignal<infer U>
   ? U extends FalsyValue
     ? never
     : T
@@ -44,18 +47,16 @@ export type TruthyValueOrStore<T> = T extends Store<infer U>
     ? never
     : T
 
-export type FalsyStore<T> = T extends Store<infer U>
+export type FalsySignal<T> = T extends ReadableSignal<infer U>
   ? U extends FalsyValue
     ? T
     : never
   : never
 
-export type FalsyValueOrStore<T> = T extends Store<infer U>
+export type FalsyValueOrSignal<T> = T extends ReadableSignal<infer U>
   ? U extends FalsyValue
     ? T
     : never
   : T extends FalsyValue
     ? T
     : never
-
-export type IsReadonlyArray = (array: unknown) => array is readonly unknown[]

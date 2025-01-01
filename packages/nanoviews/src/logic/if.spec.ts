@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
-import { atom } from '@nanoviews/stores'
+import { signal } from 'kida'
 import * as Stories from './if.stories.js'
 
 const {
@@ -24,7 +24,7 @@ describe('nanoviews', () => {
       })
 
       it('should handle reactive value', () => {
-        const value = atom(true)
+        const value = signal(true)
         const { container } = render(ReactiveValue({
           value
         }))
@@ -37,7 +37,7 @@ describe('nanoviews', () => {
       })
 
       it('should handle reactive value then only', () => {
-        const value = atom(true)
+        const value = signal(true)
         const { container } = render(ReactiveValueThenOnly({
           value
         }))
