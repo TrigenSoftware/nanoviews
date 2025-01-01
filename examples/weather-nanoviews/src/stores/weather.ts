@@ -2,28 +2,29 @@ import {
   channel,
   effect,
   record,
-  list
-} from '@nanoviews/stores'
+  signal
+} from 'nanoviews/store'
 import type {
   City,
   Weather
 } from '../services/types.js'
 import * as WeatherService from '../services/weather.js'
+import { tasks } from './tasks.js'
 import { $currentLocation } from './location.js'
 
-export const $currentWeather = record<Weather | null>(null)
+export const $currentWeather = record(signal<Weather | null>(null))
 
-effect($currentWeather, $currentLocation, (city) => {
-  fetchWeather(city)
+effect($currentWeather, (get) => {
+  fetchWeather(get($currentLocation))
 })
 
-export const $weatherForecast = list([] as Weather[], record)
+export const $weatherForecast = signal<Weather[]>([])
 
-effect($weatherForecast, $currentLocation, (city) => {
-  fetchWeatherForecast(city)
+effect($weatherForecast, (get) => {
+  fetchWeatherForecast(get($currentLocation))
 })
 
-const [weatherTask] = channel()
+const [weatherTask] = channel(tasks)
 
 function fetchWeather(city: City | undefined) {
   return weatherTask(async (signal) => {
@@ -35,7 +36,7 @@ function fetchWeather(city: City | undefined) {
   })
 }
 
-const [weatherForecastTask] = channel()
+const [weatherForecastTask] = channel(tasks)
 
 function fetchWeatherForecast(city: City | undefined) {
   return weatherForecastTask(async (signal) => {

@@ -4,12 +4,10 @@
   } from '../stores/weather.js'
   import ForecastWeather from './ForecastWeather.svelte'
 
-  let mode: 'hourly' | 'daily' = 'hourly'
-  let forecastToShow = []
-
-  $: forecastToShow = $weatherForecast.filter(
+  let mode: 'hourly' | 'daily' = $state('hourly')
+  let forecastToShow = $derived($weatherForecast.filter(
     (_, index) => (mode === 'hourly' && index < 10) || (mode === 'daily' && index % 8 === 0)
-  )
+  ))
 </script>
 
 {#if forecastToShow?.length}

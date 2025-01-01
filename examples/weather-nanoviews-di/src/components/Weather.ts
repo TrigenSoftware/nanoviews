@@ -4,12 +4,15 @@ import {
   h3,
   img,
   p,
-  br
+  br,
+  inject
 } from 'nanoviews'
-import { $currentWeather } from '../stores/weather.js'
+import { CurrentWeatherStore } from '../stores/weather.js'
 import styles from './Weather.module.css'
 
 export function Weather() {
+  const $currentWeather = inject(CurrentWeatherStore)
+
   return if$($currentWeather)(
     () => div({
       class: styles.root

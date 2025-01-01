@@ -1,7 +1,8 @@
 import {
   main,
   header,
-  h1
+  h1,
+  context$
 } from 'nanoviews'
 import { CityInput } from './components/CityInput.js'
 import { Weather } from './components/Weather.js'
@@ -9,7 +10,7 @@ import { Forecast } from './components/Forecast.js'
 import styles from './App.module.css'
 
 export function App() {
-  return main({
+  return context$(() => main({
     class: styles.main
   })(
     header()(
@@ -22,5 +23,5 @@ export function App() {
     CityInput(),
     Weather(),
     Forecast()
-  )
+  ))
 }

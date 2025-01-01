@@ -13,13 +13,15 @@ import {
   selected$,
   ul,
   for$,
-  if$
+  if$,
+  inject
 } from 'nanoviews'
-import { $weatherForecast } from '../stores/weather.js'
+import { WeatherForecastStore } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.js'
 import styles from './Forecast.module.css'
 
 export function Forecast() {
+  const $weatherForecast = inject(WeatherForecastStore)
   const $mode = signal<'daily' | 'hourly'>('hourly')
   const $forecastToShow = computed((get) => {
     const forecast = get($weatherForecast)

@@ -1,11 +1,8 @@
-import { atom } from '@nanoviews/stores'
-import {
-  component$,
-  button
-} from 'nanoviews'
+import { signal } from 'nanoviews/store'
+import { button } from 'nanoviews'
 
-export const Counter = component$(() => {
-  const $counter = atom(0)
+export function Counter() {
+  const $counter = signal(0)
 
   return button({
     id: 'counter',
@@ -16,4 +13,4 @@ export const Counter = component$(() => {
   })(
     'count is ', $counter
   )
-})
+}

@@ -17,7 +17,7 @@
 
   <datalist id="cities">
     {#each $citySuggestions as city}
-      <option value={city.label} />
+      <option value={city.label}></option>
     {/each}
   </datalist>
 </div>

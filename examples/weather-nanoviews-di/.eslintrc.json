@@ -7,10 +7,11 @@
     "node": true
   },
   "parserOptions": {
-    "tsconfigRootDir": "./examples/vite-demo-svelte5",
+    "tsconfigRootDir": "./examples/weather-nanoviews-di",
     "project": ["./tsconfig.json"]
   },
   "rules": {
+    "import/no-absolute-path": "off",
     "import/no-default-export": "off",
     "import/no-anonymous-default-export": "off"
   }

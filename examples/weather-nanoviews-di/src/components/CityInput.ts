@@ -6,15 +6,19 @@ import {
   value$,
   datalist,
   for$,
-  option
+  option,
+  inject
 } from 'nanoviews'
 import {
-  $locationSearch,
-  $citySuggestions
+  LocationSearchStore,
+  CitySuggestionsStore
 } from '../stores/location.js'
 import styles from './CityInput.module.css'
 
 export function CityInput() {
+  const $locationSearch = inject(LocationSearchStore)
+  const $citySuggestions = inject(CitySuggestionsStore)
+
   return div({
     class: styles.root
   })(

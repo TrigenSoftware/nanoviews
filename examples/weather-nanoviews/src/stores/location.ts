@@ -1,43 +1,43 @@
 import {
-  atom,
-  list,
-  record,
+  signal,
+  lazy,
+  onChange,
+  atIndex,
   effect,
   onMount,
   batch,
   channel
-} from '@nanoviews/stores'
+} from 'nanoviews/store'
 import type { City } from '../services/types.js'
 import * as Cities from '../services/cities.js'
 import * as Location from '../services/location.js'
+import { tasks } from './tasks.js'
 
 const INPUT_DEBOUNCE = 300
 
-export const $locationSearch = atom('')
+export const $locationSearch = lazy(
+  () => localStorage.getItem('locationSearch') || ''
+)
+
+onChange($locationSearch, batch(INPUT_DEBOUNCE)((value: string) => {
+  localStorage.setItem('locationSearch', value)
+}))
 
 onMount($locationSearch, () => {
-  const savedQuery = localStorage.getItem('locationSearch')
-
-  if (savedQuery) {
-    $locationSearch.set(savedQuery)
-  } else {
+  if (!$locationSearch.get()) {
     fetchCurrentCity()
   }
 })
 
-effect($locationSearch, $locationSearch, (locationSearch) => {
-  localStorage.setItem('locationSearch', locationSearch)
+export const $citySuggestions = signal<City[]>([])
+
+effect($citySuggestions, (get) => {
+  fetchCitySuggestions(get($locationSearch))
 }, batch(INPUT_DEBOUNCE))
 
-export const $citySuggestions = list([] as City[], record)
+export const $currentLocation = atIndex($citySuggestions, 0)
 
-effect($citySuggestions, $locationSearch, (locationSearch) => {
-  fetchCitySuggestions(locationSearch)
-}, batch(INPUT_DEBOUNCE))
-
-export const $currentLocation = $citySuggestions.at(0)
-
-const [citySuggestionsTask] = channel()
+const [citySuggestionsTask] = channel(tasks)
 
 function fetchCitySuggestions(query: string) {
   return citySuggestionsTask(async (signal) => {

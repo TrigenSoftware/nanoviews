@@ -1,9 +1,12 @@
 <script lang="ts">
   import type { Weather } from '../services/types'
 
-  export let mode: 'hourly' | 'daily' = 'hourly';
+  interface Props {
+    weather: Readonly<Weather>
+    mode: 'hourly' | 'daily'
+  }
 
-  export let weather: Readonly<Weather>
+  let { weather, mode }: Props = $props()
 </script>
 
 <div class="root">
