@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "happy-dom": "^16.0.0",
-    "vite": "^5.0.8",
+    "vite": "^6.0.0",
     "vite-node": "^2.1.2"
   }
 }

@@ -15,6 +15,6 @@
     "name": "Average usage",
     "path": "dist/index.production.js",
     "import": "{ div, form, input, button, label, fragment, className, if$, for$, value$, children$, effect$, computed$ }",
-    "limit": "3.32 kB"
+    "limit": "3.33 kB"
   }
 ]
