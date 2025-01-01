@@ -53,16 +53,14 @@ export const $admins = computed(get => get($users).filter(user => user.isAdmin))
 
 ```tsx
 // components/admins.ts
-import { atIndex, record } from 'kida'
+import { record } from 'kida'
 import { $admins } from '../stores/admins.js'
 
 export function Admins() {
   return ul()(
-    for$($admins)((i) => {
-      const $admin = record(atIndex($admins, i))
-
-      return li()($admin.name)
-    })
+    for$($admins, user => user.id)(
+      $admin => li()(record($admin).name)
+    )
   )
 }
 ```
@@ -110,7 +108,7 @@ $count.set($count.get() + 1)
 update($count, count => count + 1)
 ```
 
-To listen to changes, use the `listen` or `subscribe` function. `subscribe` will call the listener immediately.
+To listen changes, use the `listen` or `subscribe` function. `subscribe` will call the listener immediately.
 
 ```ts
 import { signal, subscribe } from 'kida'
