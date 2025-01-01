@@ -1,5 +1,5 @@
 {
-  "name": "nanoviews",
+  "name": "nanoviews-monorepo",
   "type": "module",
   "private": true,
   "version": "0.0.0",
@@ -41,6 +41,8 @@
     "commitizen": "^4.2.4",
     "del-cli": "^5.0.0",
     "eslint": "^8.28.0",
+    "kida": "workspace:^",
+    "nanoviews": "workspace:^",
     "nano-staged": "^0.8.0",
     "simple-git-hooks": "^2.7.0",
     "typescript": "^5.0.0"

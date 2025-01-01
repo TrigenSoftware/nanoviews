@@ -18,6 +18,7 @@ node_modules
 
 # Some caches
 .*cache
+.trash
 
 # Compiled dist
 dist

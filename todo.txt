@@ -1,3 +1,23 @@
+- for let i faster than array methods
+- push(...arr) is slow
+- noop faster than check
+- getter setter are slow (not in class)
+- Reflect.get is slow
+- arr.length = 0 is slower than arr = []
+
+- @kida/react
+  - useSignal
+  - useInject
+  - context
+
+- alien-signals
+- runner arg for lifecycles?
+- restore object arg for record?
+- additional arg for record in for$?
+- batch to debounce?
+- atIndex$ atKey$ ?
+- serialize - start all marked stores?
+
 - html + head components
 - universal dom
 - ssr
