@@ -1,0 +1,31 @@
+{
+  "name": "benchmarks",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Packages benchmarks.",
+  "author": "dangreen",
+  "license": "MIT",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nanoviews.git",
+    "directory": "packages/benchmarks"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {
+    "alien-signals": "^0.4.9",
+    "kida": "workspace:^",
+    "nanostores": "^0.11.3",
+    "tinybench": "^2.9.0"
+  },
+  "devDependencies": {
+    "happy-dom": "^15.0.0",
+    "vite": "^5.0.8",
+    "vite-node": "^2.1.2"
+  }
+}
