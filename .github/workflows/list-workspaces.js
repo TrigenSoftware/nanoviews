@@ -27,5 +27,5 @@ for (const file of workspaceFiles) {
 }
 
 for (const foundWorkspacesKey in foundWorkspaces) {
-  console.log('::set-output name=' + foundWorkspacesKey.replaceAll(':', '-') + '::' + JSON.stringify(foundWorkspaces[foundWorkspacesKey]))
+  console.log(foundWorkspacesKey.replaceAll(':', '-') + '=' + JSON.stringify(foundWorkspaces[foundWorkspacesKey]))
 }

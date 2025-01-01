@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 18
       - id: set-matrix
-        run: node .github/workflows/list-workspaces.js test:types lint test:unit
+        run: node .github/workflows/list-workspaces.js test:types lint test:unit >> $GITHUB_OUTPUT
   types:
     runs-on: ubuntu-latest
     needs: list-workspaces
