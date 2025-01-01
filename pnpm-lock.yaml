@@ -24,8 +24,8 @@ importers:
         specifier: workspace:^
         version: link:packages/storybook-vite
       '@trigen/eslint-config':
-        specifier: 8.0.0-alpha.32
-        version: 8.0.0-alpha.32(@testing-library/dom@9.3.4)(eslint@8.57.0)(typescript@5.3.3)
+        specifier: 8.0.0-alpha.33
+        version: 8.0.0-alpha.33(@testing-library/dom@9.3.4)(eslint@8.57.0)(typescript@5.3.3)
       '@trigen/scripts':
         specifier: 8.0.0-alpha.33
         version: 8.0.0-alpha.33
@@ -2386,9 +2386,9 @@ packages:
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
 
-  '@trigen/eslint-config@8.0.0-alpha.32':
-    resolution: {integrity: sha512-GqPoniVbzKO9fQiOj7XSwqIwlSs8ksO7Gb2T6pTiTkghmYzNufUiMKMZlvB0Fyy/VnYiIVFCbPSCw/fWqctK2A==}
-    engines: {node: '>=10'}
+  '@trigen/eslint-config@8.0.0-alpha.33':
+    resolution: {integrity: sha512-Xx5yuOSh96Mo+9XUIvnFnzkJErRrVMOt3/L8hyrolq1SuIhiHDwk2gZn1UXbVZVTyjTxEIffCJktsqw9zJnLsQ==}
+    engines: {node: '>=20'}
     peerDependencies:
       '@testing-library/dom': '>=8.0.0'
       eslint: '>=7.0.0'
@@ -8575,7 +8575,7 @@ snapshots:
     dependencies:
       '@testing-library/dom': 10.4.0
 
-  '@trigen/eslint-config@8.0.0-alpha.32(@testing-library/dom@9.3.4)(eslint@8.57.0)(typescript@5.3.3)':
+  '@trigen/eslint-config@8.0.0-alpha.33(@testing-library/dom@9.3.4)(eslint@8.57.0)(typescript@5.3.3)':
     dependencies:
       '@typescript-eslint/eslint-plugin': 6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.3.3))(eslint@8.57.0)(typescript@5.3.3)
       '@typescript-eslint/parser': 6.21.0(eslint@8.57.0)(typescript@5.3.3)
@@ -8767,7 +8767,7 @@ snapshots:
       '@typescript-eslint/type-utils': 6.21.0(eslint@8.57.0)(typescript@5.3.3)
       '@typescript-eslint/utils': 6.21.0(eslint@8.57.0)(typescript@5.3.3)
       '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.3.4
+      debug: 4.3.6
       eslint: 8.57.0
       graphemer: 1.4.0
       ignore: 5.3.1
@@ -8785,7 +8785,7 @@ snapshots:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.3.3)
       '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.3.4
+      debug: 4.3.6
       eslint: 8.57.0
     optionalDependencies:
       typescript: 5.3.3
@@ -10081,7 +10081,7 @@ snapshots:
       '@es-joy/jsdoccomment': 0.41.0
       are-docs-informative: 0.0.2
       comment-parser: 1.4.1
-      debug: 4.3.4
+      debug: 4.3.6
       escape-string-regexp: 4.0.0
       eslint: 8.57.0
       esquery: 1.5.0

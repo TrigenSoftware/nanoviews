@@ -34,7 +34,7 @@
     "@commitlint/config-pnpm-scopes": "^18.0.0",
     "@commitlint/cz-commitlint": "^18.0.0",
     "@nanoviews/storybook-vite": "workspace:^",
-    "@trigen/eslint-config": "8.0.0-alpha.32",
+    "@trigen/eslint-config": "8.0.0-alpha.33",
     "@trigen/scripts": "8.0.0-alpha.33",
     "@types/node": "^20.0.0",
     "clean-publish": "^5.0.0",
