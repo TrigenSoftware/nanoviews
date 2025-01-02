@@ -34,7 +34,7 @@ A small Direct DOM library for creating user interfaces.
 - **TypeScript**-first.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { div, a, img, h1, button, p, mount } from 'nanoviews'
 
 function App() {
@@ -92,7 +92,7 @@ yarn add -D nanoviews
 Nanoviews is using [Kida](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida) under the hood for reactivity. This library is inspired by [Nano Stores](https://github.com/nanostores/nanostores) and was build specially for Nanoviews.
 
 ```js
-import { signal } from 'nanoviews/stores' // or import { signal } from 'kida'
+import { signal } from 'nanoviews/store' // or import { signal } from 'kida'
 import { fragment, input, p } from 'nanoviews'
 
 const $text = signal('')
@@ -114,7 +114,7 @@ Nanoviews provides a set of methods for creating HTML elements with the specifie
 Child can be an another element, primitive value (string, number, boolean, `null` or `undefined`), store with primitive or array of children. Attributes also can be a primitive value or store.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { ul, li } from 'nanoviews'
 
 const $boolean = signal(true)
@@ -131,7 +131,7 @@ ul({ class: 'list' })(
 `mount` is a method that mounts the component to the specified container.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { div, h1, p, mount } from 'nanoviews'
 
 function App() {
@@ -151,7 +151,7 @@ mount(App, document.querySelector('#app'))
 `text$` is a method that creates text node block with the specified value or store.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { text$, effect$ } from 'nanoviews'
 
 function TickTak() {
@@ -174,7 +174,7 @@ function TickTak() {
 `fragment` is a method that creates a fragment block with the specified children.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { fragment, effect$ } from 'nanoviews'
 
 function TickTak() {
@@ -231,7 +231,7 @@ Effect attributes are special attributes that can control element's behavior.
 `ref$` is an effect attribute that can provide a reference to the DOM node.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { div, ref$ } from 'nanoviews'
 
 const $ref = signal(null)
@@ -248,7 +248,7 @@ div({
 `style$` is an effect attribute that manages the style of the element.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { button, style$ } from 'nanoviews'
 
 const $color = signal('white')
@@ -281,7 +281,7 @@ input({
 `value$` is an effect attribute that manages the value of text inputs.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { textarea, value$ } from 'nanoviews'
 
 const $review = signal('')
@@ -299,7 +299,7 @@ textarea({
 `checked$` is an effect attribute that manages the checked state of checkboxes and radio buttons.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { input, checked$, Indeterminate } from 'nanoviews'
 
 const $checked = signal(false)
@@ -321,7 +321,7 @@ $checked.set(Indeterminate)
 `selected$` is an effect attribute that manages the selected state of select's options.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { select, option, selected$ } from 'nanoviews'
 
 const $selected = signal('mid')
@@ -380,7 +380,7 @@ select({
 `files$` is an effect attribute that can provide the files of file inputs.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { input, files$ } from 'nanoviews'
 
 const $files = signal([])
@@ -444,7 +444,7 @@ function App() {
 `if$` is a method that can render different childs based on the condition.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { if$, div, p } from 'nanoviews'
 
 const $show = signal(false)
@@ -466,7 +466,7 @@ if$($toggle)(
 `switch$` is a method like `if$` but with multiple conditions.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { switch$, case$, default$, div, p } from 'nanoviews'
 
 const $state = signal('loading')
@@ -483,7 +483,7 @@ switch$(state)(
 `for$` is a method that can iterate over an array to render a list of blocks.
 
 ```js
-import { signal, record } from 'nanoviews/stores'
+import { signal, record } from 'nanoviews/store'
 import { for$, ul, li } from 'nanoviews'
 
 const $players = signal([
@@ -595,7 +595,7 @@ List([
 `context$` is a method that can provide a context to the children.
 
 ```js
-import { signal } from 'nanoviews/stores'
+import { signal } from 'nanoviews/store'
 import { div, context$, provide, inject } from 'nanoviews'
 
 function ThemeContext() {
