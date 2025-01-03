@@ -5,17 +5,14 @@
 - Reflect.get is slow
 - arr.length = 0 is slower than arr = []
 
-- @kida/react
-  - useSignal
-  - useInject
-  - context
-
 - alien-signals
 - runner arg for lifecycles?
 - restore object arg for record?
-- additional arg for record in for$?
+- additional arg for record in for$? as$
 - batch to debounce?
 - atIndex$ atKey$ ?
+- static index for untracked loop
+- predefined trackers
 - serialize - start all marked stores?
 
 - html + head components

@@ -1,0 +1,19 @@
+{
+  "extends": [
+    "@trigen/eslint-config/react",
+    "@trigen/eslint-config/typescript",
+    "@trigen/eslint-config/typescript-requiring-type-checking",
+    "@trigen/eslint-config/jest"
+  ],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parserOptions": {
+    "tsconfigRootDir": "./packages/kida-react",
+    "project": ["./tsconfig.json"]
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off"
+  }
+}
