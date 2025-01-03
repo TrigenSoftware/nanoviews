@@ -21,6 +21,6 @@
     "name": "Popular set",
     "path": "dist/index.production.js",
     "import": "{ signal, record, computed, effect, channel }",
-    "limit": "1.28 kB"
+    "limit": "1.29 kB"
   }
 ]

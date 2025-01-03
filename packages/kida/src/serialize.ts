@@ -53,11 +53,14 @@ export function serializable<T extends AnyWritableSignal>(id: string, $signal: T
 /**
  * Serialize all serializable stores from the runner.
  * @param runner - The function to run.
+ * @param context - The injection context.
  * @returns The serialized data.
  */
-export async function serialize(runner: () => AnySignal[]) {
+export async function serialize(runner: () => AnySignal[], context = new InjectionContext()) {
   const toSerialize = new Map<string, AnyReadableSignal>()
-  const context = new InjectionContext(undefined, [[ToSerialize, toSerialize]])
+
+  context.set(ToSerialize, toSerialize)
+
   const stores = run(context, runner)
   const tasks = context.get(Tasks)
   const stops = stores.map(start)

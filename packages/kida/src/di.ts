@@ -83,21 +83,27 @@ export function run<T extends AnyFn>(
 /**
  * Inject a dependency.
  * @param factory - The factory function to create or get the dependency.
+ * @param context - Optional override for the injection context.
  * @returns The dependency.
  */
-export function inject<T>(factory: InjectionFactory<T>): T {
-  if (!currentContext) {
+export function inject<T>(factory: InjectionFactory<T>, context = currentContext): T {
+  if (!context) {
     throw new Error(import.meta.env.DEV ? 'Cannot inject dependency outside of injection context' : '')
   }
 
-  return currentContext.get(factory)
+  return context.get(factory)
 }
 
 /**
  * Create an action that runs within the current injection context.
  * @param fn - The function to run.
+ * @param context - Optional override for the injection context.
  * @returns The action.
  */
-export function action<T extends AnyFn>(fn: T): T {
-  return (run as AnyFn).bind(null, currentContext, fn) as T
+export function action<T extends AnyFn>(fn: T, context = currentContext): T {
+  if (!context) {
+    throw new Error(import.meta.env.DEV ? 'Cannot bind action outside of injection context' : '')
+  }
+
+  return (run as AnyFn).bind(null, context, fn) as T
 }
