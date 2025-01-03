@@ -52,8 +52,8 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
-    "@storybook/builder-vite": "^7.6.17",
-    "@storybook/types": "^7.6.17"
+    "@storybook/builder-vite": "^8.0.0",
+    "@storybook/types": "^8.0.0"
   },
   "devDependencies": {
     "@nanoviews/storybook": "workspace:^",
