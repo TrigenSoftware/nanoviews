@@ -1,4 +1,4 @@
-# @kida/react
+# @kidajs/react
 
 [![ESM-only package][package]][package-url]
 [![NPM version][npm]][npm-url]
@@ -10,14 +10,14 @@
 [package]: https://img.shields.io/badge/package-ESM--only-ffe536.svg
 [package-url]: https://nodejs.org/api/esm.html
 
-[npm]: https://img.shields.io/npm/v/%40kida%2Freact.svg
-[npm-url]: https://npmjs.com/package/@kida/react
+[npm]: https://img.shields.io/npm/v/%40kidajs%2Freact.svg
+[npm-url]: https://npmjs.com/package/@kidajs/react
 
-[deps]: https://img.shields.io/librariesio/release/npm/%40kida%2Freact
-[deps-url]: https://libraries.io/npm/%40kida%2Freact/tree
+[deps]: https://img.shields.io/librariesio/release/npm/%40kidajs%2Freact
+[deps-url]: https://libraries.io/npm/%40kidajs%2Freact/tree
 
-[size]: https://deno.bundlejs.com/badge?q=%40kida%2Freact
-[size-url]: https://bundlejs.com/?q=%40kida%2Freact
+[size]: https://deno.bundlejs.com/badge?q=%40kidajs%2Freact
+[size-url]: https://bundlejs.com/?q=%40kidajs%2Freact
 
 [build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=main
 [build-url]: https://github.com/TrigenSoftware/nanoviews/actions
@@ -29,7 +29,7 @@
 
 ```tsx
 import { signal } from 'kida'
-import { useSignal } from '@kida/react'
+import { useSignal } from '@kidajs/react'
 
 const $user = signal<User | null>(null)
 
@@ -65,7 +65,7 @@ yarn add -D kida
 
 ```tsx
 import { signal } from 'kida'
-import { useSignal } from '@kida/react'
+import { useSignal } from '@kidajs/react'
 
 const $user = signal<User | null>(null)
 
@@ -81,7 +81,7 @@ export function UserProfile() {
 `InjectionContext` is a component to initialize injection context and provide dependencies to the children.
 
 ```tsx
-import { InjectionContext, useInject } from '@kida/react'
+import { InjectionContext, useInject } from '@kidajs/react'
 
 function Theme(): 'light' | 'dark' {
   return 'light'
@@ -101,7 +101,7 @@ function App() {
 `useInject` hook returns the value of the dependency.
 
 ```tsx
-import { useInject } from '@kida/react'
+import { useInject } from '@kidajs/react'
 
 function TopBar() {
   const theme = useInject(Theme)
@@ -116,7 +116,7 @@ function TopBar() {
 
 ```tsx
 import { signal } from 'kida'
-import { useInject, useAction } from '@kida/react'
+import { useInject, useAction } from '@kidajs/react'
 
 function Theme() {
   return signal<'light' | 'dark'>('light')
