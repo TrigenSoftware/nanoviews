@@ -42,9 +42,15 @@
     "del-cli": "^6.0.0",
     "eslint": "^8.28.0",
     "kida": "workspace:^",
-    "nanoviews": "workspace:^",
     "nano-staged": "^0.8.0",
+    "nanoviews": "workspace:^",
     "simple-git-hooks": "^2.7.0",
-    "typescript": "^5.0.0"
+    "typescript": "5.3.3",
+    "vite-plugin-filter-replace": "^0.1.14"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "vite": "patches/vite.patch"
+    }
   }
 }
