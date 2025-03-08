@@ -1,0 +1,20 @@
+{
+  "extends": [
+    "@trigen/eslint-config/typescript",
+    "@trigen/eslint-config/typescript-requiring-type-checking",
+    "@trigen/eslint-config/jest"
+  ],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parserOptions": {
+    "tsconfigRootDir": "./packages/agera",
+    "project": ["./tsconfig.json"]
+  },
+  "rules": {
+    "@typescript-eslint/no-invalid-void-type": "off",
+    "consistent-return": "off",
+    "prefer-destructuring": "off"
+  }
+}

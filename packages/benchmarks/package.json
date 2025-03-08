@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "alien-signals": "^0.4.9",
+    "alien-signals1": "npm:alien-signals@^1.0.4",
     "kida": "workspace:^",
     "nanostores": "^0.11.3",
     "tinybench": "^2.9.0"

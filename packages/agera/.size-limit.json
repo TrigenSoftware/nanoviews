@@ -1,0 +1,20 @@
+[
+  {
+    "name": "All publics",
+    "path": "dist/index.js",
+    "import": "*",
+    "limit": "1.77 kB"
+  },
+  {
+    "name": "Signal",
+    "path": "dist/index.js",
+    "import": "{ signal }",
+    "limit": "1.21 kB"
+  },
+  {
+    "name": "Popular set",
+    "path": "dist/index.js",
+    "import": "{ signal, computed, effect }",
+    "limit": "1.37 kB"
+  }
+]

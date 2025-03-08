@@ -1,7 +1,8 @@
 import { Bench } from 'tinybench'
 import * as nanostores from 'nanostores'
 import * as signals from 'alien-signals'
-import * as kida from '../kida/dist/index.production.js' // 'kida'
+import * as signals1 from 'alien-signals1'
+import * as agera from '../agera/dist/index.js' // 'agera'
 
 const bench = new Bench({
   time: 1000
@@ -54,28 +55,51 @@ bench
 
     effect.stop()
   })
-  .add('kida / computed', () => {
-    const $a = kida.signal(0)
-    const $b = kida.signal(1)
-    const $c = kida.computed(get => get($a) + get($b))
-    let value = $c.get()
+  .add('alien-signals@v1 / computed', () => {
+    const $a = signals1.signal(0)
+    const $b = signals1.signal(1)
+    const $c = signals1.computed(() => $a() + $b())
+    let value = $c()
 
-    $a.set(2)
+    $a(2)
 
-    value = $c.get()
+    value = $c()
 
-    $b.set(3)
+    $b(3)
 
-    value = $c.get()
+    // value = $c()
 
-    const off = kida.listen($c, (nextValue) => {
-      value = nextValue
+    const effect = signals1.effect(() => {
+      value = $c()
     })
 
-    $a.set(4)
-    $b.set(5)
+    $a(4)
+    $b(5)
 
-    off()
+    effect()
+  })
+  .add('agera / computed', () => {
+    const $a = agera.signal(0)
+    const $b = agera.signal(1)
+    const $c = agera.computed(() => $a() + $b())
+    let value = $c()
+
+    $a(2)
+
+    value = $c()
+
+    $b(3)
+
+    // value = $c()
+
+    const effect = agera.effect(() => {
+      value = $c()
+    })
+
+    $a(4)
+    $b(5)
+
+    effect()
   })
 
 await bench.warmup()

@@ -1,6 +1,7 @@
 import { Bench } from 'tinybench'
 import * as signals from 'alien-signals'
-import * as kida from '../kida/dist/index.production.js' // 'kida'
+import * as signals1 from 'alien-signals1'
+import * as agera from '../agera/dist/index.js' // 'agera'
 
 const bench = new Bench({
   time: 1000
@@ -20,16 +21,29 @@ bench
 
     console.assert(logs.length === 3)
   })
-  .add('kida / observe', () => {
-    const $store = kida.signal(0)
+  .add('alien-signals@v1 / effect', () => {
+    const $store = signals1.signal(0)
     const logs = []
 
-    kida.observe((get) => {
-      logs.push(get($store))
+    signals1.effect(() => {
+      logs.push($store())
     })
 
-    $store.set($store.get() + 1)
-    $store.set($store.get() + 1)
+    $store($store() + 1)
+    $store($store() + 1)
+
+    console.assert(logs.length === 3)
+  })
+  .add('agera / effect', () => {
+    const $store = agera.signal(0)
+    const logs = []
+
+    agera.effect(() => {
+      logs.push($store())
+    })
+
+    $store($store() + 1)
+    $store($store() + 1)
 
     console.assert(logs.length === 3)
   })
