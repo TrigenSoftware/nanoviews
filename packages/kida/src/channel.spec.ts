@@ -4,11 +4,11 @@ import {
   it,
   expect
 } from 'vitest'
-import { listen } from './lifecycle.js'
 import {
+  effect,
   signal,
   isSignal
-} from './signal.js'
+} from 'agera'
 import { channel } from './channel.js'
 
 const mockFetch = (value: string, signal: AbortSignal) => new Promise<string>((resolve, reject) => {
@@ -23,7 +23,7 @@ const mockFetch = (value: string, signal: AbortSignal) => new Promise<string>((r
   setTimeout(() => resolve(value))
 })
 
-describe('stores', () => {
+describe('kida', () => {
   describe('channel', () => {
     const tasks = new Set<Promise<unknown>>()
 
@@ -38,8 +38,8 @@ describe('stores', () => {
       expect($loading).toSatisfy(isSignal)
       expect($error).toSatisfy(isSignal)
 
-      expect($loading.get()).toBe(false)
-      expect($error.get()).toBe(undefined)
+      expect($loading()).toBe(false)
+      expect($error()).toBe(undefined)
     })
 
     it('should handle promise', async () => {
@@ -53,19 +53,19 @@ describe('stores', () => {
         $error
       ] = channel(tasks)
 
-      expect($loading.get()).toBe(false)
-      expect($error.get()).toBe(undefined)
+      expect($loading()).toBe(false)
+      expect($error()).toBe(undefined)
 
       task(() => promise)
 
-      expect($loading.get()).toBe(true)
-      expect($error.get()).toBe(undefined)
+      expect($loading()).toBe(true)
+      expect($error()).toBe(undefined)
 
       resolve!('resolved')
       await promise
 
-      expect($loading.get()).toBe(false)
-      expect($error.get()).toBe(undefined)
+      expect($loading()).toBe(false)
+      expect($error()).toBe(undefined)
     })
 
     it('should handle promise reject', async () => {
@@ -79,13 +79,13 @@ describe('stores', () => {
         $error
       ] = channel(tasks, _ => _)
 
-      expect($loading.get()).toBe(false)
-      expect($error.get()).toBe(undefined)
+      expect($loading()).toBe(false)
+      expect($error()).toBe(undefined)
 
       task(() => promise)
 
-      expect($loading.get()).toBe(true)
-      expect($error.get()).toBe(undefined)
+      expect($loading()).toBe(true)
+      expect($error()).toBe(undefined)
 
       reject!('rejected')
 
@@ -95,8 +95,8 @@ describe('stores', () => {
         /* ignore */
       }
 
-      expect($loading.get()).toBe(false)
-      expect($error.get()).toBe('rejected')
+      expect($loading()).toBe(false)
+      expect($error()).toBe('rejected')
     })
 
     it('should abort previous promise', async () => {
@@ -107,28 +107,32 @@ describe('stores', () => {
         $error
       ] = channel(tasks)
       const valueListener = vi.fn()
-      const offValueListener = listen($value, valueListener)
+      const offValueListener = effect(() => {
+        valueListener($value())
+      })
       const stateListener = vi.fn()
-      const offStateListener = listen($loading, stateListener)
+      const offStateListener = effect(() => {
+        stateListener($loading())
+      })
 
       await Promise.allSettled([
         task(async (signal) => {
-          $value.set(await mockFetch('1', signal))
+          $value(await mockFetch('1', signal))
         }),
         task(async (signal) => {
-          $value.set(await mockFetch('2', signal))
+          $value(await mockFetch('2', signal))
         }),
         task(async (signal) => {
-          $value.set(await mockFetch('3', signal))
+          $value(await mockFetch('3', signal))
         })
       ])
 
-      expect($value.get()).toBe('3')
-      expect($loading.get()).toBe(false)
-      expect($error.get()).toBe(undefined)
-      expect(valueListener).toHaveBeenCalledTimes(1)
-      expect(valueListener).toHaveBeenCalledWith('3', 'initial')
-      expect(stateListener).toHaveBeenCalledTimes(2)
+      expect($value()).toBe('3')
+      expect($loading()).toBe(false)
+      expect($error()).toBe(undefined)
+      expect(valueListener).toHaveBeenCalledTimes(2)
+      expect(valueListener).toHaveBeenCalledWith('3')
+      expect(stateListener).toHaveBeenCalledTimes(3)
 
       offValueListener()
       offStateListener()

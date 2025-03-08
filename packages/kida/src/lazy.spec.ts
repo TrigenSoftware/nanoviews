@@ -4,19 +4,17 @@ import {
   it,
   expect
 } from 'vitest'
-import {
-  onMount,
-  listen
-} from './lifecycle.js'
+import { effect } from 'agera'
+import { onMount } from './lifecycle.js'
 import { lazy } from './lazy.js'
 
-describe('stores', () => {
+describe('kida', () => {
   describe('lazy', () => {
     it('should run factory on first get', () => {
       const factory = vi.fn(() => 404)
       const $lazy = lazy(factory)
 
-      expect($lazy.get()).toBe(404)
+      expect($lazy()).toBe(404)
       expect(factory).toHaveBeenCalledTimes(1)
     })
 
@@ -24,8 +22,8 @@ describe('stores', () => {
       const factory = vi.fn(() => 404)
       const $lazy = lazy(factory)
 
-      expect($lazy.get()).toBe(404)
-      expect($lazy.get()).toBe(404)
+      expect($lazy()).toBe(404)
+      expect($lazy()).toBe(404)
       expect(factory).toHaveBeenCalledTimes(1)
     })
 
@@ -33,9 +31,9 @@ describe('stores', () => {
       const factory = vi.fn(() => 404)
       const $lazy = lazy(factory)
 
-      $lazy.set(200)
+      $lazy(200)
 
-      expect($lazy.get()).toBe(200)
+      expect($lazy()).toBe(200)
       expect(factory).toHaveBeenCalledTimes(0)
     })
 
@@ -49,16 +47,22 @@ describe('stores', () => {
 
       onMount($lazy, mountListener)
 
-      const off = listen($lazy, changeListener)
+      const off = effect((warmup) => {
+        const value = $lazy()
 
-      expect($lazy.get()).toBe(404)
+        if (!warmup) {
+          changeListener(value)
+        }
+      })
+
+      expect($lazy()).toBe(404)
       expect(factory).toHaveBeenCalledTimes(1)
       expect(mountListener).toHaveBeenCalledTimes(1)
 
-      $lazy.set(200)
+      $lazy(200)
 
       expect(changeListener).toHaveBeenCalledTimes(1)
-      expect(changeListener).toHaveBeenCalledWith(200, 404)
+      expect(changeListener).toHaveBeenCalledWith(200)
 
       off()
     })

@@ -2,15 +2,8 @@ import type {
   AnyFn,
   AnyObject,
   EmptyValue,
-  PickNonEmptyValue,
-  AnyReadableSignal,
-  AnyWritableSignal,
-  WritableSignal
+  PickNonEmptyValue
 } from './types/index.js'
-import {
-  isSignal,
-  signal
-} from './signal.js'
 
 /**
  * Set value by index
@@ -61,42 +54,3 @@ export function assignKey<
 export function isFunction(value: unknown): value is AnyFn {
   return typeof value === 'function'
 }
-
-/**
- * Create store from value or return store
- * @param valueOrSignal - Value or store
- * @returns Store
- */
-export function toSignal<T>(
-  valueOrSignal: T
-): T extends AnyWritableSignal
-  ? T
-  : T extends AnyReadableSignal
-    ? T
-    : WritableSignal<T>
-
-export function toSignal(valueOrSignal: unknown) {
-  if (isSignal(valueOrSignal)) {
-    return valueOrSignal
-  }
-
-  return signal(valueOrSignal)
-}
-
-/**
- * Memoize mapping function
- * @param fn - Mapping function
- * @returns Memoized mapping function
- */
-export function memo<T, R>(fn: (input: T) => R) {
-  let prevInput: T
-  let prevResult: R
-
-  return (input: T) => (
-    input === prevInput
-      ? prevResult
-      : prevResult = fn(prevInput = input)
-  )
-}
-
-export const noop = () => {}

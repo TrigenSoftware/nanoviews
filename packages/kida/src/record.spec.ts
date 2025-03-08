@@ -4,19 +4,19 @@ import {
   it,
   expect
 } from 'vitest'
-import { listen } from './lifecycle.js'
-import { computed } from './computed.js'
 import {
+  effect,
+  computed,
   signal,
   isSignal,
   update
-} from './signal.js'
+} from 'agera'
 import {
   record,
   deepRecord
 } from './record.js'
 
-describe('stores', () => {
+describe('kida', () => {
   describe('record', () => {
     describe('record', () => {
       it('should create record store', () => {
@@ -27,15 +27,15 @@ describe('stores', () => {
           city: 'Batumi'
         }))
 
-        expect($record.firstname).toSatisfy(isSignal)
-        expect($record.lastname).toSatisfy(isSignal)
-        expect($record.age).toSatisfy(isSignal)
-        expect($record.city).toSatisfy(isSignal)
+        expect($record.$firstname).toSatisfy(isSignal)
+        expect($record.$lastname).toSatisfy(isSignal)
+        expect($record.$age).toSatisfy(isSignal)
+        expect($record.$city).toSatisfy(isSignal)
 
-        expect($record.firstname.get()).toBe('Dan')
-        expect($record.lastname.get()).toBe('Onoshko')
-        expect($record.age.get()).toBe(29)
-        expect($record.city.get()).toBe('Batumi')
+        expect($record.$firstname()).toBe('Dan')
+        expect($record.$lastname()).toBe('Onoshko')
+        expect($record.$age()).toBe(29)
+        expect($record.$city()).toBe('Batumi')
       })
 
       it('should update root by child', () => {
@@ -46,12 +46,12 @@ describe('stores', () => {
           city: 'Batumi'
         }))
 
-        expect($record.firstname.get()).toBe('Dan')
+        expect($record.$firstname()).toBe('Dan')
 
-        $record.firstname.set('Daniil')
+        $record.$firstname('Daniil')
 
-        expect($record.firstname.get()).toBe('Daniil')
-        expect($record.get()).toEqual({
+        expect($record.$firstname()).toBe('Daniil')
+        expect($record()).toEqual({
           firstname: 'Daniil',
           lastname: 'Onoshko',
           age: 29,
@@ -68,28 +68,27 @@ describe('stores', () => {
         }))
         const rootListener = vi.fn()
         const childListener = vi.fn()
-        const off = listen($record, rootListener)
-        const offChild = listen($record.firstname, childListener)
-
-        expect(rootListener).not.toHaveBeenCalled()
-        expect(childListener).not.toHaveBeenCalled()
-
-        $record.firstname.set('Daniil')
+        const off = effect(() => {
+          rootListener($record())
+        })
+        const offChild = effect(() => {
+          childListener($record.$firstname())
+        })
 
         expect(rootListener).toHaveBeenCalledTimes(1)
+        expect(childListener).toHaveBeenCalledTimes(1)
+
+        $record.$firstname('Daniil')
+
+        expect(rootListener).toHaveBeenCalledTimes(2)
         expect(rootListener).toHaveBeenCalledWith({
           firstname: 'Daniil',
           lastname: 'Onoshko',
           age: 29,
           city: 'Batumi'
-        }, {
-          firstname: 'Dan',
-          lastname: 'Onoshko',
-          age: 29,
-          city: 'Batumi'
         })
-        expect(childListener).toHaveBeenCalledTimes(1)
-        expect(childListener).toHaveBeenCalledWith('Daniil', 'Dan')
+        expect(childListener).toHaveBeenCalledTimes(2)
+        expect(childListener).toHaveBeenCalledWith('Daniil')
 
         off()
         offChild()
@@ -103,14 +102,14 @@ describe('stores', () => {
           city: 'Batumi'
         }))
 
-        expect($record.firstname.get()).toBe('Dan')
+        expect($record.$firstname()).toBe('Dan')
 
         update($record, data => ({
           ...data,
           firstname: 'Daniil'
         }))
 
-        expect($record.firstname.get()).toBe('Daniil')
+        expect($record.$firstname()).toBe('Daniil')
       })
 
       it('should update child by root and notify listeners', () => {
@@ -122,33 +121,32 @@ describe('stores', () => {
         }))
         const rootListener = vi.fn()
         const childListener = vi.fn()
-        const off = listen($record, rootListener)
-        const offChild = listen($record.firstname, childListener)
+        const off = effect(() => {
+          rootListener($record())
+        })
+        const offChild = effect(() => {
+          childListener($record.$firstname())
+        })
 
-        expect(rootListener).not.toHaveBeenCalled()
-        expect(childListener).not.toHaveBeenCalled()
+        expect(rootListener).toHaveBeenCalledTimes(1)
+        expect(childListener).toHaveBeenCalledTimes(1)
 
-        expect($record.firstname.get()).toBe('Dan')
+        expect($record.$firstname()).toBe('Dan')
 
         update($record, data => ({
           ...data,
           firstname: 'Daniil'
         }))
 
-        expect(rootListener).toHaveBeenCalledTimes(1)
+        expect(rootListener).toHaveBeenCalledTimes(2)
         expect(rootListener).toHaveBeenCalledWith({
           firstname: 'Daniil',
           lastname: 'Onoshko',
           age: 29,
           city: 'Batumi'
-        }, {
-          firstname: 'Dan',
-          lastname: 'Onoshko',
-          age: 29,
-          city: 'Batumi'
         })
-        expect(childListener).toHaveBeenCalledTimes(1)
-        expect(childListener).toHaveBeenCalledWith('Daniil', 'Dan')
+        expect(childListener).toHaveBeenCalledTimes(2)
+        expect(childListener).toHaveBeenCalledWith('Daniil')
 
         off()
         offChild()
@@ -156,24 +154,24 @@ describe('stores', () => {
 
       it('should create record store from other store', () => {
         const $name = signal('Dan Onoshko')
-        const $record = record(computed(get => ({
-          name: get($name),
+        const $record = record(computed(() => ({
+          name: $name(),
           location: 'Batumi'
         })))
 
-        expect($record.get()).toEqual({
+        expect($record()).toEqual({
           name: 'Dan Onoshko',
           location: 'Batumi'
         })
-        expect($record.name.get()).toBe('Dan Onoshko')
+        expect($record.$name()).toBe('Dan Onoshko')
 
-        $name.set('Daniil Onoshko')
+        $name('Daniil Onoshko')
 
-        expect($record.get()).toEqual({
+        expect($record()).toEqual({
           name: 'Daniil Onoshko',
           location: 'Batumi'
         })
-        expect($record.name.get()).toBe('Daniil Onoshko')
+        expect($record.$name()).toBe('Daniil Onoshko')
       })
     })
 
@@ -187,18 +185,18 @@ describe('stores', () => {
           }
         }))
 
-        expect($record.name).toSatisfy(isSignal)
-        expect($record.location).toSatisfy(isSignal)
-        expect($record.location.city).toSatisfy(isSignal)
-        expect($record.location.country).toSatisfy(isSignal)
+        expect($record.$name).toSatisfy(isSignal)
+        expect($record.$location).toSatisfy(isSignal)
+        expect($record.$location.$city).toSatisfy(isSignal)
+        expect($record.$location.$country).toSatisfy(isSignal)
 
-        expect($record.name.get()).toBe('Dan Onoshko')
-        expect($record.location.get()).toEqual({
+        expect($record.$name()).toBe('Dan Onoshko')
+        expect($record.$location()).toEqual({
           city: 'Batumi',
           country: 'Georgia'
         })
-        expect($record.location.city.get()).toBe('Batumi')
-        expect($record.location.country.get()).toBe('Georgia')
+        expect($record.$location.$city()).toBe('Batumi')
+        expect($record.$location.$country()).toBe('Georgia')
       })
 
       it('should update root by child', () => {
@@ -210,16 +208,16 @@ describe('stores', () => {
           }
         }))
 
-        expect($record.location.city.get()).toBe('Batumi')
+        expect($record.$location.$city()).toBe('Batumi')
 
-        $record.location.city.set('ბათუმი')
+        $record.$location.$city('ბათუმი')
 
-        expect($record.location.city.get()).toBe('ბათუმი')
-        expect($record.location.get()).toEqual({
+        expect($record.$location.$city()).toBe('ბათუმი')
+        expect($record.$location()).toEqual({
           city: 'ბათუმი',
           country: 'Georgia'
         })
-        expect($record.get()).toEqual({
+        expect($record()).toEqual({
           name: 'Dan Onoshko',
           location: {
             city: 'ბათუმი',
@@ -239,40 +237,37 @@ describe('stores', () => {
         const rootListener = vi.fn()
         const childListener = vi.fn()
         const leafListener = vi.fn()
-        const off = listen($record, rootListener)
-        const offChild = listen($record.location, childListener)
-        const offLeaf = listen($record.location.city, leafListener)
-
-        expect(rootListener).not.toHaveBeenCalled()
-        expect(childListener).not.toHaveBeenCalled()
-        expect(leafListener).not.toHaveBeenCalled()
-
-        $record.location.city.set('ბათუმი')
+        const off = effect(() => {
+          rootListener($record())
+        })
+        const offChild = effect(() => {
+          childListener($record.$location())
+        })
+        const offLeaf = effect(() => {
+          leafListener($record.$location.$city())
+        })
 
         expect(rootListener).toHaveBeenCalledTimes(1)
+        expect(childListener).toHaveBeenCalledTimes(1)
+        expect(leafListener).toHaveBeenCalledTimes(1)
+
+        $record.$location.$city('ბათუმი')
+
+        expect(rootListener).toHaveBeenCalledTimes(2)
         expect(rootListener).toHaveBeenCalledWith({
           name: 'Dan Onoshko',
           location: {
             city: 'ბათუმი',
             country: 'Georgia'
           }
-        }, {
-          name: 'Dan Onoshko',
-          location: {
-            city: 'Batumi',
-            country: 'Georgia'
-          }
         })
-        expect(childListener).toHaveBeenCalledTimes(1)
+        expect(childListener).toHaveBeenCalledTimes(2)
         expect(childListener).toHaveBeenCalledWith({
           city: 'ბათუმი',
           country: 'Georgia'
-        }, {
-          city: 'Batumi',
-          country: 'Georgia'
         })
-        expect(leafListener).toHaveBeenCalledTimes(1)
-        expect(leafListener).toHaveBeenCalledWith('ბათუმი', 'Batumi')
+        expect(leafListener).toHaveBeenCalledTimes(2)
+        expect(leafListener).toHaveBeenCalledWith('ბათუმი')
 
         off()
         offChild()
@@ -288,7 +283,7 @@ describe('stores', () => {
           }
         }))
 
-        expect($record.location.city.get()).toBe('Batumi')
+        expect($record.$location.$city()).toBe('Batumi')
 
         update($record, data => ({
           ...data,
@@ -298,7 +293,7 @@ describe('stores', () => {
           }
         }))
 
-        expect($record.location.city.get()).toBe('ბათუმი')
+        expect($record.$location.$city()).toBe('ბათუმი')
       })
 
       it('should update child by root and notify listeners', () => {
@@ -312,15 +307,21 @@ describe('stores', () => {
         const rootListener = vi.fn()
         const childListener = vi.fn()
         const leafListener = vi.fn()
-        const off = listen($record, rootListener)
-        const offChild = listen($record.location, childListener)
-        const offLeaf = listen($record.location.city, leafListener)
+        const off = effect(() => {
+          rootListener($record())
+        })
+        const offChild = effect(() => {
+          childListener($record.$location())
+        })
+        const offLeaf = effect(() => {
+          leafListener($record.$location.$city())
+        })
 
-        expect(rootListener).not.toHaveBeenCalled()
-        expect(childListener).not.toHaveBeenCalled()
-        expect(leafListener).not.toHaveBeenCalled()
+        expect(rootListener).toHaveBeenCalledTimes(1)
+        expect(childListener).toHaveBeenCalledTimes(1)
+        expect(leafListener).toHaveBeenCalledTimes(1)
 
-        expect($record.location.city.get()).toBe('Batumi')
+        expect($record.$location.$city()).toBe('Batumi')
 
         update($record, data => ({
           ...data,
@@ -330,30 +331,21 @@ describe('stores', () => {
           }
         }))
 
-        expect(rootListener).toHaveBeenCalledTimes(1)
+        expect(rootListener).toHaveBeenCalledTimes(2)
         expect(rootListener).toHaveBeenCalledWith({
           name: 'Dan Onoshko',
           location: {
             city: 'ბათუმი',
             country: 'Georgia'
           }
-        }, {
-          name: 'Dan Onoshko',
-          location: {
-            city: 'Batumi',
-            country: 'Georgia'
-          }
         })
-        expect(childListener).toHaveBeenCalledTimes(1)
+        expect(childListener).toHaveBeenCalledTimes(2)
         expect(childListener).toHaveBeenCalledWith({
           city: 'ბათუმი',
           country: 'Georgia'
-        }, {
-          city: 'Batumi',
-          country: 'Georgia'
         })
-        expect(leafListener).toHaveBeenCalledTimes(1)
-        expect(leafListener).toHaveBeenCalledWith('ბათუმი', 'Batumi')
+        expect(leafListener).toHaveBeenCalledTimes(2)
+        expect(leafListener).toHaveBeenCalledWith('ბათუმი')
 
         off()
         offChild()
@@ -362,33 +354,33 @@ describe('stores', () => {
 
       it('should create record store from other store', () => {
         const $city = signal('Batumi')
-        const $record = deepRecord(computed(get => ({
+        const $record = deepRecord(computed(() => ({
           name: 'Dan Onoshko',
           location: {
-            city: get($city),
+            city: $city(),
             country: 'Georgia'
           }
         })))
 
-        expect($record.get()).toEqual({
+        expect($record()).toEqual({
           name: 'Dan Onoshko',
           location: {
             city: 'Batumi',
             country: 'Georgia'
           }
         })
-        expect($record.location.city.get()).toBe('Batumi')
+        expect($record.$location.$city()).toBe('Batumi')
 
-        $city.set('ბათუმი')
+        $city('ბათუმი')
 
-        expect($record.get()).toEqual({
+        expect($record()).toEqual({
           name: 'Dan Onoshko',
           location: {
             city: 'ბათუმი',
             country: 'Georgia'
           }
         })
-        expect($record.location.city.get()).toBe('ბათუმი')
+        expect($record.$location.$city()).toBe('ბათუმი')
       })
     })
   })

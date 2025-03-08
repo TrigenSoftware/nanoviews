@@ -3,13 +3,13 @@ import {
   it,
   expect
 } from 'vitest'
+import { signal } from 'agera'
 import {
   InjectionContext,
   run,
   inject
 } from './di.js'
 import { Tasks } from './tasks.js'
-import { signal } from './signal.js'
 import { onMount } from './lifecycle.js'
 import { channel } from './channel.js'
 import {
@@ -34,7 +34,7 @@ function UserStore() {
     userTask(async () => {
       await Promise.resolve()
 
-      $user.set({
+      $user({
         name: 'John'
       })
     })
@@ -47,7 +47,7 @@ function UserStore() {
   }
 }
 
-describe('stores', () => {
+describe('kida', () => {
   describe('serialize', () => {
     it('should serialize', async () => {
       const serialized = await serialize(() => {
@@ -72,7 +72,7 @@ describe('stores', () => {
       const context = new InjectionContext(undefined, [[Serialized, serialized]])
       const { $user } = run(context, () => inject(UserStore))
 
-      expect($user.get()).toEqual({
+      expect($user()).toEqual({
         name: 'John'
       })
     })

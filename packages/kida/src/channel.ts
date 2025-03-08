@@ -1,8 +1,5 @@
+import { signal } from 'agera'
 import type { TasksSet } from './types/index.js'
-import {
-  signal,
-  noop
-} from './internals/index.js'
 import { addTask } from './tasks.js'
 
 /**
@@ -53,27 +50,27 @@ function abortableRun(
  * Create a channel for async tasks.
  * @param tasks - Tasks queue.
  * @param mapErrorValue - Function to map the error value. Default is to get the error message.
- * @returns A tuple with the task, state and error store.
+ * @returns A tuple with the task, state and error signal.
  */
 export function channel<E = string>(
   tasks: TasksSet,
   mapErrorValue: (error: unknown) => E = error => (error as Error).message as E
 ) {
   const $loading = signal(false)
-  const $error = signal<E | undefined>(undefined)
-  let abort = noop
+  const $error = signal<E | undefined>()
+  let abort: () => void
   const channelTask = <T = void>(fn: (signal: AbortSignal) => Promise<T>) => {
-    abort()
-    $loading.set(true)
-    $error.set(undefined)
+    abort?.()
+    $loading(true)
+    $error(undefined)
 
     const ac = new AbortController()
     const promise = fn(ac.signal)
 
     abort = abortableRun(
       promise,
-      () => $loading.set(false),
-      error => $error.set(mapErrorValue(error)),
+      () => $loading(false),
+      error => $error(mapErrorValue(error)),
       () => ac.abort()
     )
 

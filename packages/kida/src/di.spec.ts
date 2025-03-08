@@ -12,7 +12,7 @@ import {
   action
 } from './di.js'
 
-describe('stores', () => {
+describe('kida', () => {
   describe('di', () => {
     describe('getContext', () => {
       it('should return current context', () => {
