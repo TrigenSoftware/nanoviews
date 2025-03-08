@@ -36,7 +36,7 @@
     "@nanoviews/storybook-vite": "workspace:^",
     "@trigen/eslint-config": "8.0.0-alpha.33",
     "@trigen/scripts": "8.0.0-alpha.33",
-    "@types/node": "^20.0.0",
+    "@types/node": "^22.0.0",
     "clean-publish": "^5.0.0",
     "commitizen": "^4.2.4",
     "del-cli": "^6.0.0",
