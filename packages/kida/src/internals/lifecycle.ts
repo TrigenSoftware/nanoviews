@@ -1,6 +1,6 @@
 import {
   type AnySignal,
-  type Destroy,
+  type MaybeDestroy,
   onActivate,
   effect
 } from 'agera'
@@ -41,10 +41,10 @@ export const STORE_UNMOUNT_DELAY = 1000
  */
 export function onMount(
   $signal: AnySignal,
-  listener: () => Destroy
+  listener: () => MaybeDestroy
 ) {
   let active = false
-  let destroy: Destroy
+  let destroy: MaybeDestroy
 
   return onActivate($signal, (mounted) => {
     if (mounted) {

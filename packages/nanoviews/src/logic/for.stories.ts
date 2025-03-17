@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
-import { record } from 'kida'
+import { effect, record } from 'kida'
 import { nanoStory } from '@nanoviews/storybook'
 import { ul, li } from '../elements/elements.js'
 import { for$ } from './for.js'
@@ -52,6 +52,7 @@ interface Player {
 }
 
 export const EntitiesValue: StoryObj<{
+  onEffect?(value: string): void
   items: Player[]
 }> = {
   args: {
@@ -78,9 +79,19 @@ export const EntitiesValue: StoryObj<{
       }
     ]
   },
-  render: nanoStory(({ items }) => ul()(
+  render: nanoStory(({ onEffect, items }) => ul()(
     for$(items, player => player.id)(
-      item => li()(record(item).name)
+      (item) => {
+        const { $name } = record(item)
+
+        if (onEffect) {
+          effect(() => {
+            onEffect($name())
+          })
+        }
+
+        return li()($name)
+      }
     )
   ))
 }

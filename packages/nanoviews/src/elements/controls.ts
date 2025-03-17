@@ -3,11 +3,10 @@
 import {
   type WritableSignal,
   isSignal,
-  listen
+  effect
 } from 'kida'
 import {
   type ValueOrWritableSignal,
-  type EmptyValue,
   type UnknownAttributes,
   valueProperty,
   checkedProperty,
@@ -20,27 +19,24 @@ import {
   isEmpty,
   noop,
   createEffectAttribute,
-  effectAttributeValidate,
-  addEffect
+  effectAttributeValidate
 } from '../internals/index.js'
 
 // https://caniuse.com/?search=oninput onInput doesn't fire an input event when (un)checking a checkbox or radio button, or when changing the selected file(s) of an <input type="file">
 
 export const Indeterminate = Symbol.for('Indeterminate')
 
-type ValuePrimitive = string | EmptyValue
+type Value = ValueOrWritableSignal<string>
 
-type Value = ValueOrWritableSignal<ValuePrimitive>
+type CheckedPrimitive = boolean | typeof Indeterminate
 
-type CheckedPrimitive = boolean | typeof Indeterminate | EmptyValue
+type Checked = ValueOrWritableSignal<boolean> | ValueOrWritableSignal<CheckedPrimitive>
 
-type Checked = ValueOrWritableSignal<CheckedPrimitive>
+type SelectedPrimitive = string | string[]
 
-type SelectedPrimitive = string | string[] | EmptyValue
+type Selected = ValueOrWritableSignal<string> | ValueOrWritableSignal<string[]> | ValueOrWritableSignal<SelectedPrimitive>
 
-type Selected = ValueOrWritableSignal<string | EmptyValue> | ValueOrWritableSignal<string[] | EmptyValue>
-
-type FilesPrimitive = File[] | EmptyValue
+type FilesPrimitive = File[]
 
 type Files = ValueOrWritableSignal<FilesPrimitive>
 
@@ -71,28 +67,28 @@ function createElementPropertySetter<E extends Element, V>(
 
     if (!isEmpty($value)) {
       if (isSignal<WritableSignal<V>>($value)) {
-        const eventListener = () => $value.set(getValue(control))
-        const value = $value.get()
+        const eventListener = () => $value(getValue(control))
+        const value = $value()
 
         create(control, value)
 
-        addEffect(() => {
+        effect(() => {
           mount(control, value)
           control.addEventListener(eventName, eventListener)
 
-          const destroy = listen(
-            $value,
-            value => update(control, value)
-          )
+          return () => control.removeEventListener(eventName, eventListener)
+        })
 
-          return () => {
-            control.removeEventListener(eventName, eventListener)
-            destroy()
+        effect((warmup) => {
+          const value = $value()
+
+          if (!warmup) {
+            update(control, value)
           }
         })
       } else {
         create(control, $value)
-        addEffect(() => mount(control, $value))
+        effect(() => mount(control, $value))
       }
     }
   }
@@ -100,12 +96,12 @@ function createElementPropertySetter<E extends Element, V>(
 
 function setValue(
   control: TextboxElement,
-  value: ValuePrimitive
+  value: string
 ) {
-  control[valueProperty] = value || ''
+  control[valueProperty] = value
 }
 
-function getValue(control: TextboxElement): ValuePrimitive {
+function getValue(control: TextboxElement) {
   return control[valueProperty]
 }
 
@@ -149,7 +145,7 @@ function getChecked(control: CheckboxElement): CheckedPrimitive {
 /**
  * Effect attribute to set and read checked value of checkbox or radio button element
  */
-export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, Checked>(
+export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, ValueOrWritableSignal<CheckedPrimitive>>(
   'checked$',
   createElementPropertySetter(
     onChangeEvent,
@@ -211,7 +207,7 @@ function getSelected(control: ComboboxElement): SelectedPrimitive {
 /**
  * Effect attribute to set and read selected value of combobox element
  */
-export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, Selected>(
+export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, ValueOrWritableSignal<SelectedPrimitive>>(
   'selected$',
   createElementPropertySetter(
     onChangeEvent,

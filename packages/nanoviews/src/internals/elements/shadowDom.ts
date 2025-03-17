@@ -1,4 +1,5 @@
 import type { Children } from '../types/index.js'
+import { $$mount } from '../symbols.js'
 import { FragmentBlock } from './fragment.js'
 
 export class ShadowBlock extends FragmentBlock {
@@ -12,7 +13,7 @@ export class ShadowBlock extends FragmentBlock {
     this.#options = options
   }
 
-  override m(parentNode: Element) {
-    super.m(parentNode.attachShadow(this.#options))
+  override [$$mount](parentNode: Element) {
+    super[$$mount](parentNode.attachShadow(this.#options))
   }
 }

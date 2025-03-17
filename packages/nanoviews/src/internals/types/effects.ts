@@ -1,14 +1,7 @@
-/**
- * Destroy function
- */
-export type Destroy = () => void
+import type { Destroy } from 'kida'
 
-/**
- * Effect with required destroy function
- */
-export type StrictEffect = () => Destroy
-
-/**
- * Effect function type
- */
-export type Effect = (() => Destroy | void) | StrictEffect
+export type EffectScopeSwapperCallback<T> = (
+  destroyPrev: Destroy | undefined,
+  value: T,
+  prevValue: T | undefined
+) => (() => Destroy) | Destroy

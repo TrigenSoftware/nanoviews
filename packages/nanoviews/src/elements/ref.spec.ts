@@ -12,13 +12,13 @@ describe('nanoviews', () => {
   describe('elements', () => {
     describe('ref$', () => {
       it('should set ref', () => {
-        const ref = signal<HTMLButtonElement | null>(null)
+        const ref = signal<Element | null>(null)
 
         render(() => button({
           [ref$]: ref
         })('Click me!'))
 
-        expect(ref.get()).toBeInstanceOf(HTMLButtonElement)
+        expect(ref()).toBeInstanceOf(HTMLButtonElement)
       })
     })
   })

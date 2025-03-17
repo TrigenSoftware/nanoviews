@@ -31,7 +31,7 @@ describe('nanoviews', () => {
 
           expect(container.textContent).toBe('Hello, world!')
 
-          value.set('Hello, nanoviews!')
+          value('Hello, nanoviews!')
 
           expect(container.textContent).toBe('Hello, nanoviews!')
         })

@@ -3,10 +3,16 @@ import type {
   AnyObject,
   ReadableSignal,
   WritableSignal,
-  EmptyValue
+  EmptyValue,
+  Destroy,
+  MaybeDestroy,
+  EffectCallback
 } from 'kida'
 
 export type {
+  EffectCallback,
+  Destroy,
+  MaybeDestroy,
   AnyFn,
   AnyObject,
   EmptyValue

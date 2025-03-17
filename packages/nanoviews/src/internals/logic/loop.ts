@@ -3,36 +3,41 @@ import {
   type WritableSignal,
   type AnySignal,
   signal,
-  subscribeLater,
-  atIndex
+  effectScope,
+  atIndex,
+  startBatch,
+  endBatch
 } from 'kida'
 import type {
-  Effect,
   Destroy,
   PrimitiveChild
 } from '../types/index.js'
-import { childToBlock } from '../elements/child.js'
-import { Block } from '../block.js'
 import {
-  addEffect,
-  runEffects,
-  runDestroys,
-  captureEffects
+  $$key,
+  $$index,
+  $$first,
+  $$next,
+  $$prev,
+  $$destroyEffect,
+  $$node,
+  $$mount,
+  $$destroy
+} from '../symbols.js'
+import {
+  createEffectScopeWithContext,
+  effectScopeSwapper
 } from '../effects.js'
 import {
-  getContext,
-  run
-} from './context.js'
+  childToBlock,
+  linkChild
+} from '../elements/child.js'
+import {
+  type Block,
+  HostBlock,
+  destroyLinkedBlocks
+} from '../block.js'
 
 type LookupMap = Map<unknown, Block>
-
-type IndexMap = Map<unknown, number>
-
-type IndexesMap = Map<unknown, WritableSignal<number>>
-
-type EffectsMap = Map<Block, Effect[]>
-
-type DestroysMap = Map<Block, Destroy[]>
 
 type AnyEach = (
   item: AnySignal,
@@ -41,170 +46,169 @@ type AnyEach = (
 
 type UnknownTrack = (item: unknown, index: number) => unknown
 
-type CreateEachBlock = (item: unknown, index: number) => Block
+type CreateEachBlock = (key: unknown, index: number) => Block
 
-// eslint-disable-next-line max-params
-function sync(
-  parentNode: Node,
+function reconcile(
+  loop: LoopBlock,
   lookupMap: LookupMap,
-  indexesMap: IndexesMap,
-  effectsMap: EffectsMap,
-  destroysMap: DestroysMap,
   track: UnknownTrack,
   createEachBlock: CreateEachBlock,
-  prevBlocks: Block[],
-  nextItems: unknown[],
-  nextItemsCount: number
+  nextItems: unknown[]
 ) {
-  const destroy = (block: Block) => {
-    lookupMap.delete(block.k)
-    indexesMap.delete(block.k)
-    runDestroys(destroysMap.get(block))
-    destroysMap.delete(block)
-    block.d()
-  }
-  let itemsCount = nextItemsCount
-  let prevBlocksCount = prevBlocks.length
-  let i = prevBlocksCount
-  let next: Node | null | undefined
-  const oldIndexes: IndexMap = new Map()
-  const effects = []
+  const { length } = nextItems
+  const parentNode = loop[$$node]?.parentNode
+  let seen: Set<Block> | undefined
+  let matched: Block[] = []
+  let stashed: Block[] = []
+  let prev: Block | undefined
+  let current = loop[$$first]
 
-  while (i--) {
-    oldIndexes.set(prevBlocks[i].k, i)
-  }
+  for (let i = 0, value: unknown, key: unknown, block: Block | undefined; i < length; i += 1) {
+    value = nextItems[i]
+    key = track(value, i)
+    block = lookupMap.get(key)
 
-  const nextBlocks = []
-  const nextLookupMap: LookupMap = new Map()
-  const deltasMap: IndexMap = new Map()
-  const setDeltasFromOldIndexes = (i: number) => {
-    for (const [key, index] of oldIndexes) {
-      deltasMap.set(key, Math.abs(i - index))
-    }
-  }
+    if (block === undefined) {
+      block = createEachBlock(key, i)
 
-  i = itemsCount
+      if (parentNode) {
+        block[$$mount](parentNode, current![$$node])
+      }
 
-  // Fill nextBlocks and deltasMap
-  while (i--) {
-    const key = track(nextItems[i], i)
-    let block = lookupMap.get(key)
+      block[$$prev] = prev
+      block[$$next] = prev === undefined ? loop[$$first] : prev[$$next]
 
-    if (block) {
-      // update code
-      const nextIndex = i
+      lookupMap.set(key, block)
 
-      effects.push(() => indexesMap.get(key)!.set(nextIndex))
-    } else {
-      // Create new block
-      block = createEachBlock(nextItems[i], i)
-      effects.push(() => {
-        destroysMap.set(block!, runEffects(effectsMap.get(block!)!))
-        effectsMap.delete(block!)
-      })
+      linkChild(
+        loop,
+        prev,
+        block[$$next],
+        block
+      )
+
+      matched = []
+      stashed = []
+
+      prev = block
+      current = block[$$next]
+      continue
     }
 
-    nextBlocks[i] = block
-    nextLookupMap.set(key, block)
+    block[$$index]!(i)
 
-    setDeltasFromOldIndexes(i)
+    if (block !== current) {
+      if (seen !== undefined && seen.has(block)) {
+        if (matched.length < stashed.length) {
+          const [start] = stashed
+          let j
+
+          prev = start[$$prev]
+
+          const [a] = matched
+          const b = matched[matched.length - 1]
+
+          for (j = 0; j < matched.length; j += 1) {
+            matched[j][$$mount](parentNode!, start[$$node])
+          }
+
+          for (j = 0; j < stashed.length; j += 1) {
+            seen.delete(stashed[j])
+          }
+
+          linkChild(loop, a[$$prev], b[$$next])
+          linkChild(loop, prev, a)
+          linkChild(loop, b, start)
+
+          current = start
+          prev = b
+          i -= 1
+
+          matched = []
+          stashed = []
+        } else {
+          seen.delete(block)
+          block[$$mount](parentNode!, current?.[$$node])
+
+          linkChild(loop, block[$$prev], block[$$next])
+          linkChild(loop, block, prev === undefined ? loop[$$first] : prev[$$next])
+          linkChild(loop, prev, block)
+
+          prev = block
+        }
+
+        continue
+      }
+
+      matched = []
+      stashed = []
+
+      while (current !== undefined && current[$$key] !== key) {
+        (seen ??= new Set()).add(current)
+        stashed.push(current)
+        current = current[$$next]
+      }
+
+      if (current === null) {
+        continue
+      }
+
+      block = current
+    }
+
+    matched.push(block!)
+    prev = block
+    current = block![$$next]
   }
 
-  const willMoveKeysMap = new Set()
-  const didMoveKeysMap = new Set()
-  const insert = (block: Block) => {
-    block.m(parentNode, next)
-    lookupMap.set(block.k, block)
-    next = block.n
-    itemsCount--
-  }
+  if (current !== undefined || seen !== undefined) {
+    if (seen !== undefined) {
+      seen.forEach(block => destroyLoopChild(loop, block, lookupMap))
+    }
 
-  // Sync DOM with new items
-  while (prevBlocksCount && itemsCount) {
-    const nextBlock = nextBlocks[itemsCount - 1]
-    const prevBlock = prevBlocks[prevBlocksCount - 1]
-    const nextKey = nextBlock.k
-    const prevKey = prevBlock.k
-
-    if (nextBlock === prevBlock) {
-      // do nothing
-      next = nextBlock.n
-      prevBlocksCount--
-      itemsCount--
-    } else if (!nextLookupMap.has(prevKey)) {
-      // remove old block
-      destroy(prevBlock)
-      prevBlocksCount--
-    } else if (!lookupMap.has(nextKey) || willMoveKeysMap.has(nextKey)) {
-      insert(nextBlock)
-    } else if (didMoveKeysMap.has(prevKey)) {
-      prevBlocksCount--
-    } else if (deltasMap.get(nextKey)! > deltasMap.get(prevKey)!) {
-      didMoveKeysMap.add(nextKey)
-      insert(nextBlock)
-    } else {
-      willMoveKeysMap.add(prevKey)
-      prevBlocksCount--
+    while (current !== undefined) {
+      prev = current
+      current = current[$$next]
+      destroyLoopChild(loop, prev, lookupMap)
     }
   }
+}
 
-  // Cleanup deleted items
-  while (prevBlocksCount--) {
-    const prevBlock = prevBlocks[prevBlocksCount]
-
-    if (!nextLookupMap.has(prevBlock.k)) {
-      destroy(prevBlock)
-    }
-  }
-
-  // Insert rest new blocks
-  // `nextItemsCount` modified in `insert`
-  // eslint-disable-next-line no-unmodified-loop-condition
-  while (itemsCount) {
-    insert(nextBlocks[itemsCount - 1])
-  }
-
-  const effectsCount = effects.length
-
-  if (effectsCount) {
-    for (let i = effectsCount - 1; i >= 0 ; i--) {
-      effects[i]()
-    }
-  }
-
-  return nextBlocks
+function destroyLoopChild(parent: Block, block: Block, lookupMap: LookupMap) {
+  block[$$destroyEffect]!()
+  block[$$destroyEffect] = undefined
+  block[$$destroy]()
+  lookupMap.delete(block[$$key])
+  linkChild(parent, block[$$prev], block[$$next])
 }
 
 function createEachBlockCreator(
   $items: WritableSignal<unknown[]>,
-  each$: AnyEach,
-  track: UnknownTrack,
-  indexesMap: IndexesMap,
-  effectsMap: EffectsMap
+  each$: AnyEach
 ) {
-  return (item: unknown, i: number) => {
+  return (key: unknown, i: number) => {
     const $index = signal(i)
+    let block: Block
     const $item = atIndex($items, $index)
-    const k = track(item, i)
-    const effects: Effect[] = []
-    const block = childToBlock(
-      captureEffects(
-        effects,
-        () => each$($item, $index)
-      )
-    )
+    const destroy = effectScope(() => block = childToBlock(
+      each$($item, $index)
+    ))
 
-    block.k = k
-    indexesMap.set(k, $index)
-    effectsMap.set(block, effects)
+    block![$$key] = key
+    block![$$destroyEffect] = destroy
+    block![$$index] = $index
 
-    return block
+    return block!
   }
 }
 
-export class LoopBlock extends Block {
-  #blocks: Block[] | undefined
-  #placeholder: Block | undefined
+export class LoopBlock extends HostBlock {
+  #isPlaceholder = false
+  readonly #effectScope = createEffectScopeWithContext()
+  readonly #createEachBlock: CreateEachBlock
+  readonly #else$: () => PrimitiveChild
+  readonly #track: UnknownTrack
+  readonly #blocksMap: LookupMap = new Map()
 
   constructor(
     $items: WritableSignal<unknown[]>,
@@ -214,161 +218,101 @@ export class LoopBlock extends Block {
   ) {
     super()
 
-    const context = getContext()
-    const effectsMap: EffectsMap = new Map()
-    const destroysMap: DestroysMap = new Map()
-    const blocksMap: LookupMap = new Map()
-    const indexesMap: IndexesMap = new Map()
-    const createEachBlock = createEachBlockCreator(
+    this.#createEachBlock = createEachBlockCreator(
       $items,
-      each$,
-      track,
-      indexesMap,
-      effectsMap
+      each$
     )
-    const runEffectsMap = () => effectsMap.forEach(
-      (effects, block) => destroysMap.set(block, runEffects(effects))
-    )
-    const runDestroysMap = () => destroysMap.forEach(
-      destroys => runDestroys(destroys)
-    )
-    const subscribeEffect = subscribeLater($items, (items, prevItems) => {
-      const itemsCount = items.length
-      const prevItemsCount = prevItems?.length
+    this.#else$ = else$
+    this.#track = track
 
-      if (itemsCount) {
-        if (prevItemsCount) {
-          // [...n] -> [...n1]
-          // swap
-          this.#blocks = run(context, () => sync(
-            this.n!.parentNode!,
-            blocksMap,
-            indexesMap,
-            effectsMap,
-            destroysMap,
-            track,
-            createEachBlock,
-            this.#blocks!,
-            items,
-            itemsCount
-          ))
-        } else {
-          // [] -> [...n]
-          // initial
-          this.#blocks = Array(itemsCount)
+    effectScopeSwapper($items, this.#swapper.bind(this))
+  }
 
-          effectsMap.clear()
+  #swapper(
+    destroyPrev: Destroy | undefined,
+    items: unknown[],
+    prevItems: unknown[] | undefined
+  ) {
+    const effectScope = this.#effectScope
+    const createEachBlock = this.#createEachBlock
+    const itemsCount = items.length
+    const prevItemsCount = prevItems?.length
 
-          run(context, () => {
-            for (let i = 0, block; i < itemsCount; i++) {
-              block = this.#blocks![i] = createEachBlock(items[i], i)
-              blocksMap.set(block.k, block)
-            }
-          })
-
-          // swap
-          if (this.#placeholder) {
-            const prevNode = this.#placeholder.n!
-
-            this.#mountBlocks(prevNode.parentNode!, prevNode)
-            runDestroys(destroysMap.get(this.#placeholder))
-            destroysMap.clear()
-            this.#destroyPlaceholder()
-            runEffectsMap()
-            effectsMap.clear()
-          }
-        }
-      } else if (!this.#placeholder) {
-        // ([...n] | []) -> []
-        // initial
-        const effects: Effect[] = []
-
-        this.#placeholder = childToBlock(
-          captureEffects(
-            effects,
-            () => run(context, else$)
-          )
-        )
-
-        effectsMap.clear()
-        effectsMap.set(this.#placeholder, effects)
-
+    if (itemsCount) {
+      if (prevItemsCount) {
+        // [...m] -> [...n]
         // swap
-        if (this.#blocks) {
-          const prevNode = this.#blocks[0].n!
-
-          this.#placeholder.m(prevNode.parentNode!, prevNode)
-          runDestroysMap()
-          destroysMap.clear()
-          this.#destroyBlocks()
-          destroysMap.set(this.#placeholder, runEffects(effects))
-          effectsMap.clear()
-          blocksMap.clear()
-          indexesMap.clear()
-        }
+        return effectScope(() => {
+          startBatch()
+          reconcile(
+            this,
+            this.#blocksMap,
+            this.#track,
+            createEachBlock,
+            items
+          )
+          endBatch()
+        }, true)()
       }
-    })
 
-    addEffect(() => {
-      const unsubscribe = subscribeEffect()
+      // [] -> [...n]
 
-      runEffectsMap()
+      destroyPrev?.()
+      this.#isPlaceholder = false
 
-      return () => {
-        unsubscribe()
-        runDestroysMap()
+      const prevBlock = this[$$first]
+
+      this[$$first] = undefined
+
+      const runEffects = effectScope(() => {
+        reconcile(
+          this,
+          this.#blocksMap,
+          this.#track,
+          createEachBlock,
+          items
+        )
+      }, true)
+
+      // swap
+      if (destroyPrev) {
+        const prevNode = prevBlock![$$node]!
+
+        this[$$mount](prevNode.parentNode!, prevNode)
+        prevBlock![$$destroy]()
+
+        return runEffects()
       }
-    })
-  }
 
-  #mountBlocks(target: Node, anchor?: Node | null) {
-    const blocks = this.#blocks!
-    const len = blocks.length
+      // initial
+      return runEffects
+    } else if (!this.#isPlaceholder) {
+      // ([...n] | []) -> []
 
-    if (len) {
-      for (let i = 0; i < len; i++) {
-        blocks[i].m(target, anchor)
+      destroyPrev?.()
+      this.#isPlaceholder = true
+
+      const prevBlock = this[$$first]
+      const runEffects = effectScope(
+        () => this[$$first] = childToBlock(this.#else$()),
+        true
+      )
+
+      // swap
+      if (destroyPrev) {
+        const prevNode = prevBlock![$$node]!
+
+        this[$$first]![$$mount](prevNode.parentNode!, prevNode)
+        destroyLinkedBlocks(prevBlock)
+        this.#blocksMap.clear()
+
+        return runEffects()
       }
-    }
-  }
 
-  #destroyBlocks() {
-    const blocks = this.#blocks!
-    const len = blocks.length
-
-    if (len) {
-      for (let i = 0; i < len; i++) {
-        blocks[i].d()
-      }
+      // initial
+      return runEffects
     }
 
-    this.#blocks = undefined
-  }
-
-  #destroyPlaceholder() {
-    this.#placeholder!.d()
-    this.#placeholder = undefined
-  }
-
-  get n() {
-    const blocks = this.#blocks
-
-    return (blocks ? blocks[0]?.n : this.#placeholder?.n) as Node | null
-  }
-
-  m(target: Node, anchor?: Node | null) {
-    if (this.#blocks) {
-      this.#mountBlocks(target, anchor)
-    } else {
-      this.#placeholder!.m(target, anchor)
-    }
-  }
-
-  d() {
-    if (this.#blocks) {
-      this.#destroyBlocks()
-    } else {
-      this.#destroyPlaceholder()
-    }
+    return destroyPrev!
   }
 }

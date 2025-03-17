@@ -26,32 +26,18 @@
   "exports": {
     "./package.json": "./package.json",
     ".": "./src/index.ts",
-    "./store": "./src/store.ts",
-    "./internals": "./src/internals/index.ts"
+    "./store": "./src/store.ts"
   },
   "publishConfig": {
     "exports": {
       "./package.json": "./package.json",
       ".": {
         "types": "./dist/index.d.ts",
-        "node": "./dist/index.development.js",
-        "development": "./dist/index.development.js",
-        "production": "./dist/index.production.js",
-        "default": "./dist/index.production.js"
+        "default": "./dist/index.js"
       },
       "./store": {
         "types": "./dist/store.d.ts",
-        "node": "./dist/store.development.js",
-        "development": "./dist/store.development.js",
-        "production": "./dist/store.production.js",
-        "default": "./dist/store.production.js"
-      },
-      "./internals": {
-        "types": "./dist/internals/index.d.ts",
-        "node": "./dist/internals.development.js",
-        "development": "./dist/internals.development.js",
-        "production": "./dist/internals.production.js",
-        "default": "./dist/internals.production.js"
+        "default": "./dist/store.js"
       }
     },
     "directory": "package",
@@ -67,9 +53,7 @@
     "prepublishOnly": "run build clear:package clean-publish",
     "postpublish": "pnpm clear:package",
     "emitDeclarations": "tsc -p ./tsconfig.build.json --emitDeclarationOnly",
-    "build:dev": "NODE_ENV=development vite build",
-    "build:prod": "NODE_ENV=production vite build",
-    "build:dist": "run -p emitDeclarations build:dev build:prod",
+    "build:dist": "run -p emitDeclarations [ vite build ]",
     "build": "run clear:dist build:dist",
     "lint": "eslint --parser-options tsconfigRootDir:. '**/*.{js,ts}'",
     "test:unit": "vitest run --coverage",
@@ -107,6 +91,7 @@
     "react-dom": "^18.2.0",
     "size-limit": "^11.1.2",
     "storybook": "^7.6.17",
+    "terser": "^5.39.0",
     "typescript": "5.3.3",
     "vite": "^6.0.0",
     "vitest": "^2.0.0"

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { fn } from '@storybook/test'
 import { nanoStory } from '@nanoviews/storybook'
-import { listen } from 'kida'
+import { effect } from 'kida'
 import {
   input,
   textarea,
@@ -17,7 +17,7 @@ import {
 } from './controls.js'
 
 const meta: Meta<{
-  onChange?(value: unknown, prevValue: unknown): void
+  onChange?(value: unknown): void
   value?: string
   values?: string[]
   checked?: boolean | typeof Indeterminate
@@ -28,16 +28,23 @@ const meta: Meta<{
 
 export default meta
 
-type Story = StoryObj<typeof meta>
-
-export const TextInput: Story = {
+export const TextInput: StoryObj<{
+  onChange(value: unknown): void
+  value: string
+}> = {
   args: {
     onChange: fn(),
     value: 'Hello, world!'
   },
   render: nanoStory(({ onChange, value }) => {
     if (onChange && value) {
-      listen(value, onChange)
+      effect((warmup) => {
+        const v = value()
+
+        if (!warmup) {
+          onChange(v)
+        }
+      })
     }
 
     return input({
@@ -47,14 +54,23 @@ export const TextInput: Story = {
   })
 }
 
-export const Textarea: Story = {
+export const Textarea: StoryObj<{
+  onChange(value: unknown): void
+  value: string
+}> = {
   args: {
     onChange: fn(),
     value: 'Hello, world!'
   },
   render: nanoStory(({ onChange, value }) => {
     if (onChange && value) {
-      listen(value, onChange)
+      effect((warmup) => {
+        const v = value()
+
+        if (!warmup) {
+          onChange(v)
+        }
+      })
     }
 
     return textarea({
@@ -63,7 +79,10 @@ export const Textarea: Story = {
   })
 }
 
-export const Select: Story = {
+export const Select: StoryObj<{
+  onChange(value: unknown): void
+  value: string
+}> = {
   argTypes: {
     value: {
       control: 'radio',
@@ -80,7 +99,13 @@ export const Select: Story = {
   },
   render: nanoStory(({ onChange, value }) => {
     if (onChange && value) {
-      listen(value, onChange)
+      effect((warmup) => {
+        const v = value()
+
+        if (!warmup) {
+          onChange(v)
+        }
+      })
     }
 
     return select({
@@ -99,7 +124,10 @@ export const Select: Story = {
   })
 }
 
-export const MultipleSelect: Story = {
+export const MultipleSelect: StoryObj<{
+  onChange(value: unknown): void
+  values: string[]
+}> = {
   argTypes: {
     values: {
       control: 'check',
@@ -116,7 +144,13 @@ export const MultipleSelect: Story = {
   },
   render: nanoStory(({ onChange, values }) => {
     if (onChange && values) {
-      listen(values, onChange)
+      effect((warmup) => {
+        const v = values()
+
+        if (!warmup) {
+          onChange(v)
+        }
+      })
     }
 
     return select({
@@ -135,7 +169,10 @@ export const MultipleSelect: Story = {
   })
 }
 
-export const Checkbox: Story = {
+export const Checkbox: StoryObj<{
+  onChange(value: unknown): void
+  checked: boolean | typeof Indeterminate
+}> = {
   argTypes: {
     checked: {
       control: 'inline-radio',
@@ -152,7 +189,13 @@ export const Checkbox: Story = {
   },
   render: nanoStory(({ onChange, checked }) => {
     if (onChange && checked) {
-      listen(checked, onChange)
+      effect((warmup) => {
+        const v = checked()
+
+        if (!warmup) {
+          onChange(v)
+        }
+      })
     }
 
     return input({
@@ -162,14 +205,23 @@ export const Checkbox: Story = {
   })
 }
 
-export const Files: Story = {
+export const Files: StoryObj<{
+  onChange(value: unknown): void
+  files: File[]
+}> = {
   args: {
     onChange: fn(),
     files: []
   },
   render: nanoStory(({ onChange, files }) => {
     if (onChange && files) {
-      listen(files, onChange)
+      effect((warmup) => {
+        const v = files()
+
+        if (!warmup) {
+          onChange(v)
+        }
+      })
     }
 
     return input({

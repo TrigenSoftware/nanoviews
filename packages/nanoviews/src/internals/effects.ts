@@ -1,67 +1,64 @@
+import {
+  type ReadableSignal,
+  type Destroy,
+  effect,
+  isSignal,
+  createEffectScope,
+  getContext,
+  run
+} from 'kida'
 import type {
-  Effect,
-  Destroy
+  ValueOrSignal,
+  EffectScopeSwapperCallback
 } from './types/index.js'
 
-let globalEffects: Effect[] | undefined
-
-/**
- * Capture effects from a function
- * @param effects - Target effects array
- * @param fn - Function to capture effects from
- * @returns Function result
- */
-export function captureEffects<R>(effects: Effect[], fn: () => R): R {
-  const prevEffects = globalEffects
-
-  globalEffects = effects
-
-  try {
-    return fn()
-  } finally {
-    globalEffects = prevEffects
+export function subscribe<T>(
+  valueOr$signal: ValueOrSignal<T>,
+  callback: (value: T) => void
+) {
+  if (!isSignal(valueOr$signal)) {
+    callback(valueOr$signal)
+    return
   }
-}
 
-/**
- * Add mounted effect.
- * Effect will be run on block mount and can return destroy function to run on unmount.
- * @param effect - Effect function to add
- */
-export function addEffect(effect: Effect) {
-  globalEffects!.push(effect)
-}
+  let firstValue: T | undefined = valueOr$signal()
 
-/**
- * Run effects from array and return destroy functions
- * @param effects - Effects array
- * @returns Destroy functions
- */
-export function runEffects(effects: Effect[]) {
-  const len = effects.length
-  const destroys: Destroy[] = []
+  callback(firstValue)
 
-  if (len) {
-    for (let i = 0, destroy; i < len; i++) {
-      if (destroy = effects[i]()) {
-        destroys.push(destroy)
-      }
+  effect((warmup) => {
+    const value = valueOr$signal()
+
+    if (!warmup || (firstValue !== value && (firstValue = undefined, true))) {
+      callback(value)
     }
-  }
-
-  return destroys
+  })
 }
 
-/**
- * Run destroy functions
- * @param destroys - Destroy functions array
- */
-export function runDestroys(destroys: Destroy[] | undefined) {
-  const len = destroys?.length
+export function createEffectScopeWithContext(context = getContext()) {
+  return createEffectScope(runner => run.bind(null, context, runner))
+}
 
-  if (len) {
-    for (let i = 0; i < len; i++) {
-      destroys[i]()
+export function effectScopeSwapper<T>(
+  $signal: ReadableSignal<T>,
+  callback: EffectScopeSwapperCallback<T>
+) {
+  let prevValue = $signal()
+  let start = callback(undefined, prevValue, undefined) as (() => Destroy) | undefined
+  let stop: Destroy
+
+  effect((warmup) => {
+    const value = $signal()
+
+    if (warmup) {
+      stop = start!()
+      start = undefined
     }
-  }
+
+    if (!warmup || prevValue !== value) {
+      stop = callback(stop, value, prevValue)
+      prevValue = value
+    }
+  })
+
+  effect(() => () => stop())
 }

@@ -1,96 +1,72 @@
 import {
   type ReadableSignal,
-  isSignal,
-  subscribeLater
+  type Destroy,
+  isSignal
 } from 'kida'
 import type {
   ValueOrSignal,
-  PrimitiveChild,
-  Effect,
-  Destroy
+  PrimitiveChild
 } from '../types/index.js'
-import { childToBlock } from '../elements/child.js'
-import { Block } from '../block.js'
 import {
-  addEffect,
-  runEffects,
-  runDestroys,
-  captureEffects
+  $$destroy,
+  $$first,
+  $$mount,
+  $$node
+} from '../symbols.js'
+import {
+  createEffectScopeWithContext,
+  effectScopeSwapper
 } from '../effects.js'
+import { childToBlock } from '../elements/child.js'
 import {
-  getContext,
-  run
-} from './context.js'
+  type Block,
+  HostBlock
+} from '../block.js'
 
-export class DesideBlock<T> extends Block {
-  #childBlock!: Block
+export class DecideBlock<T> extends HostBlock {
+  declare [$$first]: Block
+  readonly #effectScope = createEffectScopeWithContext()
+  readonly #decider: (value: T) => PrimitiveChild
 
   constructor(
     $condition: ReadableSignal<T>,
-    decider: (value: T, prevValue?: T | undefined) => PrimitiveChild
+    decider: (value: T) => PrimitiveChild
   ) {
     super()
 
-    const context = getContext()
-    let effects: Effect[]
-    let destroys: Destroy[]
-    const subscribeEffect = subscribeLater(
-      $condition,
-      (condition, prevCondition) => {
-        runDestroys(destroys)
-        effects = []
+    this.#decider = decider
 
-        const prevBlock = this.#childBlock
+    effectScopeSwapper($condition, this.#swapper.bind(this))
+  }
 
-        if (prevBlock) {
-          const nextBlock = childToBlock(
-            captureEffects(
-              effects,
-              () => run(context, () => decider(condition, prevCondition))
-            )
-          )
+  #swapper(
+    destroyPrev: Destroy | undefined,
+    condition: T
+  ) {
+    destroyPrev?.()
 
-          if (prevBlock !== nextBlock) {
-            const prevNode = prevBlock.n!
-
-            nextBlock.m(prevNode.parentNode!, prevNode)
-            runDestroys(destroys)
-            prevBlock.d()
-            destroys = runEffects(effects)
-            effects = []
-
-            this.#childBlock = nextBlock
-          }
-        } else {
-          this.#childBlock = childToBlock(
-            captureEffects(effects, () => decider(condition))
-          )
-        }
-      }
+    const prevBlock = this[$$first]
+    const runEffects = this.#effectScope(
+      () => this[$$first] = childToBlock(
+        this.#decider(condition)
+      ),
+      true
     )
 
-    addEffect(() => {
-      const unsubscribe = subscribeEffect()
+    // Rerender on condition change in effect
+    if (destroyPrev) {
+      const prevNode = prevBlock[$$node]!
 
-      destroys = runEffects(effects)
+      this[$$first][$$mount](prevNode.parentNode!, prevNode)
+      prevBlock[$$destroy]()
 
-      return () => {
-        unsubscribe()
-        runDestroys(destroys)
-      }
-    })
-  }
+      // Should return effect stop function
+      return runEffects()
+    }
 
-  get n() {
-    return this.#childBlock.n
-  }
-
-  m(target: Node, anchor?: Node | null) {
-    this.#childBlock.m(target, anchor)
-  }
-
-  d() {
-    this.#childBlock.d()
+    // First render, before effects run
+    // Should return effect start function
+    return runEffects
   }
 }
 
@@ -102,10 +78,10 @@ export class DesideBlock<T> extends Block {
  */
 export function decide<T>(
   $condition: ValueOrSignal<T>,
-  decider: (value: T, prevValue?: T | undefined) => PrimitiveChild
+  decider: (value: T) => PrimitiveChild
 ) {
   if (isSignal($condition)) {
-    return new DesideBlock($condition, decider)
+    return new DecideBlock($condition, decider)
   }
 
   return childToBlock(decider($condition))

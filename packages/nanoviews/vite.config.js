@@ -1,5 +1,12 @@
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
+import {
+  DEV,
+  terserOptions,
+  inlineSymbols
+} from '../../scripts/index.js'
+import * as symbols from './src/internals/symbols.ts'
+import * as symbolsMin from './src/internals/symbols.min.ts'
 
 export default defineConfig({
   build: {
@@ -8,20 +15,21 @@ export default defineConfig({
       formats: ['es'],
       entry: {
         index: './src/index.ts',
-        store: './src/store.ts',
-        internals: './src/internals/index.ts'
-      },
-      fileName(_, entryName) {
-        return `${entryName}.${process.env.NODE_ENV}.js`
+        store: './src/store.ts'
       }
     },
     rollupOptions: {
-      external: ['kida']
+      external: ['agera', 'kida']
     },
     sourcemap: true,
-    minify: false,
+    minify: !DEV && 'terser',
+    terserOptions,
     emptyOutDir: false
   },
+  plugins: [
+    // inline symbols values to optimize bundle size
+    inlineSymbols(symbols, symbolsMin)
+  ],
   test: {
     environment: 'happy-dom',
     setupFiles: ['./test/setup.ts'],

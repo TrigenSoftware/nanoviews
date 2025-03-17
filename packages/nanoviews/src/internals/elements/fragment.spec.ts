@@ -36,15 +36,15 @@ describe('nanoviews', () => {
 
           expect(container.textContent).toBe('text|548|true')
 
-          text.set('Hello, nanoviews!')
+          text('Hello, nanoviews!')
 
           expect(container.textContent).toBe('Hello, nanoviews!|548|true')
 
-          number.set(123)
+          number(123)
 
           expect(container.textContent).toBe('Hello, nanoviews!|123|true')
 
-          boolean.set(false)
+          boolean(false)
 
           expect(container.textContent).toBe('Hello, nanoviews!|123|false')
         })

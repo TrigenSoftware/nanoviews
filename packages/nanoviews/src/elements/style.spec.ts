@@ -30,7 +30,7 @@ describe('nanoviews', () => {
 
         expect(container.innerHTML).toBe('<div><div style="color: green;">Hello, world!</div></div>')
 
-        color.set('red')
+        color('red')
 
         expect(container.innerHTML).toBe('<div><div style="color: red;">Hello, world!</div></div>')
       })

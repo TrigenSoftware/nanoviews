@@ -31,7 +31,7 @@ describe('nanoviews', () => {
 
         expect(container.innerHTML).toBe('<div><b>True: true</b></div>')
 
-        value.set(false)
+        value(false)
 
         expect(container.innerHTML).toBe('<div>False</div>')
       })
@@ -44,7 +44,7 @@ describe('nanoviews', () => {
 
         expect(container.innerHTML).toBe('<div><b>True: true</b></div>')
 
-        value.set(false)
+        value(false)
 
         expect(container.innerHTML).toBe('<div></div>')
       })

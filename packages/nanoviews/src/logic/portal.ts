@@ -1,4 +1,7 @@
-import type { Block } from '../internals/index.js'
+import {
+  type Block,
+  $$mount
+} from '../internals/index.js'
 
 /**
  * Render block in the target node
@@ -7,9 +10,9 @@ import type { Block } from '../internals/index.js'
  * @returns Portal block
  */
 export function portal$<T extends Block>(target: Node, block: T) {
-  const superMount = block.m.bind(block)
+  const superMount = block[$$mount].bind(block)
 
-  block.m = () => superMount(target)
+  block[$$mount] = () => superMount(target)
 
   return block
 }

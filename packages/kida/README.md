@@ -140,19 +140,6 @@ const $fullName = computed(() => `${$firstName()} ${$lastName()}`)
 console.log($fullName()) // John Doe
 ```
 
-### `subscribe`
-
-`subscribe` is a method to listen single signal changes. Unlike `effect`, `subscribe` provides previous signal value.
-
-```ts
-import { signal, subscribe } from 'kida'
-
-const $count = signal(0)
-const stop = subscribe($count, (count, prevCount) => {
-  console.log('Count:', count, 'Previous count:', prevCount)
-})
-```
-
 ### `onMountEffect`
 
 `onMountEffect` accepts a signal as a first argument to start effect on this [signal mount](#lifecycles).

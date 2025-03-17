@@ -4,7 +4,7 @@ import {
   update
 } from 'agera'
 import {
-  at,
+  child,
   assignIndex
 } from './internals/index.js'
 
@@ -34,7 +34,7 @@ export function atIndex<T>(
   $list: ReadableSignal<T[]> | WritableSignal<T[]>,
   index: number | ReadableSignal<number>
 ) {
-  return at($list, assignIndex, index)
+  return child($list, index, assignIndex)
 }
 
 /**

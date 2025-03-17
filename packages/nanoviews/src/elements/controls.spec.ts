@@ -12,6 +12,7 @@ import {
 import { userEvent } from '@testing-library/user-event'
 import { signal } from 'kida'
 import * as Stories from './controls.stories.js'
+import { Indeterminate } from './controls.js'
 
 const {
   TextInput,
@@ -37,7 +38,7 @@ describe('nanoviews', () => {
 
           expect(input.value).toBe('Hello, world!')
 
-          value.set('Hello, nanoviews!')
+          value('Hello, nanoviews!')
 
           expect(input.value).toBe('Hello, nanoviews!')
 
@@ -61,7 +62,7 @@ describe('nanoviews', () => {
 
           expect(textarea.value).toBe('Hello, world!')
 
-          value.set('Hello, nanoviews!')
+          value('Hello, nanoviews!')
 
           expect(textarea.value).toBe('Hello, nanoviews!')
 
@@ -87,7 +88,7 @@ describe('nanoviews', () => {
 
           expect(select.value).toBe('green')
 
-          value.set('red')
+          value('red')
 
           expect(select.value).toBe('red')
 
@@ -127,7 +128,7 @@ describe('nanoviews', () => {
 
       describe('checked$', () => {
         it('should handle checked state of checkbox', () => {
-          const checked = signal(true)
+          const checked = signal<boolean | typeof Indeterminate>(true)
 
           render(Checkbox({
             checked
@@ -137,7 +138,7 @@ describe('nanoviews', () => {
 
           expect(checkbox.checked).toBe(true)
 
-          checked.set(false)
+          checked(false)
 
           expect(checkbox.checked).toBe(false)
 
@@ -153,7 +154,7 @@ describe('nanoviews', () => {
 
       describe('files$', () => {
         it('should save files to signal', async () => {
-          const files = signal([])
+          const files = signal<File[]>([])
           const user = userEvent.setup()
           const file = new File(['hello'], 'hello.png', {
             type: 'image/png'
@@ -166,7 +167,7 @@ describe('nanoviews', () => {
 
           await user.upload(fileInput, file)
 
-          expect(files.get()[0]).toBe(file)
+          expect(files()[0]).toBe(file)
         })
       })
     })

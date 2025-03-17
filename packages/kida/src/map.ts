@@ -6,7 +6,7 @@ import {
 } from 'agera'
 import {
   type AnyCollection,
-  at,
+  child,
   assignKey
 } from './internals/index.js'
 
@@ -36,7 +36,7 @@ export function atKey<T extends AnyCollection>(
   $map: ReadableSignal<T> | WritableSignal<T>,
   key: keyof T | ReadableSignal<keyof T>
 ) {
-  return at($map, assignKey, key)
+  return child($map, key, assignKey)
 }
 
 /**
