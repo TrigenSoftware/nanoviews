@@ -189,9 +189,8 @@ function createEachBlockCreator(
   return (key: unknown, i: number) => {
     const $index = signal(i)
     let block: Block
-    const $item = atIndex($items, $index)
     const destroy = effectScope(() => block = childToBlock(
-      each$($item, $index)
+      each$(atIndex($items, $index), $index)
     ))
 
     block![$$key] = key

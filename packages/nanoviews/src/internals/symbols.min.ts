@@ -1,7 +1,7 @@
 export const $$key = 'k'
 export const $$index = 'i'
 export const $$first = 'f'
-export const $$next = 'r'
+export const $$next = 'x'
 export const $$prev = 'p'
 export const $$destroyEffect = 's'
 export const $$node = 'n'

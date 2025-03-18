@@ -35,7 +35,9 @@ export function subscribe<T>(
 }
 
 export function createEffectScopeWithContext(context = getContext()) {
-  return createEffectScope(runner => run.bind(null, context, runner))
+  const effectScope = createEffectScope()
+
+  return ((fn, lazy) => effectScope(() => run(context, fn), lazy)) as ReturnType<typeof createEffectScope>
 }
 
 export function effectScopeSwapper<T>(

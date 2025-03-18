@@ -1,7 +1,6 @@
 import type {
   EffectAttributeId,
-  EffectAttributeCallback,
-  UnknownAttributes
+  EffectAttributeCallback
 } from '../types/index.js'
 
 const store = new Map<EffectAttributeId, EffectAttributeCallback>()
@@ -29,24 +28,4 @@ export function createEffectAttribute<
  */
 export function getEffectAttribute(id: EffectAttributeId) {
   return store.get(id)
-}
-
-/**
- * Validate helper for effect attributes
- * @param attributes - Target attributes
- * @param names - Names to check
- * @param effectAttributeName - Effect attribute name
- */
-export function effectAttributeValidate<T extends UnknownAttributes>(
-  attributes: T,
-  names: keyof T | (keyof T)[],
-  effectAttributeName: string
-) {
-  (Array.isArray(names) ? names : [names]).forEach((name) => {
-    if (name in attributes) {
-      throw new Error(
-        `You can't use ${effectAttributeName} effect attribute and ${String(name)} attribute together.`
-      )
-    }
-  })
 }

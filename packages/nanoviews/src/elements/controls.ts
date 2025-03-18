@@ -3,11 +3,11 @@
 import {
   type WritableSignal,
   isSignal,
-  effect
+  effect,
+  get
 } from 'kida'
 import {
   type ValueOrWritableSignal,
-  type UnknownAttributes,
   valueProperty,
   checkedProperty,
   indeterminateProperty,
@@ -17,9 +17,7 @@ import {
   onChangeEvent,
   onInputEvent,
   isEmpty,
-  noop,
-  createEffectAttribute,
-  effectAttributeValidate
+  createEffectAttribute
 } from '../internals/index.js'
 
 // https://caniuse.com/?search=oninput onInput doesn't fire an input event when (un)checking a checkbox or radio button, or when changing the selected file(s) of an <input type="file">
@@ -48,47 +46,30 @@ type ComboboxElement = HTMLSelectElement
 
 type FileElement = HTMLInputElement
 
-function createElementPropertySetter<E extends Element, V>(
+function createElementPropertySetter2<E extends Element, V>(
   eventName: string,
-  create: (control: E, value: V) => void,
-  mount: (control: E, value: V) => void,
-  update: (control: E, value: V) => void,
   getValue: (control: E) => V,
-  validate?: (attributes: UnknownAttributes) => void
+  setValue: (control: E, value: V) => void
 ) {
   return (
     control: E,
-    $value: ValueOrWritableSignal<V>,
-    attributes: UnknownAttributes
+    $value: ValueOrWritableSignal<V>
   ): void => {
-    if (import.meta.env.DEV) {
-      validate?.(attributes)
-    }
-
     if (!isEmpty($value)) {
+      setValue(control, get($value))
+
+      effect(() => {
+        setValue(control, get($value))
+      })
+
       if (isSignal<WritableSignal<V>>($value)) {
-        const eventListener = () => $value(getValue(control))
-        const value = $value()
-
-        create(control, value)
-
         effect(() => {
-          mount(control, value)
+          const eventListener = () => $value(getValue(control))
+
           control.addEventListener(eventName, eventListener)
 
           return () => control.removeEventListener(eventName, eventListener)
         })
-
-        effect((warmup) => {
-          const value = $value()
-
-          if (!warmup) {
-            update(control, value)
-          }
-        })
-      } else {
-        create(control, $value)
-        effect(() => mount(control, $value))
       }
     }
   }
@@ -110,19 +91,10 @@ function getValue(control: TextboxElement) {
  */
 export const value$ = /* @__PURE__ */ createEffectAttribute<'value$', TextboxElement, Value>(
   'value$',
-  createElementPropertySetter(
+  createElementPropertySetter2(
     onInputEvent,
-    setValue,
-    noop,
-    setValue,
     getValue,
-    import.meta.env.DEV
-      ? attributes => effectAttributeValidate(
-        attributes,
-        'value',
-        'value$'
-      )
-      : undefined
+    setValue
   )
 )
 
@@ -147,19 +119,10 @@ function getChecked(control: CheckboxElement): CheckedPrimitive {
  */
 export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, ValueOrWritableSignal<CheckedPrimitive>>(
   'checked$',
-  createElementPropertySetter(
+  createElementPropertySetter2(
     onChangeEvent,
-    setChecked,
-    noop,
-    setChecked,
     getChecked,
-    import.meta.env.DEV
-      ? attributes => effectAttributeValidate(
-        attributes,
-        'checked',
-        'checked$'
-      )
-      : noop
+    setChecked
   )
 )
 
@@ -169,9 +132,12 @@ function setSelected(
 ) {
   const options = control[optionsProperty]
   const len = options.length
-  const test = Array.isArray(values)
+  const isArray = Array.isArray(values)
+  const test = isArray
     ? (v: string) => values.includes(v)
     : (v: string) => values === v
+
+  control.multiple = isArray
 
   if (len) {
     for (let i = 0, option: HTMLOptionElement; i < len; i++) {
@@ -209,26 +175,28 @@ function getSelected(control: ComboboxElement): SelectedPrimitive {
  */
 export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, ValueOrWritableSignal<SelectedPrimitive>>(
   'selected$',
-  createElementPropertySetter(
+  createElementPropertySetter2(
     onChangeEvent,
-    (control: ComboboxElement, value: SelectedPrimitive) => {
-      control.multiple = Array.isArray(value)
-    },
-    setSelected,
-    setSelected,
     getSelected,
-    import.meta.env.DEV
-      ? attributes => effectAttributeValidate(
-        attributes,
-        ['value', 'multiple'],
-        'selected$'
-      )
-      : noop
+    setSelected
   )
 )
 
-function getFiles(control: FileElement): FilesPrimitive {
-  return Array.from(control.files!)
+function filesEffectAttribute(
+  control: FileElement,
+  $value: ValueOrWritableSignal<Files>
+) {
+  if (!isEmpty($value)) {
+    if (isSignal($value)) {
+      effect(() => {
+        const eventListener = () => $value(Array.from(control.files!))
+
+        control.addEventListener(onChangeEvent, eventListener)
+
+        return () => control.removeEventListener(onChangeEvent, eventListener)
+      })
+    }
+  }
 }
 
 /**
@@ -236,13 +204,7 @@ function getFiles(control: FileElement): FilesPrimitive {
  */
 export const files$ = /* @__PURE__ */ createEffectAttribute<'files$', FileElement, Files>(
   'files$',
-  createElementPropertySetter(
-    onChangeEvent,
-    noop,
-    noop,
-    noop,
-    getFiles
-  )
+  filesEffectAttribute
 )
 
 declare module 'nanoviews' {
