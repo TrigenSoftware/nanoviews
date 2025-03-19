@@ -8,7 +8,7 @@ export function Counter() {
     id: 'counter',
     type: 'button',
     onClick() {
-      $counter.set($counter.get() + 1)
+      $counter($counter() + 1)
     }
   })(
     'count is ', $counter

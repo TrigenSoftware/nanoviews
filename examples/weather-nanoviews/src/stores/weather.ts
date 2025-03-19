@@ -1,6 +1,6 @@
 import {
   channel,
-  effect,
+  onMountEffect,
   record,
   signal
 } from 'nanoviews/store'
@@ -14,14 +14,14 @@ import { $currentLocation } from './location.js'
 
 export const $currentWeather = record(signal<Weather | null>(null))
 
-effect($currentWeather, (get) => {
-  fetchWeather(get($currentLocation))
+onMountEffect($currentWeather, () => {
+  fetchWeather($currentLocation())
 })
 
 export const $weatherForecast = signal<Weather[]>([])
 
-effect($weatherForecast, (get) => {
-  fetchWeatherForecast(get($currentLocation))
+onMountEffect($weatherForecast, () => {
+  fetchWeatherForecast($currentLocation())
 })
 
 const [weatherTask] = channel(tasks)
@@ -29,9 +29,9 @@ const [weatherTask] = channel(tasks)
 function fetchWeather(city: City | undefined) {
   return weatherTask(async (signal) => {
     if (city) {
-      $currentWeather.set(await WeatherService.fetchWeather(city, signal))
+      $currentWeather(await WeatherService.fetchWeather(city, signal))
     } else {
-      $currentWeather.set(null)
+      $currentWeather(null)
     }
   })
 }
@@ -41,9 +41,9 @@ const [weatherForecastTask] = channel(tasks)
 function fetchWeatherForecast(city: City | undefined) {
   return weatherForecastTask(async (signal) => {
     if (city) {
-      $weatherForecast.set(await WeatherService.fetchWeatherForecast(city, signal))
+      $weatherForecast(await WeatherService.fetchWeatherForecast(city, signal))
     } else {
-      $weatherForecast.set([])
+      $weatherForecast([])
     }
   })
 }

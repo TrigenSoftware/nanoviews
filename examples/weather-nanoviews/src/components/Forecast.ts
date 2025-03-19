@@ -20,10 +20,10 @@ import { ForecastWeather } from './ForecastWeather.js'
 import styles from './Forecast.module.css'
 
 export function Forecast() {
-  const $mode = signal<'daily' | 'hourly'>('hourly')
-  const $forecastToShow = computed((get) => {
-    const forecast = get($weatherForecast)
-    const mode = get($mode)
+  const $mode = signal('hourly')
+  const $forecastToShow = computed(() => {
+    const forecast = $weatherForecast()
+    const mode = $mode()
 
     return forecast.filter(
       (_, index) => (mode === 'hourly' && index < 10) || (mode === 'daily' && index % 8 === 0)

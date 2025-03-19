@@ -10,13 +10,13 @@ import {
   inject
 } from 'nanoviews'
 import {
-  LocationSearchStore,
+  LocationSearchPacedStore,
   CitySuggestionsStore
 } from '../stores/location.js'
 import styles from './CityInput.module.css'
 
 export function CityInput() {
-  const $locationSearch = inject(LocationSearchStore)
+  const $locationSearch = inject(LocationSearchPacedStore)
   const $citySuggestions = inject(CitySuggestionsStore)
 
   return div({
@@ -41,7 +41,7 @@ export function CityInput() {
     })(
       for$($citySuggestions)(
         $city => option({
-          value: record($city).label
+          value: record($city).$label
         })
       )
     )

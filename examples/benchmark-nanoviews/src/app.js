@@ -122,13 +122,13 @@ export function App(ref = {}) {
     deleteIndex($data, index)
   }
   const run = () => {
-    $data.set(buildData(1000))
+    $data(buildData(1000))
   }
   const runLots = () => {
-    $data.set(buildData(10000))
+    $data(buildData(10000))
   }
   const swapRows = () => {
-    if ($data.get().length > 998) {
+    if ($data().length > 998) {
       updateList($data, (data) => {
         const tmp = data[1]
 
@@ -224,24 +224,24 @@ export function App(ref = {}) {
             $row = record($row)
 
             return tr({
-              class: computed(get => get($selected) === get($row.id) ? 'danger' : '')
+              class: computed(() => $selected() === $row.$id() ? 'danger' : '')
             })(
               td({ class: 'col-md-1' })(
-                $row.id
+                $row.$id
               ),
               td({ class: 'col-md-4' })(
                 a({
                   onClick() {
-                    $selected.set($row.id.get())
+                    $selected($row.$id())
                   }
                 })(
-                  $row.label
+                  $row.$label
                 )
               ),
               td({ class: 'col-md-1' })(
                 a({
                   onClick() {
-                    remove($index.get())
+                    remove($index())
                   }
                 })(
                   'Delete'

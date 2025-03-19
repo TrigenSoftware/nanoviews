@@ -1,11 +1,11 @@
 import {
   signal,
-  lazy,
-  onChange,
+  paced,
+  debounce,
+  external,
   atIndex,
-  effect,
+  onMountEffect,
   onMount,
-  batch,
   channel
 } from 'nanoviews/store'
 import type { City } from '../services/types.js'
@@ -15,25 +15,28 @@ import { tasks } from './tasks.js'
 
 const INPUT_DEBOUNCE = 300
 
-export const $locationSearch = lazy(
-  () => localStorage.getItem('locationSearch') || ''
-)
+export const $locationSearch = external<string>(($locationSearch) => {
+  $locationSearch(localStorage.getItem('locationSearch') || '')
 
-onChange($locationSearch, batch(INPUT_DEBOUNCE)((value: string) => {
-  localStorage.setItem('locationSearch', value)
-}))
+  return (nextValue) => {
+    localStorage.setItem('locationSearch', nextValue)
+    $locationSearch(nextValue)
+  }
+})
+
+export const $locationSearchPaced = paced($locationSearch, debounce(INPUT_DEBOUNCE))
 
 onMount($locationSearch, () => {
-  if (!$locationSearch.get()) {
+  if (!$locationSearch()) {
     fetchCurrentCity()
   }
 })
 
 export const $citySuggestions = signal<City[]>([])
 
-effect($citySuggestions, (get) => {
-  fetchCitySuggestions(get($locationSearch))
-}, batch(INPUT_DEBOUNCE))
+onMountEffect($citySuggestions, () => {
+  fetchCitySuggestions($locationSearch())
+})
 
 export const $currentLocation = atIndex($citySuggestions, 0)
 
@@ -42,9 +45,9 @@ const [citySuggestionsTask] = channel(tasks)
 function fetchCitySuggestions(query: string) {
   return citySuggestionsTask(async (signal) => {
     if (query.trim()) {
-      $citySuggestions.set(await Cities.fetchCities(query, signal))
+      $citySuggestions(await Cities.fetchCities(query, signal))
     } else {
-      $citySuggestions.set([])
+      $citySuggestions([])
     }
   })
 }
@@ -52,7 +55,7 @@ function fetchCitySuggestions(query: string) {
 async function fetchCurrentCity() {
   const city = await Location.fetchCurrentCity()
 
-  if (!$locationSearch.get() && city) {
-    $locationSearch.set(city.label)
+  if (!$locationSearch() && city) {
+    $locationSearch(city.label)
   }
 }

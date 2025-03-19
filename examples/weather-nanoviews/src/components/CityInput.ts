@@ -9,7 +9,7 @@ import {
   option
 } from 'nanoviews'
 import {
-  $locationSearch,
+  $locationSearchPaced,
   $citySuggestions
 } from '../stores/location.js'
 import styles from './CityInput.module.css'
@@ -30,14 +30,14 @@ export function CityInput() {
       type: 'text',
       list: 'cities',
       name: 'city',
-      [value$]: $locationSearch
+      [value$]: $locationSearchPaced
     }),
     datalist({
       id: 'cities'
     })(
       for$($citySuggestions)(
         $city => option({
-          value: record($city).label
+          value: record($city).$label
         })
       )
     )

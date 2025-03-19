@@ -1,11 +1,11 @@
 import {
   signal,
-  lazy,
-  onChange,
+  paced,
+  debounce,
+  external,
   atIndex,
-  effect,
+  onMountEffect,
   onMount,
-  batch,
   channel,
   Tasks,
   inject
@@ -17,29 +17,36 @@ import * as Location from '../services/location.js'
 const INPUT_DEBOUNCE = 300
 
 export function LocationSearchStore() {
-  const $locationSearch = lazy(
-    () => localStorage.getItem('locationSearch') || ''
-  )
+  const $locationSearch = external<string>(($locationSearch) => {
+    $locationSearch(localStorage.getItem('locationSearch') || '')
+
+    return (nextValue) => {
+      localStorage.setItem('locationSearch', nextValue)
+      $locationSearch(nextValue)
+    }
+  })
 
   async function fetchCurrentCity() {
     const city = await Location.fetchCurrentCity()
 
-    if (!$locationSearch.get() && city) {
-      $locationSearch.set(city.label)
+    if (!$locationSearch() && city) {
+      $locationSearch(city.label)
     }
   }
 
-  onChange($locationSearch, batch(INPUT_DEBOUNCE)((value: string) => {
-    localStorage.setItem('locationSearch', value)
-  }))
-
   onMount($locationSearch, () => {
-    if (!$locationSearch.get()) {
+    if (!$locationSearch()) {
       fetchCurrentCity()
     }
   })
 
   return $locationSearch
+}
+
+export function LocationSearchPacedStore() {
+  const $locationSearch = inject(LocationSearchStore)
+
+  return paced($locationSearch, debounce(INPUT_DEBOUNCE))
 }
 
 export function CitySuggestionsStore() {
@@ -51,16 +58,16 @@ export function CitySuggestionsStore() {
   function fetchCitySuggestions(query: string) {
     return citySuggestionsTask(async (signal) => {
       if (query.trim()) {
-        $citySuggestions.set(await Cities.fetchCities(query, signal))
+        $citySuggestions(await Cities.fetchCities(query, signal))
       } else {
-        $citySuggestions.set([])
+        $citySuggestions([])
       }
     })
   }
 
-  effect($citySuggestions, (get) => {
-    fetchCitySuggestions(get($locationSearch))
-  }, batch(INPUT_DEBOUNCE))
+  onMountEffect($citySuggestions, () => {
+    fetchCitySuggestions($locationSearch())
+  })
 
   return $citySuggestions
 }
