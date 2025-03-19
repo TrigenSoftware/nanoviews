@@ -1,6 +1,7 @@
 import {
   type WritableSignal,
-  type AnyReadableSignal
+  type AnyReadableSignal,
+  $$signal
 } from './internals/index.js'
 
 /**
@@ -20,5 +21,5 @@ export function update<T>($signal: WritableSignal<T>, fn: (value: T) => T) {
  * @returns Whether the value is an signal.
  */
 export function isSignal<T extends AnyReadableSignal = AnyReadableSignal>(value: unknown): value is T {
-  return typeof value === 'function'
+  return typeof value === 'function' && $$signal in value
 }

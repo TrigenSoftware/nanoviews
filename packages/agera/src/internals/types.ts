@@ -9,7 +9,6 @@ import type {
   $$prevSub,
   $$nextSub,
   $$nextDep,
-  $$isScope,
   $$effect,
   $$compute,
   $$value,
@@ -17,7 +16,8 @@ import type {
   $$destroy,
   $$get,
   $$set,
-  $$source
+  $$source,
+  $$signal
 } from './symbols.js'
 
 export interface Dependency {
@@ -42,17 +42,17 @@ export interface Link {
   [$$nextDep]: Link | undefined
 }
 
-export interface EffectScope extends Subscriber, Dependency {
-  [$$isScope]: true
-}
+export interface EffectScope extends Subscriber, Dependency {}
 
-export type Destroy = (() => void) | void
+export type Destroy = () => void
 
-export type EffectCallback = (warmup?: true | undefined) => Destroy
+export type MaybeDestroy = Destroy | void
+
+export type EffectCallback = (warmup?: true | undefined) => MaybeDestroy
 
 export interface Effect extends Subscriber, Dependency {
   [$$effect]: EffectCallback
-  [$$destroy]: Destroy
+  [$$destroy]: MaybeDestroy
 }
 
 export type OnActivateCallback = (active: boolean) => void
@@ -69,7 +69,7 @@ export interface ComputedSignal<T = unknown> extends Signal<T>, Subscriber {
 }
 
 export interface ReadableSignal<T> {
-  // eslint-disable-next-line @typescript-eslint/prefer-function-type
+  [$$signal]: Signal<T>
   (): T
 }
 

@@ -17,8 +17,7 @@ import {
   $$prevSub,
   $$nextSub,
   $$onActivate,
-  $$destroy,
-  $$isScope
+  $$destroy
 } from './symbols.js'
 import {
   DirtySubscriberFlag,
@@ -26,6 +25,7 @@ import {
   NotifiedSubscriberFlag,
   RecursedSubscriberFlag,
   PropagatedSubscriberFlag,
+  EffectScopeSubscriberFlag,
   LazyEffectSubscriberFlag
 } from './flags.js'
 import { notifyActivateListeners } from './lifecycle.js'
@@ -35,6 +35,7 @@ export function maybeDestroyEffect(dep: Dependency | Subscriber): void {
   if ($$destroy in dep && dep[$$destroy] !== undefined) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     (dep as Effect)[$$destroy]!()
+    dep[$$destroy] = undefined
   }
 }
 
@@ -145,12 +146,12 @@ export function runLazyEffects(link: Link): void {
     if (dep[$$flags] & LazyEffectSubscriberFlag) {
       dep[$$flags] &= ~LazyEffectSubscriberFlag
 
-      if ($$isScope in dep) {
+      if (dep[$$flags] & EffectScopeSubscriberFlag) {
         if (dep[$$deps] !== undefined) {
           runLazyEffects(dep[$$deps])
         }
       } else {
-        runEffect(dep, true)
+        runEffect(dep as Effect, true)
       }
     }
 

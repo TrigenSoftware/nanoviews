@@ -3,9 +3,15 @@ import type {
   OnActivateCallback
 } from './types.js'
 import {
+  $$flags,
   $$nextSub,
   $$onActivate
 } from './symbols.js'
+import {
+  EffectScopeSubscriberFlag,
+  LazyEffectSubscriberFlag
+} from './flags.js'
+import { activeSub } from './effect.js'
 
 let activateListeners: ActivateListener | undefined
 let activateListenersTail: ActivateListener | undefined
@@ -26,7 +32,10 @@ export function queueActivateListener(onActivate: OnActivateCallback): void {
 }
 
 export function notifyActivateListeners(): void {
-  if (activateListeners !== undefined) {
+  if (
+    activateListeners !== undefined
+    && (activeSub === undefined || (activeSub[$$flags] & EffectScopeSubscriberFlag) && !(activeSub[$$flags] & LazyEffectSubscriberFlag))
+  ) {
     let listener = activateListeners
 
     activateListeners = undefined

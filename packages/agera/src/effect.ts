@@ -4,15 +4,16 @@ import {
   type Effect,
   type EffectScope,
   type EffectCallback,
+  type Destroy,
   $$subs,
   $$subsTail,
   $$flags,
   $$deps,
   $$depsTail,
-  $$isScope,
   $$effect,
   $$destroy,
   EffectSubscriberFlag,
+  EffectScopeSubscriberFlag,
   LazyEffectSubscriberFlag,
   link,
   runEffect,
@@ -22,7 +23,7 @@ import {
   endTracking,
   maybeDestroyEffect,
   activeSub,
-  activeScope
+  notifyActivateListeners
 } from './internals/index.js'
 
 function effectStop(this: Subscriber | Effect): void {
@@ -31,7 +32,11 @@ function effectStop(this: Subscriber | Effect): void {
   endTracking(this)
 }
 
-function lazyEffectsRun(this: EffectScope): () => void {
+function lazyEffectsRun(this: EffectScope): Destroy {
+  this[$$flags] &= ~LazyEffectSubscriberFlag
+
+  notifyActivateListeners()
+
   if (this[$$deps] !== undefined) {
     runLazyEffects(this[$$deps])
   }
@@ -39,25 +44,13 @@ function lazyEffectsRun(this: EffectScope): () => void {
   return effectStop.bind(this)
 }
 
-function inheritLazyFlag(
-  e: Effect | EffectScope,
-  force?: boolean
-): boolean {
-  if (force || activeScope !== undefined && activeScope[$$flags] & LazyEffectSubscriberFlag) {
-    e[$$flags] |= LazyEffectSubscriberFlag
-
-    return false
-  }
-
-  return true
-}
-
 /**
  * Run effect function and re-run it on dependency change.
  * @param fn - The effect function to run.
+ * @param ignoreLazy - Whether to ignore lazyness inheritence.
  * @returns A function to stop the effect.
  */
-export function effect(fn: EffectCallback): () => void {
+export function effect(fn: EffectCallback, ignoreLazy = false): Destroy {
   const e: Effect = {
     [$$effect]: fn,
     [$$subs]: undefined,
@@ -68,14 +61,47 @@ export function effect(fn: EffectCallback): () => void {
     [$$destroy]: undefined
   }
 
-  if (activeScope !== undefined) {
-    link(e, activeScope)
-  } else if (activeSub !== undefined) {
+  if (activeSub !== undefined) {
+    link(e, activeSub)
+
+    if (!ignoreLazy && activeSub[$$flags] & LazyEffectSubscriberFlag) {
+      e[$$flags] |= LazyEffectSubscriberFlag
+      return effectStop.bind(e)
+    }
+  }
+
+  runEffect(e, true)
+
+  return effectStop.bind(e)
+}
+
+function createEffectScopeInstance(): EffectScope {
+  return {
+    [$$subs]: undefined,
+    [$$subsTail]: undefined,
+    [$$deps]: undefined,
+    [$$depsTail]: undefined,
+    [$$flags]: EffectSubscriberFlag | EffectScopeSubscriberFlag
+  }
+}
+
+function runEffectScopeInstance(
+  e: EffectScope,
+  fn: () => void,
+  lazy = false
+): Destroy | (() => Destroy) {
+  if (!lazy && activeSub !== undefined) {
     link(e, activeSub)
   }
 
-  if (inheritLazyFlag(e)) {
-    runEffect(e, true)
+  if (lazy || activeSub !== undefined && activeSub[$$flags] & LazyEffectSubscriberFlag) {
+    e[$$flags] |= LazyEffectSubscriberFlag
+  }
+
+  runEffectScope(e, fn)
+
+  if (lazy) {
+    return lazyEffectsRun.bind(e)
   }
 
   return effectStop.bind(e)
@@ -86,7 +112,7 @@ export function effect(fn: EffectCallback): () => void {
  * @param fn - The effect scope function to run.
  * @returns A function to stop child effects.
  */
-export function effectScope(fn: () => void): () => void
+export function effectScope(fn: () => void): Destroy
 
 /**
  * Run effect scope function to group effects.
@@ -97,31 +123,30 @@ export function effectScope(fn: () => void): () => void
 export function effectScope(
   fn: () => void,
   lazy: true
-): () => () => void
+): () => Destroy
+
+/**
+ * Run effect scope function to group effects.
+ * @param fn - The effect scope function to run.
+ * @param lazy - Whether to run the effects lazily.
+ * @returns A function to stop child effects.
+ */
+export function effectScope(
+  fn: () => void,
+  lazy?: boolean
+): Destroy | (() => Destroy)
 
 export function effectScope(
   fn: () => void,
   lazy?: boolean
-): (() => void) | (() => () => void) {
-  const e: EffectScope = {
-    [$$subs]: undefined,
-    [$$subsTail]: undefined,
-    [$$deps]: undefined,
-    [$$depsTail]: undefined,
-    [$$flags]: EffectSubscriberFlag,
-    [$$isScope]: true
-  }
+): Destroy | (() => Destroy) {
+  return runEffectScopeInstance(createEffectScopeInstance(), fn, lazy)
+}
 
-  if (activeScope !== undefined) {
-    link(e, activeScope)
-  }
-
-  inheritLazyFlag(e, lazy)
-  runEffectScope(e, fn)
-
-  if (lazy) {
-    return lazyEffectsRun.bind(e)
-  }
-
-  return effectStop.bind(e)
+/**
+ * Create effect scope runner which will share the same scope instance.
+ * @returns The effect scope runner.
+ */
+export function createEffectScope() {
+  return runEffectScopeInstance.bind(null, createEffectScopeInstance()) as typeof effectScope
 }

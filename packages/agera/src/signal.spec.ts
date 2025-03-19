@@ -8,7 +8,9 @@ import {
   computed,
   signal,
   effect,
-  onActivate
+  onActivate,
+  isSignal,
+  morph
 } from './index.js'
 
 describe('agera', () => {
@@ -42,6 +44,37 @@ describe('agera', () => {
 
       it('should propagate changes from onActivate callback', () => {
         const $a = signal(1)
+        const log: string[] = []
+
+        onActivate($a, (active) => {
+          log.push(active ? 'a mount' : 'a unmount')
+
+          if (active) {
+            $a(2)
+          }
+        })
+
+        const listener = vi.fn(() => {
+          log.push(`effect ${$a()}`)
+        })
+        const stop = effect(listener)
+
+        expect(log).toEqual([
+          'effect 1',
+          'a mount',
+          'effect 2'
+        ])
+        log.length = 0
+
+        expect(listener).toHaveBeenCalledTimes(2)
+
+        stop()
+
+        expect(log).toEqual(['a unmount'])
+      })
+
+      it('should propagate changes from transitive onActivate callback', () => {
+        const $a = signal(1)
         const $b = computed(() => {
           const v = `${$a() + 1}`
 
@@ -70,9 +103,49 @@ describe('agera', () => {
 
         expect(log).toEqual([
           'computed 2',
-          'a mount',
           'effect 2',
+          'a mount',
           'b mount',
+          'computed 3',
+          'effect 3'
+        ])
+        log.length = 0
+
+        expect(listener).toHaveBeenCalledTimes(2)
+
+        stop()
+
+        expect(log).toEqual(['b unmount', 'a unmount'])
+      })
+
+      it('should propagate changes from onActivate callback to itself', () => {
+        const $a = signal(1)
+        const $b = computed(() => {
+          const v = `${$a() + 1}`
+
+          log.push(`computed ${v}`)
+
+          return v
+        })
+        const log: string[] = []
+
+        onActivate($a, (active) => {
+          log.push(active ? 'a mount' : 'a unmount')
+
+          if (active) {
+            $a(2)
+          }
+        })
+
+        const listener = vi.fn(() => {
+          log.push(`effect ${$b()}`)
+        })
+        const stop = effect(listener)
+
+        expect(log).toEqual([
+          'computed 2',
+          'effect 2',
+          'a mount',
           'computed 3',
           'effect 3'
         ])
@@ -80,17 +153,6 @@ describe('agera', () => {
         expect(listener).toHaveBeenCalledTimes(2)
 
         stop()
-
-        expect(log).toEqual([
-          'computed 2',
-          'a mount',
-          'effect 2',
-          'b mount',
-          'computed 3',
-          'effect 3',
-          'b unmount',
-          'a unmount'
-        ])
       })
     })
 
@@ -107,6 +169,15 @@ describe('agera', () => {
         src(3) // c1 -> dirty, c2 -> toCheckDirty
 
         expect(c3()).toBe(1)
+      })
+    })
+
+    describe('morph', () => {
+      it('should pass isSignal check', () => {
+        const $num = signal(0)
+        const $morph = morph($num, {})
+
+        expect(isSignal($morph)).toBe(true)
       })
     })
 
