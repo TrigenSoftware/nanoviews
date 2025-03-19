@@ -48,6 +48,10 @@ type UnknownTrack = (item: unknown, index: number) => unknown
 
 type CreateEachBlock = (key: unknown, index: number) => Block
 
+function getAnchor(block: Block | undefined, fallback: Node | null | undefined) {
+  return block === undefined ? fallback : block[$$node]
+}
+
 function reconcile(
   loop: LoopBlock,
   lookupMap: LookupMap,
@@ -57,6 +61,7 @@ function reconcile(
 ) {
   const { length } = nextItems
   const parentNode = loop[$$node]?.parentNode
+  const anchor = loop[$$next]?.[$$node]
   let seen: Set<Block> | undefined
   let matched: Block[] = []
   let stashed: Block[] = []
@@ -72,7 +77,7 @@ function reconcile(
       block = createEachBlock(key, i)
 
       if (parentNode) {
-        block[$$mount](parentNode, current![$$node])
+        block[$$mount](parentNode, getAnchor(current, anchor))
       }
 
       block[$$prev] = prev
@@ -109,7 +114,7 @@ function reconcile(
           const b = matched[matched.length - 1]
 
           for (j = 0; j < matched.length; j += 1) {
-            matched[j][$$mount](parentNode!, start[$$node])
+            matched[j][$$mount](parentNode!, getAnchor(start, anchor))
           }
 
           for (j = 0; j < stashed.length; j += 1) {
@@ -128,7 +133,7 @@ function reconcile(
           stashed = []
         } else {
           seen.delete(block)
-          block[$$mount](parentNode!, current?.[$$node])
+          block[$$mount](parentNode!, getAnchor(current, anchor))
 
           linkChild(loop, block[$$prev], block[$$next])
           linkChild(loop, block, prev === undefined ? loop[$$first] : prev[$$next])

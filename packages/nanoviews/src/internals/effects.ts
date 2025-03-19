@@ -21,17 +21,9 @@ export function subscribe<T>(
     return
   }
 
-  let firstValue: T | undefined = valueOr$signal()
-
-  callback(firstValue)
-
-  effect((warmup) => {
-    const value = valueOr$signal()
-
-    if (!warmup || (firstValue !== value && (firstValue = undefined, true))) {
-      callback(value)
-    }
-  })
+  effect(() => {
+    callback(valueOr$signal())
+  }, true)
 }
 
 export function createEffectScopeWithContext(context = getContext()) {
@@ -44,23 +36,27 @@ export function effectScopeSwapper<T>(
   $signal: ReadableSignal<T>,
   callback: EffectScopeSwapperCallback<T>
 ) {
-  let prevValue = $signal()
-  let start = callback(undefined, prevValue, undefined) as (() => Destroy) | undefined
-  let stop: Destroy
+  let prevValue: T | undefined
+  let start: (() => Destroy) | undefined
+  let stop: Destroy | undefined
 
   effect((warmup) => {
     const value = $signal()
 
+    stop = callback(stop, value, prevValue)
+
     if (warmup) {
-      stop = start!()
-      start = undefined
+      start = stop as () => Destroy
+      stop = undefined
     }
 
-    if (!warmup || prevValue !== value) {
-      stop = callback(stop, value, prevValue)
-      prevValue = value
-    }
+    prevValue = value
+  }, true)
+
+  effect(() => {
+    stop = start!()
+    start = undefined
+
+    return () => stop!()
   })
-
-  effect(() => () => stop())
 }
