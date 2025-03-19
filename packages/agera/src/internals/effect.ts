@@ -16,7 +16,6 @@ import {
   $$nextDep,
   $$prevSub,
   $$nextSub,
-  $$isScope,
   $$effect,
   $$compute,
   $$value,
@@ -26,6 +25,7 @@ import {
   ComputedSubscriberFlag,
   DirtySubscriberFlag,
   EffectSubscriberFlag,
+  EffectScopeSubscriberFlag,
   PendingComputedSubscriberFlag,
   PendingEffectSubscriberFlag,
   PropagatedSubscriberFlag,
@@ -42,10 +42,7 @@ import {
 const pauseStack: (Subscriber | undefined)[] = []
 
 // eslint-disable-next-line import/no-mutable-exports
-export let activeSub: Subscriber | undefined
-
-// eslint-disable-next-line import/no-mutable-exports
-export let activeScope: EffectScope | undefined
+export let activeSub: Subscriber | EffectScope | undefined
 
 let queuedEffects: Subscriber | undefined
 let queuedEffectsTail: Subscriber | undefined
@@ -412,25 +409,23 @@ export function runEffect(e: Effect, warmup?: true): void {
 }
 
 export function runEffectScope(e: EffectScope, fn: () => void): void {
-  const prevSub = activeScope
+  const prevSub = activeSub
 
-  activeScope = e
-  startTracking(e)
+  activeSub = e
 
   try {
     fn()
   } finally {
-    activeScope = prevSub
-    endTracking(e)
+    activeSub = prevSub
   }
 }
 
 export function notifyEffect(e: Effect | EffectScope) {
-  if ($$isScope in e) {
-    return notifyEffectScope(e)
+  if (e[$$flags] & EffectScopeSubscriberFlag) {
+    return notifyEffectScope(e as EffectScope)
   }
 
-  return notifyEffectSub(e)
+  return notifyEffectSub(e as Effect)
 }
 
 export function notifyEffectSub(e: Effect): boolean {
@@ -469,11 +464,12 @@ export function notifyEffectScope(e: EffectScope): boolean {
 export function processEffectNotifications(): void {
   while (queuedEffects !== undefined) {
     const effect = queuedEffects
-    const depsTail = effect[$$depsTail]!
-    const queuedNext = depsTail[$$nextDep]
+    const depsTail = effect[$$depsTail]
+    // effect can be destroyed previously while notifying
+    const queuedNext = depsTail?.[$$nextDep]
 
     if (queuedNext !== undefined) {
-      depsTail[$$nextDep] = undefined
+      depsTail![$$nextDep] = undefined
       queuedEffects = queuedNext[$$sub]
     } else {
       queuedEffects = undefined

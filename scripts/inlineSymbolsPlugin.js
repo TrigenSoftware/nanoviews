@@ -39,8 +39,24 @@ function validateSymbols(symbols, symbolsMin, externalSymbols) {
 function createUsageReplacements(key, to) {
   return [
     {
+      from: ` [${key}];`,
+      to: ` ${to};`
+    },
+    {
+      from: ` [${key}] = `,
+      to: ` ${to} = `
+    },
+    {
+      from: ` [${key}](`,
+      to: ` ${to}(`
+    },
+    {
       from: `[${key}]:`,
       to: `${to}:`
+    },
+    {
+      from: `?.[${key}]`,
+      to: `?.${to}`
     },
     {
       from: `[${key}]`,
