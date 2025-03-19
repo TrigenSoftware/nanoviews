@@ -36,7 +36,7 @@ describe('@kida/react', () => {
 
       expect(container.innerHTML).toBe('<div>0</div>')
 
-      act(() => $count.set(1))
+      act(() => $count(1))
 
       expect(container.innerHTML).toBe('<div>1</div>')
     })
@@ -71,7 +71,7 @@ describe('@kida/react', () => {
 
       expect(container.innerHTML).toBe('<div>0</div>')
 
-      act(() => $count.set(1))
+      act(() => $count(1))
 
       expect(container.innerHTML).toBe('<div>1</div>')
     })
@@ -104,7 +104,7 @@ describe('@kida/react', () => {
 
       expect(container.innerHTML).toBe('<div>0</div>')
 
-      act(() => $count.set(1))
+      act(() => $count(1))
 
       expect(container.innerHTML).toBe('<div>1</div>')
     })

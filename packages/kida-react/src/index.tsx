@@ -6,7 +6,7 @@ import {
   InjectionContext as KidaInjectionContext,
   inject,
   action,
-  subscribe
+  effect
 } from 'kida'
 import {
   type ReactNode,
@@ -26,7 +26,9 @@ import {
 export function useSignal<T>($signal: ReadableSignal<T>) {
   const snapshotRef = useRef(undefined as T)
   const sub = useCallback(
-    (emit: () => void) => subscribe($signal, (value) => {
+    (emit: () => void) => effect(() => {
+      const value = $signal()
+
       if (snapshotRef.current !== value) {
         snapshotRef.current = value
         emit()
@@ -36,7 +38,7 @@ export function useSignal<T>($signal: ReadableSignal<T>) {
   )
   const get = () => snapshotRef.current
 
-  snapshotRef.current = $signal.get()
+  snapshotRef.current = $signal()
 
   return useSyncExternalStore(sub, get, get)
 }
