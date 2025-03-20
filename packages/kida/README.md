@@ -374,7 +374,7 @@ const $atId4 = atKey($users, 4)
 
 console.log($atId4()) // John
 
-$atId4.set('Bob')
+$atId4('Bob')
 
 console.log($atId4()) // { 2: 'Dan', 4: 'Bob', 6: 'Alice' }
 ```

@@ -1,7 +1,8 @@
 import {
   type WritableSignal,
   type AnyReadableSignal,
-  $$signal
+  $$signal,
+  $$value
 } from './internals/index.js'
 
 /**
@@ -11,7 +12,7 @@ import {
  * @returns The signal.
  */
 export function update<T>($signal: WritableSignal<T>, fn: (value: T) => T) {
-  $signal(fn($signal()))
+  $signal(fn($signal[$$signal][$$value]))
   return $signal
 }
 

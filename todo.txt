@@ -1,19 +1,31 @@
+- solid example
+
+- bundle types
+- toReadableSignal
+- listener & fn -> callback?
+- check arrow fns -> bind
+- typed effectattrs <T>
+- later: resort effects
+- restore object arg for record?
+- additional arg for record in for$? as$
+- atIndex$ atKey$ ?
+- static index for untracked loop
+- predefined trackers
+- serialize - start all marked stores?
+- onMountEffectScope?
+- when$
+- child static parent
+- $ - signals, $$ - blocks?
+- blocks to nodes?)
+
+- !== undefined is faster
+- prop: undefined is faster
 - for let i faster than array methods
 - push(...arr) is slow
 - noop faster than check
 - getter setter are slow (not in class)
 - Reflect.get is slow
 - arr.length = 0 is slower than arr = []
-
-- alien-signals
-- runner arg for lifecycles?
-- restore object arg for record?
-- additional arg for record in for$? as$
-- batch to debounce?
-- atIndex$ atKey$ ?
-- static index for untracked loop
-- predefined trackers
-- serialize - start all marked stores?
 
 - html + head components
 - universal dom
@@ -28,3 +40,35 @@
 
 - hmr
 - more informative errors
+
+  All publics
+  Size limit: 1.8 kB
+  Size:       1.78 kB with all dependencies, minified and brotlied
+
+  Signal
+  Package size limit has exceeded by 249 B
+  Size limit: 1.22 kB
+  Size:       1.47 kB with all dependencies, minified and brotlied
+
+  Popular set
+  Package size limit has exceeded by 235 B
+  Size limit: 1.33 kB
+  Size:       1.57 kB with all dependencies, minified and brotlied
+
+SSR
+
+- setAttribute
+- removeAttribute
+- on*
+- createElement
+- insertBefore
+- removeChild
+- createTextNode
+- data
+- attachShadow
+- *prop
+- style
+  - setProperty
+  - removeProperty
+- portals
+- innerHTML

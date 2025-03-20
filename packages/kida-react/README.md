@@ -125,7 +125,7 @@ function Theme() {
 function setThemeAction(theme: 'light' | 'dark') {
   const $theme = useInject(Theme)
 
-  $theme.set(theme)
+  $theme(theme)
 }
 
 function TopBar() {

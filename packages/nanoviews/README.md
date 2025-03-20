@@ -28,7 +28,7 @@
 
 A small Direct DOM library for creating user interfaces.
 
-- **Small**. Between 3.4 and 6 kB (minified and brotlied). Zero external dependencies[*](#reactivity).
+- **Small**. Between 3.8 and 6.4 kB (minified and brotlied). Zero external dependencies[*](#reactivity).
 - **Direct DOM**. Less CPU and memory usage compared to Virtual DOM.
 - Designed for best **Tree-Shaking**: only the code you use is included in your bundle.
 - **TypeScript**-first.
@@ -51,7 +51,7 @@ function App() {
     div({ class: 'card' })(
       button({
         onClick() {
-          $counter.set($counter.get() + 1)
+          $counter($counter() + 1)
         }
       })('count is ', $counter)
     ),
@@ -100,7 +100,7 @@ const $text = signal('')
 fragment(
   input({
     onInput(event) {
-      $text.set(event.target.value)
+      $text(event.target.value)
     }
   }),
   p()($text)
@@ -152,14 +152,14 @@ mount(App, document.querySelector('#app'))
 
 ```js
 import { signal } from 'nanoviews/store'
-import { text$, effect$ } from 'nanoviews'
+import { text$, effect } from 'nanoviews'
 
 function TickTak() {
   const $tick = signal(0)
 
-  effect$(() => {
+  effect(() => {
     const id = setInterval(() => {
-      $tick.set($tick.get() + 1)
+      $tick($tick() + 1)
     }, 1000)
 
     return () => clearInterval(id)
@@ -175,14 +175,14 @@ function TickTak() {
 
 ```js
 import { signal } from 'nanoviews/store'
-import { fragment, effect$ } from 'nanoviews'
+import { fragment, effect } from 'nanoviews'
 
 function TickTak() {
   const $tick = signal(0)
 
-  effect$(() => {
+  effect(() => {
     const id = setInterval(() => {
-      $tick.set($tick.get() + 1)
+      $tick($tick() + 1)
     }, 1000)
 
     return () => clearInterval(id)
@@ -192,14 +192,14 @@ function TickTak() {
 }
 ```
 
-### dangerouslySetInnerHTML
+### dangerouslySetInnerHtml
 
-`dangerouslySetInnerHTML` is a method that sets the inner HTML of the element block. It is used for inserting HTML from a source that may not be trusted.
+`dangerouslySetInnerHtml` is a method that sets the inner HTML of the element block. It is used for inserting HTML from a source that may not be trusted.
 
 ```js
-import { div, dangerouslySetInnerHTML } from 'nanoviews'
+import { div, dangerouslySetInnerHtml } from 'nanoviews'
 
-dangerouslySetInnerHTML(
+dangerouslySetInnerHtml(
   div({ id: 'rendered-md' }),
   '<p>Some text</p>'
 )
@@ -313,7 +313,7 @@ input({
 Also you can manage [indeterminate state of checkboxes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox#indeterminate_state_checkboxes):
 
 ```js
-$checked.set(Indeterminate)
+$checked(Indeterminate)
 ```
 
 ### selected$
@@ -393,15 +393,15 @@ input({
 
 ## Logic methods
 
-### effect$
+### effect
 
-`effect$` is a method that add effects to the component.
+`effect` is a method that add effects to the component.
 
 ```js
-import { div, effect$ } from 'nanoviews'
+import { div, effect } from 'nanoviews'
 
 function App() {
-  effect$(() => {
+  effect(() => {
     console.log('Mounted')
 
     return () => {
@@ -413,22 +413,20 @@ function App() {
 }
 ```
 
-### observe$
-
-`observe$` is a method to observe stores on component mount.
+Also you can use `effect` with stores:
 
 ```js
-import { div, observe$ } from 'nanoviews'
+import { div, effect } from 'nanoviews'
 
 const $timeout = signal(1000)
 
 function App() {
   let intervalId
 
-  observe$((get) => {
+  effect(() => {
     intervalId = setInterval(() => {
       console.log('Tick')
-    }, get($timeout))
+    }, $timeout())
 
     return () => {
       clearInterval(intervalId)
@@ -498,7 +496,7 @@ const $players = signal([
 ul()(
   for$($players, player => player.id)(
     $player => li()(
-      record($player).name
+      record($player).$name
     )
   )
 )
