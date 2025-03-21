@@ -1,5 +1,3 @@
-- solid example
-
 - bundle types
 - toReadableSignal
 - listener & fn -> callback?
