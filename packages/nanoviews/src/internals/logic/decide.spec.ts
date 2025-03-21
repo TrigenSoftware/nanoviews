@@ -1,7 +1,8 @@
 import {
   describe,
   it,
-  expect
+  expect,
+  vi
 } from 'vitest'
 import { render } from '@nanoviews/testing-library'
 import { signal } from 'kida'
@@ -20,22 +21,32 @@ describe('nanoviews', () => {
         it('should save context', () => {
           const $value = signal(true)
           const ThemeContext = () => 'light'
-          const ComponentA = () => createElement('div')('(A) ', inject(ThemeContext))
-          const ComponentB = () => createElement('div')('(B) ', inject(ThemeContext))
+          const ComponentA = vi.fn(() => createElement('div')('(A) ', inject(ThemeContext)))
+          const ComponentB = vi.fn(() => createElement('div')('(B) ', inject(ThemeContext)))
+          const decider = vi.fn(value => (value ? ComponentA() : ComponentB()))
           const Swapper = () => context(
             [provide(ThemeContext, 'dark')],
-            () => decide($value, value => (value ? ComponentA() : ComponentB()))
+            () => decide($value, decider)
           )
           const { container } = render(Swapper)
 
+          expect(ComponentA).toHaveBeenCalledTimes(1)
+          expect(ComponentB).toHaveBeenCalledTimes(0)
+          expect(decider).toHaveBeenCalledTimes(1)
           expect(container.innerHTML).toBe('<div><div>(A) dark</div></div>')
 
-          $value.set(false)
+          $value(false)
 
+          expect(ComponentA).toHaveBeenCalledTimes(1)
+          expect(ComponentB).toHaveBeenCalledTimes(1)
+          expect(decider).toHaveBeenCalledTimes(2)
           expect(container.innerHTML).toBe('<div><div>(B) dark</div></div>')
 
-          $value.set(true)
+          $value(true)
 
+          expect(ComponentA).toHaveBeenCalledTimes(2)
+          expect(ComponentB).toHaveBeenCalledTimes(1)
+          expect(decider).toHaveBeenCalledTimes(3)
           expect(container.innerHTML).toBe('<div><div>(A) dark</div></div>')
         })
       })

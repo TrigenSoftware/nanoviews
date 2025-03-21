@@ -88,7 +88,7 @@ export function run<T extends AnyFn>(
  */
 export function inject<T>(factory: InjectionFactory<T>, context = currentContext): T {
   if (!context) {
-    throw new Error(import.meta.env.DEV ? 'Cannot inject dependency outside of injection context' : '')
+    throw new Error('Cannot inject dependency outside of injection context')
   }
 
   return context.get(factory)
@@ -102,7 +102,7 @@ export function inject<T>(factory: InjectionFactory<T>, context = currentContext
  */
 export function action<T extends AnyFn>(fn: T, context = currentContext): T {
   if (!context) {
-    throw new Error(import.meta.env.DEV ? 'Cannot bind action outside of injection context' : '')
+    throw new Error('Cannot bind action outside of injection context')
   }
 
   return (run as AnyFn).bind(null, context, fn) as T

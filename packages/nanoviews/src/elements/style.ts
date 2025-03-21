@@ -3,8 +3,7 @@ import {
   type Props,
   type PrimitiveAttributeValue,
   setProperty,
-  createEffectAttribute,
-  effectAttributeValidate
+  createEffectAttribute
 } from '../internals/index.js'
 
 export type StyleProps = Props<CSSProperties>
@@ -26,15 +25,7 @@ function setStyle(
  */
 export const style$ = /* @__PURE__ */ createEffectAttribute<'style$', HTMLElement | SVGAElement, StyleProps>(
   'style$',
-  (element, style, attributes) => {
-    if (import.meta.env.DEV) {
-      effectAttributeValidate(
-        attributes,
-        'style',
-        'style$'
-      )
-    }
-
+  (element, style) => {
     const keys = Object.keys(style)
     const len = keys.length
 

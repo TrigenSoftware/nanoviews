@@ -36,8 +36,8 @@ function updateProps(canvasElement, props) {
     Object.entries(props).forEach(([key, value]) => {
       const store = reactiveProps[key]
 
-      if (store && typeof store !== 'function' && !isSignal(value)) {
-        store.set(value)
+      if (isSignal(store) && !isSignal(value)) {
+        store(value)
       }
     })
 

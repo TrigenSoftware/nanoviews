@@ -20,25 +20,25 @@ export function Weather() {
       h3({
         class: styles.currentTemp
       })(
-        $currentWeather.tempText
+        $currentWeather.$tempText
       ),
       img({
         class: styles.image,
-        src: $currentWeather.icon,
-        alt: $currentWeather.description
+        src: $currentWeather.$icon,
+        alt: $currentWeather.$description
       }),
       p({
         class: styles.feelsLike
       })(
-        'Feels like ', $currentWeather.feelsLikeText
+        'Feels like ', $currentWeather.$feelsLikeText
       ),
       p({
         class: styles.description
       })(
-        $currentWeather.description,
+        $currentWeather.$description,
         br(),
         'Humidity: ',
-        $currentWeather.humidity,
+        $currentWeather.$humidity,
         '%'
       )
     )

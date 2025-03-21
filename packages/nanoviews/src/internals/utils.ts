@@ -1,9 +1,6 @@
 import type { EmptyValue } from './types/index.js'
 
-export {
-  isFunction,
-  noop
-} from 'kida'
+export { isFunction } from 'kida'
 
 /**
  * Check if value is empty
@@ -12,4 +9,8 @@ export {
  */
 export function isEmpty(value: unknown): value is EmptyValue {
   return value === undefined || value === null
+}
+
+export const noop = () => {
+  /* noop */
 }

@@ -1,6 +1,6 @@
 import {
   channel,
-  effect,
+  onMountEffect,
   record,
   signal,
   Tasks,
@@ -22,15 +22,15 @@ export function CurrentWeatherStore() {
   function fetchWeather(city: City | undefined) {
     return weatherTask(async (signal) => {
       if (city) {
-        $currentWeather.set(await WeatherService.fetchWeather(city, signal))
+        $currentWeather(await WeatherService.fetchWeather(city, signal))
       } else {
-        $currentWeather.set(null)
+        $currentWeather(null)
       }
     })
   }
 
-  effect($currentWeather, (get) => {
-    fetchWeather(get($currentLocation))
+  onMountEffect($currentWeather, () => {
+    fetchWeather($currentLocation())
   })
 
   return $currentWeather
@@ -45,15 +45,15 @@ export function WeatherForecastStore() {
   function fetchWeatherForecast(city: City | undefined) {
     return weatherForecastTask(async (signal) => {
       if (city) {
-        $weatherForecast.set(await WeatherService.fetchWeatherForecast(city, signal))
+        $weatherForecast(await WeatherService.fetchWeatherForecast(city, signal))
       } else {
-        $weatherForecast.set([])
+        $weatherForecast([])
       }
     })
   }
 
-  effect($weatherForecast, (get) => {
-    fetchWeatherForecast(get($currentLocation))
+  onMountEffect($weatherForecast, () => {
+    fetchWeatherForecast($currentLocation())
   })
 
   return $weatherForecast

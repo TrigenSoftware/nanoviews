@@ -1,11 +1,9 @@
-import {
-  isSignal,
-  subscribeLater
-} from 'kida'
+
 import {
   type Block,
   type ValueOrSignal,
-  addEffect
+  $$node,
+  subscribe
 } from '../internals/index.js'
 
 /**
@@ -20,13 +18,7 @@ export function dangerouslySetInnerHtml<T extends Element>(
 ) {
   const sealedBlock = block()
 
-  if (isSignal($html)) {
-    addEffect(
-      subscribeLater($html, value => sealedBlock.n!.innerHTML = value)
-    )
-  } else {
-    sealedBlock.n!.innerHTML = $html
-  }
+  subscribe($html, value => sealedBlock[$$node]!.innerHTML = value)
 
   return sealedBlock
 }

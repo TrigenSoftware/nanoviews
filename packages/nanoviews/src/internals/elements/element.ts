@@ -4,8 +4,12 @@ import type {
   Attributes,
   Children
 } from '../types/index.js'
+import {
+  $$node,
+  $$mount
+} from '../symbols.js'
 import { NodeBlock } from '../block.js'
-import { childrenToBlocks } from './child.js'
+import { forEachChild } from './child.js'
 import { setAttributes } from './attributes.js'
 
 /**
@@ -50,11 +54,11 @@ export function createElement<Tag extends ElementName>(
   attributes?: Attributes<Tag>
 ) {
   const block = createVoidElement(tag, attributes)
-  const node = block.n
+  const node = block[$$node]
 
   return (...children: Children) => {
     if (children.length) {
-      childrenToBlocks(children, block => block.m(node))
+      forEachChild(children, block => block[$$mount](node))
     }
 
     return block

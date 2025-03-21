@@ -6,10 +6,14 @@ import {
   it,
   expect
 } from 'vitest'
-import { listen } from './lifecycle.js'
+import {
+  type WritableSignal,
+  effect
+} from 'agera'
+import { onMount } from './lifecycle.js'
 import { external } from './external.js'
 
-describe('stores', () => {
+describe('kida', () => {
   describe('external', () => {
     beforeEach(() => {
       vi.useFakeTimers()
@@ -20,23 +24,29 @@ describe('stores', () => {
     })
 
     it('should run factory first on first get', () => {
-      let setter: (value: number) => void
+      let setter: WritableSignal<number>
       const unmountListener = vi.fn()
       const mountListener = vi.fn(() => unmountListener)
-      const factory = vi.fn((set: (value: number) => void) => {
-        setter = set
-        set(404)
+      const factory = vi.fn(($source: WritableSignal<number>) => {
+        setter = $source
+        $source(404)
 
-        return mountListener
+        onMount($source, mountListener)
       })
       const $ext = external(factory)
 
-      expect($ext.get()).toBe(404)
+      expect($ext()).toBe(404)
       expect(factory).toHaveBeenCalledTimes(1)
       expect(mountListener).toHaveBeenCalledTimes(0)
 
       const listener = vi.fn()
-      const off = listen($ext, listener)
+      const off = effect((warmup) => {
+        const value = $ext()
+
+        if (!warmup) {
+          listener(value)
+        }
+      })
 
       expect(factory).toHaveBeenCalledTimes(1)
       expect(mountListener).toHaveBeenCalledTimes(1)
@@ -44,8 +54,8 @@ describe('stores', () => {
 
       setter!(200)
 
-      expect($ext.get()).toBe(200)
-      expect(listener).toHaveBeenCalledWith(200, 404)
+      expect($ext()).toBe(200)
+      expect(listener).toHaveBeenCalledWith(200)
 
       off()
       vi.runAllTimers()
@@ -55,34 +65,36 @@ describe('stores', () => {
     })
 
     it('should run factory only once', () => {
-      const factory = vi.fn((set: (value: number) => void) => {
-        set(404)
+      const factory = vi.fn(($source: WritableSignal<number>) => {
+        $source(404)
 
         return vi.fn()
       })
       const $ext = external(factory)
 
-      expect($ext.get()).toBe(404)
-      expect($ext.get()).toBe(404)
+      expect($ext()).toBe(404)
+      expect($ext()).toBe(404)
       expect(factory).toHaveBeenCalledTimes(1)
     })
 
-    it('should not run factory on set', () => {
+    it('should run factory on set', () => {
       const mountListener = vi.fn()
-      const factory = vi.fn((set: (value: number) => void) => {
-        set(404)
+      const factory = vi.fn(($source: WritableSignal<number>) => {
+        $source(404)
 
-        return mountListener
+        onMount($source, mountListener)
       })
-      const $ext = external(factory)
+      const $ext = external<number>(factory)
 
-      $ext.set(200)
+      $ext(200)
 
-      expect($ext.get()).toBe(200)
-      expect(factory).toHaveBeenCalledTimes(0)
+      expect($ext()).toBe(200)
+      expect(factory).toHaveBeenCalledTimes(1)
       expect(mountListener).toHaveBeenCalledTimes(0)
 
-      const off = listen($ext, vi.fn())
+      const off = effect(() => {
+        $ext()
+      })
 
       expect(factory).toHaveBeenCalledTimes(1)
       expect(mountListener).toHaveBeenCalledTimes(1)
@@ -91,6 +103,40 @@ describe('stores', () => {
       vi.runAllTimers()
 
       expect(mountListener).toHaveBeenCalledTimes(1)
+    })
+
+    it('should call setter returned from factory', () => {
+      let setListener
+      const factory = vi.fn(($source: WritableSignal<number>) => {
+        setListener = vi.fn((value: number) => $source(value * 2))
+
+        return setListener
+      })
+      const $ext = external<number>(factory)
+
+      $ext(200)
+
+      expect($ext()).toBe(400)
+      expect(factory).toHaveBeenCalledTimes(1)
+      expect(setListener).toHaveBeenCalledTimes(1)
+
+      const off = effect(() => {
+        $ext()
+      })
+
+      expect(factory).toHaveBeenCalledTimes(1)
+      expect(setListener).toHaveBeenCalledTimes(1)
+
+      $ext(2)
+
+      expect($ext()).toBe(4)
+      expect(factory).toHaveBeenCalledTimes(1)
+      expect(setListener).toHaveBeenCalledTimes(2)
+
+      off()
+      vi.runAllTimers()
+
+      expect(setListener).toHaveBeenCalledTimes(2)
     })
   })
 })

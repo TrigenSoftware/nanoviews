@@ -122,6 +122,10 @@ importers:
         version: 2.1.9(@types/node@20.17.24)(terser@5.39.0)
 
   packages/kida:
+    dependencies:
+      agera:
+        specifier: workspace:^
+        version: link:../agera
     devDependencies:
       '@size-limit/preset-small-lib':
         specifier: ^11.1.2
@@ -132,11 +136,14 @@ importers:
       size-limit:
         specifier: ^11.1.2
         version: 11.2.0
+      terser:
+        specifier: ^5.39.0
+        version: 5.39.0
       typescript:
         specifier: 5.3.3
         version: 5.3.3
       vite:
-        specifier: ^6.0.0
+        specifier: ^6.0.7
         version: 6.2.1(patch_hash=c4r3gl4r4ducjbzesbgmufiuri)(@types/node@20.17.24)(jiti@2.4.2)(terser@5.39.0)
       vitest:
         specifier: ^2.0.0
@@ -246,6 +253,9 @@ importers:
       storybook:
         specifier: ^7.6.17
         version: 7.6.20
+      terser:
+        specifier: ^5.39.0
+        version: 5.39.0
       typescript:
         specifier: 5.3.3
         version: 5.3.3

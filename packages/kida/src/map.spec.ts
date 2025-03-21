@@ -4,19 +4,19 @@ import {
   it,
   expect
 } from 'vitest'
-import { listen } from './lifecycle.js'
 import {
+  effect,
   signal,
-  isSignal
-} from './signal.js'
-import { computed } from './computed.js'
+  isSignal,
+  computed
+} from 'agera'
 import { record } from './record.js'
 import {
   atKey,
   setKey
 } from './map.js'
 
-describe('stores', () => {
+describe('kida', () => {
   describe('map', () => {
     it('should get item by key', () => {
       const $map = signal({
@@ -24,15 +24,15 @@ describe('stores', () => {
         second: 2
       })
 
-      expect($map.get()).toEqual({
+      expect($map()).toEqual({
         first: 1,
         second: 2
       })
       expect(atKey($map, 'first')).toSatisfy(isSignal)
       expect(atKey($map, 'second')).toSatisfy(isSignal)
 
-      expect(atKey($map, 'first').get()).toBe(1)
-      expect(atKey($map, 'second').get()).toBe(2)
+      expect(atKey($map, 'first')()).toBe(1)
+      expect(atKey($map, 'second')()).toBe(2)
     })
 
     it('should update root by child', () => {
@@ -41,12 +41,12 @@ describe('stores', () => {
         second: 2
       })
 
-      expect(atKey($map, 'first').get()).toBe(1)
+      expect(atKey($map, 'first')()).toBe(1)
 
-      atKey($map, 'first').set(3)
+      atKey($map, 'first')(3)
 
-      expect(atKey($map, 'first').get()).toBe(3)
-      expect($map.get()).toEqual({
+      expect(atKey($map, 'first')()).toBe(3)
+      expect($map()).toEqual({
         first: 3,
         second: 2
       })
@@ -59,24 +59,25 @@ describe('stores', () => {
       })
       const rootListener = vi.fn()
       const childListener = vi.fn()
-      const off = listen($map, rootListener)
-      const offChild = listen(atKey($map, 'first'), childListener)
-
-      expect(rootListener).not.toHaveBeenCalled()
-      expect(childListener).not.toHaveBeenCalled()
-
-      atKey($map, 'first').set(3)
+      const off = effect(() => {
+        rootListener($map())
+      })
+      const offChild = effect(() => {
+        childListener(atKey($map, 'first')())
+      })
 
       expect(rootListener).toHaveBeenCalledTimes(1)
+      expect(childListener).toHaveBeenCalledTimes(1)
+
+      atKey($map, 'first')(3)
+
+      expect(rootListener).toHaveBeenCalledTimes(2)
       expect(rootListener).toHaveBeenCalledWith({
         first: 3,
         second: 2
-      }, {
-        first: 1,
-        second: 2
       })
-      expect(childListener).toHaveBeenCalledTimes(1)
-      expect(childListener).toHaveBeenCalledWith(3, 1)
+      expect(childListener).toHaveBeenCalledTimes(2)
+      expect(childListener).toHaveBeenCalledWith(3)
 
       off()
       offChild()
@@ -88,11 +89,11 @@ describe('stores', () => {
         second: 2
       })
 
-      expect(atKey($map, 'first').get()).toBe(1)
+      expect(atKey($map, 'first')()).toBe(1)
 
       setKey($map, 'first', 3)
 
-      expect(atKey($map, 'first').get()).toBe(3)
+      expect(atKey($map, 'first')()).toBe(3)
     })
 
     it('should update child by root and notify listeners', () => {
@@ -102,26 +103,27 @@ describe('stores', () => {
       })
       const rootListener = vi.fn()
       const childListener = vi.fn()
-      const off = listen($map, rootListener)
-      const offChild = listen(atKey($map, 'first'), childListener)
+      const off = effect(() => {
+        rootListener($map())
+      })
+      const offChild = effect(() => {
+        childListener(atKey($map, 'first')())
+      })
 
-      expect(rootListener).not.toHaveBeenCalled()
-      expect(childListener).not.toHaveBeenCalled()
+      expect(rootListener).toHaveBeenCalledTimes(1)
+      expect(childListener).toHaveBeenCalledTimes(1)
 
-      expect(atKey($map, 'first').get()).toBe(1)
+      expect(atKey($map, 'first')()).toBe(1)
 
       setKey($map, 'first', 3)
 
-      expect(rootListener).toHaveBeenCalledTimes(1)
+      expect(rootListener).toHaveBeenCalledTimes(2)
       expect(rootListener).toHaveBeenCalledWith({
         first: 3,
         second: 2
-      }, {
-        first: 1,
-        second: 2
       })
-      expect(childListener).toHaveBeenCalledTimes(1)
-      expect(childListener).toHaveBeenCalledWith(3, 1)
+      expect(childListener).toHaveBeenCalledTimes(2)
+      expect(childListener).toHaveBeenCalledWith(3)
 
       off()
       offChild()
@@ -135,33 +137,33 @@ describe('stores', () => {
       const $key = signal<'first' | 'second'>('first')
       const $item = atKey($map, $key)
 
-      expect($item.get()).toBe(1)
+      expect($item()).toBe(1)
 
-      $key.set('second')
+      $key('second')
 
-      expect($item.get()).toBe(2)
+      expect($item()).toBe(2)
     })
 
     it('should get item by key from computed store', () => {
       const $item = signal(1)
-      const $map = computed(get => ({
-        first: get($item),
+      const $map = computed(() => ({
+        first: $item(),
         second: 2
       }))
 
-      expect($map.get()).toEqual({
+      expect($map()).toEqual({
         first: 1,
         second: 2
       })
-      expect(atKey($map, 'first').get()).toBe(1)
+      expect(atKey($map, 'first')()).toBe(1)
 
-      $item.set(3)
+      $item(3)
 
-      expect($map.get()).toEqual({
+      expect($map()).toEqual({
         first: 3,
         second: 2
       })
-      expect(atKey($map, 'first').get()).toBe(3)
+      expect(atKey($map, 'first')()).toBe(3)
     })
 
     it('should work with record', () => {
@@ -181,13 +183,13 @@ describe('stores', () => {
       }
       const $map = signal(users)
 
-      expect($map.get()).toEqual(users)
-      expect(atKey($map, 2).get()).toEqual(users[2])
-      expect(record(atKey($map, 2)).name.get()).toBe('Savva')
+      expect($map()).toEqual(users)
+      expect(atKey($map, 2)()).toEqual(users[2])
+      expect(record(atKey($map, 2)).$name()).toBe('Savva')
 
-      record(atKey($map, 2)).name.set('Savva B')
+      record(atKey($map, 2)).$name('Savva B')
 
-      expect($map.get()).toEqual({
+      expect($map()).toEqual({
         1: {
           name: 'Dan',
           location: 'Batumi'
@@ -201,11 +203,11 @@ describe('stores', () => {
           location: 'Novosibirsk'
         }
       })
-      expect(atKey($map, 2).get()).toEqual({
+      expect(atKey($map, 2)()).toEqual({
         name: 'Savva B',
         location: 'Tallinn'
       })
-      expect(record(atKey($map, 2)).name.get()).toBe('Savva B')
+      expect(record(atKey($map, 2)).$name()).toBe('Savva B')
     })
   })
 })

@@ -1,9 +1,9 @@
-import {
-  type AnyReadableSignal,
-  type AnyWritableSignal,
-  type AnySignal,
-  start
-} from './internals/index.js'
+import type {
+  AnyReadableSignal,
+  AnyWritableSignal,
+  AnySignal
+} from 'agera'
+import { start } from './internals/index.js'
 import {
   Tasks,
   allTasks
@@ -27,17 +27,17 @@ function ToSerialize(): Map<string, AnyReadableSignal> | null {
 }
 
 /**
- * Make a store serializable.
- * @param id - The id of the store.
- * @param $signal - The store to mark as serializable.
- * @returns The store.
+ * Make a signal serializable.
+ * @param id - The id of the signal.
+ * @param $signal - The signal to mark as serializable.
+ * @returns The signal.
  */
 export function serializable<T extends AnyWritableSignal>(id: string, $signal: T) {
   const serialized = inject(Serialized)
 
   if (serialized) {
     if (Object.hasOwn(serialized, id)) {
-      $signal.set(serialized[id])
+      $signal(serialized[id])
     }
   } else {
     const toSerialize = inject(ToSerialize)
@@ -70,7 +70,7 @@ export async function serialize(runner: () => AnySignal[], context = new Injecti
   const serialized: Record<string, unknown> = {}
 
   toSerialize.forEach(($signal, id) => {
-    serialized[id] = $signal.get()
+    serialized[id] = $signal()
   })
 
   stops.forEach(stop => stop())

@@ -8,7 +8,7 @@ import {
   createTasksRunner
 } from './tasks.js'
 
-describe('stores', () => {
+describe('kida', () => {
   describe('tasks', () => {
     describe('allTasks', () => {
       it('should wait resolved task', async () => {

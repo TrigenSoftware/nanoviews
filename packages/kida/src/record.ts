@@ -1,8 +1,9 @@
 import type {
-  ReadableSignal,
-  WritableSignal,
-  AnySignal,
-  GenericRecordValue,
+  AnyReadableSignal,
+  AnyWritableSignal,
+  AnySignal
+} from 'agera'
+import type {
   ReadableRecord,
   WritableRecord,
   ReadableDeepRecord,
@@ -16,22 +17,22 @@ import {
 const flatHandler = /* @__PURE__ */ createProxyHandler(child => child)
 
 /**
- * Create a writable record store from a store with object.
- * The store will have the same keys for property stores as the source object.
- * @param $source - Source store.
- * @returns A writable record store.
+ * Create a writable record signal from a signal with object.
+ * The signal will have the same keys for property stores as the source object.
+ * @param $source - Source signal.
+ * @returns A writable record signal.
  */
-export function record<T extends WritableSignal<GenericRecordValue>>(
+export function record<T extends AnyWritableSignal>(
   $source: T
 ): WritableRecord<T>
 
 /**
- * Create a readable record store from a store with object.
- * The store will have the same keys for property stores as the source object.
- * @param $source - Source store.
- * @returns A readable record store.
+ * Create a readable record signal from a signal with object.
+ * The signal will have the same keys for property stores as the source object.
+ * @param $source - Source signal.
+ * @returns A readable record signal.
  */
-export function record<T extends ReadableSignal<GenericRecordValue>>(
+export function record<T extends AnyReadableSignal>(
   $source: T
 ): ReadableRecord<T>
 
@@ -42,22 +43,22 @@ export function record($source: AnySignal) {
 const deepHandler = /* @__PURE__ */ createProxyHandler(deepRecord)
 
 /**
- * Create a writable record store from a store with deep object.
- * The store will have the same keys for property stores as the source object recursively.
- * @param $source - Source store.
- * @returns A writable deep record store.
+ * Create a writable record signal from a signal with deep object.
+ * The signal will have the same keys for property stores as the source object recursively.
+ * @param $source - Source signal.
+ * @returns A writable deep record signal.
  */
-export function deepRecord<T extends WritableSignal<GenericRecordValue>>(
+export function deepRecord<T extends AnyWritableSignal>(
   $source: T
 ): WritableDeepRecord<T>
 
 /**
- * Create a readable record store from a store with deep object.
- * The store will have the same keys for property stores as the source object recursively.
- * @param $source - Source store.
- * @returns A readable deep record store.
+ * Create a readable record signal from a signal with deep object.
+ * The signal will have the same keys for property stores as the source object recursively.
+ * @param $source - Source signal.
+ * @returns A readable deep record signal.
  */
-export function deepRecord<T extends ReadableSignal<GenericRecordValue>>(
+export function deepRecord<T extends AnyReadableSignal>(
   $source: T
 ): ReadableDeepRecord<T>
 

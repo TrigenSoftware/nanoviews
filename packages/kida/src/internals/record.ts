@@ -1,39 +1,24 @@
+import type { AnySignal } from 'agera'
 import type {
-  AnyFn,
   AnyRecordStore,
-  AnySignal,
   RecordStore
 } from './types/index.js'
 import { $$record } from './symbols.js'
-import { RecordChild } from './child.js'
-import {
-  assignKey,
-  isFunction
-} from './utils.js'
+import { child } from './child.js'
+import { assignKey } from './utils.js'
 
 export function createProxyHandler(ext: ($signal: AnySignal) => AnySignal): ProxyHandler<AnyRecordStore> {
   return {
-    get($signal, key) {
-      if (!(key in $signal)) {
-        if (typeof key === 'symbol') {
-          return
-        }
-
-        return $signal[key] = ext(new RecordChild(
+    get($signal, key: string) {
+      if (!(key in $signal) && key[0] === '$') {
+        return $signal[key] = ext(child(
           $signal,
-          key,
+          key.slice(1),
           assignKey
         ))
       }
 
-      const value = $signal[key]
-
-      // Reflect.get don't work with class private fields. No cache is faster than with cache.
-      if (isFunction(value)) {
-        return (value as AnyFn).bind($signal)
-      }
-
-      return value
+      return $signal[key]
     }
   }
 }

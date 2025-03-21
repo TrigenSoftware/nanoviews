@@ -3,6 +3,11 @@ import {
   it,
   expect
 } from 'vitest'
+import {
+  $$mount,
+  $$node,
+  $$destroy
+} from './symbols.js'
 import { NodeBlock } from './block.js'
 
 describe('nanoviews', () => {
@@ -18,16 +23,16 @@ describe('nanoviews', () => {
 
           const block = new NodeBlock(node)
 
-          block.m(root, anchor)
+          block[$$mount](root, anchor)
 
-          expect(block.n).toBe(node)
+          expect(block[$$node]).toBe(node)
           expect(root.firstChild).toBe(node)
 
-          block.m(root)
+          block[$$mount](root)
 
           expect(root.lastChild).toBe(node)
 
-          block.d()
+          block[$$destroy]()
 
           expect(root).not.toContainElement(node)
         })

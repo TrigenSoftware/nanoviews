@@ -1,67 +1,62 @@
+import {
+  type ReadableSignal,
+  type Destroy,
+  effect,
+  isSignal,
+  createEffectScope,
+  getContext,
+  run
+} from 'kida'
 import type {
-  Effect,
-  Destroy
+  ValueOrSignal,
+  EffectScopeSwapperCallback
 } from './types/index.js'
 
-let globalEffects: Effect[] | undefined
-
-/**
- * Capture effects from a function
- * @param effects - Target effects array
- * @param fn - Function to capture effects from
- * @returns Function result
- */
-export function captureEffects<R>(effects: Effect[], fn: () => R): R {
-  const prevEffects = globalEffects
-
-  globalEffects = effects
-
-  try {
-    return fn()
-  } finally {
-    globalEffects = prevEffects
+export function subscribe<T>(
+  valueOr$signal: ValueOrSignal<T>,
+  callback: (value: T) => void
+) {
+  if (!isSignal(valueOr$signal)) {
+    callback(valueOr$signal)
+    return
   }
+
+  effect(() => {
+    callback(valueOr$signal())
+  }, true)
 }
 
-/**
- * Add mounted effect.
- * Effect will be run on block mount and can return destroy function to run on unmount.
- * @param effect - Effect function to add
- */
-export function addEffect(effect: Effect) {
-  globalEffects!.push(effect)
+export function createEffectScopeWithContext(context = getContext()) {
+  const effectScope = createEffectScope()
+
+  return ((fn, lazy) => effectScope(() => run(context, fn), lazy)) as ReturnType<typeof createEffectScope>
 }
 
-/**
- * Run effects from array and return destroy functions
- * @param effects - Effects array
- * @returns Destroy functions
- */
-export function runEffects(effects: Effect[]) {
-  const len = effects.length
-  const destroys: Destroy[] = []
+export function effectScopeSwapper<T>(
+  $signal: ReadableSignal<T>,
+  callback: EffectScopeSwapperCallback<T>
+) {
+  let prevValue: T | undefined
+  let start: (() => Destroy) | undefined
+  let stop: Destroy | undefined
 
-  if (len) {
-    for (let i = 0, destroy; i < len; i++) {
-      if (destroy = effects[i]()) {
-        destroys.push(destroy)
-      }
+  effect((warmup) => {
+    const value = $signal()
+
+    stop = callback(stop, value, prevValue)
+
+    if (warmup) {
+      start = stop as () => Destroy
+      stop = undefined
     }
-  }
 
-  return destroys
-}
+    prevValue = value
+  }, true)
 
-/**
- * Run destroy functions
- * @param destroys - Destroy functions array
- */
-export function runDestroys(destroys: Destroy[] | undefined) {
-  const len = destroys?.length
+  effect(() => {
+    stop = start!()
+    start = undefined
 
-  if (len) {
-    for (let i = 0; i < len; i++) {
-      destroys[i]()
-    }
-  }
+    return () => stop!()
+  })
 }

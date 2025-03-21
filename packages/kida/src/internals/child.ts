@@ -1,78 +1,69 @@
-import type {
-  AnyObject,
-  WritableSignal,
-  ReadableSignal
-} from './types/index.js'
 import {
-  Signal,
-  isSignal
-} from './signal.js'
-import { Mapped } from './mapped.js'
-import { $$value } from './symbols.js'
-import {
-  onMount,
-  listen
-} from './lifecycle.js'
+  type WritableSignal,
+  type ReadableSignal,
+  isSignal,
+  computed,
+  morph,
+  $$get,
+  $$set
+} from 'agera'
+import type { AnyObject } from './types/index.js'
 
-export class CollectionChild<
+/**
+ * Create a writable child signal from a parent signal.
+ * @param $parent - Parent signal.
+ * @param key - Static or signal key to get from the parent.
+ * @param setValue - Function to set the value in the parent.
+ * @returns A writable child signal.
+ */
+export function child<
   P extends AnyObject,
   K extends keyof P,
   V extends P[K]
-> extends Signal<V> {
-  constructor(
-    $parent: WritableSignal<P> | ReadableSignal<P>,
-    key: K | ReadableSignal<K>,
-    setValue: (parentValue: P, key: K, value: V) => P
-  ) {
-    const isSignalKey = isSignal(key)
-    const getKey = isSignalKey
-      ? () => key.get()
-      : () => key
-    const get = () => $parent.get()[getKey()]
-    const listener = () => super.set(get())
+>(
+  $parent: WritableSignal<P>,
+  key: K | ReadableSignal<K>,
+  setValue: (parentValue: P, key: K, value: V) => P
+): WritableSignal<V>
 
-    super(get())
-
-    this.get = () => this[$$value] = get()
-
-    this.set = (value: V) => {
-      if (value !== this.get()) {
-        ($parent as WritableSignal<P>).set(setValue(
-          $parent.get(),
-          getKey(),
-          value
-        ))
-      }
-    }
-
-    onMount(this, () => listen($parent, listener))
-
-    if (isSignalKey) {
-      onMount(this, () => listen(key, listener))
-    }
-  }
-}
-
-export class RecordChild<
+/**
+ * Create a readable child signal from a parent signal.
+ * @param $parent - Parent signal.
+ * @param key - Static or signal key to get from the parent.
+ * @param setValue - Function to set the value in the parent.
+ * @returns A readable child signal.
+ */
+export function child<
   P extends AnyObject,
   K extends keyof P,
   V extends P[K]
-> extends Mapped<P, V> {
-  constructor(
-    $parent: WritableSignal<P> | ReadableSignal<P>,
-    key: K,
-    setValue: (parentValue: P, key: K, value: V) => P
-  ) {
-    super($parent, parentValue => (parentValue ? parentValue[key] : parentValue))
+>(
+  $parent: ReadableSignal<P>,
+  key: K | ReadableSignal<K>,
+  setValue: (parentValue: P, key: K, value: V) => P
+): ReadableSignal<V>
 
-    this.set = (value: V) => {
-      if (value !== this.get()) {
-        ($parent as WritableSignal<P>).set(setValue(
-          $parent.get(),
-          key,
-          value
-        ))
-      }
-    }
-  }
+export function child<
+  P extends AnyObject,
+  K extends keyof P,
+  V extends P[K]
+>(
+  $parent: WritableSignal<P> | ReadableSignal<P>,
+  key: K | ReadableSignal<K>,
+  setValue: (parentValue: P, key: K, value: V) => P
+) {
+  const isSignalKey = isSignal(key)
+  const get = computed(
+    isSignalKey
+      ? () => $parent()[key()]
+      : () => $parent()[key]
+  )
+  const set = isSignalKey
+    ? (value: V) => $parent(setValue($parent(), key(), value))
+    : (value: V) => $parent(setValue($parent(), key, value))
+
+  return morph(get, {
+    [$$get]: get,
+    [$$set]: set
+  })
 }

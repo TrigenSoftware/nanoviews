@@ -1,9 +1,8 @@
+import { effectScope } from 'kida'
 import {
   type Block,
-  type Effect,
-  captureEffects,
-  runEffects,
-  runDestroys
+  $$mount,
+  $$destroy
 } from './internals/index.js'
 
 /**
@@ -13,15 +12,15 @@ import {
  * @returns A function to unmount the block
  */
 export function mount(app: () => Block, node: Node) {
-  const effects: Effect[] = []
-  const block = captureEffects(effects, app)
+  let block: Block
+  const start = effectScope(() => block = app(), true)
 
-  block.m(node)
+  block![$$mount](node)
 
-  const destroys = runEffects(effects)
+  const destroy = start()
 
   return () => {
-    runDestroys(destroys)
-    block.d()
+    destroy()
+    block[$$destroy]()
   }
 }

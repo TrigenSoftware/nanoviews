@@ -1,8 +1,8 @@
-import type { WritableSignal } from 'kida'
 import {
-  createEffectAttribute,
-  addEffect
-} from '../internals/index.js'
+  type WritableSignal,
+  effect
+} from 'kida'
+import { createEffectAttribute } from '../internals/index.js'
 
 /**
  * Effect attribute to get element reference
@@ -10,9 +10,9 @@ import {
 export const ref$ = /* @__PURE__ */ createEffectAttribute<'ref$', Element, WritableSignal<Element | null>>(
   'ref$',
   (element, $ref) => {
-    $ref.set(element)
+    $ref(element)
 
-    addEffect(() => () => $ref.set(null))
+    effect(() => () => $ref(null))
   }
 )
 

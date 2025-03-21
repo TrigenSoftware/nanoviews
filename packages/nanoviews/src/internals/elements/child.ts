@@ -1,11 +1,16 @@
+import { isSignal } from 'kida'
 import type {
   PrimitiveChild,
   Children
 } from '../types/index.js'
 import {
+  $$first,
+  $$prev,
+  $$next
+} from '../symbols.js'
+import {
   isFunction,
-  isEmpty,
-  noop
+  isEmpty
 } from '../utils.js'
 import {
   type Block,
@@ -20,36 +25,56 @@ import { createText } from './text.js'
  */
 export function childToBlock(child: PrimitiveChild) {
   return (
-    isFunction(child)
-      ? child()
-      : isBlock(child)
-        ? child
-        : createText(child)
+    isSignal(child)
+      ? createText(child)
+      : isFunction(child)
+        ? child()
+        : isBlock(child)
+          ? child
+          : createText(child)
   )
 }
 
-/**
- * Convert children to blocks
- * @param children
- * @param cb
- * @param blocks
- * @returns Blocks
- */
-export function childrenToBlocks(
+export function forEachChild(
   children: Children,
-  cb: (block: Block) => void = noop,
-  blocks: Block[] = []
-): Block[] {
-  for (let i = 0, len = children.length, child: Children[number], block: Block; i < len; i++) {
+  callback: (block: Block) => void
+): void {
+  for (let i = 0, len = children.length, child: Children[number]; i < len; i++) {
     child = children[i]
 
     if (Array.isArray(child)) {
-      childrenToBlocks(child, cb, blocks)
+      forEachChild(child, callback)
     } else if (!isEmpty(child)) {
-      cb(block = childToBlock(child))
-      blocks.push(block)
+      callback(childToBlock(child))
     }
   }
+}
 
-  return blocks
+export function linkChild(
+  parent: Block,
+  prev: Block | undefined,
+  next: Block | undefined,
+  insert?: Block | undefined
+): void {
+  if (prev === undefined) {
+    parent[$$first] = insert || next
+  } else {
+    prev[$$next] = insert || next
+  }
+
+  if (next !== undefined) {
+    next[$$prev] = insert || prev
+  }
+}
+
+export function linkChildren(
+  parent: Block,
+  children: Children
+): void {
+  let prevBlock: Block | undefined
+
+  forEachChild(children, (block) => {
+    linkChild(parent, prevBlock, block)
+    prevBlock = block
+  })
 }

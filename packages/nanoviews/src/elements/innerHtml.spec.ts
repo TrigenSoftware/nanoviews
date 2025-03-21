@@ -30,7 +30,7 @@ describe('nanoviews', () => {
 
         expect(container.innerHTML).toBe('<div><div><p>Hello, world!</p></div></div>')
 
-        html.set('<p>Hello, <b>nanoviews</b>!</p>')
+        html('<p>Hello, <b>nanoviews</b>!</p>')
 
         expect(container.innerHTML).toBe('<div><div><p>Hello, <b>nanoviews</b>!</p></div></div>')
       })

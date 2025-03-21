@@ -1,5 +1,1 @@
-export {
-  observe,
-  effect,
-  batch
-} from './internals/effect.js'
+export * from './internals/effect.js'

@@ -1,16 +1,18 @@
 import {
   type WritableSignal,
   type ReadableSignal,
-  at,
-  update,
+  update
+} from 'agera'
+import {
+  child,
   assignIndex
 } from './internals/index.js'
 
 /**
- * Get writable item store at index from the list store.
- * @param $list - The list store.
+ * Get writable item signal at index from the list signal.
+ * @param $list - The list signal.
  * @param index - The index to get.
- * @returns The writable item store at the index.
+ * @returns The writable item signal at the index.
  */
 export function atIndex<T>(
   $list: WritableSignal<T[]>,
@@ -18,10 +20,10 @@ export function atIndex<T>(
 ): WritableSignal<T>
 
 /**
- * Get readable item store at index from the list store.
- * @param $list - The list store.
+ * Get readable item signal at index from the list signal.
+ * @param $list - The list signal.
  * @param index - The index to get.
- * @returns The readable item store at the index.
+ * @returns The readable item signal at the index.
  */
 export function atIndex<T>(
   $list: ReadableSignal<T[]>,
@@ -32,12 +34,12 @@ export function atIndex<T>(
   $list: ReadableSignal<T[]> | WritableSignal<T[]>,
   index: number | ReadableSignal<number>
 ) {
-  return at($list, assignIndex, index)
+  return child($list, index, assignIndex)
 }
 
 /**
- * Update the value of the list store.
- * @param $list - The list store.
+ * Update the value of the list signal.
+ * @param $list - The list signal.
  * @param fn - Function to update the list.
  * @returns The result of the function.
  */
@@ -56,8 +58,8 @@ export function updateList<T, R>($list: WritableSignal<T[]>, fn: (state: T[]) =>
 }
 
 /**
- * Add values to the list store.
- * @param $list - The list store.
+ * Add values to the list signal.
+ * @param $list - The list signal.
  * @param values - Values to push.
  * @returns The new length of the list.
  */
@@ -66,8 +68,8 @@ export function push<T>($list: WritableSignal<T[]>, ...values: T[]) {
 }
 
 /**
- * Removes the last element from a list store and returns it.
- * @param $list - The list store.
+ * Removes the last element from a list signal and returns it.
+ * @param $list - The list signal.
  * @returns Removed element.
  */
 export function pop<T>($list: WritableSignal<T[]>) {
@@ -75,8 +77,8 @@ export function pop<T>($list: WritableSignal<T[]>) {
 }
 
 /**
- * Removes the first element from a list store and returns it.
- * @param $list - The list store.
+ * Removes the first element from a list signal and returns it.
+ * @param $list - The list signal.
  * @returns Removed element.
  */
 export function shift<T>($list: WritableSignal<T[]>) {
@@ -84,8 +86,8 @@ export function shift<T>($list: WritableSignal<T[]>) {
 }
 
 /**
- * Inserts new elements at the start of an list store, and returns the new length of the list.
- * @param $list - The list store.
+ * Inserts new elements at the start of an list signal, and returns the new length of the list.
+ * @param $list - The list signal.
  * @param values - Values to insert.
  * @returns The new length of the list.
  */
@@ -94,18 +96,18 @@ export function unshift<T>($list: WritableSignal<T[]>, ...values: T[]) {
 }
 
 /**
- * Get value at index from the list store.
- * @param $list - The list store.
+ * Get value at index from the list signal.
+ * @param $list - The list signal.
  * @param index - The index to get.
  * @returns The value at the index.
  */
 export function getIndex<T>($list: ReadableSignal<T[]>, index: number) {
-  return $list.get()[index]
+  return $list()[index]
 }
 
 /**
- * Set value at index in the list store.
- * @param $list - The list store.
+ * Set value at index in the list signal.
+ * @param $list - The list signal.
  * @param index - The index to set.
  * @param value - The value to set.
  * @returns The new value.
@@ -115,8 +117,8 @@ export function setIndex<T>($list: WritableSignal<T[]>, index: number, value: T)
 }
 
 /**
- * Delete element at index from the list store.
- * @param $list - The list store.
+ * Delete element at index from the list signal.
+ * @param $list - The list signal.
  * @param index - The index to delete.
  * @returns The removed value.
  */
@@ -125,21 +127,21 @@ export function deleteIndex<T>($list: WritableSignal<T[]>, index: number) {
 }
 
 /**
- * Clear the list store.
- * @param $list - The list store.
- * @returns The cleared list store.
+ * Clear the list signal.
+ * @param $list - The list signal.
+ * @returns The cleared list signal.
  */
 export function clearList<T>($list: WritableSignal<T[]>) {
-  $list.set([])
+  $list([])
   return $list
 }
 
 /**
- * Check if the list store includes a value.
- * @param $list - The list store.
+ * Check if the list signal includes a value.
+ * @param $list - The list signal.
  * @param value - The value to check.
- * @returns Whether the list store includes the value.
+ * @returns Whether the list signal includes the value.
  */
 export function includes<T>($list: ReadableSignal<T[]>, value: T) {
-  return $list.get().includes(value)
+  return $list().includes(value)
 }

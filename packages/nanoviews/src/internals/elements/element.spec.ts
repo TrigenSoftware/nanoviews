@@ -42,7 +42,7 @@ describe('nanoviews', () => {
 
           expect(container.innerHTML).toBe('<div><b>Hello, world!</b></div>')
 
-          text.set('Hello, nanoviews!')
+          text('Hello, nanoviews!')
 
           expect(container.innerHTML).toBe('<div><b>Hello, nanoviews!</b></div>')
         })
@@ -54,14 +54,14 @@ describe('nanoviews', () => {
         })
 
         it('should render reactive primitive attribute', () => {
-          const href = signal('#')
+          const href = signal<string | undefined>('#')
           const { container } = render(ReactivePrimitiveAttribute({
             href
           }))
 
           expect(container.innerHTML).toBe('<div><a href="#">Link!</a></div>')
 
-          href.set('https://github.com/dangreen')
+          href('https://github.com/dangreen')
 
           expect(container.innerHTML).toBe('<div><a href="https://github.com/dangreen">Link!</a></div>')
         })
@@ -75,15 +75,15 @@ describe('nanoviews', () => {
           expect(container.innerHTML).toBe('<div><a href="#">Link!</a></div>')
 
           // @ts-expect-error - test case
-          href.set(null)
+          href(null)
 
           expect(container.innerHTML).toBe('<div><a>Link!</a></div>')
 
-          href.set('#')
+          href('#')
 
           expect(container.innerHTML).toBe('<div><a href="#">Link!</a></div>')
 
-          href.set(undefined)
+          href(undefined)
 
           expect(container.innerHTML).toBe('<div><a>Link!</a></div>')
         })
@@ -96,11 +96,11 @@ describe('nanoviews', () => {
 
           expect(container.innerHTML).toBe('<div><span data-value="#">Data attribute test</span></div>')
 
-          dataValue.set(true)
+          dataValue(true)
 
           expect(container.innerHTML).toBe('<div><span data-value="true">Data attribute test</span></div>')
 
-          dataValue.set(false)
+          dataValue(false)
 
           expect(container.innerHTML).toBe('<div><span data-value="false">Data attribute test</span></div>')
         })

@@ -1,8 +1,10 @@
-import { isSignal } from 'kida'
+import {
+  isSignal,
+  effect
+} from 'kida'
 import {
   type ValueOrSignal,
-  createEffectAttribute,
-  addEffect
+  createEffectAttribute
 } from '../internals/index.js'
 
 /**
@@ -11,8 +13,8 @@ import {
 export const autoFocus$ = /* @__PURE__ */ createEffectAttribute<'autoFocus$', HTMLElement | SVGElement, ValueOrSignal<boolean>>(
   'autoFocus$',
   (element, $value) => {
-    if (isSignal($value) && $value.get() || $value) {
-      addEffect(() => {
+    if (isSignal($value) && $value() || $value) {
+      effect(() => {
         element.focus()
       })
     }

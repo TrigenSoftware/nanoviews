@@ -1,7 +1,4 @@
-import {
-  isSignal,
-  subscribeLater
-} from 'kida'
+import { isSignal } from 'kida'
 import type {
   PrimitiveAttributeValue,
   Primitive,
@@ -12,7 +9,7 @@ import {
   isFunction,
   isEmpty
 } from '../utils.js'
-import { addEffect } from '../effects.js'
+import { subscribe } from '../effects.js'
 import { getEffectAttribute } from './effectAttribute.js'
 
 type AttributeValue = PrimitiveAttributeValue | TargetEventHandler
@@ -42,14 +39,10 @@ export function setProperty(
   unset: () => void,
   $value: PrimitiveAttributeValue
 ) {
-  if (isSignal($value)) {
-    addEffect(subscribeLater(
-      $value,
-      value => setunset(set, unset, value)
-    ))
-  } else {
-    setunset(set, unset, $value)
-  }
+  subscribe(
+    $value,
+    value => setunset(set, unset, value)
+  )
 }
 
 function setAttribute(element: Element, name: string, $value: PrimitiveAttributeValue) {
@@ -85,10 +78,12 @@ export function setAttributes<A extends object>(element: Element, attributes: A)
       key = keys[i]
       value = (attributes as Attributes)[key]
 
-      if (isFunction(value)) {
-        setEventListener(element, key, value)
-      } else if (tEffectAttr = getEffectAttribute(key)) {
+      if (tEffectAttr = getEffectAttribute(key)) {
         tEffectAttr(element, value, attributes as Attributes)
+      } else if (isSignal(value)) {
+        setAttribute(element, key, value)
+      } else if (isFunction(value)) {
+        setEventListener(element, key, value)
       } else {
         setAttribute(element, key, value)
       }

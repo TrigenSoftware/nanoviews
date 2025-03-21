@@ -50,15 +50,9 @@ export function render<Q extends Queries = typeof defaultQueries>(blockCreator: 
     if (Array.isArray(blockCreator)) {
       const [creator, ...args] = blockCreator as BlockCreator
 
-      unmount = mount(() => {
-        block = creator(...args)
-        return block
-      }, target)
+      unmount = mount(() => block = creator(...args), target)
     } else if (typeof blockCreator === 'function') {
-      unmount = mount(() => {
-        block = blockCreator()
-        return block
-      }, target)
+      unmount = mount(() => block = blockCreator(), target)
     } else {
       throw new Error('Invalid block creator. Expected a function.')
     }

@@ -7,15 +7,15 @@ import type {
   WritableSignal,
   AnyFn
 } from 'kida'
-import type { Block } from 'nanoviews'
+import type {
+  Block,
+  NonEmptyValue,
+  EmptyValue
+} from 'nanoviews'
 
 export type AnyProps = Record<string, any>
 
 type OrAnyProps<T> = T extends AnyProps ? T : AnyProps
-
-type EmptyValue = undefined | null | void
-
-type NonEmptyValue<T> = T extends EmptyValue ? never : T
 
 export type UniversalProps<T extends AnyProps> = {
   [K in keyof T]: T[K] extends EmptyValue

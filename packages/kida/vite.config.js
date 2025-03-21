@@ -1,5 +1,13 @@
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
+import {
+  DEV,
+  terserOptions,
+  inlineSymbols
+} from '../../scripts/index.js'
+import * as ageraSymbols from '../agera/src/internals/symbols.min.ts'
+import * as symbols from './src/internals/symbols.ts'
+import * as symbolsMin from './src/internals/symbols.min.ts'
 
 export default defineConfig({
   build: {
@@ -7,17 +15,21 @@ export default defineConfig({
     lib: {
       formats: ['es'],
       entry: {
-        index: './src/index.ts',
-        internals: './src/internals/index.ts'
-      },
-      fileName(_, entryName) {
-        return `${entryName}.${process.env.NODE_ENV}.js`
+        index: './src/index.ts'
       }
     },
+    rollupOptions: {
+      external: ['agera']
+    },
     sourcemap: true,
-    minify: false,
+    minify: !DEV && 'terser',
+    terserOptions,
     emptyOutDir: false
   },
+  plugins: [
+    // inline symbols values to optimize bundle size
+    inlineSymbols(symbols, symbolsMin, ageraSymbols)
+  ],
   test: {
     exclude: [...configDefaults.exclude, './package'],
     coverage: {

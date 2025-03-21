@@ -3,6 +3,7 @@
 | Package | Version | Dependencies |
 |---------|---------|--------------|
 | [`nanoviews`](packages/nanoviews#readme) | [![NPM version][nanoviews-npm]][nanoviews-npm-url] | [![Dependencies status][nanoviews-deps]][nanoviews-deps-url] |
+| [`agera`](packages/agera#readme) | [![NPM version][agera-npm]][agera-npm-url] | [![Dependencies status][agera-deps]][agera-deps-url] |
 | [`kida`](packages/kida#readme) | [![NPM version][kida-npm]][kida-npm-url] | [![Dependencies status][kida-deps]][kida-deps-url] |
 | [`@kidajs/react`](packages/kida-react#readme) | [![NPM version][kida-npm]][kida-npm-url] | [![Dependencies status][kida-deps]][kida-deps-url] |
 
@@ -13,6 +14,14 @@
 
 [nanoviews-deps]: https://img.shields.io/librariesio/release/npm/nanoviews
 [nanoviews-deps-url]: https://libraries.io/npm/nanoviews/tree
+
+<!-- agera -->
+
+[agera-npm]: https://img.shields.io/npm/v/agera.svg
+[agera-npm-url]: https://www.npmjs.com/package/agera
+
+[agera-deps]: https://img.shields.io/librariesio/release/npm/agera
+[agera-deps-url]: https://libraries.io/npm/agera/tree
 
 <!-- kida -->
 

@@ -30,7 +30,7 @@ describe('nanoviews', () => {
 
         expect(container.innerHTML).toBe('<div><b>Loading</b></div>')
 
-        state.set('success')
+        state('success')
 
         expect(container.innerHTML).toBe('<div>Success</div>')
       })

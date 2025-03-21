@@ -15,7 +15,7 @@ import styles from './ForecastWeather.module.css'
 
 export interface Props {
   weather: ReadableSignal<Weather | undefined>
-  mode: ReadableSignal<'daily' | 'hourly'>
+  mode: ReadableSignal<string>
 }
 
 export function ForecastWeather({
@@ -23,14 +23,14 @@ export function ForecastWeather({
   mode: $mode
 }: Props) {
   const $weather = record(weather)
-  const $weatherTime = computed((get) => {
-    const date = get($weather.date)
+  const $weatherTime = computed(() => {
+    const date = $weather.$date()
 
     if (!date) {
       return ''
     }
 
-    if (get($mode) === 'hourly') {
+    if ($mode() === 'hourly') {
       return date.toLocaleTimeString(undefined, {
         hour: 'numeric',
         minute: '2-digit'
@@ -48,24 +48,24 @@ export function ForecastWeather({
   })(
     time({
       class: styles.time,
-      dateTime: $weather.dateText
+      dateTime: $weather.$dateText
     })(
       $weatherTime
     ),
     img({
       class: styles.image,
-      src: $weather.icon,
-      alt: $weather.description
+      src: $weather.$icon,
+      alt: $weather.$description
     }),
     h3({
       class: styles.temp
     })(
-      $weather.tempText
+      $weather.$tempText
     ),
     p({
       class: styles.description
     })(
-      $weather.description
+      $weather.$description
     )
   )
 }
