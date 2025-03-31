@@ -13,7 +13,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: nanoStory(() => portal$(
-    document.body,
+    () => document.body,
     div()('I wanna be in the body!')
   ))
 }

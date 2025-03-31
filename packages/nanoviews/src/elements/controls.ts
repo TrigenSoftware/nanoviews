@@ -46,7 +46,7 @@ type ComboboxElement = HTMLSelectElement
 
 type FileElement = HTMLInputElement
 
-function createElementPropertySetter2<E extends Element, V>(
+function createElementPropertySetter<E extends Element, V>(
   eventName: string,
   getValue: (control: E) => V,
   setValue: (control: E, value: V) => void
@@ -91,7 +91,7 @@ function getValue(control: TextboxElement) {
  */
 export const value$ = /* @__PURE__ */ createEffectAttribute<'value$', TextboxElement, Value>(
   'value$',
-  createElementPropertySetter2(
+  createElementPropertySetter(
     onInputEvent,
     getValue,
     setValue
@@ -119,7 +119,7 @@ function getChecked(control: CheckboxElement): CheckedPrimitive {
  */
 export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, ValueOrWritableSignal<CheckedPrimitive>>(
   'checked$',
-  createElementPropertySetter2(
+  createElementPropertySetter(
     onChangeEvent,
     getChecked,
     setChecked
@@ -175,7 +175,7 @@ function getSelected(control: ComboboxElement): SelectedPrimitive {
  */
 export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, ValueOrWritableSignal<SelectedPrimitive>>(
   'selected$',
-  createElementPropertySetter2(
+  createElementPropertySetter(
     onChangeEvent,
     getSelected,
     setSelected

@@ -10,7 +10,3 @@ export { isFunction } from 'kida'
 export function isEmpty(value: unknown): value is EmptyValue {
   return value === undefined || value === null
 }
-
-export const noop = () => {
-  /* noop */
-}

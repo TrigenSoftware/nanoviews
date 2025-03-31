@@ -5,61 +5,45 @@ import {
 } from 'kida'
 import type {
   ValueOrSignal,
-  PrimitiveChild
+  Child
 } from '../types/index.js'
-import {
-  $$destroy,
-  $$first,
-  $$mount,
-  $$node
-} from '../symbols.js'
 import {
   createEffectScopeWithContext,
   effectScopeSwapper
 } from '../effects.js'
-import { childToBlock } from '../elements/child.js'
+import { createTextNode } from '../elements/text.js'
 import {
-  type Block,
-  HostBlock
-} from '../block.js'
+  insertChildBeforeAnchor,
+  removeBetween
+} from '../elements/child.js'
 
-export class DecideBlock<T> extends HostBlock {
-  declare [$$first]: Block
-  readonly #effectScope = createEffectScopeWithContext()
-  readonly #decider: (value: T) => PrimitiveChild
+export function reactiveDecide<T>(
+  $condition: ReadableSignal<T>,
+  decider: (value: T) => Child
+) {
+  const start = createTextNode()
+  const end = createTextNode()
+  const effectScope = createEffectScopeWithContext()
+  let child: Child
 
-  constructor(
-    $condition: ReadableSignal<T>,
-    decider: (value: T) => PrimitiveChild
-  ) {
-    super()
-
-    this.#decider = decider
-
-    effectScopeSwapper($condition, this.#swapper.bind(this))
-  }
-
-  #swapper(
+  effectScopeSwapper($condition, (
     destroyPrev: Destroy | undefined,
     condition: T
-  ) {
-    destroyPrev?.()
+  ) => {
+    if (destroyPrev !== undefined) {
+      destroyPrev()
+      removeBetween(start, end)
+    }
 
-    const prevBlock = this[$$first]
-    const runEffects = this.#effectScope(
-      () => this[$$first] = childToBlock(
-        this.#decider(condition)
-      ),
+    const runEffects = effectScope(
+      () => child = decider(condition),
       true
     )
 
     // Rerender on condition change in effect
-    if (destroyPrev) {
-      const prevNode = prevBlock[$$node]!
-
-      this[$$first][$$mount](prevNode.parentNode!, prevNode)
-      prevBlock[$$destroy]()
-
+    if (destroyPrev !== undefined) {
+      insertChildBeforeAnchor(child, end)
+      child = undefined
       // Should return effect stop function
       return runEffects()
     }
@@ -67,7 +51,13 @@ export class DecideBlock<T> extends HostBlock {
     // First render, before effects run
     // Should return effect start function
     return runEffects
-  }
+  })
+
+  return [
+    start,
+    child,
+    end
+  ]
 }
 
 /**
@@ -78,11 +68,11 @@ export class DecideBlock<T> extends HostBlock {
  */
 export function decide<T>(
   $condition: ValueOrSignal<T>,
-  decider: (value: T) => PrimitiveChild
+  decider: (value: T) => Child
 ) {
   if (isSignal($condition)) {
-    return new DecideBlock($condition, decider)
+    return reactiveDecide($condition, decider)
   }
 
-  return childToBlock(decider($condition))
+  return decider($condition)
 }

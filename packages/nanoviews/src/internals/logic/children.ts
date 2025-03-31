@@ -1,5 +1,6 @@
 import type {
   AnyFn,
+  Child,
   Children,
   ChildrenWithSlots,
   AnySlotDef,
@@ -15,7 +16,7 @@ import type {
  * @returns Function that accepts children
  */
 export function collectChildren<
-  T extends Node,
+  T extends Child,
   C extends unknown[] = Children
 >(render: Renderer<T, C>) {
   return (...children: C) => render(children.length ? children : undefined)
@@ -113,7 +114,7 @@ export function getSlots<
  * @returns Function that accepts children
  */
 export function collectSlots<
-  T extends Node,
+  T extends Child,
   D extends AnySlotDef[]
 >(
   slotDefs: [...D],

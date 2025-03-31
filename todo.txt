@@ -1,3 +1,10 @@
+- free ram on childrenForEach?
+- resaerch to reduce size?
+  - focus on elements/child.ts
+  - loop
+  - bind to arrow?
+- check ??
+
 - bundle types
 - toReadableSignal
 - listener & fn -> callback?
@@ -12,9 +19,8 @@
 - serialize - start all marked stores?
 - onMountEffectScope?
 - when$
-- child static parent
+- agera child signal static parent
 - $ - signals, $$ - blocks?
-- blocks to nodes?)
 
 - !== undefined is faster
 - prop: undefined is faster
@@ -24,6 +30,8 @@
 - getter setter are slow (not in class)
 - Reflect.get is slow
 - arr.length = 0 is slower than arr = []
+
+- store injection effectScope to stop effects after context stop
 
 - html + head components
 - universal dom

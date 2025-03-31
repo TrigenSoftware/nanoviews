@@ -1,18 +1,16 @@
+import { effect } from 'kida'
 import {
-  type Block,
-  $$mount
+  type Child,
+  mountChild
 } from '../internals/index.js'
 
 /**
- * Render block in the target node
+ * Render child in the target node
  * @param target
- * @param block
- * @returns Portal block
+ * @param child
  */
-export function portal$<T extends Block>(target: Node, block: T) {
-  const superMount = block[$$mount].bind(block)
+export function portal$(target: () => ParentNode, child: Child) {
+  const unmount = mountChild(target(), child)
 
-  block[$$mount] = () => superMount(target)
-
-  return block
+  effect(() => unmount)
 }

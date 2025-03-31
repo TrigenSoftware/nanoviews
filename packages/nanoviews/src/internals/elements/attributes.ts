@@ -1,16 +1,14 @@
-import { isSignal } from 'kida'
+import { isFunctionNotSignal } from 'kida'
 import type {
   PrimitiveAttributeValue,
   Primitive,
   TargetEventHandler,
   EffectAttributeCallback
 } from '../types/index.js'
-import {
-  isFunction,
-  isEmpty
-} from '../utils.js'
+import { isEmpty } from '../utils.js'
 import { subscribe } from '../effects.js'
 import { getEffectAttribute } from './effectAttribute.js'
+import { delegateEvent } from './events.js'
 
 type AttributeValue = PrimitiveAttributeValue | TargetEventHandler
 
@@ -56,8 +54,12 @@ function setAttribute(element: Element, name: string, $value: PrimitiveAttribute
 }
 
 function setEventListener(element: Element, name: string, value: TargetEventHandler) {
-  // @ts-expect-error - Maybe temporary, but it very simple realization
-  element[name.toLowerCase()] = value
+  const eventName = name.slice(2).toLowerCase()
+
+  delegateEvent(eventName)
+
+  // @ts-expect-error Inject event listener into element
+  element[`__${eventName}`] = value
 }
 
 /**
@@ -80,9 +82,7 @@ export function setAttributes<A extends object>(element: Element, attributes: A)
 
       if (tEffectAttr = getEffectAttribute(key)) {
         tEffectAttr(element, value, attributes as Attributes)
-      } else if (isSignal(value)) {
-        setAttribute(element, key, value)
-      } else if (isFunction(value)) {
+      } else if (isFunctionNotSignal(value)) {
         setEventListener(element, key, value)
       } else {
         setAttribute(element, key, value)

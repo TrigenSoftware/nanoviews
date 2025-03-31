@@ -5,33 +5,29 @@ import {
   isSignal
 } from 'kida'
 import {
-  type PrimitiveChild,
-  LoopBlock,
-  Block,
-  noop,
-  childToBlock,
-  createFragment
+  type Child,
+  loop
 } from '../internals/index.js'
 
 type AnyEach = (
   item: AnySignal,
   index: ReadableSignal<number>
-) => PrimitiveChild
+) => Child
 
 type ReadableEach<T> = (
   item: ReadableSignal<T>,
   index: ReadableSignal<number>
-) => PrimitiveChild
+) => Child
 
 type WritableEach<T> = (
   item: WritableSignal<T>,
   index: ReadableSignal<number>
-) => PrimitiveChild
+) => Child
 
 type StaticEach<T> = (
   item: T,
   index: number
-) => PrimitiveChild
+) => Child
 
 type UnknownTrack = (item: unknown, index: number) => unknown
 
@@ -40,23 +36,23 @@ export function for$<T>(
   track?: (item: T, index: number) => unknown
 ): (
   each$: WritableEach<T>,
-  $else?: () => PrimitiveChild
-) => Block
+  $else?: () => Child
+) => Child
 
 export function for$<T>(
   $items: ReadableSignal<T[]>,
   track?: (item: T, index: number) => unknown
 ): (
   each$: ReadableEach<T>,
-  $else?: () => PrimitiveChild
-) => Block
+  $else?: () => Child
+) => Child
 
 export function for$<T>(
   $items: T[]
 ): (
   each$: StaticEach<T>,
-  $else?: () => PrimitiveChild
-) => Block
+  $else?: () => Child
+) => Child
 
 /**
  * Iterate over items and render each item
@@ -71,18 +67,12 @@ export function for$(
   if (isSignal($items)) {
     return (
       each$: AnyEach,
-      else$: () => PrimitiveChild = noop
-    ): Block => new LoopBlock($items as WritableSignal<unknown[]>, each$, else$, track)
+      else$?: () => Child
+    ) => loop($items as WritableSignal<unknown[]>, each$, else$, track)
   }
 
   return (
     each$: StaticEach<unknown>,
-    else$: () => PrimitiveChild = noop
-  ) => {
-    if ($items?.length) {
-      return createFragment($items.map(each$))
-    }
-
-    return childToBlock(else$())
-  }
+    else$?: () => Child
+  ) => ($items?.length ? $items.map(each$) : else$?.())
 }

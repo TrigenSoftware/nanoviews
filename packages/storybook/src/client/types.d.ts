@@ -8,7 +8,7 @@ import type {
   AnyFn
 } from 'kida'
 import type {
-  Block,
+  Child,
   NonEmptyValue,
   EmptyValue
 } from 'nanoviews'
@@ -53,7 +53,7 @@ export type RawProps<T extends AnyProps> = {
         : never
 }
 
-export type ComponentType<Props extends AnyProps = AnyProps> = (props: Props) => Block
+export type ComponentType<Props extends AnyProps = AnyProps> = (props: Props) => Child
 
 export type NanoviewsStoryResult<Props extends AnyProps = AnyProps> = readonly [ComponentType<StoreProps<Props>>, RawProps<Props>]
 
