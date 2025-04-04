@@ -11,17 +11,16 @@ import {
 import type {
   Destroy,
   Child,
-  Children
+  EmptyValue
 } from '../types/index.js'
 import {
   createEffectScopeWithContext,
   effectScopeSwapper
 } from '../effects.js'
+import { isEmpty } from '../utils.js'
 import { createTextNode } from '../elements/text.js'
 import {
   insertChildBeforeAnchor,
-  insertChildrenBeforeAnchor,
-  childFilter,
   remove,
   removeBetween
 } from '../elements/child.js'
@@ -29,9 +28,8 @@ import {
 interface LoopItem {
   k: unknown
   i: WritableSignal<number>
-  f: ChildNode
-  l: ChildNode
-  c: ChildNode[] | undefined
+  f: ChildNode | EmptyValue
+  l: ChildNode | EmptyValue
   n: LoopItem | undefined
   p: LoopItem | undefined
   d: Destroy
@@ -54,7 +52,7 @@ function getAnchor(
   item: LoopItem | undefined,
   fallback: ChildNode
 ) {
-  return item === undefined ? fallback : item.f
+  return item?.f ?? fallback
 }
 
 function link(
@@ -64,13 +62,13 @@ function link(
   insert?: LoopItem | undefined
 ): void {
   if (prev === undefined) {
-    itemsList.f = insert || next
+    itemsList.f = insert ?? next
   } else {
-    prev.n = insert || next
+    prev.n = insert ?? next
   }
 
   if (next !== undefined) {
-    next.p = insert || prev
+    next.p = insert ?? prev
   }
 }
 
@@ -78,50 +76,18 @@ function move(
   item: LoopItem,
   anchor: ChildNode
 ) {
-  const nextStart = item.l.nextSibling!
-  let node = item.f
+  if (!isEmpty(item.f)) {
+    const nextStart = item.l!.nextSibling!
+    let node = item.f
 
-  while (node !== nextStart) {
-    const next = node.nextSibling!
+    while (node !== nextStart) {
+      const next = node.nextSibling!
 
-    anchor.before(node)
+      anchor.before(node)
 
-    node = next
+      node = next
+    }
   }
-}
-
-// test with condition in reconcile
-function createItems(
-  itemsList: LoopItemsList,
-  lookupMap: LookupMap,
-  $items: WritableSignal<unknown[]>,
-  each$: AnyEach,
-  track: UnknownTrack,
-  nextItems: unknown[]
-) {
-  const { length } = nextItems
-  const children = Array(length) as Children
-  let prev: LoopItem | undefined
-
-  for (let i = 0, value: unknown, key: unknown, item: LoopItem | undefined; i < length; i += 1) {
-    value = nextItems[i]
-    key = track(value, i)
-    item = createEachBlock($items, each$, key, i)
-
-    children[i] = item.c
-    item.c = undefined
-
-    link(
-      itemsList,
-      prev,
-      item
-    )
-
-    lookupMap.set(key, item)
-    prev = item
-  }
-
-  return children
 }
 
 // eslint-disable-next-line max-params
@@ -147,10 +113,7 @@ function reconcile(
     item = lookupMap.get(key)
 
     if (item === undefined) {
-      item = createEachBlock($items, each$, key, i)
-
-      insertChildrenBeforeAnchor(item.c!, getAnchor(current, anchor))
-      item.c = undefined
+      item = createEachBlock($items, each$, key, i, getAnchor(current, anchor))
       item.p = prev
       item.n = prev === undefined ? itemsList.f : prev.n
 
@@ -252,7 +215,11 @@ function reconcile(
 
 function destroyLoopItem(itemsList: LoopItemsList, item: LoopItem, lookupMap: LookupMap) {
   item.d()
-  remove(item.f, item.l)
+
+  if (!isEmpty(item.f)) {
+    remove(item.f, item.l!)
+  }
+
   lookupMap.delete(item.k)
   link(itemsList, item.p, item.n)
 }
@@ -261,24 +228,27 @@ function createEachBlock(
   $items: WritableSignal<unknown[]>,
   each$: AnyEach,
   key: unknown,
-  i: number
+  i: number,
+  anchor: ChildNode
 ): LoopItem {
   const $index = signal(i)
-  let children: ChildNode[]
-  const destroy = effectScope(() => children = childFilter(
-    each$(atIndex($items, $index), $index)
-  ))
-
-  return {
+  const item = {
     k: key,
     i: $index,
-    f: children![0],
-    l: children![children!.length - 1],
-    c: children!,
+    f: undefined,
+    l: undefined,
     n: undefined,
     p: undefined,
-    d: destroy
+    d: undefined as Destroy | undefined
   }
+
+  item.d = effectScope(() => insertChildBeforeAnchor(
+    each$(atIndex($items, $index), $index),
+    anchor,
+    item
+  ))
+
+  return item as LoopItem
 }
 
 export function loop(
@@ -290,12 +260,14 @@ export function loop(
   const start = createTextNode()
   const end = createTextNode()
   const effectScope = createEffectScopeWithContext()
+  const fragment = document.createDocumentFragment()
   const blocksMap: LookupMap = new Map()
   const itemsList: LoopItemsList = {
     f: undefined
   }
   let isPlaceholder = false
-  let child: Child
+
+  fragment.append(start, end)
 
   effectScopeSwapper($items, (
     destroyPrev: Destroy | undefined,
@@ -338,12 +310,13 @@ export function loop(
       // [] -> [...n]
       isPlaceholder = false
       runEffects = effectScope(() => {
-        child = createItems(
+        reconcile(
           itemsList,
           blocksMap,
           $items,
           each$,
           track,
+          end,
           items
         )
       }, true)
@@ -351,7 +324,7 @@ export function loop(
       // ([...n] | []) -> []
       isPlaceholder = true
       runEffects = effectScope(
-        () => child = else$?.(),
+        () => insertChildBeforeAnchor(else$?.(), end),
         true
       )
     }
@@ -359,8 +332,6 @@ export function loop(
     if (shouldRender) {
       // swap
       if (destroyPrev !== undefined) {
-        insertChildBeforeAnchor(child, end)
-        child = undefined
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         destroyPrev = runEffects!()
       } else {
@@ -372,9 +343,5 @@ export function loop(
     return destroyPrev!
   })
 
-  return [
-    start,
-    child,
-    end
-  ]
+  return fragment
 }

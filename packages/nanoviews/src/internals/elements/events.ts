@@ -16,13 +16,11 @@ function eventHandler(event: Event) {
 
   const path = event.composedPath()
 
-  for (let i = 0, len = path.length - 4; i < len; i++) {
+  for (let i = 0, len = path.length - 4, handler; i < len; i++) {
     node = path[i]
 
     // @ts-expect-error Get monkey defined property
-    const handler = node[key] as EventListener | undefined
-
-    if (handler !== undefined && !node.disabled) {
+    if ((handler = node[key] as EventListener | undefined) !== undefined && !node.disabled) {
       handler.call(node, event)
 
       if (event.cancelBubble) {

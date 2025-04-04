@@ -47,7 +47,7 @@ export function context<R>(providersOrFn: InjectionProvider[] | (() => R), maybe
   if (isFunction(providersOrFn)) {
     fn = providersOrFn
 
-    if (currentContext) {
+    if (currentContext !== undefined) {
       return fn()
     }
   } else {

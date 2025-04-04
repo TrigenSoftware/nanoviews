@@ -6,7 +6,8 @@ import {
 } from 'kida'
 import {
   type Child,
-  loop
+  loop,
+  fragment
 } from '../internals/index.js'
 
 type AnyEach = (
@@ -74,5 +75,5 @@ export function for$(
   return (
     each$: StaticEach<unknown>,
     else$?: () => Child
-  ) => ($items?.length ? $items.map(each$) : else$?.())
+  ) => ($items?.length ? fragment(...$items.map(each$)) : else$?.())
 }

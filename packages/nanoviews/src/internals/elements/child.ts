@@ -4,8 +4,8 @@ import {
 } from 'kida'
 import type {
   Child,
-  Children,
-  Destroy
+  EmptyValue,
+  MaybeDestroy
 } from '../types/index.js'
 import { isEmpty } from '../utils.js'
 import {
@@ -13,83 +13,63 @@ import {
   createTextNodeFromSignal
 } from './text.js'
 
-function childrenForEach(
-  children: Children,
-  each: (child: ChildNode) => void
-): void {
-  for (let i = 0, len = children.length; i < len; i++) {
-    childForEach(children[i], each)
-  }
-}
-
-function childForEach(
-  child: Child,
-  each: (child: ChildNode) => void
-): void {
-  if (!isEmpty(child)) {
-    if (Array.isArray(child)) {
-      childrenForEach(child, each)
-    } else
-      if (isFunctionNotSignal(child)) {
-        childForEach(child(), each)
-      } else {
-        each(
-          isSignal(child)
-            ? createTextNodeFromSignal(child)
-            : typeof child === 'object'
-              ? child
-              : createTextNode(child)
-        )
-      }
-  }
-}
-
-export function childFilter(child: Child) {
-  const result: ChildNode[] = []
-
-  childForEach(child, result.push.bind(result))
-
-  if (!result.length) {
-    result[0] = createTextNode()
+export function childToNode(child: Child) {
+  if (isEmpty(child)) {
+    return child
   }
 
-  return result
+  if (isFunctionNotSignal(child)) {
+    return childToNode(child())
+  }
+
+  return isSignal(child)
+    ? createTextNodeFromSignal(child)
+    : typeof child === 'object'
+      ? child
+      : createTextNode(child)
 }
 
 export function mountChild(
   target: ParentNode,
   child: Child
-): Destroy {
-  const children = childFilter(child)
-  const [first] = children
-  const last = children[children.length - 1]
+): MaybeDestroy {
+  const node = childToNode(child)
 
-  target.append(...children)
+  if (!isEmpty(node)) {
+    if (node.nodeType === 11) {
+      const start = node.firstChild
+      const end = node.lastChild
 
-  return () => remove(first, last)
-}
+      target.appendChild(node)
 
-// used once, inline?
-export function appendChildren(
-  target: ParentNode | ShadowRoot,
-  children: Children
-): void {
-  childrenForEach(children, target.appendChild.bind(target))
-}
+      return () => remove(start!, end!)
+    }
 
-// used once, inline? or replace with insertChildBeforeAnchor
-export function insertChildrenBeforeAnchor(
-  children: Children,
-  anchor: ChildNode
-): void {
-  childrenForEach(children, anchor.before.bind(anchor))
+    target.appendChild(node)
+
+    return () => (node as ChildNode).remove()
+  }
 }
 
 export function insertChildBeforeAnchor(
   child: Child,
-  anchor: ChildNode
-): void {
-  childForEach(child, anchor.before.bind(anchor))
+  anchor: ChildNode,
+  rangeContainer?: { f: ChildNode | EmptyValue, l: ChildNode | EmptyValue }
+) {
+  const node = childToNode(child)
+
+  if (!isEmpty(node)) {
+    anchor.before(node)
+
+    if (rangeContainer !== undefined) {
+      if (node.nodeType === 11) {
+        rangeContainer.f = node.firstChild!
+        rangeContainer.l = node.lastChild!
+      } else {
+        rangeContainer.f = rangeContainer.l = node as ChildNode
+      }
+    }
+  }
 }
 
 export function remove(start: ChildNode, end: Node): void {

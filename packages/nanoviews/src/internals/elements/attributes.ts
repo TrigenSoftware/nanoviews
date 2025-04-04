@@ -73,14 +73,17 @@ function setEventListener(element: Element, name: string, value: TargetEventHand
 export function setAttributes<A extends object>(element: Element, attributes: A) {
   const keys = Object.keys(attributes)
   const len = keys.length
-  let tEffectAttr: EffectAttributeCallback | undefined
 
   if (len) {
-    for (let i = 0, key: string, value: AttributeValue; i < len; i++) {
+    for (
+      let i = 0, key: string, value: AttributeValue, tEffectAttr: EffectAttributeCallback | undefined;
+      i < len;
+      i++
+    ) {
       key = keys[i]
       value = (attributes as Attributes)[key]
 
-      if (tEffectAttr = getEffectAttribute(key)) {
+      if ((tEffectAttr = getEffectAttribute(key)) !== undefined) {
         tEffectAttr(element, value, attributes as Attributes)
       } else if (isFunctionNotSignal(value)) {
         setEventListener(element, key, value)

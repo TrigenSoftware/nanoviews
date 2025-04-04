@@ -1,4 +1,3 @@
-import type { Slot } from '../logic/children.js'
 import type {
   ValueOrSignal,
   Primitive,
@@ -7,13 +6,21 @@ import type {
 
 export type LazyChild = () => Child
 
-export type Child = ChildNode | LazyChild | ValueOrSignal<Primitive> | Child[]
+export type Child = ChildNode | DocumentFragment | LazyChild | ValueOrSignal<Primitive>
 
 export type Children = Child[]
 
 export type ChildrenWithSlots<S extends AnySlot, C extends unknown[] = Children> = C extends (infer D)[]
   ? (D | S)[]
   : never
+
+export interface Slot<
+  C,
+  F extends (...args: any[]) => Slot<C, F>
+> {
+  f: F
+  c: C
+}
 
 export interface SlotDef<C> {
   // eslint-disable-next-line @typescript-eslint/prefer-function-type

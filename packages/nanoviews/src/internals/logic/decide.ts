@@ -24,7 +24,9 @@ export function reactiveDecide<T>(
   const start = createTextNode()
   const end = createTextNode()
   const effectScope = createEffectScopeWithContext()
-  let child: Child
+  const fragment = document.createDocumentFragment()
+
+  fragment.append(start, end)
 
   effectScopeSwapper($condition, (
     destroyPrev: Destroy | undefined,
@@ -36,14 +38,12 @@ export function reactiveDecide<T>(
     }
 
     const runEffects = effectScope(
-      () => child = decider(condition),
+      () => insertChildBeforeAnchor(decider(condition), end),
       true
     )
 
     // Rerender on condition change in effect
     if (destroyPrev !== undefined) {
-      insertChildBeforeAnchor(child, end)
-      child = undefined
       // Should return effect stop function
       return runEffects()
     }
@@ -53,11 +53,7 @@ export function reactiveDecide<T>(
     return runEffects
   })
 
-  return [
-    start,
-    child,
-    end
-  ]
+  return fragment
 }
 
 /**

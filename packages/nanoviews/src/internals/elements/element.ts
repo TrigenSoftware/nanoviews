@@ -5,9 +5,11 @@ import type {
   Children,
   VoidElementFactory,
   LazyElement,
-  ElementFactory
+  ElementFactory,
+  EmptyValue
 } from '../types/index.js'
-import { appendChildren } from './child.js'
+import { isEmpty } from '../utils.js'
+import { childToNode } from './child.js'
 import { setAttributes } from './attributes.js'
 
 /**
@@ -41,9 +43,19 @@ export function createVoidElementFactory<Tag extends ElementName>(
   return createVoidElement.bind(null, tag as ElementName) as VoidElementFactory<Tag>
 }
 
-export function elementChildren(this: Element | ShadowRoot, result: Element, ...children: Children) {
-  if (children.length) {
-    appendChildren(this, children)
+export function elementChildren(
+  this: Element | ShadowRoot | DocumentFragment,
+  result: Element | DocumentFragment,
+  ...children: Children
+) {
+  const len = children.length
+
+  if (len) {
+    for (let i = 0, node: ChildNode | DocumentFragment | EmptyValue; i < len; i++) {
+      if (!isEmpty(node = childToNode(children[i]))) {
+        this.appendChild(node)
+      }
+    }
   }
 
   return result

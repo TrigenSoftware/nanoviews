@@ -1,4 +1,5 @@
 export * from './elements.js'
+export * from './fragment.js'
 export * from './innerHtml.js'
 export * from './shadowDom.js'
 export * from './effectAttribute.js'

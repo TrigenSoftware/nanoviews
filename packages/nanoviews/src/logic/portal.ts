@@ -12,5 +12,7 @@ import {
 export function portal$(target: () => ParentNode, child: Child) {
   const unmount = mountChild(target(), child)
 
-  effect(() => unmount)
+  if (unmount !== undefined) {
+    effect(() => unmount)
+  }
 }

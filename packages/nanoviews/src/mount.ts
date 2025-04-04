@@ -1,7 +1,7 @@
 import { effectScope } from 'kida'
 import {
   type Child,
-  type Destroy,
+  type MaybeDestroy,
   mountChild,
   defineProtoProp
 } from './internals/index.js'
@@ -17,12 +17,12 @@ export function mount(app: () => Child, target: ParentNode) {
   // @ts-expect-error Mark as mount point
   target.__mp = true
 
-  let unmount: Destroy
+  let unmount: MaybeDestroy
   const start = effectScope(() => unmount = mountChild(target, app()), true)
   const destroy = start()
 
   return () => {
     destroy()
-    unmount()
+    unmount?.()
   }
 }
