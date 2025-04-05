@@ -1,20 +1,27 @@
-- bundle types
-- toReadableSignal
-- listener & fn -> callback?
-- check arrow fns -> bind
-- typed effectattrs <T>
-- later: resort effects
-- restore object arg for record?
-- additional arg for record in for$? as$
+- stop and start tracking in loop and decide to prevent child subscriptions
+
+- toReadable$
+- toWritable$
 - atIndex$ atKey$ ?
-- static index for untracked loop
-- predefined trackers
-- serialize - start all marked stores?
+- atIndex$ for static array?
+- logic -> operators
+- $ - reactivity, _ - operators
+- listener & fn -> callback?
+- restore object arg for record?
 - onMountEffectScope?
-- when$
-- child static parent
-- $ - signals, $$ - blocks?
-- blocks to nodes?)
+- predefined trackers
+
+- solid weather
+
+- typed effectattrs <T>
+- additional arg for record in for$? as$
+
+- serialize - start all marked stores?
+- bundle types
+- static index for untracked loop
+- controls addEventListener to events system
+- lazy scope to start and stop methods?
+- later: resort effects
 
 - !== undefined is faster
 - prop: undefined is faster
@@ -24,6 +31,8 @@
 - getter setter are slow (not in class)
 - Reflect.get is slow
 - arr.length = 0 is slower than arr = []
+
+- store injection effectScope to stop effects after context stop
 
 - html + head components
 - universal dom

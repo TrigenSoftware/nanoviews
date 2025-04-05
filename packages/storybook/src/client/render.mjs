@@ -51,31 +51,28 @@ function updateProps(canvasElement, props) {
   return newReactiveProps
 }
 
-const blocksByDomElement = new Map()
+const unmountsByDomElement = new Map()
 
 export function renderToCanvas({ storyFn, showMain, forceRemount }, canvasElement) {
   const [component, props] = storyFn()
   const reactiveProps = updateProps(canvasElement, props)
-  let [block, unmount] = blocksByDomElement.get(canvasElement) || []
+  let unmount = unmountsByDomElement.get(canvasElement) || []
 
-  if (forceRemount && block) {
+  if (forceRemount && unmount) {
     unmount()
-    block = undefined
+    unmount = undefined
   }
 
-  if (!block) {
-    unmount = mount(() => {
-      block = component(reactiveProps)
-      return block
-    }, canvasElement)
-    blocksByDomElement.set(canvasElement, [block, unmount])
+  if (!unmount) {
+    unmount = mount(() => component(reactiveProps), canvasElement)
+    unmountsByDomElement.set(canvasElement, unmount)
   }
 
   showMain()
 
   return () => {
     unmount?.()
-    blocksByDomElement.delete(canvasElement)
+    unmountsByDomElement.delete(canvasElement)
     storesByDomElement.delete(canvasElement)
   }
 }

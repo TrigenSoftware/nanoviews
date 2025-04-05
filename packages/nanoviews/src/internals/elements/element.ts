@@ -2,21 +2,21 @@ import type {
   ElementName,
   PickElementType,
   Attributes,
-  Children
+  Children,
+  VoidElementFactory,
+  LazyElement,
+  ElementFactory,
+  EmptyValue
 } from '../types/index.js'
-import {
-  $$node,
-  $$mount
-} from '../symbols.js'
-import { NodeBlock } from '../block.js'
-import { forEachChild } from './child.js'
+import { isEmpty } from '../utils.js'
+import { childToNode } from './child.js'
 import { setAttributes } from './attributes.js'
 
 /**
  * Create [void HTML element](https://developer.mozilla.org/en-US/docs/Glossary/Void_element)
  * @param tag - Tag name
  * @param attributes - Element attributes
- * @returns Void element block
+ * @returns Void element
  */
 export function createVoidElement<Tag extends ElementName>(
   tag: Tag,
@@ -25,53 +25,69 @@ export function createVoidElement<Tag extends ElementName>(
   // @todo: remove `as` when full SVG support will be added
   const element = document.createElement(tag) as PickElementType<Tag>
 
-  if (attributes) {
+  if (attributes !== undefined) {
     setAttributes(element, attributes)
   }
 
-  return new NodeBlock(element)
+  return element
 }
 
 /**
  * Create [void HTML element](https://developer.mozilla.org/en-US/docs/Glossary/Void_element) factory
  * @param tag - Tag name
- * @returns Function to create given void element block
+ * @returns Function to create given void element
  */
 export function createVoidElementFactory<Tag extends ElementName>(
   tag: Tag
 ) {
-  return (attributes?: Attributes<Tag>) => createVoidElement(tag, attributes)
+  return createVoidElement.bind(null, tag as ElementName) as VoidElementFactory<Tag>
+}
+
+export function elementChildren(
+  this: Element | ShadowRoot | DocumentFragment,
+  result: Element | DocumentFragment,
+  ...children: Children
+) {
+  const len = children.length
+
+  if (len) {
+    for (let i = 0, node: ChildNode | DocumentFragment | EmptyValue; i < len; i++) {
+      if (!isEmpty(node = childToNode(children[i]))) {
+        this.appendChild(node)
+      }
+    }
+  }
+
+  return result
 }
 
 /**
  * Create HTML element
  * @param tag - Tag name
  * @param attributes - Element attributes
- * @returns Callable block to pass children
+ * @returns Function to pass children
  */
 export function createElement<Tag extends ElementName>(
   tag: Tag,
   attributes?: Attributes<Tag>
 ) {
-  const block = createVoidElement(tag, attributes)
-  const node = block[$$node]
+  const element = createVoidElement(tag, attributes)
 
-  return (...children: Children) => {
-    if (children.length) {
-      forEachChild(children, block => block[$$mount](node))
-    }
-
-    return block
-  }
+  return elementChildren.bind(element, element) as LazyElement<Tag>
 }
 
 /**
  * Create HTML element factory
  * @param tag - Tag name
- * @returns Function to create given element block
+ * @returns Function to create given element
  */
 export function createElementFactory<Tag extends ElementName>(
   tag: Tag
 ) {
-  return (attributes?: Attributes<Tag>) => createElement(tag, attributes)
+  return createElement.bind(null, tag as ElementName) as ElementFactory<Tag>
+}
+
+export function defineProtoProp(name: string, value?: unknown) {
+  // @ts-expect-error Define property on prototype
+  Element.prototype[name] = value
 }

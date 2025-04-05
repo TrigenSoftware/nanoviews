@@ -1,11 +1,11 @@
 import type { MaybeSignalValue } from 'kida'
-import type {
-  ValueOrSignal,
-  PrimitiveChild
+import {
+  type ValueOrSignal,
+  type Child,
+  decide
 } from '../internals/index.js'
-import { decide } from '../internals/index.js'
 
-export type SwitchCase<T> = readonly [T | typeof default$, () => PrimitiveChild]
+export type SwitchCase<T> = readonly [T | typeof default$, () => Child]
 
 /**
  * Decide which child to render based on switch cases
@@ -21,7 +21,7 @@ export function switch$<T>($value: ValueOrSignal<T>) {
    * @returns Block that renders decided child
    */
   return (...cases: SwitchCase<Value>[]) => {
-    const casesMap = new Map<unknown, () => PrimitiveChild>(cases)
+    const casesMap = new Map<unknown, () => Child>(cases)
 
     return decide($value, value => (
       casesMap.has(value)
@@ -31,10 +31,10 @@ export function switch$<T>($value: ValueOrSignal<T>) {
   }
 }
 
-export function case$<T>(value: T, then$: () => PrimitiveChild): SwitchCase<T> {
+export function case$<T>(value: T, then$: () => Child): SwitchCase<T> {
   return [value, then$]
 }
 
-export function default$(then$: () => PrimitiveChild): SwitchCase<typeof default$> {
+export function default$(then$: () => Child): SwitchCase<typeof default$> {
   return [default$, then$]
 }

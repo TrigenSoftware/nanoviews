@@ -1,26 +1,28 @@
 import { effectScope } from 'kida'
 import {
-  type Block,
-  $$mount,
-  $$destroy
+  type Child,
+  type MaybeDestroy,
+  mountChild,
+  defineProtoProp
 } from './internals/index.js'
 
 /**
  * Mount an app into a node
- * @param app - App function to create app block
- * @param node - The node to mount into
- * @returns A function to unmount the block
+ * @param app - App function to mount app
+ * @param target - The node to mount into
+ * @returns A function to unmount the app
  */
-export function mount(app: () => Block, node: Node) {
-  let block: Block
-  const start = effectScope(() => block = app(), true)
+export function mount(app: () => Child, target: ParentNode) {
+  defineProtoProp('__mp', false)
+  // @ts-expect-error Mark as mount point
+  target.__mp = true
 
-  block![$$mount](node)
-
+  let unmount: MaybeDestroy
+  const start = effectScope(() => unmount = mountChild(target, app()), true)
   const destroy = start()
 
   return () => {
     destroy()
-    block[$$destroy]()
+    unmount?.()
   }
 }

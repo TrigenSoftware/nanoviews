@@ -1,24 +1,22 @@
 
 import {
-  type Block,
   type ValueOrSignal,
-  $$node,
   subscribe
 } from '../internals/index.js'
 
 /**
- * Dangerously set inner HTML to element block
- * @param block - Target element block
+ * Dangerously set inner HTML to element
+ * @param factory - Element factory
  * @param $html - HTML string or store with it
- * @returns Target element block
+ * @returns Target element
  */
 export function dangerouslySetInnerHtml<T extends Element>(
-  block: () => Block<T>,
+  factory: () => T,
   $html: ValueOrSignal<string>
 ) {
-  const sealedBlock = block()
+  const element = factory()
 
-  subscribe($html, value => sealedBlock[$$node]!.innerHTML = value)
+  subscribe($html, value => element.innerHTML = value)
 
-  return sealedBlock
+  return element
 }
