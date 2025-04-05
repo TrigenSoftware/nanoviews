@@ -8,7 +8,7 @@ import {
 
 /**
  * Mount an app into a node
- * @param app - App function to create app
+ * @param app - App function to mount app
  * @param target - The node to mount into
  * @returns A function to unmount the app
  */
