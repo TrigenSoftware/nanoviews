@@ -59,8 +59,6 @@ export function insertChildBeforeAnchor(
   const node = childToNode(child)
 
   if (!isEmpty(node)) {
-    anchor.before(node)
-
     if (rangeContainer !== undefined) {
       if (node.nodeType === 11) {
         rangeContainer.f = node.firstChild!
@@ -69,10 +67,17 @@ export function insertChildBeforeAnchor(
         rangeContainer.f = rangeContainer.l = node as ChildNode
       }
     }
+
+    anchor.before(node)
   }
 }
 
 export function remove(start: ChildNode, end: Node): void {
+  if (start === end) {
+    start.remove()
+    return
+  }
+
   const endNextSibling = end.nextSibling
 
   while (start !== endNextSibling) {

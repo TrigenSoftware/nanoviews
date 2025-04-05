@@ -9,6 +9,6 @@
     "name": "Average usage",
     "path": "dist/index.js",
     "import": "{ fragment, div, form, input, button, label, className, if$, for$, value$, children$, effect }",
-    "limit": "3.82 kB"
+    "limit": "3.83 kB"
   }
 ]
