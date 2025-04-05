@@ -1,18 +1,20 @@
 import {
-  type Block,
   type Children,
-  ShadowBlock
+  elementChildren
 } from '../internals/index.js'
 
 /**
- * Attach shadow to a block
- * @param block - Target block
+ * Attach shadow to element
+ * @param factory - Element factory
  * @param options - Shadow root options
- * @returns Block
+ * @returns Factory that accepts children
  */
 export function shadow<T extends Element>(
-  block: (child: Block) => Block<T>,
+  factory: () => T,
   options: ShadowRootInit
 ) {
-  return (...children: Children) => block(new ShadowBlock(children, options))
+  const element = factory()
+  const shadow = element.attachShadow(options)
+
+  return elementChildren.bind(shadow, element) as (...children: Children) => T
 }

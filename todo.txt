@@ -12,9 +12,9 @@
 - serialize - start all marked stores?
 - onMountEffectScope?
 - when$
-- child static parent
-- $ - signals, $$ - blocks?
-- blocks to nodes?)
+- agera child signal static parent
+- $ - signals, _ - operators?
+- rm trackers, add key attr
 
 - !== undefined is faster
 - prop: undefined is faster
@@ -24,6 +24,8 @@
 - getter setter are slow (not in class)
 - Reflect.get is slow
 - arr.length = 0 is slower than arr = []
+
+- store injection effectScope to stop effects after context stop
 
 - html + head components
 - universal dom

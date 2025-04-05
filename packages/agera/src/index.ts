@@ -1,4 +1,5 @@
 export type {
+  AnyFn,
   Destroy,
   MaybeDestroy,
   EffectCallback,

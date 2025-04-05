@@ -1,8 +1,8 @@
+export type { AnyFn } from 'agera'
+
 export type AnyObject = Record<PropertyKey, any>
 
 export type AnyCollection = Record<number | string, any>
-
-export type AnyFn = (...args: any) => any
 
 export type EmptyValue = undefined | null | void
 

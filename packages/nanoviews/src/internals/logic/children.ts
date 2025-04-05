@@ -1,6 +1,8 @@
 import type {
   AnyFn,
+  Child,
   Children,
+  Slot,
   ChildrenWithSlots,
   AnySlotDef,
   MapSlotDefsToContents,
@@ -15,26 +17,10 @@ import type {
  * @returns Function that accepts children
  */
 export function collectChildren<
-  T extends Node,
+  T extends Child,
   C extends unknown[] = Children
 >(render: Renderer<T, C>) {
-  return (...children: C) => render(children.length ? children : undefined)
-}
-
-export class Slot<
-  C,
-  F extends (...args: any[]) => Slot<C, F>
-> {
-  readonly f: F
-  readonly c: C
-
-  constructor(
-    factory: F,
-    content: C
-  ) {
-    this.f = factory
-    this.c = content
-  }
+  return (...children: C) => render(children)
 }
 
 /**
@@ -43,7 +29,7 @@ export class Slot<
  * @returns Is a slot
  */
 export function isSlot(value: unknown): value is Slot<unknown, AnyFn> {
-  return value instanceof Slot
+  return typeof value === 'object' && value !== null && 'c' in (value as Slot<unknown, AnyFn>)
 }
 
 /**
@@ -56,7 +42,10 @@ export function createSlot<
   C,
   F extends (...args: any[]) => Slot<C, F>
 >(factory: F, content: C) {
-  return new Slot(factory, content)
+  return {
+    f: factory,
+    c: content
+  }
 }
 
 /**
@@ -70,8 +59,8 @@ export function getSlots<
   C extends unknown[] = Children
 >(
   slotDefs: [...D],
-  children: ChildrenWithSlots<MapSlotDefsToSlot<D>, C> | undefined
-): [...MapSlotDefsToContents<D>, C | undefined] {
+  children: ChildrenWithSlots<MapSlotDefsToSlot<D>, C>
+): [...MapSlotDefsToContents<D>, C] {
   const slotDefsLen = slotDefs.length
   const slots = Array(slotDefsLen + 1) as unknown[]
   const restChildren: unknown[] = []
@@ -84,18 +73,11 @@ export function getSlots<
       child = children[i]
 
       if (isSlot(child)) {
-        let found = false
-
         for (let j = 0; j < slotDefsLen; j++) {
           if (child.f === slotDefs[j]) {
             slots[j] = child.c
-            found = true
             break
           }
-        }
-
-        if (!found && import.meta.env.DEV) {
-          throw new Error('Unexpected slot')
         }
       } else {
         restChildren.push(child)
@@ -103,7 +85,7 @@ export function getSlots<
     }
   }
 
-  return slots as [...MapSlotDefsToContents<D>, C | undefined]
+  return slots as [...MapSlotDefsToContents<D>, C]
 }
 
 /**
@@ -113,7 +95,7 @@ export function getSlots<
  * @returns Function that accepts children
  */
 export function collectSlots<
-  T extends Node,
+  T extends Child,
   D extends AnySlotDef[]
 >(
   slotDefs: [...D],

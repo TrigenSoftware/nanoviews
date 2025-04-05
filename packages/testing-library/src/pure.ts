@@ -5,7 +5,7 @@ import {
   prettyDOM
 } from '@testing-library/dom'
 import {
-  type Block,
+  type Child,
   type Destroy,
   mount
 } from 'nanoviews'
@@ -13,14 +13,13 @@ import {
 export * from '@testing-library/dom'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type BlockCreator = readonly [(...args: any[]) => Block, ...unknown[]]
+type BlockCreator = readonly [(...args: any[]) => Child, ...unknown[]]
 
-type App = () => Block
+type App = () => Child
 
 interface ContainerCacheEntry {
   container: HTMLElement
   target: HTMLElement
-  block: Block
   unmount: Destroy
 }
 
@@ -31,7 +30,7 @@ export interface RenderOptions<Q extends Queries = typeof defaultQueries> {
 }
 
 const containerCache = new Set<ContainerCacheEntry>()
-const blockCache = new Set<Block>()
+const unmountCache = new Set<Destroy>()
 
 /**
  * Render a Component Block into the Document.
@@ -43,16 +42,15 @@ export function render<Q extends Queries = typeof defaultQueries>(blockCreator: 
   const { queries } = renderOptions
   const container = renderOptions.container || document.body
   const target = renderOptions.target || container.appendChild(document.createElement('div'))
-  let block: Block
   let unmount: Destroy
 
   try {
     if (Array.isArray(blockCreator)) {
       const [creator, ...args] = blockCreator as BlockCreator
 
-      unmount = mount(() => block = creator(...args), target)
+      unmount = mount(() => creator(...args), target)
     } else if (typeof blockCreator === 'function') {
-      unmount = mount(() => block = blockCreator(), target)
+      unmount = mount(() => blockCreator(), target)
     } else {
       throw new Error('Invalid block creator. Expected a function.')
     }
@@ -67,21 +65,19 @@ export function render<Q extends Queries = typeof defaultQueries>(blockCreator: 
   containerCache.add({
     container,
     target,
-    block: block!,
     unmount
   })
-  blockCache.add(block!)
+  unmountCache.add(unmount)
 
   return {
     container,
-    block: block!,
     debug(el: HTMLElement = container) {
       console.log(prettyDOM(el))
     },
     destroy() {
-      if (blockCache.has(block)) {
+      if (unmountCache.has(unmount)) {
         unmount()
-        blockCache.delete(block)
+        unmountCache.delete(unmount)
       }
     },
     ...getQueriesForElement<Q>(container, queries)
@@ -89,14 +85,14 @@ export function render<Q extends Queries = typeof defaultQueries>(blockCreator: 
 }
 
 function cleanupAtContainer(cached: ContainerCacheEntry) {
-  const { target, block, unmount } = cached
+  const { target, unmount } = cached
 
-  if (blockCache.has(block)) {
+  if (unmountCache.has(unmount)) {
     // Block can be destroyed in the test
     try {
       unmount()
     } finally {
-      blockCache.delete(block)
+      unmountCache.delete(unmount)
     }
   }
 

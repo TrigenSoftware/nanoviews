@@ -12,18 +12,24 @@ import type {
   EffectScopeSwapperCallback
 } from './types/index.js'
 
+export function subscribeSignal<T>(
+  $signal: ReadableSignal<T>,
+  callback: (value: T) => void
+) {
+  effect(() => {
+    callback($signal())
+  }, true)
+}
+
 export function subscribe<T>(
   valueOr$signal: ValueOrSignal<T>,
   callback: (value: T) => void
 ) {
-  if (!isSignal(valueOr$signal)) {
+  if (isSignal(valueOr$signal)) {
+    subscribeSignal(valueOr$signal, callback)
+  } else {
     callback(valueOr$signal)
-    return
   }
-
-  effect(() => {
-    callback(valueOr$signal())
-  }, true)
 }
 
 export function createEffectScopeWithContext(context = getContext()) {

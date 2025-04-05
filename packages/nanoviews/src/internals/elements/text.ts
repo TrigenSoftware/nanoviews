@@ -1,25 +1,21 @@
-import type {
-  ValueOrSignal,
-  Primitive
-} from '../types/index.js'
-import { subscribe } from '../effects.js'
+import type { ReadableSignal } from 'kida'
+import type { Primitive } from '../types/index.js'
+import { subscribeSignal } from '../effects.js'
 import { isEmpty } from '../utils.js'
-import { NodeBlock } from '../block.js'
 
-function getText(value: Primitive) {
-  return isEmpty(value) ? '' : `${value}`
+export function createTextNode(value: unknown = '') {
+  return document.createTextNode(value as string)
 }
 
 /**
- * Create a reactive text block
+ * Create a reactive text node
  * @param $value - Reactive or static value
- * @returns Text block
+ * @returns Text node
  */
-export function createText<T extends Primitive>($value: ValueOrSignal<T>) {
-  const node = document.createTextNode('')
-  const block = new NodeBlock(node)
+export function createTextNodeFromSignal<T extends Primitive>($value: ReadableSignal<T>) {
+  const node = createTextNode()
 
-  subscribe($value, value => node.data = getText(value))
+  subscribeSignal($value, value => node.data = isEmpty(value) ? '' : value as string)
 
-  return block
+  return node
 }

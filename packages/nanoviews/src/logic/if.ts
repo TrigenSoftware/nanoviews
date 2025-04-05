@@ -5,8 +5,7 @@ import {
 import {
   type TruthyValueOrSignal,
   type FalsyValueOrSignal,
-  type PrimitiveChild,
-  noop,
+  type Child,
   decide
 } from '../internals/index.js'
 
@@ -23,14 +22,14 @@ export function if$<T>($value: T) {
    * @returns Block that renders decided child
    */
   return (
-    then$: (value: TruthyValueOrSignal<T>) => PrimitiveChild,
-    else$: (value: FalsyValueOrSignal<T>) => PrimitiveChild = noop
+    then$: (value: TruthyValueOrSignal<T>) => Child,
+    else$?: (value: FalsyValueOrSignal<T>) => Child
   ) => decide(
     isSignal($value) ? boolean$($value) : $value as boolean,
     confition => (
       confition
         ? then$($value as TruthyValueOrSignal<T>)
-        : else$($value as FalsyValueOrSignal<T>)
+        : else$?.($value as FalsyValueOrSignal<T>)
     )
   )
 }

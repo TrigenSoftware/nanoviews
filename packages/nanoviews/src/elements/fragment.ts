@@ -1,1 +1,1 @@
-export { createFragment as fragment } from '../internals/index.js'
+export { fragment } from '../internals/elements/fragment.js'

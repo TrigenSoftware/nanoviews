@@ -21,7 +21,7 @@ export const NoSlot: Story = {
     () => {
       const [testChild, restChildren] = getSlots([TestSlot], ['Hello!'])
 
-      return createElement('div')('Children: ', restChildren, testChild)
+      return createElement('div')('Children: ', ...restChildren, testChild)
     }
   )
 }
@@ -31,7 +31,7 @@ export const Slot: Story = {
     () => {
       const [testChild, restChildren] = getSlots([TestSlot], ['Hello! ', TestSlot('World!')])
 
-      return createElement('div')('Children: ', restChildren, testChild)
+      return createElement('div')('Children: ', ...restChildren, testChild)
     }
   )
 }
@@ -57,7 +57,7 @@ export const Slots: Story = {
         PreSlot('Hello! ')
       ])
 
-      return createElement('div')(preChild, restChildren, testChild, postChild)
+      return createElement('div')(preChild, ...restChildren, testChild, postChild)
     }
   )
 }

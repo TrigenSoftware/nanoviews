@@ -1,80 +1,93 @@
-import { isSignal } from 'kida'
+import {
+  isSignal,
+  isFunctionNotSignal
+} from 'kida'
 import type {
-  PrimitiveChild,
-  Children
+  Child,
+  EmptyValue,
+  MaybeDestroy
 } from '../types/index.js'
+import { isEmpty } from '../utils.js'
 import {
-  $$first,
-  $$prev,
-  $$next
-} from '../symbols.js'
-import {
-  isFunction,
-  isEmpty
-} from '../utils.js'
-import {
-  type Block,
-  isBlock
-} from '../block.js'
-import { createText } from './text.js'
+  createTextNode,
+  createTextNodeFromSignal
+} from './text.js'
 
-/**
- * Convert child to block
- * @param child - Child
- * @returns Block
- */
-export function childToBlock(child: PrimitiveChild) {
-  return (
-    isSignal(child)
-      ? createText(child)
-      : isFunction(child)
-        ? child()
-        : isBlock(child)
-          ? child
-          : createText(child)
-  )
+export function childToNode(child: Child) {
+  if (isEmpty(child)) {
+    return child
+  }
+
+  if (isFunctionNotSignal(child)) {
+    return childToNode(child())
+  }
+
+  return isSignal(child)
+    ? createTextNodeFromSignal(child)
+    : typeof child === 'object'
+      ? child
+      : createTextNode(child)
 }
 
-export function forEachChild(
-  children: Children,
-  callback: (block: Block) => void
-): void {
-  for (let i = 0, len = children.length, child: Children[number]; i < len; i++) {
-    child = children[i]
+export function mountChild(
+  target: ParentNode,
+  child: Child
+): MaybeDestroy {
+  const node = childToNode(child)
 
-    if (Array.isArray(child)) {
-      forEachChild(child, callback)
-    } else if (!isEmpty(child)) {
-      callback(childToBlock(child))
+  if (!isEmpty(node)) {
+    if (node.nodeType === 11) {
+      const start = node.firstChild
+      const end = node.lastChild
+
+      target.appendChild(node)
+
+      return () => remove(start!, end!)
     }
+
+    target.appendChild(node)
+
+    return () => (node as ChildNode).remove()
   }
 }
 
-export function linkChild(
-  parent: Block,
-  prev: Block | undefined,
-  next: Block | undefined,
-  insert?: Block | undefined
-): void {
-  if (prev === undefined) {
-    parent[$$first] = insert || next
-  } else {
-    prev[$$next] = insert || next
-  }
+export function insertChildBeforeAnchor(
+  child: Child,
+  anchor: ChildNode,
+  rangeContainer?: { f: ChildNode | EmptyValue, l: ChildNode | EmptyValue }
+) {
+  const node = childToNode(child)
 
-  if (next !== undefined) {
-    next[$$prev] = insert || prev
+  if (!isEmpty(node)) {
+    if (rangeContainer !== undefined) {
+      if (node.nodeType === 11) {
+        rangeContainer.f = node.firstChild!
+        rangeContainer.l = node.lastChild!
+      } else {
+        rangeContainer.f = rangeContainer.l = node as ChildNode
+      }
+    }
+
+    anchor.before(node)
   }
 }
 
-export function linkChildren(
-  parent: Block,
-  children: Children
-): void {
-  let prevBlock: Block | undefined
+export function remove(start: ChildNode, end: Node): void {
+  if (start === end) {
+    start.remove()
+    return
+  }
 
-  forEachChild(children, (block) => {
-    linkChild(parent, prevBlock, block)
-    prevBlock = block
-  })
+  const endNextSibling = end.nextSibling
+
+  while (start !== endNextSibling) {
+    const next = start.nextSibling!
+
+    start.remove()
+    start = next
+  }
+}
+
+export function removeBetween(start: Node, end: Node): void {
+  remove(start.nextSibling!, end.previousSibling!)
 }
