@@ -56,7 +56,7 @@ console.log($doubleCount()) // 4
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#basics">API</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#differences-from-alien-signals">Differences from alien-signals</a>
+<a href="#why">Why?</a>
 <br />
 <hr />
 
@@ -275,7 +275,7 @@ import { isSignal, signal } from 'agera'
 isSignal(signal(1)) // true
 ```
 
-## Differences from alien-signals
+## Why?
 
 Key differences from [alien-signals](https://github.com/stackblitz/alien-signals):
 
