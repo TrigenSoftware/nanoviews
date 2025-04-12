@@ -1,0 +1,17 @@
+{
+  "extends": [
+    "@trigen/eslint-config/typescript"
+  ],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parserOptions": {
+    "tsconfigRootDir": "./examples/weather-solid",
+    "project": ["./tsconfig.json"]
+  },
+  "rules": {
+    "import/no-default-export": "off",
+    "import/no-anonymous-default-export": "off"
+  }
+}
