@@ -29,7 +29,7 @@ export function provide<T>(token: InjectionFactory<T>, value: T): InjectionProvi
  * @param fn - The function to run.
  * @returns The return value of the function.
  */
-export function context<R>(fn: () => R): R
+export function context$<R>(fn: () => R): R
 
 /**
  * Run a function within a new injection context with the given values.
@@ -37,9 +37,9 @@ export function context<R>(fn: () => R): R
  * @param fn - The function to run.
  * @returns The return value of the function.
  */
-export function context<R>(providers: InjectionProvider[], fn: () => R): R
+export function context$<R>(providers: InjectionProvider[], fn: () => R): R
 
-export function context<R>(providersOrFn: InjectionProvider[] | (() => R), maybeFn?: () => R) {
+export function context$<R>(providersOrFn: InjectionProvider[] | (() => R), maybeFn?: () => R) {
   const currentContext = getContext()
   let providers: InjectionProvider[] | undefined
   let fn: () => R
@@ -63,6 +63,6 @@ export function context<R>(providersOrFn: InjectionProvider[] | (() => R), maybe
  * @param fn - The function to run.
  * @returns The return value of the function.
  */
-export function isolate<R>(fn: () => R): R {
+export function isolate$<R>(fn: () => R): R {
   return run(undefined, fn)
 }

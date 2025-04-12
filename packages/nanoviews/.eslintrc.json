@@ -21,6 +21,8 @@
     "symbol-description": "off",
     "no-cond-assign": "off",
     "no-return-assign": "off",
-    "no-multi-assign": "off"
+    "no-multi-assign": "off",
+    "@typescript-eslint/prefer-string-starts-ends-with": "off",
+    "no-param-reassign": "off"
   }
 }

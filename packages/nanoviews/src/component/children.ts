@@ -9,14 +9,14 @@ import type {
   MapSlotDefsToSlot,
   Renderer,
   RendererWithSlots
-} from '../types/index.js'
+} from '../internals/types/index.js'
 
 /**
  * Collect children
  * @param render - Function to render block with given children
  * @returns Function that accepts children
  */
-export function collectChildren<
+export function children$<
   T extends Child,
   C extends unknown[] = Children
 >(render: Renderer<T, C>) {
@@ -38,8 +38,9 @@ export function isSlot(value: unknown): value is Slot<unknown, AnyFn> {
  * @param content - Slot content
  * @returns Slot
  */
-export function createSlot<
+export function slot$<
   C,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   F extends (...args: any[]) => Slot<C, F>
 >(factory: F, content: C) {
   return {
@@ -94,7 +95,7 @@ export function getSlots<
  * @param render - Function to render block with given slots and children
  * @returns Function that accepts children
  */
-export function collectSlots<
+export function slots$<
   T extends Child,
   D extends AnySlotDef[]
 >(

@@ -3,12 +3,12 @@ import { nanoStory } from '@nanoviews/storybook'
 import { createElement } from '../elements/index.js'
 import {
   provide,
-  context,
+  context$,
   inject
 } from './context.js'
 
 const meta: Meta = {
-  title: 'Internals/Logic/Context'
+  title: 'Component/Context'
 }
 
 export default meta
@@ -20,13 +20,13 @@ const UserContext = () => 'Guest'
 
 export const DefaultValue: Story = {
   render: nanoStory(
-    () => context(() => createElement('div')('Default theme: ', inject(ThemeContext)))
+    () => context$(() => createElement('div')('Default theme: ', inject(ThemeContext)))
   )
 }
 
 export const OneContext: Story = {
   render: nanoStory(
-    () => context(
+    () => context$(
       [provide(ThemeContext, 'dark')],
       () => createElement('div')('Theme: ', inject(ThemeContext))
     )
@@ -35,7 +35,7 @@ export const OneContext: Story = {
 
 export const FewContexts: Story = {
   render: nanoStory(
-    () => context(
+    () => context$(
       [provide(ThemeContext, 'dark'), provide(UserContext, 'Admin')],
       () => createElement('div')(
         'Theme: ',
