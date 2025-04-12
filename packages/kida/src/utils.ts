@@ -1,14 +1,14 @@
 import {
   type ReadableSignal,
-  type AnyWritableSignal,
-  type AnyReadableSignal,
-  type WritableSignal,
   signal,
   isSignal,
   computed
 } from 'agera'
 import { isFunction } from './internals/index.js'
-import type { RateLimiter } from './types/index.js'
+import type {
+  RateLimiter,
+  ToSignal
+} from './types/index.js'
 
 export * from './internals/utils.js'
 
@@ -118,24 +118,17 @@ export function throttle(fnOrDelay?: (() => void) | number) {
 
 /**
  * Create signal from value or return signal
- * @todo move to public API
  * @param valueOrSignal - Value or signal
- * @returns Store
+ * @returns Writable signal
  */
 export function toSignal<T>(
   valueOrSignal: T
-): T extends AnyWritableSignal
-  ? T
-  : T extends AnyReadableSignal
-    ? T
-    : WritableSignal<T>
+): ToSignal<T>
 
 export function toSignal(valueOrSignal: unknown) {
-  if (isSignal(valueOrSignal)) {
-    return valueOrSignal
-  }
-
-  return signal(valueOrSignal)
+  return isSignal(valueOrSignal)
+    ? valueOrSignal
+    : signal(valueOrSignal)
 }
 
 /**
