@@ -2,7 +2,7 @@
 import {
   signal,
   computed,
-  length$
+  length
 } from 'nanoviews/store'
 import {
   section,
@@ -30,7 +30,7 @@ export function Forecast() {
     )
   })
 
-  return if$(length$($weatherForecast))(
+  return if$(length($weatherForecast))(
     () => section()(
       header({
         class: styles.header

@@ -13,20 +13,20 @@ import type {
 export * from './internals/utils.js'
 
 /**
- * Create a mapped signal for the length property of an object.
+ * Create a signal for the length property of an object.
  * @param $signal - Store to get the length from.
  * @returns The mapped signal for the length.
  */
-export function length$<T extends { length: number }>($signal: ReadableSignal<T>) {
+export function length<T extends { length: number }>($signal: ReadableSignal<T>) {
   return computed(() => $signal().length)
 }
 
 /**
- * Create a mapped signal for the boolean value of a signal.
+ * Create a signal for the boolean value of a signal.
  * @param $signal - Store to convert to a boolean.
  * @returns The mapped signal for the boolean value.
  */
-export function boolean$<T>($signal: ReadableSignal<T>) {
+export function boolean<T>($signal: ReadableSignal<T>) {
   return computed(() => Boolean($signal()))
 }
 
