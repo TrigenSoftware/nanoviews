@@ -9,9 +9,9 @@ import { signal } from 'kida'
 import { createElement } from '../elements/index.js'
 import {
   provide,
-  context,
+  context$,
   inject
-} from './context.js'
+} from '../../component/context.js'
 import { decide } from './decide.js'
 
 describe('nanoviews', () => {
@@ -24,7 +24,7 @@ describe('nanoviews', () => {
           const ComponentA = vi.fn(() => createElement('div')('(A) ', inject(ThemeContext)))
           const ComponentB = vi.fn(() => createElement('div')('(B) ', inject(ThemeContext)))
           const decider = vi.fn(value => (value ? ComponentA() : ComponentB()))
-          const Swapper = () => context(
+          const Swapper = () => context$(
             [provide(ThemeContext, 'dark')],
             () => decide($value, decider)
           )
