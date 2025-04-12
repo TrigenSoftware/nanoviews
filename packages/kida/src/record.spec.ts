@@ -20,12 +20,12 @@ describe('kida', () => {
   describe('record', () => {
     describe('record', () => {
       it('should create record store', () => {
-        const $record = record(signal({
+        const $record = record({
           firstname: 'Dan',
           lastname: 'Onoshko',
           age: 29,
           city: 'Batumi'
-        }))
+        })
 
         expect($record.$firstname).toSatisfy(isSignal)
         expect($record.$lastname).toSatisfy(isSignal)
@@ -39,12 +39,12 @@ describe('kida', () => {
       })
 
       it('should update root by child', () => {
-        const $record = record(signal({
+        const $record = record({
           firstname: 'Dan',
           lastname: 'Onoshko',
           age: 29,
           city: 'Batumi'
-        }))
+        })
 
         expect($record.$firstname()).toBe('Dan')
 
@@ -60,12 +60,12 @@ describe('kida', () => {
       })
 
       it('should update root by child and notify listeners', () => {
-        const $record = record(signal({
+        const $record = record({
           firstname: 'Dan',
           lastname: 'Onoshko',
           age: 29,
           city: 'Batumi'
-        }))
+        })
         const rootListener = vi.fn()
         const childListener = vi.fn()
         const off = effect(() => {
@@ -95,12 +95,12 @@ describe('kida', () => {
       })
 
       it('should update child by root', () => {
-        const $record = record(signal({
+        const $record = record({
           firstname: 'Dan',
           lastname: 'Onoshko',
           age: 29,
           city: 'Batumi'
-        }))
+        })
 
         expect($record.$firstname()).toBe('Dan')
 
@@ -113,12 +113,12 @@ describe('kida', () => {
       })
 
       it('should update child by root and notify listeners', () => {
-        const $record = record(signal({
+        const $record = record({
           firstname: 'Dan',
           lastname: 'Onoshko',
           age: 29,
           city: 'Batumi'
-        }))
+        })
         const rootListener = vi.fn()
         const childListener = vi.fn()
         const off = effect(() => {
@@ -177,13 +177,13 @@ describe('kida', () => {
 
     describe('deepRecord', () => {
       it('should create deep record store', () => {
-        const $record = deepRecord(signal({
+        const $record = deepRecord({
           name: 'Dan Onoshko',
           location: {
             city: 'Batumi',
             country: 'Georgia'
           }
-        }))
+        })
 
         expect($record.$name).toSatisfy(isSignal)
         expect($record.$location).toSatisfy(isSignal)
@@ -200,13 +200,13 @@ describe('kida', () => {
       })
 
       it('should update root by child', () => {
-        const $record = deepRecord(signal({
+        const $record = deepRecord({
           name: 'Dan Onoshko',
           location: {
             city: 'Batumi',
             country: 'Georgia'
           }
-        }))
+        })
 
         expect($record.$location.$city()).toBe('Batumi')
 
@@ -227,13 +227,13 @@ describe('kida', () => {
       })
 
       it('should update root by child and notify listeners', () => {
-        const $record = deepRecord(signal({
+        const $record = deepRecord({
           name: 'Dan Onoshko',
           location: {
             city: 'Batumi',
             country: 'Georgia'
           }
-        }))
+        })
         const rootListener = vi.fn()
         const childListener = vi.fn()
         const leafListener = vi.fn()
@@ -275,13 +275,13 @@ describe('kida', () => {
       })
 
       it('should update child by root', () => {
-        const $record = deepRecord(signal({
+        const $record = deepRecord({
           name: 'Dan Onoshko',
           location: {
             city: 'Batumi',
             country: 'Georgia'
           }
-        }))
+        })
 
         expect($record.$location.$city()).toBe('Batumi')
 
@@ -297,13 +297,13 @@ describe('kida', () => {
       })
 
       it('should update child by root and notify listeners', () => {
-        const $record = deepRecord(signal({
+        const $record = deepRecord({
           name: 'Dan Onoshko',
           location: {
             city: 'Batumi',
             country: 'Georgia'
           }
-        }))
+        })
         const rootListener = vi.fn()
         const childListener = vi.fn()
         const leafListener = vi.fn()
