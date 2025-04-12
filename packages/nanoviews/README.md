@@ -69,11 +69,15 @@ mount(App, document.querySelector('#app'))
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#basic-markup">Basic markup</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#special-methods">Special methods</a>
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#effect-attributes">Effect attributes</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+<a href="#components">Components</a>
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#logic-methods">Logic methods</a>
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+<a href="#special-methods">Special methods</a>
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+<a href="#why">Why?</a>
 <br />
 <hr />
 
@@ -89,7 +93,7 @@ yarn add -D nanoviews
 
 ## Reactivity
 
-Nanoviews is using [Kida](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida) under the hood for reactivity. This library is inspired by [Nano Stores](https://github.com/nanostores/nanostores) and was build specially for Nanoviews.
+Nanoviews is using [Kida](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida) under the hood for reactivity. Kida is a signal library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and was build specially for Nanoviews.
 
 ```js
 import { signal } from 'nanoviews/store' // or import { signal } from 'kida'
@@ -107,23 +111,36 @@ fragment(
 )
 ```
 
+Basicly, under the hood, reactivity works something like that:
+
+```ts
+import { signal, effect } from 'kida'
+
+const $text = signal('')
+const textNode = document.createTextNode('')
+
+effect(() => {
+  textNode.data = $text()
+})
+```
+
 ## Basic markup
 
-Nanoviews provides a set of methods for creating HTML elements with the specified attributes and children. Every method creates a _"block"_ that represents a DOM node or another block(s).
+Nanoviews provides a set of methods for creating HTML elements with the specified attributes and children. Every method creates a DOM node.
 
-Child can be an another element, primitive value (string, number, boolean, `null` or `undefined`), store with primitive or array of children. Attributes also can be a primitive value or store.
+Child can be an another DOM node, primitive value (string, number, boolean, `null` or `undefined`) or signal with primitive. Attributes also can be a primitive value or signal.
 
 ```js
 import { signal } from 'nanoviews/store'
 import { ul, li } from 'nanoviews'
 
 const $boolean = signal(true)
-
-ul({ class: 'list' })(
+const list = ul({ class: 'list' })(
   li()('String value'),
   li()('Number value', 42),
   li()('Boolean value', $boolean)
 )
+// `list` is HTMLUListElement instance
 ```
 
 ### mount
@@ -142,84 +159,6 @@ function App() {
 }
 
 mount(App, document.querySelector('#app'))
-```
-
-## Special methods
-
-### text$
-
-`text$` is a method that creates text node block with the specified value or store.
-
-```js
-import { signal } from 'nanoviews/store'
-import { text$, effect } from 'nanoviews'
-
-function TickTak() {
-  const $tick = signal(0)
-
-  effect(() => {
-    const id = setInterval(() => {
-      $tick($tick() + 1)
-    }, 1000)
-
-    return () => clearInterval(id)
-  })
-
-  return text$($tick)
-}
-```
-
-### fragment
-
-`fragment` is a method that creates a fragment block with the specified children.
-
-```js
-import { signal } from 'nanoviews/store'
-import { fragment, effect } from 'nanoviews'
-
-function TickTak() {
-  const $tick = signal(0)
-
-  effect(() => {
-    const id = setInterval(() => {
-      $tick($tick() + 1)
-    }, 1000)
-
-    return () => clearInterval(id)
-  })
-
-  return fragment('Tick tak: ', $tick)
-}
-```
-
-### dangerouslySetInnerHtml
-
-`dangerouslySetInnerHtml` is a method that sets the inner HTML of the element block. It is used for inserting HTML from a source that may not be trusted.
-
-```js
-import { div, dangerouslySetInnerHtml } from 'nanoviews'
-
-dangerouslySetInnerHtml(
-  div({ id: 'rendered-md' }),
-  '<p>Some text</p>'
-)
-```
-
-### shadow
-
-`shadow` is a method that attaches a shadow DOM to the specified element block.
-
-```js
-import { div, shadow } from 'nanoviews'
-
-shadow(
-  div({ id: 'custom-element' }),
-  {
-    mode: 'open'
-  }
-)(
-  'Nanoviews can shadow DOM!'
-)
 ```
 
 ## Effect attributes
@@ -391,7 +330,17 @@ input({
 })
 ```
 
-## Logic methods
+## Components
+
+Components are the building blocks of any application. These units are reusable and can be combined to create more complex applications.
+
+Components are functions that return primitive or DOM node:
+
+```ts
+function MyComponent() {
+  return div()('Hello, Nanoviews!')
+}
+```
 
 ### effect
 
@@ -400,7 +349,7 @@ input({
 ```js
 import { div, effect } from 'nanoviews'
 
-function App() {
+function MyComponent() {
   effect(() => {
     console.log('Mounted')
 
@@ -413,14 +362,14 @@ function App() {
 }
 ```
 
-Also you can use `effect` with stores:
+Also you can use `effect` with signals:
 
 ```js
 import { div, effect } from 'nanoviews'
 
 const $timeout = signal(1000)
 
-function App() {
+function MyComponent() {
   let intervalId
 
   effect(() => {
@@ -437,74 +386,9 @@ function App() {
 }
 ```
 
-### if$
-
-`if$` is a method that can render different childs based on the condition.
-
-```js
-import { signal } from 'nanoviews/store'
-import { if$, div, p } from 'nanoviews'
-
-const $show = signal(false)
-
-if$($show)(
-  () => div()('Hello, Nanoviews!')
-)
-
-const $toggle = signal(false)
-
-if$($toggle)(
-  () => p()('Toggle is true'),
-  () => div()('Toggle is false')
-)
-```
-
-### switch$
-
-`switch$` is a method like `if$` but with multiple conditions.
-
-```js
-import { signal } from 'nanoviews/store'
-import { switch$, case$, default$, div, p } from 'nanoviews'
-
-const $state = signal('loading')
-
-switch$(state)(
-  case$('loading', () => b()('Loading')),
-  case$('error', () => b()('Error')),
-  default$(() => 'Success')
-)
-```
-
-### for$
-
-`for$` is a method that can iterate over an array to render a list of blocks.
-
-```js
-import { signal, record } from 'nanoviews/store'
-import { for$, ul, li } from 'nanoviews'
-
-const $players = signal([
-  { id: 0, name: 'chopper' },
-  { id: 1, name: 'magixx' },
-  { id: 2, name: 'zont1x' },
-  { id: 3, name: 'donk' },
-  { id: 4, name: 'sh1ro' },
-  { id: 5, name: 'hally' }
-])
-
-ul()(
-  for$($players, player => player.id)(
-    $player => li()(
-      record($player).$name
-    )
-  )
-)
-```
-
 ### children$
 
-`children$` is a method that creates block with optional children receiver.
+`children$` is a method that creates optional children receiver.
 
 ```js
 import { div, children$ } from 'nanoviews'
@@ -512,7 +396,7 @@ import { div, children$ } from 'nanoviews'
 function MyComponent(props) {
   return children$(children => div(props)(
     'My component children: ',
-    children || 'empty'
+    ...children || ['empty']
   ))
 }
 
@@ -541,7 +425,7 @@ function Layout() {
     [LayoutHeader, LayoutFooter],
     (headerSlot, footerSlot, children) => main()(
       header()(headerSlot),
-      children,
+      ...children,
       footer()(footerSlot)
     )
   )
@@ -624,9 +508,78 @@ App() // <div>Current theme: dark</div>
 > [!NOTE]
 > Nanoviews contexts are based on [Kida's dependency injection system](../kida#dependency-injection).
 
+## Logic methods
+
+### if$
+
+`if$` is a method that can render different childs based on the condition.
+
+```js
+import { signal } from 'nanoviews/store'
+import { if$, div, p } from 'nanoviews'
+
+const $show = signal(false)
+
+if$($show)(
+  () => div()('Hello, Nanoviews!')
+)
+
+const $toggle = signal(false)
+
+if$($toggle)(
+  () => p()('Toggle is true'),
+  () => div()('Toggle is false')
+)
+```
+
+### switch$
+
+`switch$` is a method like `if$` but with multiple conditions.
+
+```js
+import { signal } from 'nanoviews/store'
+import { switch$, case$, default$, div, p } from 'nanoviews'
+
+const $state = signal('loading')
+
+switch$(state)(
+  case$('loading', () => b()('Loading')),
+  case$('error', () => b()('Error')),
+  default$(() => 'Success')
+)
+```
+
+### for$
+
+`for$` is a method that can iterate over an array to render a fragment of elements.
+
+```js
+import { signal, record } from 'nanoviews/store'
+import { for$, trackById, ul, li } from 'nanoviews'
+
+const $players = signal([
+  { id: 0, name: 'chopper' },
+  { id: 1, name: 'magixx' },
+  { id: 2, name: 'zont1x' },
+  { id: 3, name: 'donk' },
+  { id: 4, name: 'sh1ro' },
+  { id: 5, name: 'hally' }
+])
+
+ul()(
+  for$($players, trackById)(
+    $player => li()(
+      record($player).$name
+    )
+  )
+)
+```
+
+There are exported predefined `trackById` function to track by `id` property and `trackBy(key)` function to create a tracker for specified key.
+
 ### portal$
 
-`portal$` is a method that can render a block in a different place in the DOM.
+`portal$` is a method that can render a DOM node in a different place in the DOM.
 
 ```js
 import { div, portal$ } from 'nanoviews'
@@ -648,3 +601,75 @@ function MyComponent() {
   return children$((children = throw$(new Error('Children are required'))) => ul()(children))
 }
 ```
+
+## Special methods
+
+### fragment
+
+`fragment` is a method that creates a fragment with the specified children.
+
+```js
+import { signal } from 'nanoviews/store'
+import { fragment, effect } from 'nanoviews'
+
+function TickTak() {
+  const $tick = signal(0)
+
+  effect(() => {
+    const id = setInterval(() => {
+      $tick($tick() + 1)
+    }, 1000)
+
+    return () => clearInterval(id)
+  })
+
+  return fragment('Tick tak: ', $tick)
+}
+```
+
+### dangerouslySetInnerHtml
+
+`dangerouslySetInnerHtml` is a method that sets the inner HTML of the element. It is used for inserting HTML from a source that may not be trusted.
+
+```js
+import { div, dangerouslySetInnerHtml } from 'nanoviews'
+
+dangerouslySetInnerHtml(
+  div({ id: 'rendered-md' }),
+  '<p>Some text</p>'
+)
+```
+
+### shadow
+
+`shadow` is a method that attaches a shadow DOM to the specified element.
+
+```js
+import { div, shadow } from 'nanoviews'
+
+shadow(
+  div({ id: 'custom-element' }),
+  {
+    mode: 'open'
+  }
+)(
+  'Nanoviews can shadow DOM!'
+)
+```
+
+## Why?
+
+### Bundle size
+
+Nanoviews and Kida are small libraries and designed to be tree-shakable. So apps using Nanoviews and Kida can be smaller even than using SolidJS or Svelte!
+
+| Example | Nanoviews | SolidJS | Svelte |
+| ------- | --------- | ------- | ------ |
+| Vite Demo | 7.66 kB / gzip: 3.22 kB<br>[source code](../../examples/vite-demo-nanoviews/) | 8.93 kB / gzip: 3.73 kB<br>[source code](../../examples/vite-demo-solid/) | 12.73 kB / gzip: 5.54 kB kB<br>[source code](../../examples/vite-demo-svelte/) |
+| Weather | + Kida<br>17.27 kB / gzip: 6.96 kB<br>[source code](../../examples/weather-nanoviews/) | + nanostores + @nanostores/solid<br>25.23 kB / gzip: 9.80 kB<br>[source code](../../examples/weather-solid/) | + nanostores<br>26.80 kB / gzip: 10.84 kB<br>[source code](../../examples/weather-svelte/) |
+
+### Performance
+
+Nanoviews is not fastest library: SolidJS and Svelte are faster, but performance is close to them. Anyway, Nanoviews is faster than React 🙂.
+
+![krausest js-framework-benchmark](../../assets/krausest-js-framework-benchmark.png)
