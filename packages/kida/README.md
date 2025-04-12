@@ -140,21 +140,6 @@ const $fullName = computed(() => `${$firstName()} ${$lastName()}`)
 console.log($fullName()) // John Doe
 ```
 
-### `onMountEffect`
-
-`onMountEffect` accepts a signal as a first argument to start effect on this [signal mount](#lifecycles).
-
-```ts
-import { signal, onMountEffect } from 'kida'
-
-const $weather = signal('sunny')
-const $city = signal('Batumi')
-
-onMountEffect($weather, () => {
-  $weather(getWeather($city()))
-})
-```
-
 ### `effectScope`
 
 `effectScope` creates a scope for effects. It allows to stop all effects in the scope at once.
@@ -202,6 +187,42 @@ const start = effectScope(() => {
 const stop = start()
 
 stop() // stop all effects
+```
+
+### `onMountEffect`
+
+`onMountEffect` accepts a signal as a first argument to start effect on this [signal mount](#lifecycles).
+
+```ts
+import { signal, onMountEffect } from 'kida'
+
+const $weather = signal('sunny')
+const $city = signal('Batumi')
+
+onMountEffect($weather, () => {
+  $weather(getWeather($city()))
+})
+```
+
+### `onMountEffectScope`
+
+`onMountEffectScope` accepts a signal as a first argument to run effect scope on this [signal mount](#lifecycles).
+
+```ts
+import { signal, onMountEffectScope, effect } from 'kida'
+
+const $weather = signal('sunny')
+const $city = signal('Batumi')
+
+onMountEffectScope($weather, () => {
+  effect(() => {
+    console.log('Weather:', $weather())
+  })
+
+  effect(() => {
+    console.log('City:', $city())
+  })
+})
 ```
 
 ### Lifecycles
@@ -281,12 +302,18 @@ exec($count) // Signal started and stopped
 `record` method gives access to properties of the object as child signals.
 
 ```ts
-import { signal, record } from 'kida'
+import { record } from 'kida'
 
-const $user = record(signal({ name: 'Dan', age: 30 }))
+const $user = record({ name: 'Dan', age: 30 })
 const $name = $user.$name
 
 console.log($name()) // Dan
+```
+
+Also record can be created from another signal.
+
+```ts
+const $userRecord = record($computedUser)
 ```
 
 `record` method caches child signals in the parent signal. So you can call `record` multiple times on same signal without performance issues.
@@ -304,12 +331,18 @@ const $age = record($user).$age
 `deepRecord` method gives access to nested properties of the object as child signals.
 
 ```ts
-import { signal, deepRecord } from 'kida'
+import { deepRecord } from 'kida'
 
-const $user = deepRecord(signal({ name: 'Dan', address: { city: 'Batumi' } }))
+const $user = deepRecord({ name: 'Dan', address: { city: 'Batumi' } })
 const $city = $user.$address.$city
 
 console.log($city()) // Batumi
+```
+
+Also deep record can be created from another signal.
+
+```ts
+const $userRecord = deepRecord($computedUser)
 ```
 
 ### List
@@ -670,26 +703,26 @@ const $count = toSignal(0) // WritableSignal<number>
 const $double = toSignal(computed(() => $count() * 2)) // ReadableSignal<number>
 ```
 
-### `length$`
+### `length`
 
-`length$` method creates a signal that tracks the `length` property of the object.
+`length` method creates a signal that tracks the `length` property of the object.
 
 ```ts
-import { signal, length$ } from 'kida'
+import { signal, length } from 'kida'
 
 const $users = signal(['Dan', 'John', 'Alice'])
-const $count = length$($users)
+const $count = length($users)
 ```
 
-### `boolean$`
+### `boolean`
 
-`boolean$` method creates a signal that converts the value to a boolean.
+`boolean` method creates a signal that converts the value to a boolean.
 
 ```ts
-import { signal, boolean$ } from 'kida'
+import { signal, boolean } from 'kida'
 
 const $user = signal(null)
-const $hasUser = boolean$($user)
+const $hasUser = boolean($user)
 ```
 
 ### `get`
