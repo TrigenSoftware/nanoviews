@@ -1,24 +1,12 @@
-- stop and start tracking in loop and decide to prevent child subscriptions
-
-- toReadable$
-- toWritable$
-- atIndex$ atKey$ ?
-- atIndex$ for static array?
-- logic -> operators
-- $ - reactivity, _ - operators
-- listener & fn -> callback?
-- restore object arg for record?
-- onMountEffectScope?
-- predefined trackers
-
-- solid weather
-
+- attr lazy prop
+- signal getter
+- util to transform static props to signal props?
+- rename decide? export as public - as Dynamic in solidjs
 - typed effectattrs <T>
 - additional arg for record in for$? as$
-
 - serialize - start all marked stores?
 - bundle types
-- static index for untracked loop
+- static index for untracked loop?
 - controls addEventListener to events system
 - lazy scope to start and stop methods?
 - later: resort effects
@@ -32,7 +20,7 @@
 - Reflect.get is slow
 - arr.length = 0 is slower than arr = []
 
-- store injection effectScope to stop effects after context stop
+- store injection effectScope to stop effects after context stop?
 
 - html + head components
 - universal dom
@@ -79,3 +67,37 @@ SSR
   - removeProperty
 - portals
 - innerHTML
+
+handler = {
+  k: undefined,
+  get(target, key) {
+      if (key[0] === '$') {
+        const skey = key.slice(1)
+        const keys = this.k
+
+        keys[keys.indexOf(skey)] = key
+
+        return { signal: target[skey] }
+      }
+
+      return target[key]
+  },
+  ownKeys() {
+      return this.k
+  },
+}
+
+function props$(props) {
+    const propsHandler = Object.create(handler)
+
+    propsHandler.k = Reflect.ownKeys(props)
+
+    return new Proxy(props, propsHandler)
+}
+
+obj = props$({
+	a: 1,
+	b: '',
+	c: true,
+	d: null
+})
