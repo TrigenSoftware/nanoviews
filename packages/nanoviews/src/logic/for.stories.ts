@@ -2,7 +2,10 @@ import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { effect, record } from 'kida'
 import { nanoStory } from '@nanoviews/storybook'
 import { ul, li } from '../elements/elements.js'
-import { for$ } from './for.js'
+import {
+  for$,
+  trackById
+} from './for.js'
 
 const meta: Meta<{
   items: string[]
@@ -80,7 +83,7 @@ export const EntitiesValue: StoryObj<{
     ]
   },
   render: nanoStory(({ onEffect, items }) => ul()(
-    for$(items, player => player.id)(
+    for$(items, trackById)(
       (item) => {
         const { $name } = record(item)
 

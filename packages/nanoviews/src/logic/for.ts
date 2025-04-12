@@ -10,6 +10,25 @@ import {
   fragment
 } from '../internals/index.js'
 
+/**
+ * Create a tracker function for an item in a list
+ * @param key - The key to track the item by
+ * @returns A function that returns the value of the key in the item
+ */
+export function trackBy<T extends string>(key: T) {
+  return (item: { [K in T]: unknown }) => item[key]
+}
+
+/**
+ * Tracker function for an item in a list by its id
+ * @param item - The item to track
+ * @param item.id - The id of the item
+ * @returns The id of the item
+ */
+export function trackById(item: { id: unknown }) {
+  return item.id
+}
+
 type AnyEach = (
   item: AnySignal,
   index: ReadableSignal<number>
