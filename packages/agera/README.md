@@ -283,3 +283,4 @@ Key differences from [alien-signals](https://github.com/stackblitz/alien-signals
 - **Size**. Agera has a little bit smaller size for basic methods than alien-signals.
 - **Lifecycles**. Agera has lifecycles for signals. You can listen to signal activation and deactivation events.
 - **Modificated `effectScope`**. Agera has a possibility to put effect scope inside another effect scope. Also there is a possibility to create a lazy scope.
+- Effects supports cleanup function.
