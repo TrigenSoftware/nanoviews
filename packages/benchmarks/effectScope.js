@@ -1,5 +1,5 @@
 import { Bench } from 'tinybench'
-import * as signals1 from 'alien-signals1'
+import * as signals from 'alien-signals'
 import * as agera from '../agera/dist/index.js' // 'agera'
 
 const bench = new Bench({
@@ -9,13 +9,13 @@ const effectScope = agera.createEffectScope()
 
 bench
   .add('alien-signals@v1 / effectScope', () => {
-    const $a = signals1.signal(0)
-    const $b = signals1.signal(0)
-    const destroy = signals1.effectScope(() => {
-      signals1.effect(() => {
+    const $a = signals.signal(0)
+    const $b = signals.signal(0)
+    const destroy = signals.effectScope(() => {
+      signals.effect(() => {
         $a()
       })
-      signals1.effect(() => {
+      signals.effect(() => {
         $a()
         $b()
       })

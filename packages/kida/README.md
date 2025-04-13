@@ -28,7 +28,7 @@
 A small state management library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and based on [Agera](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/agera).
 
 - **Small**. Around 1.94 kB for basic methods (minified and brotlied). Zero dependencies.
-- **~20x faster** than Nano Stores.
+- **~5x faster** than Nano Stores.
 - Designed for best **Tree-Shaking**: only the code you use is included in your bundle.
 - **TypeScript**-first.
 
@@ -79,6 +79,8 @@ export function Admins() {
 <a href="#ssr">SSR</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#utils">Utils</a>
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+<a href="#why">Why?</a>
 <br />
 <hr />
 
@@ -735,3 +737,17 @@ import { signal, get } from 'kida'
 get(signal(1)) // 1
 get(1) // 1
 ```
+
+## Why?
+
+Nano Stores is a great library with wonderful idea of stores with lifecycles. But it has some drawbacks:
+
+- **Performance**. Nano Stores is slow. Kida is ~5x faster than Nano Stores.
+- **DX**. Kida is focused more on DX than on bundle size. Nano Stores is smaller, but (to my mind) have worse API.
+- **SSR**. Nano Stores has no support for SSR. Kida has a built-in dependency injection system and serialization methods to work with SSR.
+
+| Benchmark<br>Throughput avg (ops/s) | Kida / Agera | Alien Signals | Nano Stores |
+| ------- | --------- | ------- | ------ |
+| [signal](../benchmarks/atom.js) | 25 541 296 ± 0.00% | 25 692 493 ± 0.00% | 4 501 870 ± 0.01% |
+| [computed](../benchmarks/computed.js) | 3 747 576 ± 0.01% | 3 979 152 ± 0.01% | 611 026 ± 0.04% |
+| [effect](../benchmarks/effect.js) | 3 977 679 ± 0.01% | 4 165 849 ± 0.01% | 1 992 654 ± 0.01% |

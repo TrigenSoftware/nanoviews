@@ -1,6 +1,6 @@
 import { Bench } from 'tinybench'
+import * as nanostores from 'nanostores'
 import * as signals from 'alien-signals'
-import * as signals1 from 'alien-signals1'
 import * as agera from '../agera/dist/index.js' // 'agera'
 
 const bench = new Bench({
@@ -8,12 +8,12 @@ const bench = new Bench({
 })
 
 bench
-  .add('alien-signals / effect', () => {
-    const $store = signals.signal(0)
+  .add('nanostores / effect', () => {
+    const $store = nanostores.atom(0)
     const logs = []
 
-    signals.effect(() => {
-      logs.push($store.get())
+    nanostores.effect([$store], (store) => {
+      logs.push(store)
     })
 
     $store.set($store.get() + 1)
@@ -21,11 +21,11 @@ bench
 
     console.assert(logs.length === 3)
   })
-  .add('alien-signals@v1 / effect', () => {
-    const $store = signals1.signal(0)
+  .add('alien-signals / effect', () => {
+    const $store = signals.signal(0)
     const logs = []
 
-    signals1.effect(() => {
+    signals.effect(() => {
       logs.push($store())
     })
 
@@ -48,7 +48,6 @@ bench
     console.assert(logs.length === 3)
   })
 
-await bench.warmup()
 await bench.run()
 
 console.table(bench.table())
