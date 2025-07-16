@@ -1,14 +1,12 @@
-const lernaScopes = require('@commitlint/config-pnpm-scopes')
+import scopes from '@commitlint/config-pnpm-scopes'
 
-module.exports = {
-  extends: [
-    '@commitlint/config-conventional',
-    '@commitlint/config-pnpm-scopes'
-  ],
+export default {
+  extends: ['@commitlint/config-conventional', '@commitlint/config-pnpm-scopes'],
   rules: {
     'body-max-line-length': [0],
+    'header-max-length': [0],
     'scope-enum': async (ctx) => {
-      const scopeEnum = await lernaScopes.rules['scope-enum'](ctx)
+      const scopeEnum = await scopes.rules['scope-enum'](ctx)
 
       return [
         scopeEnum[0],
@@ -16,7 +14,8 @@ module.exports = {
         [
           ...scopeEnum[2],
           'deps',
-          'dev-deps'
+          'dev-deps',
+          'release'
         ]
       ]
     }

@@ -29,10 +29,10 @@
     "updateGitHooks": "simple-git-hooks"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.0.0",
-    "@commitlint/config-conventional": "^18.0.0",
-    "@commitlint/config-pnpm-scopes": "^18.0.0",
-    "@commitlint/cz-commitlint": "^18.0.0",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/config-pnpm-scopes": "^19.8.1",
+    "@commitlint/cz-commitlint": "^19.8.1",
     "@nanoviews/storybook-vite": "workspace:^",
     "@trigen/eslint-config": "8.0.0-alpha.33",
     "@trigen/scripts": "8.0.0-alpha.33",
