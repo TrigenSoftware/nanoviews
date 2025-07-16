@@ -91,9 +91,7 @@ describe('kida', () => {
 
       try {
         await promise
-      } catch (e) {
-        /* ignore */
-      }
+      } catch {}
 
       expect($loading()).toBe(false)
       expect($error()).toBe('rejected')

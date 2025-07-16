@@ -34,23 +34,27 @@
     "@commitlint/config-pnpm-scopes": "^19.8.1",
     "@commitlint/cz-commitlint": "^19.8.1",
     "@nanoviews/storybook-vite": "workspace:^",
-    "@trigen/eslint-config": "8.0.0-alpha.33",
-    "@trigen/scripts": "8.0.0-alpha.33",
-    "@types/node": "^20.0.0",
+    "@trigen/eslint-config": "^8.0.7",
+    "@trigen/scripts": "^8.0.4",
+    "@types/node": "^24.0.14",
     "clean-publish": "^5.0.0",
     "commitizen": "^4.2.4",
     "del-cli": "^6.0.0",
-    "eslint": "^8.28.0",
+    "eslint": "^9.31.0",
     "kida": "workspace:^",
     "nano-staged": "^0.8.0",
     "nanoviews": "workspace:^",
     "simple-git-hooks": "^2.7.0",
-    "typescript": "5.3.3",
+    "typescript": "^5.8.3",
     "vite-plugin-filter-replace": "^0.1.14"
   },
   "pnpm": {
     "patchedDependencies": {
       "vite": "patches/vite.patch"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "simple-git-hooks"
+    ]
   }
 }

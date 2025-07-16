@@ -1,12 +1,14 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "rootDir": "."
+    "rootDir": "../../",
+    "allowJs": true
   },
   "include": [
     "src",
     "test",
-    ".storybook/**/*.ts"
+    ".storybook/**/*.ts",
+    "*.js"
   ],
   "exclude": []
 }

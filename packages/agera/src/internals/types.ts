@@ -32,8 +32,8 @@ export interface Subscriber {
 }
 
 export interface Link {
-  [$$dep]: Dependency | (Dependency & Subscriber)
-  [$$sub]: Subscriber | (Dependency & Subscriber)
+  [$$dep]: Dependency | Dependency & Subscriber
+  [$$sub]: Subscriber | Dependency & Subscriber
   // Reused to link the previous stack in updateDirtyFlag
   // Reused to link the previous stack in propagate
   [$$prevSub]: Link | undefined
@@ -48,7 +48,7 @@ export type Destroy = () => void
 
 export type MaybeDestroy = Destroy | void
 
-export type EffectCallback = (warmup?: true | undefined) => MaybeDestroy
+export type EffectCallback = (warmup?: true) => MaybeDestroy
 
 export interface Effect extends Subscriber, Dependency {
   [$$effect]: EffectCallback

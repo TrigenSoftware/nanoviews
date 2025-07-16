@@ -59,7 +59,7 @@ function link(
   itemsList: LoopItemsList,
   prev: LoopItem | undefined,
   next: LoopItem | undefined,
-  insert?: LoopItem | undefined
+  insert?: LoopItem
 ): void {
   if (prev === undefined) {
     itemsList.f = insert ?? next

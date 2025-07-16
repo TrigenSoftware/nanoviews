@@ -54,7 +54,7 @@
     "emitDeclarations": "tsc -p ./tsconfig.build.json --emitDeclarationOnly",
     "build:dist": "run -p emitDeclarations [ vite build ]",
     "build": "run clear:dist build:dist",
-    "lint": "eslint --parser-options tsconfigRootDir:. '**/*.{js,ts}'",
+    "lint": "eslint --flag v10_config_lookup_from_file",
     "test:unit": "vitest run --coverage",
     "test:unit:watch": "vitest watch",
     "test:size": "size-limit",

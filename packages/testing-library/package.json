@@ -53,7 +53,7 @@
     "postpublish": "pnpm clear:package",
     "build:dist": "tsc",
     "build": "run clear:dist build:dist",
-    "lint": "eslint --parser-options tsconfigRootDir:. '**/*.{js,ts}'",
+    "lint": "eslint --flag v10_config_lookup_from_file",
     "test": "run lint"
   },
   "peerDependencies": {

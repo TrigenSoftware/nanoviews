@@ -54,7 +54,10 @@ export function mountChild(
 export function insertChildBeforeAnchor(
   child: Child,
   anchor: ChildNode,
-  rangeContainer?: { f: ChildNode | EmptyValue, l: ChildNode | EmptyValue }
+  rangeContainer?: {
+    f: ChildNode | EmptyValue
+    l: ChildNode | EmptyValue
+  }
 ) {
   const node = childToNode(child)
 
