@@ -1,6 +1,7 @@
 {
   "name": "benchmarks",
   "type": "module",
+  "private": true,
   "version": "0.0.0",
   "description": "Packages benchmarks.",
   "author": "dangreen",
