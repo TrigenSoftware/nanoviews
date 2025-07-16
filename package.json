@@ -51,6 +51,10 @@
   "pnpm": {
     "patchedDependencies": {
       "vite": "patches/vite.patch"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "simple-git-hooks"
+    ]
   }
 }
