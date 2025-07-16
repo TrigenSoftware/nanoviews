@@ -50,7 +50,7 @@
   },
   "peerDependencies": {
     "@nanoviews/storybook": "workspace:^",
-    "vite": "^6.0.0"
+    "vite": "^7.0.0"
   },
   "dependencies": {
     "@storybook/builder-vite": "^7.6.17",
@@ -58,6 +58,6 @@
   },
   "devDependencies": {
     "@nanoviews/storybook": "workspace:^",
-    "vite": "^6.0.0"
+    "vite": "^7.0.0"
   }
 }

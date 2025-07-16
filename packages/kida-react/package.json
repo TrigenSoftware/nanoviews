@@ -79,7 +79,7 @@
     "react-dom": "^19.0.0",
     "size-limit": "^11.1.6",
     "typescript": "5.3.3",
-    "vite": "^6.0.7",
+    "vite": "^7.0.0",
     "vitest": "^2.1.8"
   }
 }
