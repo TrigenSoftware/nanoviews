@@ -23,7 +23,7 @@
     "node": ">=16"
   },
   "dependencies": {
-    "alien-signals": "1.0.4",
+    "alien-signals": "1.0.13",
     "nanostores": "^1.0.1",
     "tinybench": "^4.0.1"
   }
