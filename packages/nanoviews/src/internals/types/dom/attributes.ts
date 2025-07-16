@@ -1,4 +1,4 @@
-import * as CSS from 'csstype'
+import type * as CSS from 'csstype'
 import type {
   ValueOrSignal,
   EmptyValue
@@ -121,7 +121,7 @@ export type HTMLAttributeAnchorTarget =
   | '_blank'
   | '_parent'
   | '_top'
-  | (string & {})
+  | string & {}
 
 export interface AnchorHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   download?: ValueOrSignal<any>
@@ -299,7 +299,7 @@ export type HTMLInputTypeAttribute =
   | 'time'
   | 'url'
   | 'week'
-  | (string & {})
+  | string & {}
 
 export type AutoFillAddressKind = 'billing' | 'shipping'
 export type AutoFillBase = '' | 'off' | 'on'
@@ -361,7 +361,7 @@ export type AutoFill =
   | `${OptionalPrefixToken<AutoFillSection>}${OptionalPrefixToken<
       AutoFillAddressKind
   >}${AutoFillField}${OptionalPostfixToken<AutoFillCredentialField>}`
-export type HTMLInputAutoCompleteAttribute = AutoFill | (string & {})
+export type HTMLInputAutoCompleteAttribute = AutoFill | string & {}
 
 export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   accept?: ValueOrSignal<string | EmptyValue>

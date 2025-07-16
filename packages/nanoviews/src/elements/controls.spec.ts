@@ -12,7 +12,7 @@ import {
 import { userEvent } from '@testing-library/user-event'
 import { signal } from 'kida'
 import * as Stories from './controls.stories.js'
-import { Indeterminate } from './controls.js'
+import type { Indeterminate } from './controls.js'
 
 const {
   TextInput,
@@ -162,7 +162,6 @@ describe('nanoviews', () => {
           const { container } = render(Files({
             files
           }))
-          // eslint-disable-next-line testing-library/no-node-access
           const fileInput = container.firstChild?.firstChild as HTMLInputElement
 
           await user.upload(fileInput, file)

@@ -117,7 +117,7 @@ export interface IntrinsicElements {
   track: HTMLTrackElement
   u: HTMLElement
   ul: HTMLUListElement
-  'var': HTMLElement
+  var: HTMLElement
   video: HTMLVideoElement
   wbr: HTMLElement
 
@@ -301,7 +301,7 @@ export interface IntrinsicElementsAttributes {
   track: Attributes.TrackHTMLAttributes<HTMLTrackElement>
   u: Attributes.HTMLAttributes<HTMLElement>
   ul: Attributes.HTMLAttributes<HTMLUListElement>
-  'var': Attributes.HTMLAttributes<HTMLElement>
+  var: Attributes.HTMLAttributes<HTMLElement>
   video: Attributes.VideoHTMLAttributes<HTMLVideoElement>
   wbr: Attributes.HTMLAttributes<HTMLElement>
 

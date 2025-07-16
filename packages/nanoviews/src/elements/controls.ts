@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-param */
-/* eslint-disable jsdoc/require-returns */
 import {
   type WritableSignal,
   isSignal,
@@ -106,7 +104,7 @@ function setChecked(
     control[indeterminateProperty] = true
   } else {
     control[indeterminateProperty] = false
-    control.checked = value as boolean
+    control.checked = value
   }
 }
 

@@ -1,5 +1,5 @@
 import type { AnySignal } from 'agera'
-import { $$record } from '../symbols.js'
+import type { $$record } from '../symbols.js'
 import type {
   AnyObject,
   EmptyValue

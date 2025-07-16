@@ -33,7 +33,6 @@ import { runEffect } from './effect.js'
 
 export function maybeDestroyEffect(dep: Dependency | Subscriber): void {
   if ($$destroy in dep && dep[$$destroy] !== undefined) {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     (dep as Effect)[$$destroy]!()
     dep[$$destroy] = undefined
   }

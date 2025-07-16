@@ -45,7 +45,7 @@
     "clear": "del ./package ./coverage",
     "prepublishOnly": "run clear:package clean-publish",
     "postpublish": "pnpm clear:package",
-    "lint": "eslint --parser-options tsconfigRootDir:. '**/*.{js,ts}'",
+    "lint": "eslint --flag v10_config_lookup_from_file",
     "test": "run lint"
   },
   "peerDependencies": {

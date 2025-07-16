@@ -75,7 +75,7 @@ export type AriaRole =
   | 'tree'
   | 'treegrid'
   | 'treeitem'
-  | (string & {})
+  | string & {}
 
 // All the WAI-ARIA 1.1 attributes from https://www.w3.org/TR/wai-aria-1.1/
 export interface AriaAttributes {

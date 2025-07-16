@@ -433,7 +433,7 @@ export function notifyEffectSub(e: Effect): boolean {
 
   if (
     flags & DirtySubscriberFlag
-		|| (flags & PendingComputedSubscriberFlag && updateDirtyFlag(e, flags))
+    || (flags & PendingComputedSubscriberFlag && updateDirtyFlag(e, flags))
   ) {
     runEffect(e)
   } else {

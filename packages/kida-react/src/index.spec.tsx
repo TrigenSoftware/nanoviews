@@ -32,7 +32,9 @@ describe('@kida/react', () => {
         )
       }
 
-      const { container } = render(<Test/>)
+      const { container } = render(
+        <Test/>
+      )
 
       expect(container.innerHTML).toBe('<div>0</div>')
 
