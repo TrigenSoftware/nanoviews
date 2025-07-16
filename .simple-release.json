@@ -5,6 +5,9 @@
   "releaser": {
     "verbose": true
   },
+  "pullRequest": {
+    "draft": true
+  },
   "publish": {
     "access": "public"
   }
