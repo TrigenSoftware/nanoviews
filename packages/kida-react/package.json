@@ -1,7 +1,7 @@
 {
   "name": "@kidajs/react",
   "type": "module",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Kida integration for React.",
   "author": "dangreen",
   "license": "MIT",
