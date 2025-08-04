@@ -65,10 +65,6 @@ function createUsageReplacements(key, to) {
     {
       from: `${key} in `,
       to: `'${to}' in `
-    },
-    {
-      from: ` ${key}, `,
-      to: ' '
     }
   ]
 }
