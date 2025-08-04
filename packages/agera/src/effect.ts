@@ -147,6 +147,7 @@ export function effectScope(
  * Create effect scope runner which will share the same scope instance.
  * @returns The effect scope runner.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function createEffectScope() {
   return runEffectScopeInstance.bind(null, createEffectScopeInstance()) as typeof effectScope
 }

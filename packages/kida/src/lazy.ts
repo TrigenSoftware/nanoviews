@@ -26,6 +26,7 @@ function lazyGetter<T>(this: Morph<T>) {
  * @param factory - The factory function.
  * @returns The lazy signal.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function lazy<T>(factory: LazyFactory<T>) {
   return morph(signal(factory as T), {
     [$$get]: lazyGetter

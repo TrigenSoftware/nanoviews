@@ -33,6 +33,7 @@ function lazyGetterSetter<T>(this: External<T>, ...value: [T]): T | void {
  * @param factory - The factory function.
  * @returns The external signal.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function external<T>(
   factory: ExternalFactory<T>
 ) {

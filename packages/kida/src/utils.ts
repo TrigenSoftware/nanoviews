@@ -44,6 +44,7 @@ export function debounce<T extends unknown[]>(fn: (...args: T) => void): (...arg
  */
 export function debounce(delay?: number): RateLimiter
 
+/* @__NO_SIDE_EFFECTS__ */
 export function debounce(fnOrDelay?: (() => void) | number) {
   if (isFunction(fnOrDelay)) {
     return debounce()(fnOrDelay)
@@ -73,6 +74,7 @@ export function throttle<T extends unknown[]>(fn: (...args: T) => void): (...arg
  */
 export function throttle(delay?: number): RateLimiter
 
+/* @__NO_SIDE_EFFECTS__ */
 export function throttle(fnOrDelay?: (() => void) | number) {
   if (isFunction(fnOrDelay)) {
     return throttle()(fnOrDelay)
@@ -136,6 +138,7 @@ export function toSignal(valueOrSignal: unknown) {
  * @param valueOr$signal - Value or signal
  * @returns Value
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function get<T>(valueOr$signal: T | ReadableSignal<T>) {
   return isSignal(valueOr$signal) ? valueOr$signal() : valueOr$signal
 }

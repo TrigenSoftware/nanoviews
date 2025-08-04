@@ -52,6 +52,7 @@ function abortableRun(
  * @param mapErrorValue - Function to map the error value. Default is to get the error message.
  * @returns A tuple with the task, state and error signal.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function channel<E = string>(
   tasks: TasksSet,
   mapErrorValue: (error: unknown) => E = error => (error as Error).message as E

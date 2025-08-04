@@ -23,6 +23,7 @@ const flatHandler = /* @__PURE__ */ createProxyHandler(child => child)
  * @param source - Source signal.
  * @returns A record signal.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function record<T>(source: T) {
   return recordBase(toSignal(source), flatHandler) as T extends AnyWritableSignal
     ? WritableRecord<T>
@@ -39,6 +40,7 @@ const deepHandler = /* @__PURE__ */ createProxyHandler(deepRecord)
  * @param source - Source signal.
  * @returns A deep record signal.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function deepRecord<T>(source: T) {
   return recordBase(toSignal(source), deepHandler) as T extends AnyWritableSignal
     ? WritableDeepRecord<T>

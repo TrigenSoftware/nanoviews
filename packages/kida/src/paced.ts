@@ -11,6 +11,7 @@ import type { RateLimiter } from './types/index.js'
  * @param rateLimiter - The rate limiter function.
  * @returns The paced signal.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function paced<T>(
   $signal: WritableSignal<T>,
   rateLimiter: RateLimiter

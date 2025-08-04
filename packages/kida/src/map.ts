@@ -32,6 +32,7 @@ export function atKey<T extends AnyCollection>(
   key: keyof T | ReadableSignal<keyof T>
 ): ReadableSignal<T[keyof T]>
 
+/* @__NO_SIDE_EFFECTS__ */
 export function atKey<T extends AnyCollection>(
   $map: ReadableSignal<T> | WritableSignal<T>,
   key: keyof T | ReadableSignal<keyof T>
@@ -45,6 +46,7 @@ export function atKey<T extends AnyCollection>(
  * @param key - The key to get.
  * @returns The value.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function getKey<T extends AnyCollection>($map: ReadableSignal<T>, key: keyof T) {
   return $map()[key]
 }
@@ -97,6 +99,7 @@ export function clearMap<T extends AnyCollection>($map: WritableSignal<T>) {
  * @param key - The key to check.
  * @returns Whether the map signal has the key.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function has<T extends AnyCollection>($map: ReadableSignal<T>, key: keyof T) {
   return key in $map()
 }

@@ -13,6 +13,7 @@ export function Tasks() {
  * @param tasks - Tasks queue.
  * @returns Promise that resolves when all running tasks are finished.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function allTasks(tasks: TasksSet) {
   return Promise.allSettled([...tasks])
 }
@@ -47,6 +48,7 @@ export function addTask<T = void>(
  * @param tasks - Tasks queue.
  * @returns The task runner.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function createTasksRunner(tasks: TasksSet) {
   return (fn: () => Promise<unknown>) => addTask(tasks, fn())
 }

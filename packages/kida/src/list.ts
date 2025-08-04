@@ -30,6 +30,7 @@ export function atIndex<T>(
   index: number | ReadableSignal<number>
 ): ReadableSignal<T>
 
+/* @__NO_SIDE_EFFECTS__ */
 export function atIndex<T>(
   $list: ReadableSignal<T[]> | WritableSignal<T[]>,
   index: number | ReadableSignal<number>
@@ -101,6 +102,7 @@ export function unshift<T>($list: WritableSignal<T[]>, ...values: T[]) {
  * @param index - The index to get.
  * @returns The value at the index.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function getIndex<T>($list: ReadableSignal<T[]>, index: number) {
   return $list()[index]
 }
@@ -142,6 +144,7 @@ export function clearList<T>($list: WritableSignal<T[]>) {
  * @param value - The value to check.
  * @returns Whether the list signal includes the value.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function includes<T>($list: ReadableSignal<T[]>, value: T) {
   return $list().includes(value)
 }

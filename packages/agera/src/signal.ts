@@ -94,6 +94,7 @@ export function signal<T>(): WritableSignal<T | undefined>
  */
 export function signal<T>(value: T): WritableSignal<T>
 
+/* @__NO_SIDE_EFFECTS__ */
 export function signal<T>(value?: T): WritableSignal<T | undefined> {
   return createSignal(signalGetterSetter, {
     [$$value]: value,
@@ -129,6 +130,7 @@ function signalGetterSetter<T>(this: Signal<T>, ...value: [T]): T | void {
  * @param compute - The function to compute the value.
  * @returns A signal.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function computed<T>(compute: Compute<T>): ReadableSignal<T> {
   return createSignal(computedGetter, {
     [$$value]: undefined,
@@ -165,6 +167,7 @@ export function morph<T, C extends Partial<Morph<T>>>(
   context: C
 ): ReadableSignal<T>
 
+/* @__NO_SIDE_EFFECTS__ */
 export function morph<T, C extends Partial<Morph<T>>>(
   $signal: WritableSignal<T>,
   context: C
