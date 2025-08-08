@@ -68,14 +68,17 @@ export interface ComputedSignal<T = unknown> extends Signal<T>, Subscriber {
   [$$compute]: Compute<T>
 }
 
-export interface ReadableSignal<T> {
+export type Accessor<T> = () => T
+
+export interface ReadableSignal<T> extends Accessor<T> {
   [$$signal]: Signal<T>
-  (): T
 }
 
 export interface WritableSignal<T> extends ReadableSignal<T> {
   (value: T): void
 }
+
+export type AnyAccessor = Accessor<any>
 
 export type AnyReadableSignal = ReadableSignal<any>
 
@@ -83,9 +86,11 @@ export type AnyWritableSignal = WritableSignal<any>
 
 export type AnySignal = AnyReadableSignal | AnyWritableSignal
 
-export type SignalValue<T> = T extends ReadableSignal<infer U> ? U : never
+export type AnyAccessorOrSignal = AnyAccessor | AnySignal
 
-export type MaybeSignalValue<T> = T extends ReadableSignal<infer U> ? U : T
+export type AccessorValue<T> = T extends Accessor<infer U> ? U : never
+
+export type MaybeAccessorValue<T> = T extends Accessor<infer U> ? U : T
 
 export interface ActivateListener {
   [$$onActivate]: OnActivateCallback

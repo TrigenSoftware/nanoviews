@@ -5,13 +5,16 @@ export type {
   EffectCallback,
   OnActivateCallback,
   Compute,
+  Accessor,
   ReadableSignal,
   WritableSignal,
+  AnyAccessor,
   AnyReadableSignal,
   AnyWritableSignal,
   AnySignal,
-  SignalValue,
-  MaybeSignalValue,
+  AnyAccessorOrSignal,
+  AccessorValue,
+  MaybeAccessorValue,
   Morph
 } from './internals/types.js'
 export {
