@@ -1,4 +1,7 @@
-import type { AnySignal } from 'agera'
+import type {
+  AnyAccessorOrSignal,
+  AnySignal
+} from 'agera'
 import type {
   AnyRecordStore,
   RecordStore
@@ -7,7 +10,9 @@ import { $$record } from './symbols.js'
 import { child } from './child.js'
 import { assignKey } from './utils.js'
 
-export function createProxyHandler(ext: ($signal: AnySignal) => AnySignal): ProxyHandler<AnyRecordStore> {
+export function createProxyHandler(
+  ext: ($signal: AnySignal) => AnySignal
+): ProxyHandler<AnyRecordStore> {
   return {
     get($signal, key: string) {
       if (!(key in $signal) && key[0] === '$') {
@@ -24,7 +29,7 @@ export function createProxyHandler(ext: ($signal: AnySignal) => AnySignal): Prox
 }
 
 export function recordBase(
-  $source: AnySignal & RecordStore,
+  $source: AnyAccessorOrSignal & RecordStore,
   handler: ProxyHandler<AnyRecordStore>
 ): AnyRecordStore {
   let cached = $source[$$record]

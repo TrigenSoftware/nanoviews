@@ -1,5 +1,6 @@
 import {
   type AnySignal,
+  type AnyAccessor,
   type MaybeDestroy,
   onActivate,
   effect
@@ -68,7 +69,7 @@ export function onMount(
  * @param $signal - The signal to keep alive.
  * @returns Function to stop keeping the signal alive.
  */
-export function start($signal: AnySignal) {
+export function start($signal: AnyAccessor) {
   return effect(() => {
     $signal()
   })
@@ -79,7 +80,7 @@ export function start($signal: AnySignal) {
  * @param $signal - The signal to execute.
  * @returns The signal.
  */
-export function exec<T extends AnySignal>($signal: T) {
+export function exec<T extends AnyAccessor>($signal: T) {
   start($signal)()
 
   return $signal

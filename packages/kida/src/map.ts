@@ -2,6 +2,7 @@
 import {
   type WritableSignal,
   type ReadableSignal,
+  type Accessor,
   update
 } from 'agera'
 import {
@@ -18,7 +19,7 @@ import {
  */
 export function atKey<T extends AnyCollection>(
   $map: WritableSignal<T>,
-  key: keyof T | ReadableSignal<keyof T>
+  key: keyof T | Accessor<keyof T>
 ): WritableSignal<T[keyof T]>
 
 /**
@@ -28,14 +29,14 @@ export function atKey<T extends AnyCollection>(
  * @returns The readable item signal by the key.
  */
 export function atKey<T extends AnyCollection>(
-  $map: ReadableSignal<T>,
-  key: keyof T | ReadableSignal<keyof T>
+  $map: Accessor<T>,
+  key: keyof T | Accessor<keyof T>
 ): ReadableSignal<T[keyof T]>
 
 /* @__NO_SIDE_EFFECTS__ */
 export function atKey<T extends AnyCollection>(
-  $map: ReadableSignal<T> | WritableSignal<T>,
-  key: keyof T | ReadableSignal<keyof T>
+  $map: Accessor<T> | WritableSignal<T>,
+  key: keyof T | Accessor<keyof T>
 ) {
   return child($map, key, assignKey)
 }
@@ -47,7 +48,7 @@ export function atKey<T extends AnyCollection>(
  * @returns The value.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function getKey<T extends AnyCollection>($map: ReadableSignal<T>, key: keyof T) {
+export function getKey<T extends AnyCollection>($map: Accessor<T>, key: keyof T) {
   return $map()[key]
 }
 
@@ -100,6 +101,6 @@ export function clearMap<T extends AnyCollection>($map: WritableSignal<T>) {
  * @returns Whether the map signal has the key.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function has<T extends AnyCollection>($map: ReadableSignal<T>, key: keyof T) {
+export function has<T extends AnyCollection>($map: Accessor<T>, key: keyof T) {
   return key in $map()
 }

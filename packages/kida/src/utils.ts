@@ -1,13 +1,12 @@
 import {
-  type ReadableSignal,
-  signal,
-  isSignal,
+  type Accessor,
+  isAccessor,
+  isFunction,
   computed
 } from 'agera'
-import { isFunction } from './internals/index.js'
 import type {
   RateLimiter,
-  ToSignal
+  ValueOrAccessor
 } from './types/index.js'
 
 export * from './internals/utils.js'
@@ -17,7 +16,7 @@ export * from './internals/utils.js'
  * @param $signal - Store to get the length from.
  * @returns The mapped signal for the length.
  */
-export function length<T extends { length: number }>($signal: ReadableSignal<T>) {
+export function length<T extends { length: number }>($signal: Accessor<T>) {
   return computed(() => $signal().length)
 }
 
@@ -26,7 +25,7 @@ export function length<T extends { length: number }>($signal: ReadableSignal<T>)
  * @param $signal - Store to convert to a boolean.
  * @returns The mapped signal for the boolean value.
  */
-export function boolean<T>($signal: ReadableSignal<T>) {
+export function boolean<T>($signal: Accessor<T>) {
   return computed(() => Boolean($signal()))
 }
 
@@ -119,26 +118,11 @@ export function throttle(fnOrDelay?: (() => void) | number) {
 }
 
 /**
- * Create signal from value or return signal
- * @param valueOrSignal - Value or signal
- * @returns Writable signal
- */
-export function toSignal<T>(
-  valueOrSignal: T
-): ToSignal<T>
-
-export function toSignal(valueOrSignal: unknown) {
-  return isSignal(valueOrSignal)
-    ? valueOrSignal
-    : signal(valueOrSignal)
-}
-
-/**
  * Get value from signal or return value
  * @param valueOr$signal - Value or signal
  * @returns Value
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function get<T>(valueOr$signal: T | ReadableSignal<T>) {
-  return isSignal(valueOr$signal) ? valueOr$signal() : valueOr$signal
+export function get<T>(valueOr$signal: ValueOrAccessor<T>): T {
+  return isAccessor(valueOr$signal) ? valueOr$signal() : valueOr$signal
 }

@@ -1,6 +1,7 @@
 import {
   type WritableSignal,
   type ReadableSignal,
+  type Accessor,
   update
 } from 'agera'
 import {
@@ -16,7 +17,7 @@ import {
  */
 export function atIndex<T>(
   $list: WritableSignal<T[]>,
-  index: number | ReadableSignal<number>
+  index: number | Accessor<number>
 ): WritableSignal<T>
 
 /**
@@ -26,14 +27,14 @@ export function atIndex<T>(
  * @returns The readable item signal at the index.
  */
 export function atIndex<T>(
-  $list: ReadableSignal<T[]>,
-  index: number | ReadableSignal<number>
+  $list: Accessor<T[]>,
+  index: number | Accessor<number>
 ): ReadableSignal<T>
 
 /* @__NO_SIDE_EFFECTS__ */
 export function atIndex<T>(
-  $list: ReadableSignal<T[]> | WritableSignal<T[]>,
-  index: number | ReadableSignal<number>
+  $list: Accessor<T[]> | WritableSignal<T[]>,
+  index: number | Accessor<number>
 ) {
   return child($list, index, assignIndex)
 }
@@ -103,7 +104,7 @@ export function unshift<T>($list: WritableSignal<T[]>, ...values: T[]) {
  * @returns The value at the index.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function getIndex<T>($list: ReadableSignal<T[]>, index: number) {
+export function getIndex<T>($list: Accessor<T[]>, index: number) {
   return $list()[index]
 }
 
@@ -145,6 +146,6 @@ export function clearList<T>($list: WritableSignal<T[]>) {
  * @returns Whether the list signal includes the value.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function includes<T>($list: ReadableSignal<T[]>, value: T) {
+export function includes<T>($list: Accessor<T[]>, value: T) {
   return $list().includes(value)
 }

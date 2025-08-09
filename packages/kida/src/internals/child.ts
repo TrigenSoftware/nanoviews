@@ -1,13 +1,14 @@
 import {
   type WritableSignal,
   type ReadableSignal,
-  isSignal,
+  type Accessor,
   computed,
   morph,
   $$get,
   $$set
 } from 'agera'
 import type { AnyObject } from './types/index.js'
+import { toAccessor } from './utils.js'
 
 /**
  * Create a writable child signal from a parent signal.
@@ -22,7 +23,7 @@ export function child<
   V extends P[K]
 >(
   $parent: WritableSignal<P>,
-  key: K | ReadableSignal<K>,
+  key: K | Accessor<K>,
   setValue: (parentValue: P, key: K, value: V) => P
 ): WritableSignal<V>
 
@@ -38,8 +39,8 @@ export function child<
   K extends keyof P,
   V extends P[K]
 >(
-  $parent: ReadableSignal<P>,
-  key: K | ReadableSignal<K>,
+  $parent: Accessor<P>,
+  key: K | Accessor<K>,
   setValue: (parentValue: P, key: K, value: V) => P
 ): ReadableSignal<V>
 
@@ -48,19 +49,13 @@ export function child<
   K extends keyof P,
   V extends P[K]
 >(
-  $parent: WritableSignal<P> | ReadableSignal<P>,
-  key: K | ReadableSignal<K>,
+  $parent: WritableSignal<P> | Accessor<P>,
+  key: K | Accessor<K>,
   setValue: (parentValue: P, key: K, value: V) => P
 ) {
-  const isSignalKey = isSignal(key)
-  const get = computed(
-    isSignalKey
-      ? () => $parent()[key()]
-      : () => $parent()[key]
-  )
-  const set = isSignalKey
-    ? (value: V) => $parent(setValue($parent(), key(), value))
-    : (value: V) => $parent(setValue($parent(), key, value))
+  const getKey = toAccessor(key)
+  const get = computed(() => $parent()[getKey()])
+  const set = (value: V) => $parent(setValue($parent(), getKey(), value))
 
   return morph(get, {
     [$$get]: get,

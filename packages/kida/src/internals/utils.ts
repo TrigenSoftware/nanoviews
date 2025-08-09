@@ -1,8 +1,15 @@
+import {
+  signal,
+  isSignal,
+  isAccessor,
+  computed
+} from 'agera'
 import type {
-  AnyFn,
   AnyObject,
   EmptyValue,
-  PickNonEmptyValue
+  PickNonEmptyValue,
+  ToAccessor,
+  ToSignal
 } from './types/index.js'
 
 /**
@@ -47,10 +54,33 @@ export function assignKey<
 }
 
 /**
- * Check if value is function
- * @param value
- * @returns True if value is function
+ * Create signal from value or return signal
+ * @param valueOrSignal - Value or signal
+ * @returns Writable signal
  */
-export function isFunction(value: unknown): value is AnyFn {
-  return typeof value === 'function'
+export function toSignal<T>(
+  valueOrSignal: T
+): ToSignal<T>
+
+export function toSignal(valueOrSignal: unknown) {
+  return isSignal(valueOrSignal)
+    ? valueOrSignal
+    : isAccessor(valueOrSignal)
+      ? computed(valueOrSignal)
+      : signal(valueOrSignal)
+}
+
+/**
+ * Create accessor from value or return accessor
+ * @param valueOrAccessor - Value or accessor
+ * @returns Accessor
+ */
+export function toAccessor<T>(
+  valueOrAccessor: T
+): ToAccessor<T>
+
+export function toAccessor(valueOrReadable: unknown) {
+  return isAccessor(valueOrReadable)
+    ? valueOrReadable
+    : () => valueOrReadable
 }

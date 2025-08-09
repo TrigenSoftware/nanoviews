@@ -1,6 +1,6 @@
 import type {
-  SignalValue,
-  AnyReadableSignal,
+  AccessorValue,
+  AnyAccessor,
   AnyWritableSignal,
   ReadableSignal,
   WritableSignal
@@ -13,8 +13,8 @@ import type {
 } from '../internals/types/index.js'
 
 export type ReadableRecord<
-  T extends AnyReadableSignal
-> = SignalValue<T> extends infer V
+  T extends AnyAccessor
+> = AccessorValue<T> extends infer V
   ? V extends GenericRecordValue
     ? [PickNonEmptyValue<V>, PickEmptyValue<V>] extends [infer Value, infer Empty]
       ? T & {
@@ -26,7 +26,7 @@ export type ReadableRecord<
 
 export type WritableRecord<
   T extends AnyWritableSignal
-> = SignalValue<T> extends infer V
+> = AccessorValue<T> extends infer V
   ? V extends GenericRecordValue
     ? [PickNonEmptyValue<V>, PickEmptyValue<V>] extends [infer Value, infer Empty]
       ? T & {
@@ -37,8 +37,8 @@ export type WritableRecord<
   : never
 
 export type ReadableDeepRecord<
-  T extends AnyReadableSignal
-> = SignalValue<T> extends infer V
+  T extends AnyAccessor
+> = AccessorValue<T> extends infer V
   ? V extends GenericRecordValue
     ? [PickNonEmptyValue<V>, PickEmptyValue<V>] extends [infer Value, infer Empty]
       ? T & {
@@ -56,7 +56,7 @@ export type ReadableDeepRecord<
 
 export type WritableDeepRecord<
   T extends AnyWritableSignal
-> = SignalValue<T> extends infer V
+> = AccessorValue<T> extends infer V
   ? V extends GenericRecordValue
     ? [PickNonEmptyValue<V>, PickEmptyValue<V>] extends [infer Value, infer Empty]
       ? T & {

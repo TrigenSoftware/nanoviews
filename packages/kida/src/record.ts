@@ -1,5 +1,5 @@
 import type {
-  AnyReadableSignal,
+  AnyAccessor,
   AnyWritableSignal,
   WritableSignal
 } from 'agera'
@@ -13,7 +13,7 @@ import {
   createProxyHandler,
   recordBase
 } from './internals/index.js'
-import { toSignal } from './utils.js'
+import { toAccessor } from './utils.js'
 
 const flatHandler = /* @__PURE__ */ createProxyHandler(child => child)
 
@@ -25,9 +25,9 @@ const flatHandler = /* @__PURE__ */ createProxyHandler(child => child)
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function record<T>(source: T) {
-  return recordBase(toSignal(source), flatHandler) as T extends AnyWritableSignal
+  return recordBase(toAccessor(source), flatHandler) as T extends AnyWritableSignal
     ? WritableRecord<T>
-    : T extends AnyReadableSignal
+    : T extends AnyAccessor
       ? ReadableRecord<T>
       : WritableRecord<WritableSignal<T>>
 }
@@ -42,9 +42,9 @@ const deepHandler = /* @__PURE__ */ createProxyHandler(deepRecord)
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function deepRecord<T>(source: T) {
-  return recordBase(toSignal(source), deepHandler) as T extends AnyWritableSignal
+  return recordBase(toAccessor(source), deepHandler) as T extends AnyWritableSignal
     ? WritableDeepRecord<T>
-    : T extends AnyReadableSignal
+    : T extends AnyAccessor
       ? ReadableDeepRecord<T>
       : WritableDeepRecord<WritableSignal<T>>
 }

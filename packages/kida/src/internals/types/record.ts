@@ -1,4 +1,7 @@
-import type { AnySignal } from 'agera'
+import type {
+  AnyAccessorOrSignal,
+  AnySignal
+} from 'agera'
 import type { $$record } from '../symbols.js'
 import type {
   AnyObject,
@@ -7,7 +10,7 @@ import type {
 
 export type GenericRecordValue = AnyObject | EmptyValue
 
-export type AnyRecordStore = AnySignal & Partial<Record<PropertyKey, AnySignal>>
+export type AnyRecordStore = AnyAccessorOrSignal & Partial<Record<PropertyKey, AnySignal>>
 
 export interface RecordStore {
   [$$record]?: AnyRecordStore

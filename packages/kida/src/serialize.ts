@@ -1,7 +1,6 @@
 import type {
-  AnyReadableSignal,
-  AnyWritableSignal,
-  AnySignal
+  AnyAccessor,
+  AnyWritableSignal
 } from 'agera'
 import { start } from './internals/index.js'
 import {
@@ -22,7 +21,7 @@ export function Serialized(): Record<string, unknown> | null {
   return null
 }
 
-function ToSerialize(): Map<string, AnyReadableSignal> | null {
+function ToSerialize(): Map<string, AnyAccessor> | null {
   return null
 }
 
@@ -56,14 +55,17 @@ export function serializable<T extends AnyWritableSignal>(id: string, $signal: T
  * @param context - The injection context.
  * @returns The serialized data.
  */
-export async function serialize(runner: () => AnySignal[], context = new InjectionContext()) {
-  const toSerialize = new Map<string, AnyReadableSignal>()
+export async function serialize(
+  runner: () => AnyAccessor[],
+  context = new InjectionContext()
+) {
+  const toSerialize = new Map<string, AnyAccessor>()
 
   context.set(ToSerialize, toSerialize)
 
   const stores = run(context, runner)
   const tasks = context.get(Tasks)
-  const stops = stores.map(start)
+  const stop = start(() => stores.forEach(store => store() as void))
 
   await allTasks(tasks)
 
@@ -73,7 +75,7 @@ export async function serialize(runner: () => AnySignal[], context = new Injecti
     serialized[id] = $signal()
   })
 
-  stops.forEach(stop => stop())
+  stop()
 
   return serialized
 }
