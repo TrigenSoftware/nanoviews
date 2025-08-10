@@ -1,15 +1,52 @@
-- attr lazy prop
-- signal getter
+- for loop array or empty check for else
+- rework return slot$ to look like element/component? fn.prop is faster than {f,p}
 - util to transform static props to signal props?
 - rename decide? export as public - as Dynamic in solidjs
 - typed effectattrs <T>
 - additional arg for record in for$? as$
+
+for$($items)(
+  as$(record, ($item) => li()($item.$name))
+)
+
 - serialize - start all marked stores?
-- bundle types
+- bundle types?
 - static index for untracked loop?
 - controls addEventListener to events system
-- lazy scope to start and stop methods?
+- lazy scope to start and stop methods? - ??? wtf???
 - later: resort effects
+
+do not export all through root index? split entrypoints by groups
+
+import {
+  div,
+  button
+} from 'nanoviews/elements'
+import {
+  classList$,
+  focus$
+} from 'nanoviews/attributes'
+import {
+  signal
+} from 'nanoviews/store'
+import {
+  if$,
+  for$
+} from 'nanoviews/logic'
+
+vs
+
+import {
+  div,
+  button,
+  classList$,
+  focus$,
+  signal,
+  if$,
+  for$
+} from 'nanoviews'
+
+there are many exports, so it can look like a mess, may be we can push devs to write structured code by splitting exports by entrypoints.
 
 - !== undefined is faster
 - prop: undefined is faster
@@ -20,35 +57,21 @@
 - Reflect.get is slow
 - arr.length = 0 is slower than arr = []
 
-- store injection effectScope to stop effects after context stop?
+- store injection effectScope to stop effects after context stop? - UPD: wtf is this? i dont remember what it mean. Wrap serialize in effectScope? Or wrap inject ? bad practice, maybe just for safety into serialize
 
 - html + head components
 - universal dom
 - ssr
 - hydration
 
-- enhance events / modifiers?
+- events modifiers?
 - svg ?
-- transitions ?
 
 - error boundaries
 
 - hmr
-- more informative errors
 
-  All publics
-  Size limit: 1.8 kB
-  Size:       1.78 kB with all dependencies, minified and brotlied
-
-  Signal
-  Package size limit has exceeded by 249 B
-  Size limit: 1.22 kB
-  Size:       1.47 kB with all dependencies, minified and brotlied
-
-  Popular set
-  Package size limit has exceeded by 235 B
-  Size limit: 1.33 kB
-  Size:       1.57 kB with all dependencies, minified and brotlied
+- COMPILER to compete with svelte and solid
 
 SSR
 
