@@ -9,7 +9,8 @@ import type {
   EmptyValue,
   PickNonEmptyValue,
   ToAccessor,
-  ToSignal
+  ToSignal,
+  ValueOrAccessor
 } from './types/index.js'
 
 /**
@@ -54,6 +55,16 @@ export function assignKey<
 }
 
 /**
+ * Get value from signal or return value
+ * @param valueOr$signal - Value or signal
+ * @returns Value
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function get<T>(valueOr$signal: ValueOrAccessor<T>): T {
+  return isAccessor(valueOr$signal) ? valueOr$signal() : valueOr$signal
+}
+
+/**
  * Create signal from value or return signal
  * @param valueOrSignal - Value or signal
  * @returns Writable signal
@@ -83,4 +94,19 @@ export function toAccessor(valueOrReadable: unknown) {
   return isAccessor(valueOrReadable)
     ? valueOrReadable
     : () => valueOrReadable
+}
+
+/**
+ * Create signal from value or return accessor or signal
+ * @param valueOrAccessor - Value or accessor or signal
+ * @returns Accessor or signal
+ */
+export function toAccessorOrSignal<T>(
+  valueOrAccessor: T
+): ToAccessor<T>
+
+export function toAccessorOrSignal(valueOrReadable: unknown) {
+  return isAccessor(valueOrReadable)
+    ? valueOrReadable
+    : signal(valueOrReadable)
 }

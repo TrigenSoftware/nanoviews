@@ -8,7 +8,7 @@ import {
   $$set
 } from 'agera'
 import type { AnyObject } from './types/index.js'
-import { toAccessor } from './utils.js'
+import { get } from './utils.js'
 
 /**
  * Create a writable child signal from a parent signal.
@@ -53,12 +53,11 @@ export function child<
   key: K | Accessor<K>,
   setValue: (parentValue: P, key: K, value: V) => P
 ) {
-  const getKey = toAccessor(key)
-  const get = computed(() => $parent()[getKey()])
-  const set = (value: V) => $parent(setValue($parent(), getKey(), value))
+  const getter = computed(() => $parent()[get(key)])
+  const setter = (value: V) => $parent(setValue($parent(), get(key), value))
 
-  return morph(get, {
-    [$$get]: get,
-    [$$set]: set
+  return morph(getter, {
+    [$$get]: getter,
+    [$$set]: setter
   })
 }

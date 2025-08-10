@@ -1,13 +1,9 @@
 import {
   type Accessor,
-  isAccessor,
   isFunction,
   computed
 } from 'agera'
-import type {
-  RateLimiter,
-  ValueOrAccessor
-} from './types/index.js'
+import type { RateLimiter } from './types/index.js'
 
 export * from './internals/utils.js'
 
@@ -115,14 +111,4 @@ export function throttle(fnOrDelay?: (() => void) | number) {
         }
     }
   }
-}
-
-/**
- * Get value from signal or return value
- * @param valueOr$signal - Value or signal
- * @returns Value
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function get<T>(valueOr$signal: ValueOrAccessor<T>): T {
-  return isAccessor(valueOr$signal) ? valueOr$signal() : valueOr$signal
 }

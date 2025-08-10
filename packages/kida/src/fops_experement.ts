@@ -1,5 +1,5 @@
 import type { Accessor } from 'agera'
-import type { ValueOrAccessor } from './types/common.js'
+import type { ValueOrAccessor } from './types/index.js'
 import { get } from './utils.js'
 
 /**

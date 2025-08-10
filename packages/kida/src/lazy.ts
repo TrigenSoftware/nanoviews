@@ -2,11 +2,11 @@ import {
   type Morph,
   $$get,
   $$source,
+  isFunction,
   morph,
   signal
 } from 'agera'
 import type { LazyFactory } from './types/index.js'
-import { isFunction } from './utils.js'
 
 function lazyGetter<T>(this: Morph<T>) {
   const $source = this[$$source]
