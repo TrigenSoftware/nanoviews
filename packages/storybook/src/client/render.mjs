@@ -56,7 +56,7 @@ const unmountsByDomElement = new Map()
 export function renderToCanvas({ storyFn, showMain, forceRemount }, canvasElement) {
   const [component, props] = storyFn()
   const reactiveProps = updateProps(canvasElement, props)
-  let unmount = unmountsByDomElement.get(canvasElement) || []
+  let unmount = unmountsByDomElement.get(canvasElement)
 
   if (forceRemount && unmount) {
     unmount()
