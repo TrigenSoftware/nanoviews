@@ -11,6 +11,7 @@ const store = new Map<EffectAttributeId, EffectAttributeCallback>()
  * @param callback - Effect attribute handler
  * @returns Effect attribute id
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function createEffectAttribute<
   ID extends string,
   TargetElement extends Element,

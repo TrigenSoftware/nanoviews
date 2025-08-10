@@ -1,6 +1,6 @@
-import type { ReadableSignal } from 'kida'
+import type { Accessor } from 'kida'
 import type { Primitive } from '../types/index.js'
-import { subscribeSignal } from '../effects.js'
+import { subscribeAccessor } from '../effects.js'
 import { isEmpty } from '../utils.js'
 
 export function createTextNode(value: unknown = '') {
@@ -12,10 +12,10 @@ export function createTextNode(value: unknown = '') {
  * @param $value - Reactive or static value
  * @returns Text node
  */
-export function createTextNodeFromSignal<T extends Primitive>($value: ReadableSignal<T>) {
+export function createTextNodeFromAccessor<T extends Primitive>($value: Accessor<T>) {
   const node = createTextNode()
 
-  subscribeSignal($value, value => node.data = isEmpty(value) ? '' : value as string)
+  subscribeAccessor($value, value => node.data = isEmpty(value) ? '' : value as string)
 
   return node
 }

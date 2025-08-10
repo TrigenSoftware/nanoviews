@@ -1,7 +1,5 @@
-import type {
-  ValueOrSignal,
-  Primitive
-} from './common.js'
+import type { ValueOrAccessor } from 'kida'
+import type { Primitive } from './common.js'
 import type {
   ElementName,
   IntrinsicElementsAttributes,
@@ -9,7 +7,7 @@ import type {
 } from './dom/elements.js'
 import type { PickEffectAttributesByTarget } from './effectAttribute.js'
 
-export type PrimitiveAttributeValue = ValueOrSignal<Primitive>
+export type PrimitiveAttributeValue = ValueOrAccessor<Primitive>
 
 export type Attributes<Tag extends ElementName> =
   & PickEffectAttributesByTarget<PickElementType<Tag>>

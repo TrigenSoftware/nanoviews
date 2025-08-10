@@ -1,8 +1,8 @@
 import {
+  type Accessor,
   type ReadableSignal,
   type WritableSignal,
-  type AnySignal,
-  isSignal
+  isAccessor
 } from 'kida'
 import {
   type Child,
@@ -30,12 +30,12 @@ export function trackById(item: { id: unknown }) {
 }
 
 type AnyEach = (
-  item: AnySignal,
+  item: Accessor<unknown>,
   index: ReadableSignal<number>
 ) => Child
 
 type ReadableEach<T> = (
-  item: ReadableSignal<T>,
+  item: Accessor<T>,
   index: ReadableSignal<number>
 ) => Child
 
@@ -60,7 +60,7 @@ export function for$<T>(
 ) => Child
 
 export function for$<T>(
-  $items: ReadableSignal<T[]>,
+  $items: Accessor<T[]>,
   track?: (item: T, index: number) => unknown
 ): (
   each$: ReadableEach<T>,
@@ -81,14 +81,14 @@ export function for$<T>(
  * @returns Function to receive each$ and else$ functions
  */
 export function for$(
-  $items: unknown[] | AnySignal,
+  $items: unknown[] | Accessor<unknown[]>,
   track?: UnknownTrack
 ) {
-  if (isSignal($items)) {
+  if (isAccessor($items)) {
     return (
       each$: AnyEach,
       else$?: () => Child
-    ) => loop($items as WritableSignal<unknown[]>, each$, else$, track)
+    ) => loop($items, each$, else$, track)
   }
 
   return (

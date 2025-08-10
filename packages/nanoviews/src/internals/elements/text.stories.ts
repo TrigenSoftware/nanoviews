@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
 import {
   createTextNode,
-  createTextNodeFromSignal
+  createTextNodeFromAccessor
 } from './text.js'
 
 const meta: Meta<{ value: string }> = {
@@ -21,5 +21,5 @@ export const ReactiveValue: Story = {
   args: {
     value: 'Hello, world!'
   },
-  render: nanoStory(({ value }) => createTextNodeFromSignal(value))
+  render: nanoStory(({ value }) => createTextNodeFromAccessor(value))
 }

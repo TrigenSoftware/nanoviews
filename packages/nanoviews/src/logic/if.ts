@@ -1,5 +1,5 @@
 import {
-  isSignal,
+  isAccessor,
   boolean
 } from 'kida'
 import {
@@ -25,7 +25,7 @@ export function if$<T>($value: T) {
     then$: (value: TruthyValueOrSignal<T>) => Child,
     else$?: (value: FalsyValueOrSignal<T>) => Child
   ) => decide(
-    isSignal($value) ? boolean($value) : $value as boolean,
+    isAccessor($value) ? boolean($value) : $value as boolean,
     confition => (
       confition
         ? then$($value as TruthyValueOrSignal<T>)

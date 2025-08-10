@@ -1,19 +1,17 @@
 import {
-  type ReadableSignal,
+  type Accessor,
   type Destroy,
+  type ValueOrAccessor,
+  isAccessor,
   effect,
-  isSignal,
   createEffectScope,
   getContext,
   run
 } from 'kida'
-import type {
-  ValueOrSignal,
-  EffectScopeSwapperCallback
-} from './types/index.js'
+import type { EffectScopeSwapperCallback } from './types/index.js'
 
-export function subscribeSignal<T>(
-  $signal: ReadableSignal<T>,
+export function subscribeAccessor<T>(
+  $signal: Accessor<T>,
   callback: (value: T) => void
 ) {
   effect(() => {
@@ -22,11 +20,11 @@ export function subscribeSignal<T>(
 }
 
 export function subscribe<T>(
-  valueOr$signal: ValueOrSignal<T>,
+  valueOr$signal: ValueOrAccessor<T>,
   callback: (value: T) => void
 ) {
-  if (isSignal(valueOr$signal)) {
-    subscribeSignal(valueOr$signal, callback)
+  if (isAccessor(valueOr$signal)) {
+    subscribeAccessor(valueOr$signal, callback)
   } else {
     callback(valueOr$signal)
   }
@@ -39,7 +37,7 @@ export function createEffectScopeWithContext(context = getContext()) {
 }
 
 export function effectScopeSwapper<T>(
-  $signal: ReadableSignal<T>,
+  $signal: Accessor<T>,
   callback: EffectScopeSwapperCallback<T>
 ) {
   let prevValue: T | undefined

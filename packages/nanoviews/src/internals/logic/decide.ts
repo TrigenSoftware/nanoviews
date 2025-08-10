@@ -1,12 +1,10 @@
 import {
-  type ReadableSignal,
+  type Accessor,
+  type ValueOrAccessor,
   type Destroy,
-  isSignal
+  isAccessor
 } from 'kida'
-import type {
-  ValueOrSignal,
-  Child
-} from '../types/index.js'
+import type { Child } from '../types/index.js'
 import {
   createEffectScopeWithContext,
   effectScopeSwapper
@@ -18,7 +16,7 @@ import {
 } from '../elements/child.js'
 
 export function reactiveDecide<T>(
-  $condition: ReadableSignal<T>,
+  $condition: Accessor<T>,
   decider: (value: T) => Child
 ) {
   const start = createTextNode()
@@ -63,10 +61,10 @@ export function reactiveDecide<T>(
  * @returns Block that renders decided child
  */
 export function decide<T>(
-  $condition: ValueOrSignal<T>,
+  $condition: ValueOrAccessor<T>,
   decider: (value: T) => Child
 ) {
-  if (isSignal($condition)) {
+  if (isAccessor($condition)) {
     return reactiveDecide($condition, decider)
   }
 

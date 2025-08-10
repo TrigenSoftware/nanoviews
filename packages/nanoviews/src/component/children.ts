@@ -10,6 +10,7 @@ import type {
   Renderer,
   RendererWithSlots
 } from '../internals/types/index.js'
+import { lazyChild } from '../internals/index.js'
 
 /**
  * Collect children
@@ -20,7 +21,9 @@ export function children$<
   T extends Child,
   C extends unknown[] = Children
 >(render: Renderer<T, C>) {
-  return (...children: C) => render(children)
+  return lazyChild(
+    (...children: C) => render(children)
+  )
 }
 
 /**
@@ -102,5 +105,9 @@ export function slots$<
   slotDefs: [...D],
   render: RendererWithSlots<T, D>
 ) {
-  return (...children: ChildrenWithSlots<MapSlotDefsToSlot<D>>) => render(...getSlots(slotDefs, children))
+  return lazyChild(
+    (...children: ChildrenWithSlots<MapSlotDefsToSlot<D>>) => render(
+      ...getSlots(slotDefs, children)
+    )
+  )
 }

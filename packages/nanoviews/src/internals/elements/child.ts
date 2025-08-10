@@ -1,29 +1,41 @@
-import {
-  isSignal,
-  isFunctionNotSignal
-} from 'kida'
+import { isAccessor } from 'kida'
 import type {
   Child,
   EmptyValue,
+  LazyChild,
   MaybeDestroy
 } from '../types/index.js'
 import { isEmpty } from '../utils.js'
 import {
   createTextNode,
-  createTextNodeFromSignal
+  createTextNodeFromAccessor
 } from './text.js'
+
+export function isLazyChild<T extends () => Child = () => Child>(
+  child: unknown
+): child is LazyChild<T> {
+  return typeof child === 'function' && 'c' in child
+}
+
+export function lazyChild<T extends () => Child>(
+  child: T
+): LazyChild<T> {
+  (child as LazyChild<T>).c = true
+
+  return child as LazyChild<T>
+}
 
 export function childToNode(child: Child) {
   if (isEmpty(child)) {
     return child
   }
 
-  if (isFunctionNotSignal(child)) {
+  if (isLazyChild(child)) {
     return childToNode(child())
   }
 
-  return isSignal(child)
-    ? createTextNodeFromSignal(child)
+  return isAccessor(child)
+    ? createTextNodeFromAccessor(child)
     : typeof child === 'object'
       ? child
       : createTextNode(child)

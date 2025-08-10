@@ -1,8 +1,6 @@
 import type * as CSS from 'csstype'
-import type {
-  ValueOrSignal,
-  EmptyValue
-} from '../common.js'
+import type { ValueOrAccessor } from 'kida'
+import type { EmptyValue } from '../common.js'
 import type {
   Booleanish,
   CrossOrigin
@@ -30,79 +28,79 @@ export interface CSSProperties extends CSS.Properties<string | number> {
 
 export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, DOMAttributes<T> {
   // React-specific Attributes
-  defaultChecked?: ValueOrSignal<boolean | EmptyValue>
-  defaultValue?: ValueOrSignal<string | number | readonly string[] | EmptyValue>
-  suppressContentEditableWarning?: ValueOrSignal<boolean | EmptyValue>
-  suppressHydrationWarning?: ValueOrSignal<boolean | EmptyValue>
+  defaultChecked?: ValueOrAccessor<boolean | EmptyValue>
+  defaultValue?: ValueOrAccessor<string | number | readonly string[] | EmptyValue>
+  suppressContentEditableWarning?: ValueOrAccessor<boolean | EmptyValue>
+  suppressHydrationWarning?: ValueOrAccessor<boolean | EmptyValue>
 
   // Standard HTML Attributes
-  accessKey?: ValueOrSignal<string | EmptyValue>
-  autoFocus?: ValueOrSignal<boolean | EmptyValue>
-  class?: ValueOrSignal<string | EmptyValue>
-  contentEditable?: ValueOrSignal<Booleanish | 'inherit' | 'plaintext-only' | EmptyValue>
-  contextMenu?: ValueOrSignal<string | EmptyValue>
-  dir?: ValueOrSignal<string | EmptyValue>
-  draggable?: ValueOrSignal<Booleanish | EmptyValue>
-  hidden?: ValueOrSignal<boolean | EmptyValue>
-  id?: ValueOrSignal<string | EmptyValue>
-  lang?: ValueOrSignal<string | EmptyValue>
-  nonce?: ValueOrSignal<string | EmptyValue>
-  slot?: ValueOrSignal<string | EmptyValue>
-  spellCheck?: ValueOrSignal<Booleanish | EmptyValue>
-  style?: ValueOrSignal<string | EmptyValue>
-  tabIndex?: ValueOrSignal<number | EmptyValue>
-  title?: ValueOrSignal<string | EmptyValue>
-  translate?: ValueOrSignal<'yes' | 'no' | EmptyValue>
+  accessKey?: ValueOrAccessor<string | EmptyValue>
+  autoFocus?: ValueOrAccessor<boolean | EmptyValue>
+  class?: ValueOrAccessor<string | EmptyValue>
+  contentEditable?: ValueOrAccessor<Booleanish | 'inherit' | 'plaintext-only' | EmptyValue>
+  contextMenu?: ValueOrAccessor<string | EmptyValue>
+  dir?: ValueOrAccessor<string | EmptyValue>
+  draggable?: ValueOrAccessor<Booleanish | EmptyValue>
+  hidden?: ValueOrAccessor<boolean | EmptyValue>
+  id?: ValueOrAccessor<string | EmptyValue>
+  lang?: ValueOrAccessor<string | EmptyValue>
+  nonce?: ValueOrAccessor<string | EmptyValue>
+  slot?: ValueOrAccessor<string | EmptyValue>
+  spellCheck?: ValueOrAccessor<Booleanish | EmptyValue>
+  style?: ValueOrAccessor<string | EmptyValue>
+  tabIndex?: ValueOrAccessor<number | EmptyValue>
+  title?: ValueOrAccessor<string | EmptyValue>
+  translate?: ValueOrAccessor<'yes' | 'no' | EmptyValue>
 
   // Unknown
-  radioGroup?: ValueOrSignal<string | EmptyValue> // <command>, <menuitem>
+  radioGroup?: ValueOrAccessor<string | EmptyValue> // <command>, <menuitem>
 
   // WAI-ARIA
-  role?: ValueOrSignal<AriaRole | EmptyValue>
+  role?: ValueOrAccessor<AriaRole | EmptyValue>
 
   // RDFa Attributes
-  about?: ValueOrSignal<string | EmptyValue>
-  content?: ValueOrSignal<string | EmptyValue>
-  datatype?: ValueOrSignal<string | EmptyValue>
-  inlist?: ValueOrSignal<any>
-  prefix?: ValueOrSignal<string | EmptyValue>
-  property?: ValueOrSignal<string | EmptyValue>
-  rel?: ValueOrSignal<string | EmptyValue>
-  resource?: ValueOrSignal<string | EmptyValue>
-  rev?: ValueOrSignal<string | EmptyValue>
-  typeof?: ValueOrSignal<string | EmptyValue>
-  vocab?: ValueOrSignal<string | EmptyValue>
+  about?: ValueOrAccessor<string | EmptyValue>
+  content?: ValueOrAccessor<string | EmptyValue>
+  datatype?: ValueOrAccessor<string | EmptyValue>
+  inlist?: ValueOrAccessor<any>
+  prefix?: ValueOrAccessor<string | EmptyValue>
+  property?: ValueOrAccessor<string | EmptyValue>
+  rel?: ValueOrAccessor<string | EmptyValue>
+  resource?: ValueOrAccessor<string | EmptyValue>
+  rev?: ValueOrAccessor<string | EmptyValue>
+  typeof?: ValueOrAccessor<string | EmptyValue>
+  vocab?: ValueOrAccessor<string | EmptyValue>
 
   // Non-standard Attributes
-  autoCapitalize?: ValueOrSignal<string | EmptyValue>
-  autoCorrect?: ValueOrSignal<string | EmptyValue>
-  autoSave?: ValueOrSignal<string | EmptyValue>
-  color?: ValueOrSignal<string | EmptyValue>
-  itemProp?: ValueOrSignal<string | EmptyValue>
-  itemScope?: ValueOrSignal<boolean | EmptyValue>
-  itemType?: ValueOrSignal<string | EmptyValue>
-  itemID?: ValueOrSignal<string | EmptyValue>
-  itemRef?: ValueOrSignal<string | EmptyValue>
-  results?: ValueOrSignal<number | EmptyValue>
-  security?: ValueOrSignal<string | EmptyValue>
-  unselectable?: ValueOrSignal<'on' | 'off' | EmptyValue>
+  autoCapitalize?: ValueOrAccessor<string | EmptyValue>
+  autoCorrect?: ValueOrAccessor<string | EmptyValue>
+  autoSave?: ValueOrAccessor<string | EmptyValue>
+  color?: ValueOrAccessor<string | EmptyValue>
+  itemProp?: ValueOrAccessor<string | EmptyValue>
+  itemScope?: ValueOrAccessor<boolean | EmptyValue>
+  itemType?: ValueOrAccessor<string | EmptyValue>
+  itemID?: ValueOrAccessor<string | EmptyValue>
+  itemRef?: ValueOrAccessor<string | EmptyValue>
+  results?: ValueOrAccessor<number | EmptyValue>
+  security?: ValueOrAccessor<string | EmptyValue>
+  unselectable?: ValueOrAccessor<'on' | 'off' | EmptyValue>
 
   // Living Standard
   /**
    * Hints at the type of data that might be entered by the user while editing the element or its contents
    * @see {@link https://html.spec.whatwg.org/multipage/interaction.html#input-modalities:-the-inputmode-attribute}
    */
-  inputMode?: ValueOrSignal<'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' | EmptyValue>
+  inputMode?: ValueOrAccessor<'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' | EmptyValue>
   /**
    * Specify that a standard HTML element should behave like a defined custom built-in element
    * @see {@link https://html.spec.whatwg.org/multipage/custom-elements.html#attr-is}
    */
-  is?: ValueOrSignal<string | EmptyValue>
+  is?: ValueOrAccessor<string | EmptyValue>
 
   /**
    * Data attributes
    */
-  [key: `data-${string}`]: ValueOrSignal<unknown>
+  [key: `data-${string}`]: ValueOrAccessor<unknown>
 }
 
 export type HTMLAttributeReferrerPolicy =
@@ -124,156 +122,156 @@ export type HTMLAttributeAnchorTarget =
   | string & {}
 
 export interface AnchorHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  download?: ValueOrSignal<any>
-  href?: ValueOrSignal<string | EmptyValue>
-  hrefLang?: ValueOrSignal<string | EmptyValue>
-  media?: ValueOrSignal<string | EmptyValue>
-  ping?: ValueOrSignal<string | EmptyValue>
-  target?: ValueOrSignal<HTMLAttributeAnchorTarget | EmptyValue>
-  type?: ValueOrSignal<string | EmptyValue>
-  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
+  download?: ValueOrAccessor<any>
+  href?: ValueOrAccessor<string | EmptyValue>
+  hrefLang?: ValueOrAccessor<string | EmptyValue>
+  media?: ValueOrAccessor<string | EmptyValue>
+  ping?: ValueOrAccessor<string | EmptyValue>
+  target?: ValueOrAccessor<HTMLAttributeAnchorTarget | EmptyValue>
+  type?: ValueOrAccessor<string | EmptyValue>
+  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
 }
 
 export interface AudioHTMLAttributes<T extends HTMLElement> extends MediaHTMLAttributes<T> {}
 
 export interface AreaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  alt?: ValueOrSignal<string | EmptyValue>
-  coords?: ValueOrSignal<string | EmptyValue>
-  download?: ValueOrSignal<any>
-  href?: ValueOrSignal<string | EmptyValue>
-  hrefLang?: ValueOrSignal<string | EmptyValue>
-  media?: ValueOrSignal<string | EmptyValue>
-  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
-  shape?: ValueOrSignal<string | EmptyValue>
-  target?: ValueOrSignal<string | EmptyValue>
+  alt?: ValueOrAccessor<string | EmptyValue>
+  coords?: ValueOrAccessor<string | EmptyValue>
+  download?: ValueOrAccessor<any>
+  href?: ValueOrAccessor<string | EmptyValue>
+  hrefLang?: ValueOrAccessor<string | EmptyValue>
+  media?: ValueOrAccessor<string | EmptyValue>
+  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
+  shape?: ValueOrAccessor<string | EmptyValue>
+  target?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface BaseHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  href?: ValueOrSignal<string | EmptyValue>
-  target?: ValueOrSignal<string | EmptyValue>
+  href?: ValueOrAccessor<string | EmptyValue>
+  target?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface BlockquoteHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrSignal<string | EmptyValue>
+  cite?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface ButtonHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrSignal<boolean | EmptyValue>
-  form?: ValueOrSignal<string | EmptyValue>
-  formAction?: ValueOrSignal<string | EmptyValue>
-  formEncType?: ValueOrSignal<string | EmptyValue>
-  formMethod?: ValueOrSignal<string | EmptyValue>
-  formNoValidate?: ValueOrSignal<boolean | EmptyValue>
-  formTarget?: ValueOrSignal<string | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
-  type?: ValueOrSignal<'submit' | 'reset' | 'button' | EmptyValue>
-  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
+  disabled?: ValueOrAccessor<boolean | EmptyValue>
+  form?: ValueOrAccessor<string | EmptyValue>
+  formAction?: ValueOrAccessor<string | EmptyValue>
+  formEncType?: ValueOrAccessor<string | EmptyValue>
+  formMethod?: ValueOrAccessor<string | EmptyValue>
+  formNoValidate?: ValueOrAccessor<boolean | EmptyValue>
+  formTarget?: ValueOrAccessor<string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
+  type?: ValueOrAccessor<'submit' | 'reset' | 'button' | EmptyValue>
+  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
 }
 
 export interface CanvasHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  height?: ValueOrSignal<number | string | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
+  height?: ValueOrAccessor<number | string | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
 }
 
 export interface ColHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  span?: ValueOrSignal<number | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
+  span?: ValueOrAccessor<number | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
 }
 
 export interface ColgroupHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  span?: ValueOrSignal<number | EmptyValue>
+  span?: ValueOrAccessor<number | EmptyValue>
 }
 
 export interface DataHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
+  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
 }
 
 export interface DetailsHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  open?: ValueOrSignal<boolean | EmptyValue>
+  open?: ValueOrAccessor<boolean | EmptyValue>
   onToggle?: TargetEventHandler<T> | EmptyValue
-  name?: ValueOrSignal<string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface DelHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrSignal<string | EmptyValue>
-  dateTime?: ValueOrSignal<string | EmptyValue>
+  cite?: ValueOrAccessor<string | EmptyValue>
+  dateTime?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface DialogHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   onCancel?: TargetEventHandler<T> | EmptyValue
   onClose?: TargetEventHandler<T> | EmptyValue
-  open?: ValueOrSignal<boolean | EmptyValue>
+  open?: ValueOrAccessor<boolean | EmptyValue>
 }
 
 export interface EmbedHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  height?: ValueOrSignal<number | string | EmptyValue>
-  src?: ValueOrSignal<string | EmptyValue>
-  type?: ValueOrSignal<string | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
+  height?: ValueOrAccessor<number | string | EmptyValue>
+  src?: ValueOrAccessor<string | EmptyValue>
+  type?: ValueOrAccessor<string | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
 }
 
 export interface FieldsetHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrSignal<boolean | EmptyValue>
-  form?: ValueOrSignal<string | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
+  disabled?: ValueOrAccessor<boolean | EmptyValue>
+  form?: ValueOrAccessor<string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface FormHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  acceptCharset?: ValueOrSignal<string | EmptyValue>
-  action?: ValueOrSignal<string | EmptyValue>
-  autoComplete?: ValueOrSignal<string | EmptyValue>
-  encType?: ValueOrSignal<string | EmptyValue>
-  method?: ValueOrSignal<string | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
-  noValidate?: ValueOrSignal<boolean | EmptyValue>
-  target?: ValueOrSignal<string | EmptyValue>
+  acceptCharset?: ValueOrAccessor<string | EmptyValue>
+  action?: ValueOrAccessor<string | EmptyValue>
+  autoComplete?: ValueOrAccessor<string | EmptyValue>
+  encType?: ValueOrAccessor<string | EmptyValue>
+  method?: ValueOrAccessor<string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
+  noValidate?: ValueOrAccessor<boolean | EmptyValue>
+  target?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface HtmlHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  manifest?: ValueOrSignal<string | EmptyValue>
+  manifest?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface IframeHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  allow?: ValueOrSignal<string | EmptyValue>
-  allowFullScreen?: ValueOrSignal<boolean | EmptyValue>
-  allowTransparency?: ValueOrSignal<boolean | EmptyValue>
+  allow?: ValueOrAccessor<string | EmptyValue>
+  allowFullScreen?: ValueOrAccessor<boolean | EmptyValue>
+  allowTransparency?: ValueOrAccessor<boolean | EmptyValue>
   /** @deprecated */
-  frameBorder?: ValueOrSignal<number | string | EmptyValue>
-  height?: ValueOrSignal<number | string | EmptyValue>
-  loading?: ValueOrSignal<'eager' | 'lazy' | EmptyValue>
+  frameBorder?: ValueOrAccessor<number | string | EmptyValue>
+  height?: ValueOrAccessor<number | string | EmptyValue>
+  loading?: ValueOrAccessor<'eager' | 'lazy' | EmptyValue>
   /** @deprecated */
-  marginHeight?: ValueOrSignal<number | EmptyValue>
+  marginHeight?: ValueOrAccessor<number | EmptyValue>
   /** @deprecated */
-  marginWidth?: ValueOrSignal<number | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
-  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
-  sandbox?: ValueOrSignal<string | EmptyValue>
+  marginWidth?: ValueOrAccessor<number | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
+  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
+  sandbox?: ValueOrAccessor<string | EmptyValue>
   /** @deprecated */
-  scrolling?: ValueOrSignal<string | EmptyValue>
-  seamless?: ValueOrSignal<boolean | EmptyValue>
-  src?: ValueOrSignal<string | EmptyValue>
-  srcDoc?: ValueOrSignal<string | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
+  scrolling?: ValueOrAccessor<string | EmptyValue>
+  seamless?: ValueOrAccessor<boolean | EmptyValue>
+  src?: ValueOrAccessor<string | EmptyValue>
+  srcDoc?: ValueOrAccessor<string | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
 }
 
 export interface ImgHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  alt?: ValueOrSignal<string | EmptyValue>
-  crossOrigin?: ValueOrSignal<CrossOrigin>
-  decoding?: ValueOrSignal<'async' | 'auto' | 'sync' | EmptyValue>
-  fetchPriority?: ValueOrSignal<'high' | 'low' | 'auto'>
-  height?: ValueOrSignal<number | string | EmptyValue>
-  loading?: ValueOrSignal<'eager' | 'lazy' | EmptyValue>
-  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
-  sizes?: ValueOrSignal<string | EmptyValue>
-  src?: ValueOrSignal<string | EmptyValue>
-  srcSet?: ValueOrSignal<string | EmptyValue>
-  useMap?: ValueOrSignal<string | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
+  alt?: ValueOrAccessor<string | EmptyValue>
+  crossOrigin?: ValueOrAccessor<CrossOrigin>
+  decoding?: ValueOrAccessor<'async' | 'auto' | 'sync' | EmptyValue>
+  fetchPriority?: ValueOrAccessor<'high' | 'low' | 'auto'>
+  height?: ValueOrAccessor<number | string | EmptyValue>
+  loading?: ValueOrAccessor<'eager' | 'lazy' | EmptyValue>
+  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
+  sizes?: ValueOrAccessor<string | EmptyValue>
+  src?: ValueOrAccessor<string | EmptyValue>
+  srcSet?: ValueOrAccessor<string | EmptyValue>
+  useMap?: ValueOrAccessor<string | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
 }
 
 export interface InsHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrSignal<string | EmptyValue>
-  dateTime?: ValueOrSignal<string | EmptyValue>
+  cite?: ValueOrAccessor<string | EmptyValue>
+  dateTime?: ValueOrAccessor<string | EmptyValue>
 }
 
 export type HTMLInputTypeAttribute =
@@ -364,280 +362,280 @@ export type AutoFill =
 export type HTMLInputAutoCompleteAttribute = AutoFill | string & {}
 
 export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  accept?: ValueOrSignal<string | EmptyValue>
-  alt?: ValueOrSignal<string | EmptyValue>
-  autoComplete?: ValueOrSignal<HTMLInputAutoCompleteAttribute | EmptyValue>
-  capture?: ValueOrSignal<boolean | 'user' | 'environment' | EmptyValue> // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
-  checked?: ValueOrSignal<boolean | EmptyValue>
-  disabled?: ValueOrSignal<boolean | EmptyValue>
-  enterKeyHint?: ValueOrSignal<'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' | EmptyValue>
-  form?: ValueOrSignal<string | EmptyValue>
-  formAction?: ValueOrSignal<string | EmptyValue>
-  formEncType?: ValueOrSignal<string | EmptyValue>
-  formMethod?: ValueOrSignal<string | EmptyValue>
-  formNoValidate?: ValueOrSignal<boolean | EmptyValue>
-  formTarget?: ValueOrSignal<string | EmptyValue>
-  height?: ValueOrSignal<number | string | EmptyValue>
-  list?: ValueOrSignal<string | EmptyValue>
-  max?: ValueOrSignal<number | string | EmptyValue>
-  maxLength?: ValueOrSignal<number | EmptyValue>
-  min?: ValueOrSignal<number | string | EmptyValue>
-  minLength?: ValueOrSignal<number | EmptyValue>
-  multiple?: ValueOrSignal<boolean | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
-  pattern?: ValueOrSignal<string | EmptyValue>
-  placeholder?: ValueOrSignal<string | EmptyValue>
-  readOnly?: ValueOrSignal<boolean | EmptyValue>
-  required?: ValueOrSignal<boolean | EmptyValue>
-  size?: ValueOrSignal<number | EmptyValue>
-  src?: ValueOrSignal<string | EmptyValue>
-  step?: ValueOrSignal<number | string | EmptyValue>
-  type?: ValueOrSignal<HTMLInputTypeAttribute | EmptyValue>
-  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
+  accept?: ValueOrAccessor<string | EmptyValue>
+  alt?: ValueOrAccessor<string | EmptyValue>
+  autoComplete?: ValueOrAccessor<HTMLInputAutoCompleteAttribute | EmptyValue>
+  capture?: ValueOrAccessor<boolean | 'user' | 'environment' | EmptyValue> // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
+  checked?: ValueOrAccessor<boolean | EmptyValue>
+  disabled?: ValueOrAccessor<boolean | EmptyValue>
+  enterKeyHint?: ValueOrAccessor<'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' | EmptyValue>
+  form?: ValueOrAccessor<string | EmptyValue>
+  formAction?: ValueOrAccessor<string | EmptyValue>
+  formEncType?: ValueOrAccessor<string | EmptyValue>
+  formMethod?: ValueOrAccessor<string | EmptyValue>
+  formNoValidate?: ValueOrAccessor<boolean | EmptyValue>
+  formTarget?: ValueOrAccessor<string | EmptyValue>
+  height?: ValueOrAccessor<number | string | EmptyValue>
+  list?: ValueOrAccessor<string | EmptyValue>
+  max?: ValueOrAccessor<number | string | EmptyValue>
+  maxLength?: ValueOrAccessor<number | EmptyValue>
+  min?: ValueOrAccessor<number | string | EmptyValue>
+  minLength?: ValueOrAccessor<number | EmptyValue>
+  multiple?: ValueOrAccessor<boolean | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
+  pattern?: ValueOrAccessor<string | EmptyValue>
+  placeholder?: ValueOrAccessor<string | EmptyValue>
+  readOnly?: ValueOrAccessor<boolean | EmptyValue>
+  required?: ValueOrAccessor<boolean | EmptyValue>
+  size?: ValueOrAccessor<number | EmptyValue>
+  src?: ValueOrAccessor<string | EmptyValue>
+  step?: ValueOrAccessor<number | string | EmptyValue>
+  type?: ValueOrAccessor<HTMLInputTypeAttribute | EmptyValue>
+  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
 
   onChange?: ChangeEventHandler<T> | undefined
 }
 
 export interface KeygenHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  challenge?: ValueOrSignal<string | EmptyValue>
-  disabled?: ValueOrSignal<boolean | EmptyValue>
-  form?: ValueOrSignal<string | EmptyValue>
-  keyType?: ValueOrSignal<string | EmptyValue>
-  keyParams?: ValueOrSignal<string | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
+  challenge?: ValueOrAccessor<string | EmptyValue>
+  disabled?: ValueOrAccessor<boolean | EmptyValue>
+  form?: ValueOrAccessor<string | EmptyValue>
+  keyType?: ValueOrAccessor<string | EmptyValue>
+  keyParams?: ValueOrAccessor<string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface LabelHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  form?: ValueOrSignal<string | EmptyValue>
-  for?: ValueOrSignal<string | EmptyValue>
+  form?: ValueOrAccessor<string | EmptyValue>
+  for?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface LiHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
+  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
 }
 
 export interface LinkHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  as?: ValueOrSignal<string | EmptyValue>
-  crossOrigin?: ValueOrSignal<CrossOrigin>
-  fetchPriority?: ValueOrSignal<'high' | 'low' | 'auto'>
-  href?: ValueOrSignal<string | EmptyValue>
-  hrefLang?: ValueOrSignal<string | EmptyValue>
-  integrity?: ValueOrSignal<string | EmptyValue>
-  media?: ValueOrSignal<string | EmptyValue>
-  imageSrcSet?: ValueOrSignal<string | EmptyValue>
-  imageSizes?: ValueOrSignal<string | EmptyValue>
-  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
-  sizes?: ValueOrSignal<string | EmptyValue>
-  type?: ValueOrSignal<string | EmptyValue>
-  charSet?: ValueOrSignal<string | EmptyValue>
+  as?: ValueOrAccessor<string | EmptyValue>
+  crossOrigin?: ValueOrAccessor<CrossOrigin>
+  fetchPriority?: ValueOrAccessor<'high' | 'low' | 'auto'>
+  href?: ValueOrAccessor<string | EmptyValue>
+  hrefLang?: ValueOrAccessor<string | EmptyValue>
+  integrity?: ValueOrAccessor<string | EmptyValue>
+  media?: ValueOrAccessor<string | EmptyValue>
+  imageSrcSet?: ValueOrAccessor<string | EmptyValue>
+  imageSizes?: ValueOrAccessor<string | EmptyValue>
+  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
+  sizes?: ValueOrAccessor<string | EmptyValue>
+  type?: ValueOrAccessor<string | EmptyValue>
+  charSet?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface MapHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  name?: ValueOrSignal<string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface MenuHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  type?: ValueOrSignal<string | EmptyValue>
+  type?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface MediaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  autoPlay?: ValueOrSignal<boolean | EmptyValue>
-  controls?: ValueOrSignal<boolean | EmptyValue>
-  controlsList?: ValueOrSignal<string | EmptyValue>
-  crossOrigin?: ValueOrSignal<CrossOrigin>
-  loop?: ValueOrSignal<boolean | EmptyValue>
-  mediaGroup?: ValueOrSignal<string | EmptyValue>
-  muted?: ValueOrSignal<boolean | EmptyValue>
-  playsInline?: ValueOrSignal<boolean | EmptyValue>
-  preload?: ValueOrSignal<string | EmptyValue>
-  src?: ValueOrSignal<string | EmptyValue>
+  autoPlay?: ValueOrAccessor<boolean | EmptyValue>
+  controls?: ValueOrAccessor<boolean | EmptyValue>
+  controlsList?: ValueOrAccessor<string | EmptyValue>
+  crossOrigin?: ValueOrAccessor<CrossOrigin>
+  loop?: ValueOrAccessor<boolean | EmptyValue>
+  mediaGroup?: ValueOrAccessor<string | EmptyValue>
+  muted?: ValueOrAccessor<boolean | EmptyValue>
+  playsInline?: ValueOrAccessor<boolean | EmptyValue>
+  preload?: ValueOrAccessor<string | EmptyValue>
+  src?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface MetaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  charSet?: ValueOrSignal<string | EmptyValue>
-  content?: ValueOrSignal<string | EmptyValue>
-  httpEquiv?: ValueOrSignal<string | EmptyValue>
-  media?: ValueOrSignal<string | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
+  charSet?: ValueOrAccessor<string | EmptyValue>
+  content?: ValueOrAccessor<string | EmptyValue>
+  httpEquiv?: ValueOrAccessor<string | EmptyValue>
+  media?: ValueOrAccessor<string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface MeterHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  form?: ValueOrSignal<string | EmptyValue>
-  high?: ValueOrSignal<number | EmptyValue>
-  low?: ValueOrSignal<number | EmptyValue>
-  max?: ValueOrSignal<number | string | EmptyValue>
-  min?: ValueOrSignal<number | string | EmptyValue>
-  optimum?: ValueOrSignal<number | EmptyValue>
-  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
+  form?: ValueOrAccessor<string | EmptyValue>
+  high?: ValueOrAccessor<number | EmptyValue>
+  low?: ValueOrAccessor<number | EmptyValue>
+  max?: ValueOrAccessor<number | string | EmptyValue>
+  min?: ValueOrAccessor<number | string | EmptyValue>
+  optimum?: ValueOrAccessor<number | EmptyValue>
+  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
 }
 
 export interface QuoteHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrSignal<string | EmptyValue>
+  cite?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface ObjectHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  classID?: ValueOrSignal<string | EmptyValue>
-  data?: ValueOrSignal<string | EmptyValue>
-  form?: ValueOrSignal<string | EmptyValue>
-  height?: ValueOrSignal<number | string | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
-  type?: ValueOrSignal<string | EmptyValue>
-  useMap?: ValueOrSignal<string | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
-  wmode?: ValueOrSignal<string | EmptyValue>
+  classID?: ValueOrAccessor<string | EmptyValue>
+  data?: ValueOrAccessor<string | EmptyValue>
+  form?: ValueOrAccessor<string | EmptyValue>
+  height?: ValueOrAccessor<number | string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
+  type?: ValueOrAccessor<string | EmptyValue>
+  useMap?: ValueOrAccessor<string | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
+  wmode?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface OlHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  reversed?: ValueOrSignal<boolean | EmptyValue>
-  start?: ValueOrSignal<number | EmptyValue>
-  type?: ValueOrSignal<'1' | 'a' | 'A' | 'i' | 'I' | EmptyValue>
+  reversed?: ValueOrAccessor<boolean | EmptyValue>
+  start?: ValueOrAccessor<number | EmptyValue>
+  type?: ValueOrAccessor<'1' | 'a' | 'A' | 'i' | 'I' | EmptyValue>
 }
 
 export interface OptgroupHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrSignal<boolean | EmptyValue>
-  label?: ValueOrSignal<string | EmptyValue>
+  disabled?: ValueOrAccessor<boolean | EmptyValue>
+  label?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface OptionHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrSignal<boolean | EmptyValue>
-  label?: ValueOrSignal<string | EmptyValue>
-  selected?: ValueOrSignal<boolean | EmptyValue>
-  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
+  disabled?: ValueOrAccessor<boolean | EmptyValue>
+  label?: ValueOrAccessor<string | EmptyValue>
+  selected?: ValueOrAccessor<boolean | EmptyValue>
+  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
 }
 
 export interface OutputHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  form?: ValueOrSignal<string | EmptyValue>
-  for?: ValueOrSignal<string | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
+  form?: ValueOrAccessor<string | EmptyValue>
+  for?: ValueOrAccessor<string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface ParamHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  name?: ValueOrSignal<string | EmptyValue>
-  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
+  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
 }
 
 export interface ProgressHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  max?: ValueOrSignal<number | string | EmptyValue>
-  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
+  max?: ValueOrAccessor<number | string | EmptyValue>
+  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
 }
 
 export interface SlotHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  name?: ValueOrSignal<string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface ScriptHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  async?: ValueOrSignal<boolean | EmptyValue>
+  async?: ValueOrAccessor<boolean | EmptyValue>
   /** @deprecated */
-  charSet?: ValueOrSignal<string | EmptyValue>
-  crossOrigin?: ValueOrSignal<CrossOrigin>
-  defer?: ValueOrSignal<boolean | EmptyValue>
-  integrity?: ValueOrSignal<string | EmptyValue>
-  noModule?: ValueOrSignal<boolean | EmptyValue>
-  referrerPolicy?: ValueOrSignal<HTMLAttributeReferrerPolicy | EmptyValue>
-  src?: ValueOrSignal<string | EmptyValue>
-  type?: ValueOrSignal<string | EmptyValue>
+  charSet?: ValueOrAccessor<string | EmptyValue>
+  crossOrigin?: ValueOrAccessor<CrossOrigin>
+  defer?: ValueOrAccessor<boolean | EmptyValue>
+  integrity?: ValueOrAccessor<string | EmptyValue>
+  noModule?: ValueOrAccessor<boolean | EmptyValue>
+  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
+  src?: ValueOrAccessor<string | EmptyValue>
+  type?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface SelectHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  autoComplete?: ValueOrSignal<string | EmptyValue>
-  disabled?: ValueOrSignal<boolean | EmptyValue>
-  form?: ValueOrSignal<string | EmptyValue>
-  multiple?: ValueOrSignal<boolean | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
-  required?: ValueOrSignal<boolean | EmptyValue>
-  size?: ValueOrSignal<number | EmptyValue>
-  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
+  autoComplete?: ValueOrAccessor<string | EmptyValue>
+  disabled?: ValueOrAccessor<boolean | EmptyValue>
+  form?: ValueOrAccessor<string | EmptyValue>
+  multiple?: ValueOrAccessor<boolean | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
+  required?: ValueOrAccessor<boolean | EmptyValue>
+  size?: ValueOrAccessor<number | EmptyValue>
+  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
   onChange?: ChangeEventHandler<T> | undefined
 }
 
 export interface SourceHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  height?: ValueOrSignal<number | string | EmptyValue>
-  media?: ValueOrSignal<string | EmptyValue>
-  sizes?: ValueOrSignal<string | EmptyValue>
-  src?: ValueOrSignal<string | EmptyValue>
-  srcSet?: ValueOrSignal<string | EmptyValue>
-  type?: ValueOrSignal<string | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
+  height?: ValueOrAccessor<number | string | EmptyValue>
+  media?: ValueOrAccessor<string | EmptyValue>
+  sizes?: ValueOrAccessor<string | EmptyValue>
+  src?: ValueOrAccessor<string | EmptyValue>
+  srcSet?: ValueOrAccessor<string | EmptyValue>
+  type?: ValueOrAccessor<string | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
 }
 
 export interface StyleHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  media?: ValueOrSignal<string | EmptyValue>
-  scoped?: ValueOrSignal<boolean | EmptyValue>
-  type?: ValueOrSignal<string | EmptyValue>
+  media?: ValueOrAccessor<string | EmptyValue>
+  scoped?: ValueOrAccessor<boolean | EmptyValue>
+  type?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface TableHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  align?: ValueOrSignal<'left' | 'center' | 'right' | EmptyValue>
-  bgcolor?: ValueOrSignal<string | EmptyValue>
-  border?: ValueOrSignal<number | EmptyValue>
-  cellPadding?: ValueOrSignal<number | string | EmptyValue>
-  cellSpacing?: ValueOrSignal<number | string | EmptyValue>
-  frame?: ValueOrSignal<boolean | EmptyValue>
-  rules?: ValueOrSignal<'none' | 'groups' | 'rows' | 'columns' | 'all' | EmptyValue>
-  summary?: ValueOrSignal<string | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
+  align?: ValueOrAccessor<'left' | 'center' | 'right' | EmptyValue>
+  bgcolor?: ValueOrAccessor<string | EmptyValue>
+  border?: ValueOrAccessor<number | EmptyValue>
+  cellPadding?: ValueOrAccessor<number | string | EmptyValue>
+  cellSpacing?: ValueOrAccessor<number | string | EmptyValue>
+  frame?: ValueOrAccessor<boolean | EmptyValue>
+  rules?: ValueOrAccessor<'none' | 'groups' | 'rows' | 'columns' | 'all' | EmptyValue>
+  summary?: ValueOrAccessor<string | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
 }
 
 export interface TextareaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  autoComplete?: ValueOrSignal<string | EmptyValue>
-  cols?: ValueOrSignal<number | EmptyValue>
-  dirName?: ValueOrSignal<string | EmptyValue>
-  disabled?: ValueOrSignal<boolean | EmptyValue>
-  form?: ValueOrSignal<string | EmptyValue>
-  maxLength?: ValueOrSignal<number | EmptyValue>
-  minLength?: ValueOrSignal<number | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
-  placeholder?: ValueOrSignal<string | EmptyValue>
-  readOnly?: ValueOrSignal<boolean | EmptyValue>
-  required?: ValueOrSignal<boolean | EmptyValue>
-  rows?: ValueOrSignal<number | EmptyValue>
-  value?: ValueOrSignal<string | readonly string[] | number | EmptyValue>
-  wrap?: ValueOrSignal<string | EmptyValue>
+  autoComplete?: ValueOrAccessor<string | EmptyValue>
+  cols?: ValueOrAccessor<number | EmptyValue>
+  dirName?: ValueOrAccessor<string | EmptyValue>
+  disabled?: ValueOrAccessor<boolean | EmptyValue>
+  form?: ValueOrAccessor<string | EmptyValue>
+  maxLength?: ValueOrAccessor<number | EmptyValue>
+  minLength?: ValueOrAccessor<number | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
+  placeholder?: ValueOrAccessor<string | EmptyValue>
+  readOnly?: ValueOrAccessor<boolean | EmptyValue>
+  required?: ValueOrAccessor<boolean | EmptyValue>
+  rows?: ValueOrAccessor<number | EmptyValue>
+  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
+  wrap?: ValueOrAccessor<string | EmptyValue>
 
   onChange?: ChangeEventHandler<T> | undefined
 }
 
 export interface TdHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  align?: ValueOrSignal<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
-  colSpan?: ValueOrSignal<number | EmptyValue>
-  headers?: ValueOrSignal<string | EmptyValue>
-  rowSpan?: ValueOrSignal<number | EmptyValue>
-  scope?: ValueOrSignal<string | EmptyValue>
-  abbr?: ValueOrSignal<string | EmptyValue>
-  height?: ValueOrSignal<number | string | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
-  valign?: ValueOrSignal<'top' | 'middle' | 'bottom' | 'baseline' | EmptyValue>
+  align?: ValueOrAccessor<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
+  colSpan?: ValueOrAccessor<number | EmptyValue>
+  headers?: ValueOrAccessor<string | EmptyValue>
+  rowSpan?: ValueOrAccessor<number | EmptyValue>
+  scope?: ValueOrAccessor<string | EmptyValue>
+  abbr?: ValueOrAccessor<string | EmptyValue>
+  height?: ValueOrAccessor<number | string | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
+  valign?: ValueOrAccessor<'top' | 'middle' | 'bottom' | 'baseline' | EmptyValue>
 }
 
 export interface ThHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  align?: ValueOrSignal<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
-  colSpan?: ValueOrSignal<number | EmptyValue>
-  headers?: ValueOrSignal<string | EmptyValue>
-  rowSpan?: ValueOrSignal<number | EmptyValue>
-  scope?: ValueOrSignal<string | EmptyValue>
-  abbr?: ValueOrSignal<string | EmptyValue>
+  align?: ValueOrAccessor<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
+  colSpan?: ValueOrAccessor<number | EmptyValue>
+  headers?: ValueOrAccessor<string | EmptyValue>
+  rowSpan?: ValueOrAccessor<number | EmptyValue>
+  scope?: ValueOrAccessor<string | EmptyValue>
+  abbr?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface TimeHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  dateTime?: ValueOrSignal<string | EmptyValue>
+  dateTime?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface TrackHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  default?: ValueOrSignal<boolean | EmptyValue>
-  kind?: ValueOrSignal<string | EmptyValue>
-  label?: ValueOrSignal<string | EmptyValue>
-  src?: ValueOrSignal<string | EmptyValue>
-  srcLang?: ValueOrSignal<string | EmptyValue>
+  default?: ValueOrAccessor<boolean | EmptyValue>
+  kind?: ValueOrAccessor<string | EmptyValue>
+  label?: ValueOrAccessor<string | EmptyValue>
+  src?: ValueOrAccessor<string | EmptyValue>
+  srcLang?: ValueOrAccessor<string | EmptyValue>
 }
 
 export interface VideoHTMLAttributes<T extends HTMLElement> extends MediaHTMLAttributes<T> {
-  height?: ValueOrSignal<number | string | EmptyValue>
-  playsInline?: ValueOrSignal<boolean | EmptyValue>
-  poster?: ValueOrSignal<string | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
-  disablePictureInPicture?: ValueOrSignal<boolean | EmptyValue>
-  disableRemotePlayback?: ValueOrSignal<boolean | EmptyValue>
+  height?: ValueOrAccessor<number | string | EmptyValue>
+  playsInline?: ValueOrAccessor<boolean | EmptyValue>
+  poster?: ValueOrAccessor<string | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
+  disablePictureInPicture?: ValueOrAccessor<boolean | EmptyValue>
+  disableRemotePlayback?: ValueOrAccessor<boolean | EmptyValue>
 }
 
 // The three broad type categories are (in order of restrictiveness):
@@ -647,31 +645,31 @@ export interface VideoHTMLAttributes<T extends HTMLElement> extends MediaHTMLAtt
 export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAttributes<T> {
   // Attributes which also defined in HTMLAttributes
   // See comment in SVGDOMPropertyConfig.js
-  class?: ValueOrSignal<string | EmptyValue>
-  color?: ValueOrSignal<string | EmptyValue>
-  height?: ValueOrSignal<number | string | EmptyValue>
-  id?: ValueOrSignal<string | EmptyValue>
-  lang?: ValueOrSignal<string | EmptyValue>
-  max?: ValueOrSignal<number | string | EmptyValue>
-  media?: ValueOrSignal<string | EmptyValue>
-  method?: ValueOrSignal<string | EmptyValue>
-  min?: ValueOrSignal<number | string | EmptyValue>
-  name?: ValueOrSignal<string | EmptyValue>
-  style?: ValueOrSignal<string | EmptyValue>
-  target?: ValueOrSignal<string | EmptyValue>
-  type?: ValueOrSignal<string | EmptyValue>
-  width?: ValueOrSignal<number | string | EmptyValue>
+  class?: ValueOrAccessor<string | EmptyValue>
+  color?: ValueOrAccessor<string | EmptyValue>
+  height?: ValueOrAccessor<number | string | EmptyValue>
+  id?: ValueOrAccessor<string | EmptyValue>
+  lang?: ValueOrAccessor<string | EmptyValue>
+  max?: ValueOrAccessor<number | string | EmptyValue>
+  media?: ValueOrAccessor<string | EmptyValue>
+  method?: ValueOrAccessor<string | EmptyValue>
+  min?: ValueOrAccessor<number | string | EmptyValue>
+  name?: ValueOrAccessor<string | EmptyValue>
+  style?: ValueOrAccessor<string | EmptyValue>
+  target?: ValueOrAccessor<string | EmptyValue>
+  type?: ValueOrAccessor<string | EmptyValue>
+  width?: ValueOrAccessor<number | string | EmptyValue>
 
   // Other HTML properties supported by SVG elements in browsers
-  role?: ValueOrSignal<AriaRole | EmptyValue>
-  tabIndex?: ValueOrSignal<number | EmptyValue>
-  crossOrigin?: ValueOrSignal<CrossOrigin>
+  role?: ValueOrAccessor<AriaRole | EmptyValue>
+  tabIndex?: ValueOrAccessor<number | EmptyValue>
+  crossOrigin?: ValueOrAccessor<CrossOrigin>
 
   // SVG Specific attributes
-  accentHeight?: ValueOrSignal<number | string | EmptyValue>
-  accumulate?: ValueOrSignal<'none' | 'sum' | EmptyValue>
-  additive?: ValueOrSignal<'replace' | 'sum' | EmptyValue>
-  alignmentBaseline?: ValueOrSignal<
+  accentHeight?: ValueOrAccessor<number | string | EmptyValue>
+  accumulate?: ValueOrAccessor<'none' | 'sum' | EmptyValue>
+  additive?: ValueOrAccessor<'replace' | 'sum' | EmptyValue>
+  alignmentBaseline?: ValueOrAccessor<
     | 'auto'
     | 'baseline'
     | 'before-edge'
@@ -687,242 +685,242 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
     | 'inherit'
     | EmptyValue
   >
-  allowReorder?: ValueOrSignal<'no' | 'yes' | EmptyValue>
-  alphabetic?: ValueOrSignal<number | string | EmptyValue>
-  amplitude?: ValueOrSignal<number | string | EmptyValue>
-  arabicForm?: ValueOrSignal<'initial' | 'medial' | 'terminal' | 'isolated' | EmptyValue>
-  ascent?: ValueOrSignal<number | string | EmptyValue>
-  attributeName?: ValueOrSignal<string | EmptyValue>
-  attributeType?: ValueOrSignal<string | EmptyValue>
-  autoReverse?: ValueOrSignal<Booleanish | EmptyValue>
-  azimuth?: ValueOrSignal<number | string | EmptyValue>
-  baseFrequency?: ValueOrSignal<number | string | EmptyValue>
-  baselineShift?: ValueOrSignal<number | string | EmptyValue>
-  baseProfile?: ValueOrSignal<number | string | EmptyValue>
-  bbox?: ValueOrSignal<number | string | EmptyValue>
-  begin?: ValueOrSignal<number | string | EmptyValue>
-  bias?: ValueOrSignal<number | string | EmptyValue>
-  by?: ValueOrSignal<number | string | EmptyValue>
-  calcMode?: ValueOrSignal<number | string | EmptyValue>
-  capHeight?: ValueOrSignal<number | string | EmptyValue>
-  clip?: ValueOrSignal<number | string | EmptyValue>
-  clipPath?: ValueOrSignal<string | EmptyValue>
-  clipPathUnits?: ValueOrSignal<number | string | EmptyValue>
-  clipRule?: ValueOrSignal<number | string | EmptyValue>
-  colorInterpolation?: ValueOrSignal<number | string | EmptyValue>
-  colorInterpolationFilters?: ValueOrSignal<'auto' | 'sRGB' | 'linearRGB' | 'inherit' | EmptyValue>
-  colorProfile?: ValueOrSignal<number | string | EmptyValue>
-  colorRendering?: ValueOrSignal<number | string | EmptyValue>
-  contentScriptType?: ValueOrSignal<number | string | EmptyValue>
-  contentStyleType?: ValueOrSignal<number | string | EmptyValue>
-  cursor?: ValueOrSignal<number | string | EmptyValue>
-  cx?: ValueOrSignal<number | string | EmptyValue>
-  cy?: ValueOrSignal<number | string | EmptyValue>
-  d?: ValueOrSignal<string | EmptyValue>
-  decelerate?: ValueOrSignal<number | string | EmptyValue>
-  descent?: ValueOrSignal<number | string | EmptyValue>
-  diffuseConstant?: ValueOrSignal<number | string | EmptyValue>
-  direction?: ValueOrSignal<number | string | EmptyValue>
-  display?: ValueOrSignal<number | string | EmptyValue>
-  divisor?: ValueOrSignal<number | string | EmptyValue>
-  dominantBaseline?: ValueOrSignal<number | string | EmptyValue>
-  dur?: ValueOrSignal<number | string | EmptyValue>
-  dx?: ValueOrSignal<number | string | EmptyValue>
-  dy?: ValueOrSignal<number | string | EmptyValue>
-  edgeMode?: ValueOrSignal<number | string | EmptyValue>
-  elevation?: ValueOrSignal<number | string | EmptyValue>
-  enableBackground?: ValueOrSignal<number | string | EmptyValue>
-  end?: ValueOrSignal<number | string | EmptyValue>
-  exponent?: ValueOrSignal<number | string | EmptyValue>
-  externalResourcesRequired?: ValueOrSignal<Booleanish | EmptyValue>
-  fill?: ValueOrSignal<string | EmptyValue>
-  fillOpacity?: ValueOrSignal<number | string | EmptyValue>
-  fillRule?: ValueOrSignal<'nonzero' | 'evenodd' | 'inherit' | EmptyValue>
-  filter?: ValueOrSignal<string | EmptyValue>
-  filterRes?: ValueOrSignal<number | string | EmptyValue>
-  filterUnits?: ValueOrSignal<number | string | EmptyValue>
-  floodColor?: ValueOrSignal<number | string | EmptyValue>
-  floodOpacity?: ValueOrSignal<number | string | EmptyValue>
-  focusable?: ValueOrSignal<Booleanish | 'auto' | EmptyValue>
-  fontFamily?: ValueOrSignal<string | EmptyValue>
-  fontSize?: ValueOrSignal<number | string | EmptyValue>
-  fontSizeAdjust?: ValueOrSignal<number | string | EmptyValue>
-  fontStretch?: ValueOrSignal<number | string | EmptyValue>
-  fontStyle?: ValueOrSignal<number | string | EmptyValue>
-  fontVariant?: ValueOrSignal<number | string | EmptyValue>
-  fontWeight?: ValueOrSignal<number | string | EmptyValue>
-  format?: ValueOrSignal<number | string | EmptyValue>
-  fr?: ValueOrSignal<number | string | EmptyValue>
-  from?: ValueOrSignal<number | string | EmptyValue>
-  fx?: ValueOrSignal<number | string | EmptyValue>
-  fy?: ValueOrSignal<number | string | EmptyValue>
-  g1?: ValueOrSignal<number | string | EmptyValue>
-  g2?: ValueOrSignal<number | string | EmptyValue>
-  glyphName?: ValueOrSignal<number | string | EmptyValue>
-  glyphOrientationHorizontal?: ValueOrSignal<number | string | EmptyValue>
-  glyphOrientationVertical?: ValueOrSignal<number | string | EmptyValue>
-  glyphRef?: ValueOrSignal<number | string | EmptyValue>
-  gradientTransform?: ValueOrSignal<string | EmptyValue>
-  gradientUnits?: ValueOrSignal<string | EmptyValue>
-  hanging?: ValueOrSignal<number | string | EmptyValue>
-  horizAdvX?: ValueOrSignal<number | string | EmptyValue>
-  horizOriginX?: ValueOrSignal<number | string | EmptyValue>
-  href?: ValueOrSignal<string | EmptyValue>
-  ideographic?: ValueOrSignal<number | string | EmptyValue>
-  imageRendering?: ValueOrSignal<number | string | EmptyValue>
-  in2?: ValueOrSignal<number | string | EmptyValue>
-  in?: ValueOrSignal<string | EmptyValue>
-  intercept?: ValueOrSignal<number | string | EmptyValue>
-  k1?: ValueOrSignal<number | string | EmptyValue>
-  k2?: ValueOrSignal<number | string | EmptyValue>
-  k3?: ValueOrSignal<number | string | EmptyValue>
-  k4?: ValueOrSignal<number | string | EmptyValue>
-  k?: ValueOrSignal<number | string | EmptyValue>
-  kernelMatrix?: ValueOrSignal<number | string | EmptyValue>
-  kernelUnitLength?: ValueOrSignal<number | string | EmptyValue>
-  kerning?: ValueOrSignal<number | string | EmptyValue>
-  keyPoints?: ValueOrSignal<number | string | EmptyValue>
-  keySplines?: ValueOrSignal<number | string | EmptyValue>
-  keyTimes?: ValueOrSignal<number | string | EmptyValue>
-  lengthAdjust?: ValueOrSignal<number | string | EmptyValue>
-  letterSpacing?: ValueOrSignal<number | string | EmptyValue>
-  lightingColor?: ValueOrSignal<number | string | EmptyValue>
-  limitingConeAngle?: ValueOrSignal<number | string | EmptyValue>
-  local?: ValueOrSignal<number | string | EmptyValue>
-  markerEnd?: ValueOrSignal<string | EmptyValue>
-  markerHeight?: ValueOrSignal<number | string | EmptyValue>
-  markerMid?: ValueOrSignal<string | EmptyValue>
-  markerStart?: ValueOrSignal<string | EmptyValue>
-  markerUnits?: ValueOrSignal<number | string | EmptyValue>
-  markerWidth?: ValueOrSignal<number | string | EmptyValue>
-  mask?: ValueOrSignal<string | EmptyValue>
-  maskContentUnits?: ValueOrSignal<number | string | EmptyValue>
-  maskUnits?: ValueOrSignal<number | string | EmptyValue>
-  mathematical?: ValueOrSignal<number | string | EmptyValue>
-  mode?: ValueOrSignal<number | string | EmptyValue>
-  numOctaves?: ValueOrSignal<number | string | EmptyValue>
-  offset?: ValueOrSignal<number | string | EmptyValue>
-  opacity?: ValueOrSignal<number | string | EmptyValue>
-  operator?: ValueOrSignal<number | string | EmptyValue>
-  order?: ValueOrSignal<number | string | EmptyValue>
-  orient?: ValueOrSignal<number | string | EmptyValue>
-  orientation?: ValueOrSignal<number | string | EmptyValue>
-  origin?: ValueOrSignal<number | string | EmptyValue>
-  overflow?: ValueOrSignal<number | string | EmptyValue>
-  overlinePosition?: ValueOrSignal<number | string | EmptyValue>
-  overlineThickness?: ValueOrSignal<number | string | EmptyValue>
-  paintOrder?: ValueOrSignal<number | string | EmptyValue>
-  panose1?: ValueOrSignal<number | string | EmptyValue>
-  path?: ValueOrSignal<string | EmptyValue>
-  pathLength?: ValueOrSignal<number | string | EmptyValue>
-  patternContentUnits?: ValueOrSignal<string | EmptyValue>
-  patternTransform?: ValueOrSignal<number | string | EmptyValue>
-  patternUnits?: ValueOrSignal<string | EmptyValue>
-  pointerEvents?: ValueOrSignal<number | string | EmptyValue>
-  points?: ValueOrSignal<string | EmptyValue>
-  pointsAtX?: ValueOrSignal<number | string | EmptyValue>
-  pointsAtY?: ValueOrSignal<number | string | EmptyValue>
-  pointsAtZ?: ValueOrSignal<number | string | EmptyValue>
-  preserveAlpha?: ValueOrSignal<Booleanish | EmptyValue>
-  preserveAspectRatio?: ValueOrSignal<string | EmptyValue>
-  primitiveUnits?: ValueOrSignal<number | string | EmptyValue>
-  r?: ValueOrSignal<number | string | EmptyValue>
-  radius?: ValueOrSignal<number | string | EmptyValue>
-  refX?: ValueOrSignal<number | string | EmptyValue>
-  refY?: ValueOrSignal<number | string | EmptyValue>
-  renderingIntent?: ValueOrSignal<number | string | EmptyValue>
-  repeatCount?: ValueOrSignal<number | string | EmptyValue>
-  repeatDur?: ValueOrSignal<number | string | EmptyValue>
-  requiredExtensions?: ValueOrSignal<number | string | EmptyValue>
-  requiredFeatures?: ValueOrSignal<number | string | EmptyValue>
-  restart?: ValueOrSignal<number | string | EmptyValue>
-  result?: ValueOrSignal<string | EmptyValue>
-  rotate?: ValueOrSignal<number | string | EmptyValue>
-  rx?: ValueOrSignal<number | string | EmptyValue>
-  ry?: ValueOrSignal<number | string | EmptyValue>
-  scale?: ValueOrSignal<number | string | EmptyValue>
-  seed?: ValueOrSignal<number | string | EmptyValue>
-  shapeRendering?: ValueOrSignal<number | string | EmptyValue>
-  slope?: ValueOrSignal<number | string | EmptyValue>
-  spacing?: ValueOrSignal<number | string | EmptyValue>
-  specularConstant?: ValueOrSignal<number | string | EmptyValue>
-  specularExponent?: ValueOrSignal<number | string | EmptyValue>
-  speed?: ValueOrSignal<number | string | EmptyValue>
-  spreadMethod?: ValueOrSignal<string | EmptyValue>
-  startOffset?: ValueOrSignal<number | string | EmptyValue>
-  stdDeviation?: ValueOrSignal<number | string | EmptyValue>
-  stemh?: ValueOrSignal<number | string | EmptyValue>
-  stemv?: ValueOrSignal<number | string | EmptyValue>
-  stitchTiles?: ValueOrSignal<number | string | EmptyValue>
-  stopColor?: ValueOrSignal<string | EmptyValue>
-  stopOpacity?: ValueOrSignal<number | string | EmptyValue>
-  strikethroughPosition?: ValueOrSignal<number | string | EmptyValue>
-  strikethroughThickness?: ValueOrSignal<number | string | EmptyValue>
-  string?: ValueOrSignal<number | string | EmptyValue>
-  stroke?: ValueOrSignal<string | EmptyValue>
-  strokeDasharray?: ValueOrSignal<string | number | EmptyValue>
-  strokeDashoffset?: ValueOrSignal<string | number | EmptyValue>
-  strokeLinecap?: ValueOrSignal<'butt' | 'round' | 'square' | 'inherit' | EmptyValue>
-  strokeLinejoin?: ValueOrSignal<'miter' | 'round' | 'bevel' | 'inherit' | EmptyValue>
-  strokeMiterlimit?: ValueOrSignal<number | string | EmptyValue>
-  strokeOpacity?: ValueOrSignal<number | string | EmptyValue>
-  strokeWidth?: ValueOrSignal<number | string | EmptyValue>
-  surfaceScale?: ValueOrSignal<number | string | EmptyValue>
-  systemLanguage?: ValueOrSignal<number | string | EmptyValue>
-  tableValues?: ValueOrSignal<number | string | EmptyValue>
-  targetX?: ValueOrSignal<number | string | EmptyValue>
-  targetY?: ValueOrSignal<number | string | EmptyValue>
-  textAnchor?: ValueOrSignal<string | EmptyValue>
-  textDecoration?: ValueOrSignal<number | string | EmptyValue>
-  textLength?: ValueOrSignal<number | string | EmptyValue>
-  textRendering?: ValueOrSignal<number | string | EmptyValue>
-  to?: ValueOrSignal<number | string | EmptyValue>
-  transform?: ValueOrSignal<string | EmptyValue>
-  u1?: ValueOrSignal<number | string | EmptyValue>
-  u2?: ValueOrSignal<number | string | EmptyValue>
-  underlinePosition?: ValueOrSignal<number | string | EmptyValue>
-  underlineThickness?: ValueOrSignal<number | string | EmptyValue>
-  unicode?: ValueOrSignal<number | string | EmptyValue>
-  unicodeBidi?: ValueOrSignal<number | string | EmptyValue>
-  unicodeRange?: ValueOrSignal<number | string | EmptyValue>
-  unitsPerEm?: ValueOrSignal<number | string | EmptyValue>
-  vAlphabetic?: ValueOrSignal<number | string | EmptyValue>
-  values?: ValueOrSignal<string | EmptyValue>
-  vectorEffect?: ValueOrSignal<number | string | EmptyValue>
-  version?: ValueOrSignal<string | EmptyValue>
-  vertAdvY?: ValueOrSignal<number | string | EmptyValue>
-  vertOriginX?: ValueOrSignal<number | string | EmptyValue>
-  vertOriginY?: ValueOrSignal<number | string | EmptyValue>
-  vHanging?: ValueOrSignal<number | string | EmptyValue>
-  vIdeographic?: ValueOrSignal<number | string | EmptyValue>
-  viewBox?: ValueOrSignal<string | EmptyValue>
-  viewTarget?: ValueOrSignal<number | string | EmptyValue>
-  visibility?: ValueOrSignal<number | string | EmptyValue>
-  vMathematical?: ValueOrSignal<number | string | EmptyValue>
-  widths?: ValueOrSignal<number | string | EmptyValue>
-  wordSpacing?: ValueOrSignal<number | string | EmptyValue>
-  writingMode?: ValueOrSignal<number | string | EmptyValue>
-  x1?: ValueOrSignal<number | string | EmptyValue>
-  x2?: ValueOrSignal<number | string | EmptyValue>
-  x?: ValueOrSignal<number | string | EmptyValue>
-  xChannelSelector?: ValueOrSignal<string | EmptyValue>
-  xHeight?: ValueOrSignal<number | string | EmptyValue>
-  xlinkActuate?: ValueOrSignal<string | EmptyValue>
-  xlinkArcrole?: ValueOrSignal<string | EmptyValue>
-  xlinkHref?: ValueOrSignal<string | EmptyValue>
-  xlinkRole?: ValueOrSignal<string | EmptyValue>
-  xlinkShow?: ValueOrSignal<string | EmptyValue>
-  xlinkTitle?: ValueOrSignal<string | EmptyValue>
-  xlinkType?: ValueOrSignal<string | EmptyValue>
-  xmlBase?: ValueOrSignal<string | EmptyValue>
-  xmlLang?: ValueOrSignal<string | EmptyValue>
-  xmlns?: ValueOrSignal<string | EmptyValue>
-  xmlnsXlink?: ValueOrSignal<string | EmptyValue>
-  xmlSpace?: ValueOrSignal<string | EmptyValue>
-  y1?: ValueOrSignal<number | string | EmptyValue>
-  y2?: ValueOrSignal<number | string | EmptyValue>
-  y?: ValueOrSignal<number | string | EmptyValue>
-  yChannelSelector?: ValueOrSignal<string | EmptyValue>
-  z?: ValueOrSignal<number | string | EmptyValue>
-  zoomAndPan?: ValueOrSignal<string | EmptyValue>
+  allowReorder?: ValueOrAccessor<'no' | 'yes' | EmptyValue>
+  alphabetic?: ValueOrAccessor<number | string | EmptyValue>
+  amplitude?: ValueOrAccessor<number | string | EmptyValue>
+  arabicForm?: ValueOrAccessor<'initial' | 'medial' | 'terminal' | 'isolated' | EmptyValue>
+  ascent?: ValueOrAccessor<number | string | EmptyValue>
+  attributeName?: ValueOrAccessor<string | EmptyValue>
+  attributeType?: ValueOrAccessor<string | EmptyValue>
+  autoReverse?: ValueOrAccessor<Booleanish | EmptyValue>
+  azimuth?: ValueOrAccessor<number | string | EmptyValue>
+  baseFrequency?: ValueOrAccessor<number | string | EmptyValue>
+  baselineShift?: ValueOrAccessor<number | string | EmptyValue>
+  baseProfile?: ValueOrAccessor<number | string | EmptyValue>
+  bbox?: ValueOrAccessor<number | string | EmptyValue>
+  begin?: ValueOrAccessor<number | string | EmptyValue>
+  bias?: ValueOrAccessor<number | string | EmptyValue>
+  by?: ValueOrAccessor<number | string | EmptyValue>
+  calcMode?: ValueOrAccessor<number | string | EmptyValue>
+  capHeight?: ValueOrAccessor<number | string | EmptyValue>
+  clip?: ValueOrAccessor<number | string | EmptyValue>
+  clipPath?: ValueOrAccessor<string | EmptyValue>
+  clipPathUnits?: ValueOrAccessor<number | string | EmptyValue>
+  clipRule?: ValueOrAccessor<number | string | EmptyValue>
+  colorInterpolation?: ValueOrAccessor<number | string | EmptyValue>
+  colorInterpolationFilters?: ValueOrAccessor<'auto' | 'sRGB' | 'linearRGB' | 'inherit' | EmptyValue>
+  colorProfile?: ValueOrAccessor<number | string | EmptyValue>
+  colorRendering?: ValueOrAccessor<number | string | EmptyValue>
+  contentScriptType?: ValueOrAccessor<number | string | EmptyValue>
+  contentStyleType?: ValueOrAccessor<number | string | EmptyValue>
+  cursor?: ValueOrAccessor<number | string | EmptyValue>
+  cx?: ValueOrAccessor<number | string | EmptyValue>
+  cy?: ValueOrAccessor<number | string | EmptyValue>
+  d?: ValueOrAccessor<string | EmptyValue>
+  decelerate?: ValueOrAccessor<number | string | EmptyValue>
+  descent?: ValueOrAccessor<number | string | EmptyValue>
+  diffuseConstant?: ValueOrAccessor<number | string | EmptyValue>
+  direction?: ValueOrAccessor<number | string | EmptyValue>
+  display?: ValueOrAccessor<number | string | EmptyValue>
+  divisor?: ValueOrAccessor<number | string | EmptyValue>
+  dominantBaseline?: ValueOrAccessor<number | string | EmptyValue>
+  dur?: ValueOrAccessor<number | string | EmptyValue>
+  dx?: ValueOrAccessor<number | string | EmptyValue>
+  dy?: ValueOrAccessor<number | string | EmptyValue>
+  edgeMode?: ValueOrAccessor<number | string | EmptyValue>
+  elevation?: ValueOrAccessor<number | string | EmptyValue>
+  enableBackground?: ValueOrAccessor<number | string | EmptyValue>
+  end?: ValueOrAccessor<number | string | EmptyValue>
+  exponent?: ValueOrAccessor<number | string | EmptyValue>
+  externalResourcesRequired?: ValueOrAccessor<Booleanish | EmptyValue>
+  fill?: ValueOrAccessor<string | EmptyValue>
+  fillOpacity?: ValueOrAccessor<number | string | EmptyValue>
+  fillRule?: ValueOrAccessor<'nonzero' | 'evenodd' | 'inherit' | EmptyValue>
+  filter?: ValueOrAccessor<string | EmptyValue>
+  filterRes?: ValueOrAccessor<number | string | EmptyValue>
+  filterUnits?: ValueOrAccessor<number | string | EmptyValue>
+  floodColor?: ValueOrAccessor<number | string | EmptyValue>
+  floodOpacity?: ValueOrAccessor<number | string | EmptyValue>
+  focusable?: ValueOrAccessor<Booleanish | 'auto' | EmptyValue>
+  fontFamily?: ValueOrAccessor<string | EmptyValue>
+  fontSize?: ValueOrAccessor<number | string | EmptyValue>
+  fontSizeAdjust?: ValueOrAccessor<number | string | EmptyValue>
+  fontStretch?: ValueOrAccessor<number | string | EmptyValue>
+  fontStyle?: ValueOrAccessor<number | string | EmptyValue>
+  fontVariant?: ValueOrAccessor<number | string | EmptyValue>
+  fontWeight?: ValueOrAccessor<number | string | EmptyValue>
+  format?: ValueOrAccessor<number | string | EmptyValue>
+  fr?: ValueOrAccessor<number | string | EmptyValue>
+  from?: ValueOrAccessor<number | string | EmptyValue>
+  fx?: ValueOrAccessor<number | string | EmptyValue>
+  fy?: ValueOrAccessor<number | string | EmptyValue>
+  g1?: ValueOrAccessor<number | string | EmptyValue>
+  g2?: ValueOrAccessor<number | string | EmptyValue>
+  glyphName?: ValueOrAccessor<number | string | EmptyValue>
+  glyphOrientationHorizontal?: ValueOrAccessor<number | string | EmptyValue>
+  glyphOrientationVertical?: ValueOrAccessor<number | string | EmptyValue>
+  glyphRef?: ValueOrAccessor<number | string | EmptyValue>
+  gradientTransform?: ValueOrAccessor<string | EmptyValue>
+  gradientUnits?: ValueOrAccessor<string | EmptyValue>
+  hanging?: ValueOrAccessor<number | string | EmptyValue>
+  horizAdvX?: ValueOrAccessor<number | string | EmptyValue>
+  horizOriginX?: ValueOrAccessor<number | string | EmptyValue>
+  href?: ValueOrAccessor<string | EmptyValue>
+  ideographic?: ValueOrAccessor<number | string | EmptyValue>
+  imageRendering?: ValueOrAccessor<number | string | EmptyValue>
+  in2?: ValueOrAccessor<number | string | EmptyValue>
+  in?: ValueOrAccessor<string | EmptyValue>
+  intercept?: ValueOrAccessor<number | string | EmptyValue>
+  k1?: ValueOrAccessor<number | string | EmptyValue>
+  k2?: ValueOrAccessor<number | string | EmptyValue>
+  k3?: ValueOrAccessor<number | string | EmptyValue>
+  k4?: ValueOrAccessor<number | string | EmptyValue>
+  k?: ValueOrAccessor<number | string | EmptyValue>
+  kernelMatrix?: ValueOrAccessor<number | string | EmptyValue>
+  kernelUnitLength?: ValueOrAccessor<number | string | EmptyValue>
+  kerning?: ValueOrAccessor<number | string | EmptyValue>
+  keyPoints?: ValueOrAccessor<number | string | EmptyValue>
+  keySplines?: ValueOrAccessor<number | string | EmptyValue>
+  keyTimes?: ValueOrAccessor<number | string | EmptyValue>
+  lengthAdjust?: ValueOrAccessor<number | string | EmptyValue>
+  letterSpacing?: ValueOrAccessor<number | string | EmptyValue>
+  lightingColor?: ValueOrAccessor<number | string | EmptyValue>
+  limitingConeAngle?: ValueOrAccessor<number | string | EmptyValue>
+  local?: ValueOrAccessor<number | string | EmptyValue>
+  markerEnd?: ValueOrAccessor<string | EmptyValue>
+  markerHeight?: ValueOrAccessor<number | string | EmptyValue>
+  markerMid?: ValueOrAccessor<string | EmptyValue>
+  markerStart?: ValueOrAccessor<string | EmptyValue>
+  markerUnits?: ValueOrAccessor<number | string | EmptyValue>
+  markerWidth?: ValueOrAccessor<number | string | EmptyValue>
+  mask?: ValueOrAccessor<string | EmptyValue>
+  maskContentUnits?: ValueOrAccessor<number | string | EmptyValue>
+  maskUnits?: ValueOrAccessor<number | string | EmptyValue>
+  mathematical?: ValueOrAccessor<number | string | EmptyValue>
+  mode?: ValueOrAccessor<number | string | EmptyValue>
+  numOctaves?: ValueOrAccessor<number | string | EmptyValue>
+  offset?: ValueOrAccessor<number | string | EmptyValue>
+  opacity?: ValueOrAccessor<number | string | EmptyValue>
+  operator?: ValueOrAccessor<number | string | EmptyValue>
+  order?: ValueOrAccessor<number | string | EmptyValue>
+  orient?: ValueOrAccessor<number | string | EmptyValue>
+  orientation?: ValueOrAccessor<number | string | EmptyValue>
+  origin?: ValueOrAccessor<number | string | EmptyValue>
+  overflow?: ValueOrAccessor<number | string | EmptyValue>
+  overlinePosition?: ValueOrAccessor<number | string | EmptyValue>
+  overlineThickness?: ValueOrAccessor<number | string | EmptyValue>
+  paintOrder?: ValueOrAccessor<number | string | EmptyValue>
+  panose1?: ValueOrAccessor<number | string | EmptyValue>
+  path?: ValueOrAccessor<string | EmptyValue>
+  pathLength?: ValueOrAccessor<number | string | EmptyValue>
+  patternContentUnits?: ValueOrAccessor<string | EmptyValue>
+  patternTransform?: ValueOrAccessor<number | string | EmptyValue>
+  patternUnits?: ValueOrAccessor<string | EmptyValue>
+  pointerEvents?: ValueOrAccessor<number | string | EmptyValue>
+  points?: ValueOrAccessor<string | EmptyValue>
+  pointsAtX?: ValueOrAccessor<number | string | EmptyValue>
+  pointsAtY?: ValueOrAccessor<number | string | EmptyValue>
+  pointsAtZ?: ValueOrAccessor<number | string | EmptyValue>
+  preserveAlpha?: ValueOrAccessor<Booleanish | EmptyValue>
+  preserveAspectRatio?: ValueOrAccessor<string | EmptyValue>
+  primitiveUnits?: ValueOrAccessor<number | string | EmptyValue>
+  r?: ValueOrAccessor<number | string | EmptyValue>
+  radius?: ValueOrAccessor<number | string | EmptyValue>
+  refX?: ValueOrAccessor<number | string | EmptyValue>
+  refY?: ValueOrAccessor<number | string | EmptyValue>
+  renderingIntent?: ValueOrAccessor<number | string | EmptyValue>
+  repeatCount?: ValueOrAccessor<number | string | EmptyValue>
+  repeatDur?: ValueOrAccessor<number | string | EmptyValue>
+  requiredExtensions?: ValueOrAccessor<number | string | EmptyValue>
+  requiredFeatures?: ValueOrAccessor<number | string | EmptyValue>
+  restart?: ValueOrAccessor<number | string | EmptyValue>
+  result?: ValueOrAccessor<string | EmptyValue>
+  rotate?: ValueOrAccessor<number | string | EmptyValue>
+  rx?: ValueOrAccessor<number | string | EmptyValue>
+  ry?: ValueOrAccessor<number | string | EmptyValue>
+  scale?: ValueOrAccessor<number | string | EmptyValue>
+  seed?: ValueOrAccessor<number | string | EmptyValue>
+  shapeRendering?: ValueOrAccessor<number | string | EmptyValue>
+  slope?: ValueOrAccessor<number | string | EmptyValue>
+  spacing?: ValueOrAccessor<number | string | EmptyValue>
+  specularConstant?: ValueOrAccessor<number | string | EmptyValue>
+  specularExponent?: ValueOrAccessor<number | string | EmptyValue>
+  speed?: ValueOrAccessor<number | string | EmptyValue>
+  spreadMethod?: ValueOrAccessor<string | EmptyValue>
+  startOffset?: ValueOrAccessor<number | string | EmptyValue>
+  stdDeviation?: ValueOrAccessor<number | string | EmptyValue>
+  stemh?: ValueOrAccessor<number | string | EmptyValue>
+  stemv?: ValueOrAccessor<number | string | EmptyValue>
+  stitchTiles?: ValueOrAccessor<number | string | EmptyValue>
+  stopColor?: ValueOrAccessor<string | EmptyValue>
+  stopOpacity?: ValueOrAccessor<number | string | EmptyValue>
+  strikethroughPosition?: ValueOrAccessor<number | string | EmptyValue>
+  strikethroughThickness?: ValueOrAccessor<number | string | EmptyValue>
+  string?: ValueOrAccessor<number | string | EmptyValue>
+  stroke?: ValueOrAccessor<string | EmptyValue>
+  strokeDasharray?: ValueOrAccessor<string | number | EmptyValue>
+  strokeDashoffset?: ValueOrAccessor<string | number | EmptyValue>
+  strokeLinecap?: ValueOrAccessor<'butt' | 'round' | 'square' | 'inherit' | EmptyValue>
+  strokeLinejoin?: ValueOrAccessor<'miter' | 'round' | 'bevel' | 'inherit' | EmptyValue>
+  strokeMiterlimit?: ValueOrAccessor<number | string | EmptyValue>
+  strokeOpacity?: ValueOrAccessor<number | string | EmptyValue>
+  strokeWidth?: ValueOrAccessor<number | string | EmptyValue>
+  surfaceScale?: ValueOrAccessor<number | string | EmptyValue>
+  systemLanguage?: ValueOrAccessor<number | string | EmptyValue>
+  tableValues?: ValueOrAccessor<number | string | EmptyValue>
+  targetX?: ValueOrAccessor<number | string | EmptyValue>
+  targetY?: ValueOrAccessor<number | string | EmptyValue>
+  textAnchor?: ValueOrAccessor<string | EmptyValue>
+  textDecoration?: ValueOrAccessor<number | string | EmptyValue>
+  textLength?: ValueOrAccessor<number | string | EmptyValue>
+  textRendering?: ValueOrAccessor<number | string | EmptyValue>
+  to?: ValueOrAccessor<number | string | EmptyValue>
+  transform?: ValueOrAccessor<string | EmptyValue>
+  u1?: ValueOrAccessor<number | string | EmptyValue>
+  u2?: ValueOrAccessor<number | string | EmptyValue>
+  underlinePosition?: ValueOrAccessor<number | string | EmptyValue>
+  underlineThickness?: ValueOrAccessor<number | string | EmptyValue>
+  unicode?: ValueOrAccessor<number | string | EmptyValue>
+  unicodeBidi?: ValueOrAccessor<number | string | EmptyValue>
+  unicodeRange?: ValueOrAccessor<number | string | EmptyValue>
+  unitsPerEm?: ValueOrAccessor<number | string | EmptyValue>
+  vAlphabetic?: ValueOrAccessor<number | string | EmptyValue>
+  values?: ValueOrAccessor<string | EmptyValue>
+  vectorEffect?: ValueOrAccessor<number | string | EmptyValue>
+  version?: ValueOrAccessor<string | EmptyValue>
+  vertAdvY?: ValueOrAccessor<number | string | EmptyValue>
+  vertOriginX?: ValueOrAccessor<number | string | EmptyValue>
+  vertOriginY?: ValueOrAccessor<number | string | EmptyValue>
+  vHanging?: ValueOrAccessor<number | string | EmptyValue>
+  vIdeographic?: ValueOrAccessor<number | string | EmptyValue>
+  viewBox?: ValueOrAccessor<string | EmptyValue>
+  viewTarget?: ValueOrAccessor<number | string | EmptyValue>
+  visibility?: ValueOrAccessor<number | string | EmptyValue>
+  vMathematical?: ValueOrAccessor<number | string | EmptyValue>
+  widths?: ValueOrAccessor<number | string | EmptyValue>
+  wordSpacing?: ValueOrAccessor<number | string | EmptyValue>
+  writingMode?: ValueOrAccessor<number | string | EmptyValue>
+  x1?: ValueOrAccessor<number | string | EmptyValue>
+  x2?: ValueOrAccessor<number | string | EmptyValue>
+  x?: ValueOrAccessor<number | string | EmptyValue>
+  xChannelSelector?: ValueOrAccessor<string | EmptyValue>
+  xHeight?: ValueOrAccessor<number | string | EmptyValue>
+  xlinkActuate?: ValueOrAccessor<string | EmptyValue>
+  xlinkArcrole?: ValueOrAccessor<string | EmptyValue>
+  xlinkHref?: ValueOrAccessor<string | EmptyValue>
+  xlinkRole?: ValueOrAccessor<string | EmptyValue>
+  xlinkShow?: ValueOrAccessor<string | EmptyValue>
+  xlinkTitle?: ValueOrAccessor<string | EmptyValue>
+  xlinkType?: ValueOrAccessor<string | EmptyValue>
+  xmlBase?: ValueOrAccessor<string | EmptyValue>
+  xmlLang?: ValueOrAccessor<string | EmptyValue>
+  xmlns?: ValueOrAccessor<string | EmptyValue>
+  xmlnsXlink?: ValueOrAccessor<string | EmptyValue>
+  xmlSpace?: ValueOrAccessor<string | EmptyValue>
+  y1?: ValueOrAccessor<number | string | EmptyValue>
+  y2?: ValueOrAccessor<number | string | EmptyValue>
+  y?: ValueOrAccessor<number | string | EmptyValue>
+  yChannelSelector?: ValueOrAccessor<string | EmptyValue>
+  z?: ValueOrAccessor<number | string | EmptyValue>
+  zoomAndPan?: ValueOrAccessor<string | EmptyValue>
 }

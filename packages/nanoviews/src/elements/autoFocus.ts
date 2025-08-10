@@ -1,19 +1,17 @@
 import {
-  isSignal,
+  type ValueOrAccessor,
+  isAccessor,
   effect
 } from 'kida'
-import {
-  type ValueOrSignal,
-  createEffectAttribute
-} from '../internals/index.js'
+import { createEffectAttribute } from '../internals/index.js'
 
 /**
  * Effect attribute to set auto focus on element
  */
-export const autoFocus$ = /* @__PURE__ */ createEffectAttribute<'autoFocus$', HTMLElement | SVGElement, ValueOrSignal<boolean>>(
+export const autoFocus$ = /* @__PURE__ */ createEffectAttribute<'autoFocus$', HTMLElement | SVGElement, ValueOrAccessor<boolean>>(
   'autoFocus$',
   (element, $value) => {
-    if (isSignal($value) && $value() || $value) {
+    if (isAccessor($value) && $value() || $value) {
       effect(() => {
         element.focus()
       })
@@ -23,7 +21,7 @@ export const autoFocus$ = /* @__PURE__ */ createEffectAttribute<'autoFocus$', HT
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
-    autoFocus$: ValueOrSignal<boolean>
+    autoFocus$: ValueOrAccessor<boolean>
   }
 
   interface EffectAttributeTargets {

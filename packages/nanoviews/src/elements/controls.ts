@@ -1,5 +1,6 @@
 import {
   type WritableSignal,
+  type ValueOrWritableSignal,
   isSignal,
   effect,
   get

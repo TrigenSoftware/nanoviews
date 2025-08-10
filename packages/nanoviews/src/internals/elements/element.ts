@@ -9,7 +9,10 @@ import type {
   EmptyValue
 } from '../types/index.js'
 import { isEmpty } from '../utils.js'
-import { childToNode } from './child.js'
+import {
+  childToNode,
+  lazyChild
+} from './child.js'
 import { setAttributes } from './attributes.js'
 
 /**
@@ -37,6 +40,7 @@ export function createVoidElement<Tag extends ElementName>(
  * @param tag - Tag name
  * @returns Function to create given void element
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function createVoidElementFactory<Tag extends ElementName>(
   tag: Tag
 ) {
@@ -74,7 +78,7 @@ export function createElement<Tag extends ElementName>(
 ) {
   const element = createVoidElement(tag, attributes)
 
-  return elementChildren.bind(element, element) as LazyElement<Tag>
+  return lazyChild(elementChildren.bind(element, element)) as LazyElement<Tag>
 }
 
 /**
@@ -82,6 +86,7 @@ export function createElement<Tag extends ElementName>(
  * @param tag - Tag name
  * @returns Function to create given element
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function createElementFactory<Tag extends ElementName>(
   tag: Tag
 ) {

@@ -1,6 +1,8 @@
-import type { MaybeSignalValue } from 'kida'
+import type {
+  MaybeAccessorValue,
+  ValueOrAccessor
+} from 'kida'
 import {
-  type ValueOrSignal,
   type Child,
   decide
 } from '../internals/index.js'
@@ -12,8 +14,8 @@ export type SwitchCase<T> = readonly [T | typeof default$, () => Child]
  * @param $value - Static value or store
  * @returns Function that accepts cases and returns Block that renders decided child
  */
-export function switch$<T>($value: ValueOrSignal<T>) {
-  type Value = MaybeSignalValue<T>
+export function switch$<T>($value: ValueOrAccessor<T>) {
+  type Value = MaybeAccessorValue<T>
 
   /**
    * Decide which child to render based on switch cases

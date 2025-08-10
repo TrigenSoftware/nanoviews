@@ -1,12 +1,15 @@
+import type { ValueOrAccessor } from 'kida'
 import type {
-  ValueOrSignal,
   Primitive,
   AnyFn
 } from './common.js'
 
-export type LazyChild = () => Child
+export type LazyChild<T extends () => Child = () => Child> = T & {
+  /** Mark fn as lazy child. */
+  c: true
+}
 
-export type Child = ChildNode | DocumentFragment | LazyChild | ValueOrSignal<Primitive>
+export type Child = ChildNode | DocumentFragment | LazyChild<() => Child> | ValueOrAccessor<Primitive>
 
 export type Children = Child[]
 
@@ -27,10 +30,8 @@ export interface SlotDef<C> {
   (slotContent: C): Slot<C, this>
 }
 
-// It's impossible to define a type that extends Slot<unknown>
 export type AnySlot = Slot<any, AnyFn>
 
-// It's impossible to define a type that extends SlotDef<unknown>
 export type AnySlotDef = SlotDef<any>
 
 export type MapSlotDefsToContents<D extends unknown[]> = D extends [infer F, ...infer R]

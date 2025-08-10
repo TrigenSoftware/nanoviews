@@ -1,4 +1,4 @@
-import { isFunctionNotSignal } from 'kida'
+import { isFunction } from 'kida'
 import type {
   PrimitiveAttributeValue,
   Primitive,
@@ -53,6 +53,10 @@ function setAttribute(element: Element, name: string, $value: PrimitiveAttribute
   )
 }
 
+function isEventHandler(key: string, value: unknown): value is TargetEventHandler {
+  return key.startsWith('on') && isFunction(value)
+}
+
 function setEventListener(element: Element, name: string, value: TargetEventHandler) {
   const eventName = name.slice(2).toLowerCase()
 
@@ -85,7 +89,7 @@ export function setAttributes<A extends object>(element: Element, attributes: A)
 
       if ((tEffectAttr = getEffectAttribute(key)) !== undefined) {
         tEffectAttr(element, value, attributes as Attributes)
-      } else if (isFunctionNotSignal(value)) {
+      } else if (isEventHandler(key, value)) {
         setEventListener(element, key, value)
       } else {
         setAttribute(element, key, value)

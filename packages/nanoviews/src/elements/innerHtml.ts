@@ -1,8 +1,6 @@
 
-import {
-  type ValueOrSignal,
-  subscribe
-} from '../internals/index.js'
+import type { ValueOrAccessor } from 'kida'
+import { subscribe } from '../internals/index.js'
 
 /**
  * Dangerously set inner HTML to element
@@ -12,7 +10,7 @@ import {
  */
 export function dangerouslySetInnerHtml<T extends Element>(
   factory: () => T,
-  $html: ValueOrSignal<string>
+  $html: ValueOrAccessor<string>
 ) {
   const element = factory()
 

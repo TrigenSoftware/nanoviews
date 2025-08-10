@@ -1,7 +1,7 @@
 import {
   type ReadableSignal,
+  type Accessor,
   type WritableSignal,
-  type AnySignal,
   signal,
   effectScope,
   atIndex,
@@ -42,7 +42,7 @@ interface LoopItemsList {
 type LookupMap = Map<unknown, LoopItem>
 
 type AnyEach = (
-  item: AnySignal,
+  item: Accessor<unknown>,
   index: ReadableSignal<number>
 ) => Child
 
@@ -94,7 +94,7 @@ function move(
 function reconcile(
   itemsList: LoopItemsList,
   lookupMap: LookupMap,
-  $items: WritableSignal<unknown[]>,
+  $items: Accessor<unknown[]>,
   each$: AnyEach,
   track: UnknownTrack,
   anchor: ChildNode,
@@ -225,7 +225,7 @@ function destroyLoopItem(itemsList: LoopItemsList, item: LoopItem, lookupMap: Lo
 }
 
 function createEachBlock(
-  $items: WritableSignal<unknown[]>,
+  $items: Accessor<unknown[]>,
   each$: AnyEach,
   key: unknown,
   i: number,
@@ -252,7 +252,7 @@ function createEachBlock(
 }
 
 export function loop(
-  $items: WritableSignal<unknown[]>,
+  $items: Accessor<unknown[]>,
   each$: AnyEach,
   else$?: () => Child,
   track: UnknownTrack = (_, i) => i

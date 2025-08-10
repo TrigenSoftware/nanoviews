@@ -1,6 +1,7 @@
 import {
   type Children,
-  elementChildren
+  elementChildren,
+  lazyChild
 } from '../internals/index.js'
 
 /**
@@ -16,5 +17,5 @@ export function shadow<T extends Element>(
   const element = factory()
   const shadow = element.attachShadow(options)
 
-  return elementChildren.bind(shadow, element) as (...children: Children) => T
+  return lazyChild(elementChildren.bind(shadow, element) as (...children: Children) => T)
 }

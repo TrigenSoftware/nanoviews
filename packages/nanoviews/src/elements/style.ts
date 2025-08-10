@@ -1,12 +1,12 @@
 import {
   type CSSProperties,
-  type Props,
+  type AccessibleProps,
   type PrimitiveAttributeValue,
   setProperty,
   createEffectAttribute
 } from '../internals/index.js'
 
-export type StyleProps = Props<CSSProperties>
+export type StyleProps = AccessibleProps<CSSProperties>
 
 function setStyle(
   element: HTMLElement | SVGAElement,
