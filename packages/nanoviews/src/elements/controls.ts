@@ -1,12 +1,8 @@
 import {
   type WritableSignal,
-  type ValueOrWritableSignal,
-  isSignal,
-  effect,
-  get
+  effect
 } from 'kida'
 import {
-  type ValueOrWritableSignal,
   valueProperty,
   checkedProperty,
   indeterminateProperty,
@@ -15,7 +11,6 @@ import {
   selectedProperty,
   onChangeEvent,
   onInputEvent,
-  isEmpty,
   createEffectAttribute
 } from '../internals/index.js'
 
@@ -23,19 +18,17 @@ import {
 
 export const Indeterminate = Symbol.for('Indeterminate')
 
-type Value = ValueOrWritableSignal<string>
+type Value = WritableSignal<string>
 
 type CheckedPrimitive = boolean | typeof Indeterminate
 
-type Checked = ValueOrWritableSignal<boolean> | ValueOrWritableSignal<CheckedPrimitive>
+type Checked = WritableSignal<boolean> | WritableSignal<CheckedPrimitive>
 
 type SelectedPrimitive = string | string[]
 
-type Selected = ValueOrWritableSignal<string> | ValueOrWritableSignal<string[]> | ValueOrWritableSignal<SelectedPrimitive>
+type Selected = WritableSignal<string> | WritableSignal<string[]> | WritableSignal<SelectedPrimitive>
 
-type FilesPrimitive = File[]
-
-type Files = ValueOrWritableSignal<FilesPrimitive>
+type Files = WritableSignal<File[]>
 
 type TextboxElement = HTMLInputElement | HTMLTextAreaElement
 
@@ -52,25 +45,21 @@ function createElementPropertySetter<E extends Element, V>(
 ) {
   return (
     control: E,
-    $value: ValueOrWritableSignal<V>
+    $value: WritableSignal<V>
   ): void => {
-    if (!isEmpty($value)) {
-      setValue(control, get($value))
+    setValue(control, $value())
 
-      effect(() => {
-        setValue(control, get($value))
-      })
+    effect(() => {
+      setValue(control, $value())
+    })
 
-      if (isSignal<WritableSignal<V>>($value)) {
-        effect(() => {
-          const eventListener = () => $value(getValue(control))
+    effect(() => {
+      const eventListener = () => $value(getValue(control))
 
-          control.addEventListener(eventName, eventListener)
+      control.addEventListener(eventName, eventListener)
 
-          return () => control.removeEventListener(eventName, eventListener)
-        })
-      }
-    }
+      return () => control.removeEventListener(eventName, eventListener)
+    })
   }
 }
 
@@ -116,7 +105,7 @@ function getChecked(control: CheckboxElement): CheckedPrimitive {
 /**
  * Effect attribute to set and read checked value of checkbox or radio button element
  */
-export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, ValueOrWritableSignal<CheckedPrimitive>>(
+export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, WritableSignal<CheckedPrimitive>>(
   'checked$',
   createElementPropertySetter(
     onChangeEvent,
@@ -172,7 +161,7 @@ function getSelected(control: ComboboxElement): SelectedPrimitive {
 /**
  * Effect attribute to set and read selected value of combobox element
  */
-export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, ValueOrWritableSignal<SelectedPrimitive>>(
+export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, WritableSignal<SelectedPrimitive>>(
   'selected$',
   createElementPropertySetter(
     onChangeEvent,
@@ -183,19 +172,15 @@ export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', Comb
 
 function filesEffectAttribute(
   control: FileElement,
-  $value: ValueOrWritableSignal<Files>
+  $value: Files
 ) {
-  if (!isEmpty($value)) {
-    if (isSignal($value)) {
-      effect(() => {
-        const eventListener = () => $value(Array.from(control.files!))
+  effect(() => {
+    const eventListener = () => $value(Array.from(control.files!))
 
-        control.addEventListener(onChangeEvent, eventListener)
+    control.addEventListener(onChangeEvent, eventListener)
 
-        return () => control.removeEventListener(onChangeEvent, eventListener)
-      })
-    }
-  }
+    return () => control.removeEventListener(onChangeEvent, eventListener)
+  })
 }
 
 /**
