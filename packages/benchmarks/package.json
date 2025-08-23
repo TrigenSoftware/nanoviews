@@ -25,6 +25,6 @@
   "dependencies": {
     "alien-signals": "1.0.4",
     "nanostores": "^1.0.1",
-    "tinybench": "^4.0.1"
+    "tinybench": "^5.0.0"
   }
 }
