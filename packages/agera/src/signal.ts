@@ -19,6 +19,8 @@ import {
   $$set,
   $$onActivate,
   $$signal,
+  $$writable,
+  $$effects,
   ComputedSubscriberFlag,
   DirtySubscriberFlag,
   PendingComputedSubscriberFlag,
@@ -99,7 +101,9 @@ export function signal<T>(value?: T): WritableSignal<T | undefined> {
   return createSignal(signalGetterSetter, {
     [$$value]: value,
     [$$subs]: undefined,
-    [$$subsTail]: undefined
+    [$$subsTail]: undefined,
+    [$$effects]: 0,
+    [$$writable]: true
   }) as WritableSignal<T | undefined>
 }
 
@@ -138,6 +142,7 @@ export function computed<T>(compute: Compute<T>): ReadableSignal<T> {
     [$$subsTail]: undefined,
     [$$deps]: undefined,
     [$$depsTail]: undefined,
+    [$$effects]: 0,
     [$$flags]: ComputedSubscriberFlag | DirtySubscriberFlag,
     [$$compute]: compute as Compute<unknown>
   }) as ReadableSignal<T>
@@ -169,7 +174,7 @@ export function morph<T, C extends Partial<Morph<T>>>(
 
 /* @__NO_SIDE_EFFECTS__ */
 export function morph<T, C extends Partial<Morph<T>>>(
-  $signal: WritableSignal<T>,
+  $signal: ReadableSignal<T> | WritableSignal<T>,
   context: C
 ) {
   return createSignal(morphGetterSetter, $signal[$$signal], {

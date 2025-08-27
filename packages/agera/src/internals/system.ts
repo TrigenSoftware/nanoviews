@@ -2,42 +2,162 @@ import type {
   Dependency,
   Link,
   Subscriber,
+  Signal,
   ComputedSignal,
   Effect,
   EffectScope
 } from './types.js'
 import {
   $$subs,
+  $$subsTail,
   $$flags,
   $$deps,
   $$depsTail,
   $$dep,
-  $$sub,
   $$nextDep,
   $$prevSub,
   $$nextSub,
-  $$effect,
-  $$compute,
+  $$destroy,
+  $$sub,
   $$value,
-  $$destroy
+  $$compute,
+  $$effect
 } from './symbols.js'
 import {
-  ComputedSubscriberFlag,
   DirtySubscriberFlag,
-  EffectSubscriberFlag,
-  EffectScopeSubscriberFlag,
-  PendingComputedSubscriberFlag,
-  PendingEffectSubscriberFlag,
-  PropagatedSubscriberFlag,
-  NotifiedSubscriberFlag,
   TrackingSubscriberFlag,
-  RecursedSubscriberFlag
+  NotifiedSubscriberFlag,
+  RecursedSubscriberFlag,
+  PropagatedSubscriberFlag,
+  EffectScopeSubscriberFlag,
+  LazyEffectSubscriberFlag,
+  PendingComputedSubscriberFlag,
+  EffectSubscriberFlag,
+  PendingEffectSubscriberFlag,
+  ComputedSubscriberFlag
 } from './flags.js'
-import { isValidLink } from './link.js'
 import {
-  startTracking,
-  endTracking
-} from './subscriber.js'
+  incrementEffectCount,
+  isActiveSubscriber,
+  decrementEffectCount,
+  notifyActivations
+} from './activation.js'
+
+/**
+ * Creates and attaches a new link between the given dependency and subscriber.
+ *
+ * Reuses a link object from the linkPool if available. The newly formed link
+ * is added to both the dependency's linked list and the subscriber's linked list.
+ * @param dep - The dependency to link.
+ * @param sub - The subscriber to be attached to this dependency.
+ * @param nextDep - The next link in the subscriber's chain.
+ * @param depsTail - The current tail link in the subscriber's chain.
+ * @returns The newly created link object.
+ */
+export function linkNewDep(
+  dep: Dependency | Signal | ComputedSignal,
+  sub: Subscriber | ComputedSignal,
+  nextDep: Link | undefined,
+  depsTail: Link | undefined
+): Link {
+  const newLink: Link = {
+    [$$dep]: dep,
+    [$$sub]: sub,
+    [$$nextDep]: nextDep,
+    [$$prevSub]: undefined,
+    [$$nextSub]: undefined
+  }
+
+  if (depsTail === undefined) {
+    sub[$$deps] = newLink
+  } else {
+    depsTail[$$nextDep] = newLink
+  }
+
+  if (dep[$$subs] === undefined) {
+    dep[$$subs] = newLink
+  } else {
+    const oldTail = dep[$$subsTail]!
+
+    newLink[$$prevSub] = oldTail
+    oldTail[$$nextSub] = newLink
+  }
+
+  sub[$$depsTail] = newLink
+  dep[$$subsTail] = newLink
+
+  if (isActiveSubscriber(sub)) {
+    incrementEffectCount(dep)
+  }
+
+  return newLink
+}
+
+/**
+ * Verifies whether the given link is valid for the specified subscriber.
+ *
+ * It iterates through the subscriber's link list (from sub[$$deps] to sub[$$depsTail])
+ * to determine if the provided link object is part of that chain.
+ * @param checkLink - The link object to validate.
+ * @param sub - The subscriber whose link list is being checked.
+ * @returns `true` if the link is found in the subscriber's list; otherwise `false`.
+ */
+export function isValidLink(checkLink: Link, sub: Subscriber): boolean {
+  const depsTail = sub[$$depsTail]
+
+  if (depsTail !== undefined) {
+    let link = sub[$$deps]!
+
+    do {
+      if (link === checkLink) {
+        return true
+      }
+
+      if (link === depsTail) {
+        break
+      }
+
+      link = link[$$nextDep]!
+    } while (link !== undefined)
+  }
+
+  return false
+}
+
+/**
+ * Links a given dependency and subscriber if they are not already linked.
+ * @param dep - The dependency to be linked.
+ * @param sub - The subscriber that depends on this dependency.
+ * @returns The newly created link object if the two are not already linked; otherwise `undefined`.
+ */
+export function link(dep: Dependency, sub: Subscriber): Link | undefined {
+  const currentDep = sub[$$depsTail]
+
+  if (currentDep !== undefined && currentDep[$$dep] === dep) {
+    return
+  }
+
+  const nextDep = currentDep !== undefined
+    ? currentDep[$$nextDep]
+    : sub[$$deps]
+
+  if (nextDep !== undefined && nextDep[$$dep] === dep) {
+    sub[$$depsTail] = nextDep
+    return
+  }
+
+  const depLastSub = dep[$$subsTail]
+
+  if (
+    depLastSub !== undefined
+    && depLastSub[$$sub] === sub
+    && isValidLink(depLastSub, sub)
+  ) {
+    return
+  }
+
+  return linkNewDep(dep, sub, nextDep, currentDep)
+}
 
 const pauseStack: (Subscriber | undefined)[] = []
 
@@ -343,9 +463,7 @@ export function processComputedUpdate<T>(computed: ComputedSignal<T>, flags: num
   if (
     flags & DirtySubscriberFlag
     || (
-      checkDirty(computed[$$deps]!)
-        ? true
-        : (computed[$$flags] = flags & ~PendingComputedSubscriberFlag, false)
+      checkDirty(computed[$$deps]!) || (computed[$$flags] = flags & ~PendingComputedSubscriberFlag, false)
     )
   ) {
     if (updateComputed(computed)) {
@@ -495,4 +613,134 @@ export function pauseTracking() {
  */
 export function resumeTracking() {
   activeSub = pauseStack.pop()
+}
+
+export function maybeDestroyEffect(dep: Dependency | Subscriber): void {
+  if ($$destroy in dep && dep[$$destroy] !== undefined) {
+    (dep as Effect)[$$destroy]!()
+    dep[$$destroy] = undefined
+  }
+}
+
+/**
+ * Clears dependency-subscription relationships starting at the given link.
+ *
+ * Detaches the link from both the dependency and subscriber, then continues
+ * to the next link in the chain. The link objects are returned to linkPool for reuse.
+ * @param link - The head of a linked chain to be cleared.
+ */
+export function clearTracking(link: Link): void {
+  const isActiveSource = isActiveSubscriber(link[$$sub])
+
+  do {
+    const dep = link[$$dep] as Dependency | Dependency & Subscriber | Signal
+    const nextDep = link[$$nextDep]
+    const nextSub = link[$$nextSub]
+    const prevSub = link[$$prevSub]
+
+    if (nextSub !== undefined) {
+      nextSub[$$prevSub] = prevSub
+    } else {
+      dep[$$subsTail] = prevSub
+    }
+
+    if (prevSub !== undefined) {
+      prevSub[$$nextSub] = nextSub
+    } else {
+      dep[$$subs] = nextSub
+
+      if (nextSub === undefined) {
+        maybeDestroyEffect(dep)
+      }
+    }
+
+    const shouldClearSubs = dep[$$subs] === undefined && $$deps in dep
+
+    if (isActiveSource) {
+      decrementEffectCount(dep, shouldClearSubs)
+    }
+
+    if (shouldClearSubs) {
+      const depFlags = dep[$$flags]
+
+      if (!(depFlags & DirtySubscriberFlag)) {
+        dep[$$flags] = depFlags | DirtySubscriberFlag
+      }
+
+      const depDeps = dep[$$deps]
+
+      if (depDeps !== undefined) {
+        link = depDeps
+        dep[$$depsTail]![$$nextDep] = nextDep
+        dep[$$deps] = undefined
+        dep[$$depsTail] = undefined
+        continue
+      }
+    }
+
+    link = nextDep!
+  } while (link !== undefined)
+}
+
+/**
+ * Prepares the given subscriber to track new dependencies.
+ *
+ * It resets the subscriber's internal pointers (e.g., depsTail) and
+ * sets its flags to indicate it is now tracking dependency links.
+ * @param sub - The subscriber to start tracking.
+ */
+export function startTracking(sub: Subscriber): void {
+  sub[$$depsTail] = undefined
+  sub[$$flags] = (sub[$$flags] & ~(NotifiedSubscriberFlag | RecursedSubscriberFlag | PropagatedSubscriberFlag)) | TrackingSubscriberFlag
+}
+
+/**
+ * Concludes tracking of dependencies for the specified subscriber.
+ *
+ * It clears or unlinks any tracked dependency information, then
+ * updates the subscriber's flags to indicate tracking is complete.
+ * @param sub - The subscriber whose tracking is ending.
+ */
+export function endTracking(sub: Subscriber): void {
+  const depsTail = sub[$$depsTail]
+
+  if (depsTail !== undefined) {
+    const nextDep = depsTail[$$nextDep]
+
+    if (nextDep !== undefined) {
+      clearTracking(nextDep)
+      depsTail[$$nextDep] = undefined
+    }
+  } else if (sub[$$deps] !== undefined) {
+    clearTracking(sub[$$deps])
+    sub[$$deps] = undefined
+  }
+
+  sub[$$flags] &= ~TrackingSubscriberFlag
+
+  notifyActivations(activeSub)
+}
+
+/**
+ * @param link - The head of a linked chain to be propagated.
+ */
+export function runLazyEffects(link: Link): void {
+  do {
+    const dep = link[$$dep] as Effect | EffectScope
+    const nextDep = link[$$nextDep]
+
+    if (dep[$$flags] & LazyEffectSubscriberFlag) {
+      dep[$$flags] &= ~LazyEffectSubscriberFlag
+
+      if (dep[$$flags] & EffectScopeSubscriberFlag) {
+        if (dep[$$deps] !== undefined) {
+          runLazyEffects(dep[$$deps])
+        }
+      } else {
+        runEffect(dep as Effect, true)
+      }
+    }
+
+    link = nextDep!
+  } while (link !== undefined)
 }

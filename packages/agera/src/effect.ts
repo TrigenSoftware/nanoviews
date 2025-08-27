@@ -23,7 +23,7 @@ import {
   endTracking,
   maybeDestroyEffect,
   activeSub,
-  notifyActivateListeners
+  notifyActivations
 } from './internals/index.js'
 
 function effectStop(this: Subscriber | Effect): void {
@@ -35,7 +35,7 @@ function effectStop(this: Subscriber | Effect): void {
 function lazyEffectsRun(this: EffectScope): Destroy {
   this[$$flags] &= ~LazyEffectSubscriberFlag
 
-  notifyActivateListeners()
+  notifyActivations(activeSub)
 
   if (this[$$deps] !== undefined) {
     runLazyEffects(this[$$deps])

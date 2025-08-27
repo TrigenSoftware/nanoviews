@@ -22,3 +22,5 @@ export const $$set = 'q'
 export const $$source = 'r'
 
 export const $$signal = 's'
+export const $$writable = 't'
+export const $$effects = 'u'

@@ -17,7 +17,9 @@ import type {
   $$get,
   $$set,
   $$source,
-  $$signal
+  $$signal,
+  $$writable,
+  $$effects
 } from './symbols.js'
 
 export interface Dependency {
@@ -57,9 +59,11 @@ export interface Effect extends Subscriber, Dependency {
 
 export type OnActivateCallback = (active: boolean) => void
 
-export interface Signal<T = unknown> extends Dependency {
+export interface Signal<T = unknown, W = unknown> extends Dependency {
   [$$value]: T
   [$$onActivate]?: OnActivateCallback
+  [$$writable]?: W
+  [$$effects]: number
 }
 
 export type Compute<T> = (prevValue?: T) => T
@@ -76,6 +80,7 @@ export interface ReadableSignal<T> extends Accessor<T> {
 
 export interface WritableSignal<T> extends ReadableSignal<T> {
   (value: T): void
+  [$$signal]: Signal<T, true>
 }
 
 export type AnyAccessor = Accessor<any>

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 export const ComputedSubscriberFlag = 1 << 0
 
 export const EffectSubscriberFlag = 1 << 1
@@ -20,4 +19,3 @@ export const PendingComputedSubscriberFlag = 1 << 8
 export const PendingEffectSubscriberFlag = 1 << 9
 
 export const PropagatedSubscriberFlag = DirtySubscriberFlag | PendingComputedSubscriberFlag | PendingEffectSubscriberFlag
-/* eslint-enable @typescript-eslint/no-magic-numbers */

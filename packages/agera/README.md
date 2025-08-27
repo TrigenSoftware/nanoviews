@@ -54,7 +54,7 @@ console.log($doubleCount()) // 4
 <hr />
 <a href="#install">Install</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#basics">API</a>
+<a href="#api">API</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#why">Why?</a>
 <br />

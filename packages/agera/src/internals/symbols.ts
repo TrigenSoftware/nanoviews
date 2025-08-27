@@ -22,3 +22,5 @@ export const $$set = 'set'
 export const $$source = 'source'
 
 export const $$signal = 'signal'
+export const $$writable = 'writable'
+export const $$effects = 'effects'

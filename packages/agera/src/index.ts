@@ -20,7 +20,9 @@ export type {
 export {
   $$get,
   $$set,
-  $$source
+  $$source,
+  $$signal,
+  $$writable
 } from './internals/symbols.js'
 export {
   pauseTracking,
