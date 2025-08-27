@@ -17,7 +17,7 @@ import {
   useInject
 } from './index.js'
 
-describe('@kida/react', () => {
+describe('kida-react', () => {
   describe('useSignal', () => {
     it('should use signal store', () => {
       const $count = signal(0)
