@@ -283,7 +283,7 @@ stop()
 
 #### `exec`
 
-`exec` method starts and immediately stops signal. It can be used to trigger onMount events.
+`exec` method starts and immediately stops signal and returns signal value. It can be used to trigger onMount events.
 
 ```ts
 import { signal, onMount, exec } from 'kida'
@@ -470,6 +470,7 @@ const $mq = external(($mq) => {
   setMatched(mq)
 
   onMount($mq, () => {
+    setMatched(mq)
     mq.addEventListener('change', setMatched)
 
     return () => mq.removeEventListener('change', setMatched)

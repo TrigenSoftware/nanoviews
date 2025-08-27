@@ -2,6 +2,7 @@ import {
   type AnySignal,
   type AnyAccessor,
   type MaybeDestroy,
+  type AccessorValue,
   onActivate,
   effect
 } from 'agera'
@@ -80,9 +81,9 @@ export function start($signal: AnyAccessor) {
  * @param $signal - The signal to execute.
  * @returns The signal.
  */
-export function exec<T extends AnyAccessor>($signal: T) {
+export function exec<T extends AnyAccessor>($signal: T): AccessorValue<T> {
   start($signal)()
 
-  return $signal
+  return $signal()
 }
 

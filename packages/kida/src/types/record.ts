@@ -9,14 +9,15 @@ import type {
   GenericRecordValue,
   PickEmptyValue,
   PickNonEmptyValue,
-  PickObjectValue
-} from '../internals/types/index.js'
+  PickObjectValue,
+  RequiredMergeUnion
+} from '../types/index.js'
 
 export type ReadableRecord<
   T extends AnyAccessor
 > = AccessorValue<T> extends infer V
-  ? V extends GenericRecordValue
-    ? [PickNonEmptyValue<V>, PickEmptyValue<V>] extends [infer Value, infer Empty]
+  ? [V] extends [GenericRecordValue]
+    ? [RequiredMergeUnion<PickNonEmptyValue<V>>, PickEmptyValue<V>] extends [infer Value, infer Empty]
       ? T & {
         [K in keyof Value as `$${string & K}`]-?: ReadableSignal<Value[K] | Empty>
       }
@@ -27,8 +28,8 @@ export type ReadableRecord<
 export type WritableRecord<
   T extends AnyWritableSignal
 > = AccessorValue<T> extends infer V
-  ? V extends GenericRecordValue
-    ? [PickNonEmptyValue<V>, PickEmptyValue<V>] extends [infer Value, infer Empty]
+  ? [V] extends [GenericRecordValue]
+    ? [RequiredMergeUnion<PickNonEmptyValue<V>>, PickEmptyValue<V>] extends [infer Value, infer Empty]
       ? T & {
         [K in keyof Value as `$${string & K}`]-?: WritableSignal<Value[K] | Empty>
       }
@@ -39,12 +40,12 @@ export type WritableRecord<
 export type ReadableDeepRecord<
   T extends AnyAccessor
 > = AccessorValue<T> extends infer V
-  ? V extends GenericRecordValue
-    ? [PickNonEmptyValue<V>, PickEmptyValue<V>] extends [infer Value, infer Empty]
+  ? [V] extends [GenericRecordValue]
+    ? [RequiredMergeUnion<PickNonEmptyValue<V>>, PickEmptyValue<V>] extends [infer Value, infer Empty]
       ? T & {
         [K in keyof Value as `$${string & K}`]-?: PickNonEmptyValue<Value[K]> extends PickObjectValue<Value[K]>
           ? Value[K] | Empty extends infer C
-            ? C extends GenericRecordValue
+            ? [C] extends [GenericRecordValue]
               ? ReadableDeepRecord<ReadableSignal<C>>
               : never
             : never
@@ -57,12 +58,12 @@ export type ReadableDeepRecord<
 export type WritableDeepRecord<
   T extends AnyWritableSignal
 > = AccessorValue<T> extends infer V
-  ? V extends GenericRecordValue
-    ? [PickNonEmptyValue<V>, PickEmptyValue<V>] extends [infer Value, infer Empty]
+  ? [V] extends [GenericRecordValue]
+    ? [RequiredMergeUnion<PickNonEmptyValue<V>>, PickEmptyValue<V>] extends [infer Value, infer Empty]
       ? T & {
         [K in keyof Value as `$${string & K}`]-?: PickNonEmptyValue<Value[K]> extends PickObjectValue<Value[K]>
           ? Value[K] | Empty extends infer C
-            ? C extends GenericRecordValue
+            ? [C] extends [GenericRecordValue]
               ? WritableDeepRecord<WritableSignal<C>>
               : never
             : never

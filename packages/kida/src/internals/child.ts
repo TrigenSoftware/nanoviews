@@ -5,7 +5,10 @@ import {
   computed,
   morph,
   $$get,
-  $$set
+  $$set,
+  $$signal,
+  $$writable,
+  isWritable
 } from 'agera'
 import type { AnyObject } from './types/index.js'
 import { get } from './utils.js'
@@ -41,7 +44,7 @@ export function child<
 >(
   $parent: Accessor<P>,
   key: K | Accessor<K>,
-  setValue: (parentValue: P, key: K, value: V) => P
+  setValue?: (parentValue: P, key: K, value: V) => P
 ): ReadableSignal<V>
 
 export function child<
@@ -51,10 +54,17 @@ export function child<
 >(
   $parent: WritableSignal<P> | Accessor<P>,
   key: K | Accessor<K>,
-  setValue: (parentValue: P, key: K, value: V) => P
+  setValue?: (parentValue: P, key: K, value: V) => P
 ) {
   const getter = computed(() => $parent()[get(key)])
-  const setter = (value: V) => $parent(setValue($parent(), get(key), value))
+
+  if (!isWritable($parent)) {
+    return getter
+  }
+
+  const setter = (value: V) => $parent(setValue!($parent(), get(key), value))
+
+  getter[$$signal][$$writable] = true
 
   return morph(getter, {
     [$$get]: getter,
