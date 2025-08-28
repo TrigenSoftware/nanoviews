@@ -84,11 +84,11 @@ mount(App, document.querySelector('#app'))
 ## Install
 
 ```bash
-pnpm add -D nanoviews
+pnpm add nanoviews
 # or
-npm i -D nanoviews
+npm i nanoviews
 # or
-yarn add -D nanoviews
+yarn add nanoviews
 ```
 
 ## Reactivity

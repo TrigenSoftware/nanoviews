@@ -87,11 +87,11 @@ export function Admins() {
 ## Install
 
 ```bash
-pnpm add -D kida
+pnpm add kida
 # or
-npm i -D kida
+npm i kida
 # or
-yarn add -D kida
+yarn add kida
 ```
 
 ## Basics

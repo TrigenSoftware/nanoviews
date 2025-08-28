@@ -63,11 +63,11 @@ console.log($doubleCount()) // 4
 ## Install
 
 ```bash
-pnpm add -D agera
+pnpm add agera
 # or
-npm i -D agera
+npm i agera
 # or
-yarn add -D agera
+yarn add agera
 ```
 
 ## API

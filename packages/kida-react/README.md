@@ -50,11 +50,11 @@ export function UserProfile() {
 ## Install
 
 ```bash
-pnpm add -D kida
+pnpm add kida @kidajs/react
 # or
-npm i -D kida
+npm i kida @kidajs/react
 # or
-yarn add -D kida
+yarn add kida @kidajs/react
 ```
 
 ## Exports
