@@ -183,6 +183,40 @@ importers:
         version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
     publishDirectory: package
 
+  packages/kida-router:
+    devDependencies:
+      '@size-limit/preset-small-lib':
+        specifier: ^11.1.6
+        version: 11.2.0(size-limit@11.2.0)
+      '@testing-library/dom':
+        specifier: ^10.0.0
+        version: 10.4.0
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.6.3
+      '@vitest/coverage-v8':
+        specifier: ^3.0.0
+        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1))
+      happy-dom:
+        specifier: ^18.0.0
+        version: 18.0.1
+      kida:
+        specifier: workspace:^
+        version: link:../kida
+      size-limit:
+        specifier: ^11.1.6
+        version: 11.2.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.8.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.0.4(patch_hash=5c929e7021a7bafa370a5da38d8c85855df59539d52209805b7b2e49901827db)(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+    publishDirectory: package
+
   packages/nanoviews:
     dependencies:
       kida:
