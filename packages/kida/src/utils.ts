@@ -3,7 +3,11 @@ import {
   isFunction,
   computed
 } from 'agera'
-import type { RateLimiter } from './types/index.js'
+import type {
+  RateLimiter,
+  ValueOrAccessor
+} from './types/index.js'
+import { get } from './internals/utils.js'
 
 export * from './internals/utils.js'
 
@@ -23,6 +27,15 @@ export function length<T extends { length: number }>($signal: Accessor<T>) {
  */
 export function boolean<T>($signal: Accessor<T>) {
   return computed(() => Boolean($signal()))
+}
+
+/**
+ * Concatenate multiple values or accessors into a single string.
+ * @param parts - Values or accessors to concatenate.
+ * @returns A computed signal that returns the concatenated string.
+ */
+export function concat(...parts: ValueOrAccessor<unknown>[]) {
+  return computed(() => parts.map(get).join(''))
 }
 
 /**
