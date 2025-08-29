@@ -1,52 +1,29 @@
+## Nanoviews
+
 - for loop array or empty check for else
 - rework return slot$ to look like element/component? fn.prop is faster than {f,p}
 - util to transform static props to signal props?
 - rename decide? export as public - as Dynamic in solidjs
 - typed effectattrs <T>
 - additional arg for record in for$? as$
+- controls addEventListener to events system
+- static index for untracked loop?
 
 for$($items)(
   as$(record, ($item) => li()($item.$name))
 )
 
+## Kida/Agera
+
 - serialize - start all marked stores?
+- injectable class
+
 - bundle types?
-- static index for untracked loop?
-- controls addEventListener to events system
-- lazy scope to start and stop methods? - ??? wtf???
+- lazy scope to start and stop methods? for example for resort in loop
 - later: resort effects
+- store injection effectScope to stop effects after context stop? - UPD: wtf is this? i dont remember what it mean. Wrap serialize in effectScope? Or wrap inject ? bad practice, maybe just for safety into serialize
 
-do not export all through root index? split entrypoints by groups
-
-import {
-  div,
-  button
-} from 'nanoviews/elements'
-import {
-  classList$,
-  focus$
-} from 'nanoviews/attributes'
-import {
-  signal
-} from 'nanoviews/store'
-import {
-  if$,
-  for$
-} from 'nanoviews/logic'
-
-vs
-
-import {
-  div,
-  button,
-  classList$,
-  focus$,
-  signal,
-  if$,
-  for$
-} from 'nanoviews'
-
-there are many exports, so it can look like a mess, may be we can push devs to write structured code by splitting exports by entrypoints.
+## Perf
 
 - !== undefined is faster
 - prop: undefined is faster
@@ -57,23 +34,18 @@ there are many exports, so it can look like a mess, may be we can push devs to w
 - Reflect.get is slow
 - arr.length = 0 is slower than arr = []
 
-- store injection effectScope to stop effects after context stop? - UPD: wtf is this? i dont remember what it mean. Wrap serialize in effectScope? Or wrap inject ? bad practice, maybe just for safety into serialize
+## Long distance plans
 
 - html + head components
 - universal dom
 - ssr
 - hydration
-
-- events modifiers?
 - svg ?
-
 - error boundaries
-
 - hmr
-
 - COMPILER to compete with svelte and solid
 
-SSR
+### SSR
 
 - setAttribute
 - removeAttribute
@@ -91,6 +63,9 @@ SSR
 - portals
 - innerHTML
 
+## Drafts
+
+```
 handler = {
   k: undefined,
   get(target, key) {
@@ -124,3 +99,4 @@ obj = props$({
 	c: true,
 	d: null
 })
+```
