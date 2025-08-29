@@ -25,7 +25,7 @@
 [coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nanoviews.svg
 [coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nanoviews
 
-[Kida](packages/kida#readme) integration for React.
+[Kida](../kida#readme) integration for React.
 
 ```tsx
 import { signal } from 'kida'
