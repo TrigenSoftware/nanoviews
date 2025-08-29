@@ -118,6 +118,7 @@ export function listenLinks(navigation: Navigation) {
  * @param enhance - Optional function to extend navigation functionality
  * @returns Tuple of current location signal and navigation methods
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function browserNavigation(
   enhance?: (navigation: Navigation) => Destroy
 ): [LocationRecord, Navigation] {
@@ -180,6 +181,7 @@ export function browserNavigation(
  * @param enhance - Optional function to extend navigation functionality
  * @returns Tuple of current virtual location signal and navigation methods
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function virtualNavigation(
   initialPath = '/',
   enhance?: (navigation: Navigation) => Destroy

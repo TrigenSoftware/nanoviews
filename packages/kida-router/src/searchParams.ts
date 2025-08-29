@@ -12,6 +12,7 @@ import type {
  * @param $location - Location signal record containing the current location state
  * @returns A computed signal that returns URLSearchParams instance
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function searchParams($location: LocationRecord): SearchParamsSignal {
   const { $search } = $location
 
@@ -25,6 +26,7 @@ export function searchParams($location: LocationRecord): SearchParamsSignal {
  * @param parser - Optional function to parse the parameter value
  * @returns A computed signal that returns the parsed parameter value
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function searchParam<T = string | null>(
   $searchParams: SearchParamsSignal,
   key: string,

@@ -46,6 +46,7 @@ function patternToFunction(pattern: string) {
  * @param routes - Object mapping route names to URL patterns
  * @returns Object with path generators for each route
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function buildPaths<const R extends Routes>(routes: R) {
   return Object.entries(routes).reduce<Record<string, string | AnyFn>>(
     (hrefs, [route, pattern]) => {

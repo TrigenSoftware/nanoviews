@@ -23,6 +23,7 @@ type UnknownLayoutMatchRef = LayoutMatchRef<string, unknown, unknown>
  * @param page - The page component or value to return when matched
  * @returns Page match reference object
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function page<E extends string, const P>(
   expected: E,
   page: P
@@ -39,6 +40,7 @@ export function page<E extends string, const P>(
  * @param pages - Array of page or nested layout match references
  * @returns Layout match reference object
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function layout<R extends string, P, const L>(
   layout: L,
   pages: (
@@ -117,6 +119,7 @@ export function match<R extends Routes, K extends keyof R & string, P, N, L, C>(
   compose: ($nested: ReadableSignal<N | null>, layout: L) => C
 ): ReadableSignal<P | C | null>
 
+/* @__NO_SIDE_EFFECTS__ */
 export function match(
   $route: RouteMatchSignal<Routes>,
   pages: (

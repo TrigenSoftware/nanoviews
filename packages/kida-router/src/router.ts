@@ -72,6 +72,7 @@ function createMatcher(routes: Routes) {
  * @param routes - Object mapping route names to URL patterns
  * @returns A signal record containing the matched route and extracted parameters
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function router<const R extends Routes>(
   $location: LocationRecord,
   routes: R
@@ -89,6 +90,7 @@ export function router<const R extends Routes>(
  * @param parser - Optional function to parse the parameter value
  * @returns A computed signal that returns the parsed parameter value
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function routeParam<
   const R extends Routes,
   M extends RouteMatch<R> = RouteMatch<R>,
