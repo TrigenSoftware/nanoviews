@@ -1,12 +1,14 @@
 
 import {
-  type ComputedSignal,
-  type Signal,
+  type ComputedSignalInstance,
+  type SignalInstance,
   type AnySignal,
   type ReadableSignal,
   type WritableSignal,
   type Compute,
   type Morph,
+  type Mountable,
+  type NewValue,
   $$subs,
   $$subsTail,
   $$flags,
@@ -17,39 +19,43 @@ import {
   $$source,
   $$get,
   $$set,
-  $$onActivate,
+  $$mounted,
   $$signal,
-  $$writable,
-  $$effects,
+  $$subsCount,
   ComputedSubscriberFlag,
   DirtySubscriberFlag,
   PendingComputedSubscriberFlag,
   EffectScopeSubscriberFlag,
+  WritableSignalFlag,
   link,
   processComputedUpdate,
   propagate,
   processEffectNotifications,
-  activeSub
+  activeSub,
+  skipMount,
+  untracked
 } from './internals/index.js'
 import { effect } from './effect.js'
+import { isFunction } from './utils.js'
 
 /**
- * Subscribe to signal activation.
+ * Listen for mount and unmount events on a mountable signal.
  * @param $signal - The signal to subscribe to.
- * @param listener - The listener to call when the signal is activated or deactivated.
+ * @param listener - The listener to call when the signal is mounted or not.
  * @returns A function to stop the subscription.
  */
-export function onActivate(
-  $signal: AnySignal,
-  listener: (active: boolean) => void
+export function onMounted(
+  $signal: Mountable<AnySignal>,
+  listener: (mounted: boolean) => void
 ) {
-  const $active = ($signal[$$signal][$$onActivate] ||= signal(false)) as ReadableSignal<boolean>
+  const instance = $signal[$$signal]
+  const $mounted = (instance[$$mounted] ||= signal(false)) as ReadableSignal<boolean>
 
   return effect((warmup) => {
-    const active = $active()
+    const mounted = $mounted()
 
     if (!warmup) {
-      listener(active)
+      untracked(() => skipMount(instance, () => listener(mounted)))
     }
   }, true)
 }
@@ -74,8 +80,8 @@ export function endBatch() {
 
 function createSignal(
   constructor: (value?: unknown) => unknown,
-  instance: Signal | ComputedSignal,
-  ctx: Signal | ComputedSignal | Morph = instance
+  instance: SignalInstance | ComputedSignalInstance,
+  ctx: SignalInstance | ComputedSignalInstance | Morph = instance
 ) {
   const $signal = constructor.bind(ctx) as AnySignal
 
@@ -102,14 +108,17 @@ export function signal<T>(value?: T): WritableSignal<T | undefined> {
     [$$value]: value,
     [$$subs]: undefined,
     [$$subsTail]: undefined,
-    [$$effects]: 0,
-    [$$writable]: true
+    [$$flags]: WritableSignalFlag,
+    [$$subsCount]: 0
   }) as WritableSignal<T | undefined>
 }
 
-function signalGetterSetter<T>(this: Signal<T>, ...value: [T]): T | void {
+function signalGetterSetter<T>(this: SignalInstance<T>, ...value: [NewValue<T>]): T | void {
   if (value.length) {
-    if (this[$$value] !== (this[$$value] = value[0])) {
+    const newValue = value[0]
+    const prevValue = this[$$value]
+
+    if (prevValue !== (this[$$value] = isFunction(newValue) ? newValue(prevValue) : newValue)) {
       const subs = this[$$subs]
 
       if (subs !== undefined) {
@@ -137,18 +146,18 @@ function signalGetterSetter<T>(this: Signal<T>, ...value: [T]): T | void {
 /* @__NO_SIDE_EFFECTS__ */
 export function computed<T>(compute: Compute<T>): ReadableSignal<T> {
   return createSignal(computedGetter, {
+    [$$compute]: compute as Compute<unknown>,
     [$$value]: undefined,
     [$$subs]: undefined,
     [$$subsTail]: undefined,
     [$$deps]: undefined,
     [$$depsTail]: undefined,
-    [$$effects]: 0,
     [$$flags]: ComputedSubscriberFlag | DirtySubscriberFlag,
-    [$$compute]: compute as Compute<unknown>
+    [$$subsCount]: 0
   }) as ReadableSignal<T>
 }
 
-function computedGetter<T>(this: ComputedSignal<T>): T {
+function computedGetter<T>(this: ComputedSignalInstance<T>): T {
   const flags = this[$$flags]
 
   if (flags & (DirtySubscriberFlag | PendingComputedSubscriberFlag)) {

@@ -3,7 +3,7 @@ export type {
   Destroy,
   MaybeDestroy,
   EffectCallback,
-  OnActivateCallback,
+  MountedCallback,
   Compute,
   Accessor,
   ReadableSignal,
@@ -15,20 +15,18 @@ export type {
   AnyAccessorOrSignal,
   AccessorValue,
   MaybeAccessorValue,
-  Morph
+  Morph,
+  Mountable
 } from './internals/types.js'
 export {
   $$get,
   $$set,
   $$source,
-  $$signal,
-  $$writable
+  $$signal
 } from './internals/symbols.js'
-export {
-  pauseTracking,
-  resumeTracking
-} from './internals/index.js'
+export { untracked } from './internals/index.js'
 export * from './signal.js'
+export * from './modes.js'
 export * from './effect.js'
 export * from './utils.js'
 

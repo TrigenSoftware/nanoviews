@@ -18,4 +18,8 @@ export const PendingComputedSubscriberFlag = 1 << 8
 
 export const PendingEffectSubscriberFlag = 1 << 9
 
+export const WritableSignalFlag = 1 << 10
+
+export const MountableSignalFlag = 1 << 11
+
 export const PropagatedSubscriberFlag = DirtySubscriberFlag | PendingComputedSubscriberFlag | PendingEffectSubscriberFlag

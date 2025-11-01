@@ -2,8 +2,8 @@ import type {
   Dependency,
   Link,
   Subscriber,
-  Signal,
-  ComputedSignal,
+  SignalInstance,
+  ComputedSignalInstance,
   Effect,
   EffectScope
 } from './types.js'
@@ -21,7 +21,8 @@ import {
   $$sub,
   $$value,
   $$compute,
-  $$effect
+  $$effect,
+  $$skipMount
 } from './symbols.js'
 import {
   DirtySubscriberFlag,
@@ -34,14 +35,16 @@ import {
   PendingComputedSubscriberFlag,
   EffectSubscriberFlag,
   PendingEffectSubscriberFlag,
-  ComputedSubscriberFlag
+  ComputedSubscriberFlag,
+  MountableSignalFlag
 } from './flags.js'
 import {
   incrementEffectCount,
   isActiveSubscriber,
   decrementEffectCount,
-  notifyActivations
-} from './activation.js'
+  notifyMounted,
+  isMountableUsed
+} from './lifecycle.js'
 
 /**
  * Creates and attaches a new link between the given dependency and subscriber.
@@ -55,8 +58,8 @@ import {
  * @returns The newly created link object.
  */
 export function linkNewDep(
-  dep: Dependency | Signal | ComputedSignal,
-  sub: Subscriber | ComputedSignal,
+  dep: Dependency | SignalInstance | ComputedSignalInstance,
+  sub: Subscriber | ComputedSignalInstance,
   nextDep: Link | undefined,
   depsTail: Link | undefined
 ): Link {
@@ -86,7 +89,14 @@ export function linkNewDep(
   sub[$$depsTail] = newLink
   dep[$$subsTail] = newLink
 
-  if (isActiveSubscriber(sub)) {
+  const isDepMountable = isMountableUsed && dep[$$flags] & MountableSignalFlag
+
+  // Mark computed signals as mountable if any of their dependencies are mountable
+  if (isDepMountable && sub[$$flags] & ComputedSubscriberFlag) {
+    sub[$$flags] |= MountableSignalFlag
+  }
+
+  if (isDepMountable && isActiveSubscriber(sub) && sub[$$skipMount] !== dep) {
     incrementEffectCount(dep)
   }
 
@@ -159,15 +169,13 @@ export function link(dep: Dependency, sub: Subscriber): Link | undefined {
   return linkNewDep(dep, sub, nextDep, currentDep)
 }
 
-const pauseStack: (Subscriber | undefined)[] = []
-
 // eslint-disable-next-line import/no-mutable-exports
 export let activeSub: Subscriber | EffectScope | undefined
 
 let queuedEffects: Subscriber | undefined
 let queuedEffectsTail: Subscriber | undefined
 
-export function updateComputed<T>(computed: ComputedSignal<T>): boolean {
+export function updateComputed<T>(computed: ComputedSignalInstance<T>): boolean {
   const prevSub = activeSub
 
   activeSub = computed
@@ -354,7 +362,7 @@ export function checkDirty(link: Link): boolean {
       const depFlags = dep[$$flags]
 
       if ((depFlags & (ComputedSubscriberFlag | DirtySubscriberFlag)) === (ComputedSubscriberFlag | DirtySubscriberFlag)) {
-        if (updateComputed(dep as ComputedSignal)) {
+        if (updateComputed(dep as ComputedSignalInstance)) {
           const subs = dep[$$subs]!
 
           if (subs[$$nextSub] !== undefined) {
@@ -370,7 +378,7 @@ export function checkDirty(link: Link): boolean {
           depSubs[$$prevSub] = link
         }
 
-        link = dep[$$deps]!
+        link = (dep as ComputedSignalInstance)[$$deps]!
         ++stack
         continue
       }
@@ -382,7 +390,7 @@ export function checkDirty(link: Link): boolean {
     }
 
     if (stack) {
-      let sub = link[$$sub] as ComputedSignal
+      let sub = link[$$sub] as ComputedSignalInstance
 
       do {
         --stack
@@ -394,9 +402,9 @@ export function checkDirty(link: Link): boolean {
             if ((link = subSubs[$$prevSub]!) !== undefined) {
               subSubs[$$prevSub] = undefined
               shallowPropagate(subSubs)
-              sub = link[$$sub] as ComputedSignal
+              sub = link[$$sub] as ComputedSignalInstance
             } else {
-              sub = subSubs[$$sub] as ComputedSignal
+              sub = subSubs[$$sub] as ComputedSignalInstance
             }
 
             continue
@@ -413,13 +421,13 @@ export function checkDirty(link: Link): boolean {
             continue top
           }
 
-          sub = link[$$sub] as ComputedSignal
+          sub = link[$$sub] as ComputedSignalInstance
         } else {
           if ((link = subSubs[$$nextDep]!) !== undefined) {
             continue top
           }
 
-          sub = subSubs[$$sub] as ComputedSignal
+          sub = subSubs[$$sub] as ComputedSignalInstance
         }
 
         dirty = false
@@ -459,7 +467,7 @@ export function updateDirtyFlag(sub: Subscriber, flags: number): boolean {
  * @param computed - The computed subscriber to update.
  * @param flags - The current flag set for this subscriber.
  */
-export function processComputedUpdate<T>(computed: ComputedSignal<T>, flags: number): void {
+export function processComputedUpdate<T>(computed: ComputedSignalInstance<T>, flags: number): void {
   if (
     flags & DirtySubscriberFlag
     || (
@@ -516,7 +524,7 @@ export function runEffect(e: Effect, warmup?: true): void {
 
   try {
     if (e[$$destroy] !== undefined) {
-      e[$$destroy]()
+      untracked(e[$$destroy])
     }
 
     e[$$destroy] = e[$$effect](warmup)
@@ -601,23 +609,25 @@ export function processEffectNotifications(): void {
 }
 
 /**
- * Pauses signal change tracking.
+ * Run a function without tracking dependencies.
+ * @param fn
+ * @returns The result of the function.
  */
-export function pauseTracking() {
-  pauseStack.push(activeSub)
-  activeSub = undefined
-}
+export function untracked<T>(fn: () => T): T {
+  const prevSub = activeSub
 
-/**
- * Resumes signal change tracking.
- */
-export function resumeTracking() {
-  activeSub = pauseStack.pop()
+  activeSub = undefined
+
+  try {
+    return fn()
+  } finally {
+    activeSub = prevSub
+  }
 }
 
 export function maybeDestroyEffect(dep: Dependency | Subscriber): void {
   if ($$destroy in dep && dep[$$destroy] !== undefined) {
-    (dep as Effect)[$$destroy]!()
+    untracked((dep as Effect)[$$destroy]!)
     dep[$$destroy] = undefined
   }
 }
@@ -630,10 +640,11 @@ export function maybeDestroyEffect(dep: Dependency | Subscriber): void {
  * @param link - The head of a linked chain to be cleared.
  */
 export function clearTracking(link: Link): void {
-  const isActiveSource = isActiveSubscriber(link[$$sub])
+  const shouldDecrement = isMountableUsed && isActiveSubscriber(link[$$sub])
 
   do {
-    const dep = link[$$dep] as Dependency | Dependency & Subscriber | Signal
+    const dep = link[$$dep] as Dependency | Dependency & Subscriber | SignalInstance
+    const sub = link[$$sub] as Subscriber
     const nextDep = link[$$nextDep]
     const nextSub = link[$$nextSub]
     const prevSub = link[$$prevSub]
@@ -656,7 +667,7 @@ export function clearTracking(link: Link): void {
 
     const shouldClearSubs = dep[$$subs] === undefined && $$deps in dep
 
-    if (isActiveSource) {
+    if (shouldDecrement && dep[$$flags] & MountableSignalFlag && sub[$$skipMount] !== dep) {
       decrementEffectCount(dep, shouldClearSubs)
     }
 
@@ -718,7 +729,7 @@ export function endTracking(sub: Subscriber): void {
 
   sub[$$flags] &= ~TrackingSubscriberFlag
 
-  notifyActivations(activeSub)
+  notifyMounted(activeSub)
 }
 
 /**

@@ -14,6 +14,16 @@ import {
 
 describe('agera', () => {
   describe('signal', () => {
+    it('should set new value by function', () => {
+      const $num = signal(0)
+
+      $num(num => num + 1)
+      expect($num()).toBe(1)
+
+      $num(num => num + 5)
+      expect($num()).toBe(6)
+    })
+
     describe('computed', () => {
       it('should correctly propagate changes through computed signals', () => {
         const src = signal(0)

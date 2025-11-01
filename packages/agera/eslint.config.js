@@ -21,7 +21,8 @@ export default [
       '@typescript-eslint/no-invalid-void-type': 'off',
       'consistent-return': 'off',
       'no-return-assign': 'off',
-      'no-multi-assign': 'off'
+      'no-multi-assign': 'off',
+      '@stylistic/array-element-newline': 'off'
     }
   }
 ]

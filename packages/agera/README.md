@@ -29,7 +29,7 @@ A small push-pull based signal library based on [alien-signals](https://github.c
 
 Was created as reactivity system for [nanoviews](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/nanoviews) and [Kida](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida).
 
-- **Small**. Around 1.37 kB for basic methods (minified and brotlied). Zero dependencies.
+- **Small**. Around 1.8 kB for basic methods (minified and brotlied). Zero dependencies.
 - **Super fast** as [alien-signals](https://github.com/stackblitz/alien-signals).
 - Designed for best **Tree-Shaking**: only the code you use is included in your bundle.
 - **TypeScript**-first.
@@ -83,7 +83,7 @@ const $count = signal(0)
 
 $count($count() + 1)
 // or
-update($count, count => count + 1)
+$count(count => count + 1)
 ```
 
 To watch signal changes, use the `effect` function. Effect will be called immediately and every time the signal changes.
@@ -169,27 +169,27 @@ stop() // stop all effects
 
 ### Lifecycles
 
-One of main feature of Agera is that every signal can be active or inactive. It allows to create lazy signals, which will use resources only if signal is really used in the UI.
+One of main feature of Agera is that you can create *mountable* signals. It allows to create lazy signals, which will use resources only if signal is really used in the UI.
 
-- Signal is active when one or more effects is attached to it.
-- Signal is incative when signal has no effects.
-
-`onActivate` lifecycle method adds callback for activation and deactivation events.
+- Signal is mounted when one or more effects is attached to it
+- Signal is unmounted when signal has no effects
+- `mountable` method makes signal mountable
+- `onMounted` lifecycle method adds callback for mount and unmount events
 
 ```ts
-import { signal, onActivate, effect } from 'agera'
+import { mountable, signal, onMounted, effect } from 'agera'
 
-const $count = signal(0)
+const $count = mountable(signal(0))
 
-onActivate($count, (active) => {
-  console.log('Signal is', active ? 'active' : 'inactive')
+onMounted($count, (mounted) => {
+  console.log('Signal is', mounted ? 'mounted' : 'unmounted')
 })
 
-// will activate signal
+// will mount signal
 const stop = effect(() => {
   console.log('Count:', $count())
 })
-// will deactivate signal
+// will unmount signal
 stop()
 ```
 
@@ -216,10 +216,10 @@ endBatch()
 
 ### Skip tracking
 
-To skip tracking of signal changes you should wrap signal calls between `pauseTracking` and `resumeTracking`.
+To skip tracking of signal changes you should wrap signal into `untracked` function.
 
 ```ts
-import { signal, pauseTracking, resumeTracking, effect } from 'agera'
+import { signal, untracked, effect } from 'agera'
 
 const $a = signal(0)
 const $b = signal(0)
@@ -227,13 +227,17 @@ const $b = signal(0)
 effect(() => {
   const a = $a()
 
-  pauseTracking()
+  untracked(() => {
+    const b = $b()
 
-  const b = $b()
+    resumeTracking()
 
-  resumeTracking()
-
-  console.log('Sum:', a + b)
+    console.log('Sum:', a + b)
+  })
+})
+// or short variant
+effect(() => {
+  console.log('Sum:', $a() + untracked($b))
 })
 
 // Will trigger effect run

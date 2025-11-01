@@ -10,11 +10,11 @@ import {
   effectScope,
   createEffectScope,
   endBatch,
-  pauseTracking,
-  resumeTracking,
+  untracked,
   signal,
   startBatch,
-  onActivate
+  onMounted,
+  mountable
 } from './index.js'
 
 describe('agera', () => {
@@ -213,11 +213,8 @@ describe('agera', () => {
 
       effect(() => {
         order.push('a')
-        pauseTracking()
 
-        const isOne = src2() === 1
-
-        resumeTracking()
+        const isOne = untracked(src2) === 1
 
         if (isOne) {
           src1()
@@ -790,10 +787,10 @@ describe('agera', () => {
       })
 
       it('should trigger signal activation after start', () => {
-        const $num = signal(0)
+        const $num = mountable(signal(0))
         const callback = vi.fn()
 
-        onActivate($num, callback)
+        onMounted($num, callback)
 
         const start = effectScope(() => {
           $num()
@@ -813,11 +810,11 @@ describe('agera', () => {
       })
 
       it('should trigger computed dep activation after start', () => {
-        const $num = signal(1)
+        const $num = mountable(signal(1))
         const $double = computed(() => $num() * 2)
         const callback = vi.fn()
 
-        onActivate($num, callback)
+        onMounted($num, callback)
 
         const start = effectScope(() => {
           $double()
@@ -837,13 +834,13 @@ describe('agera', () => {
       })
 
       it('should trigger computed activation after start', () => {
-        const $num = signal(0)
-        const $double = computed(() => $num() * 2)
+        const $num = mountable(signal(0))
+        const $double = mountable(computed(() => $num() * 2))
         const callback = vi.fn()
         const computedCallback = vi.fn()
 
-        onActivate($num, callback)
-        onActivate($double, computedCallback)
+        onMounted($num, callback)
+        onMounted($double, computedCallback)
 
         const start = effectScope(() => {
           $double()
@@ -1435,17 +1432,10 @@ describe('agera', () => {
     })
   })
 
-  describe('pauseTracking+resumeTracking', () => {
+  describe('untracked', () => {
     it('should pause tracking', () => {
       const src = signal(0)
-      const c = computed(() => {
-        pauseTracking()
-
-        const value = src()
-
-        resumeTracking()
-        return value
-      })
+      const c = computed(() => untracked(src))
 
       expect(c()).toBe(0)
 

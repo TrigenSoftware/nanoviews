@@ -12,6 +12,7 @@ import {
   $$depsTail,
   $$effect,
   $$destroy,
+  $$skipMount,
   EffectSubscriberFlag,
   EffectScopeSubscriberFlag,
   LazyEffectSubscriberFlag,
@@ -23,7 +24,9 @@ import {
   endTracking,
   maybeDestroyEffect,
   activeSub,
-  notifyActivations
+  notifyMounted,
+  activeSkipMount,
+  isMountableUsed
 } from './internals/index.js'
 
 function effectStop(this: Subscriber | Effect): void {
@@ -35,7 +38,7 @@ function effectStop(this: Subscriber | Effect): void {
 function lazyEffectsRun(this: EffectScope): Destroy {
   this[$$flags] &= ~LazyEffectSubscriberFlag
 
-  notifyActivations(activeSub)
+  notifyMounted(activeSub)
 
   if (this[$$deps] !== undefined) {
     runLazyEffects(this[$$deps])
@@ -61,8 +64,16 @@ export function effect(fn: EffectCallback, ignoreLazy = false): Destroy {
     [$$destroy]: undefined
   }
 
+  if (isMountableUsed && activeSkipMount !== undefined) {
+    e[$$skipMount] = activeSkipMount
+  }
+
   if (activeSub !== undefined) {
     link(e, activeSub)
+
+    if (isMountableUsed && activeSub[$$skipMount] !== undefined) {
+      e[$$skipMount] = activeSub[$$skipMount]
+    }
 
     if (!ignoreLazy && activeSub[$$flags] & LazyEffectSubscriberFlag) {
       e[$$flags] |= LazyEffectSubscriberFlag
