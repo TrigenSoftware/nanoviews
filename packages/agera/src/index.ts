@@ -16,7 +16,8 @@ export type {
   AccessorValue,
   MaybeAccessorValue,
   Morph,
-  Mountable
+  Mountable,
+  NewValue
 } from './internals/types.js'
 export {
   $$get,
