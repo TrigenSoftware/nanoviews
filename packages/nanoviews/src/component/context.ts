@@ -1,9 +1,9 @@
 import {
   type InjectionProvider,
-  type InjectionFactory,
   InjectionContext,
   getContext,
   run,
+  provide,
   inject,
   isFunction
 } from 'kida'
@@ -11,17 +11,8 @@ import {
 export {
   getContext,
   run,
+  provide,
   inject
-}
-
-/**
- * Provide a dependency.
- * @param token - The factory function to create or get the dependency.
- * @param value - The value of the dependency.
- * @returns The provider.
- */
-export function provide<T>(token: InjectionFactory<T>, value: T): InjectionProvider {
-  return [token, value]
 }
 
 /**
@@ -55,7 +46,7 @@ export function context$<R>(providersOrFn: InjectionProvider[] | (() => R), mayb
     fn = maybeFn!
   }
 
-  return run(new InjectionContext(currentContext, providers), fn)
+  return run(new InjectionContext(providers, currentContext), fn)
 }
 
 /**
