@@ -76,22 +76,23 @@ export function UserProfile() {
 }
 ```
 
-### InjectionContext
+### InjectionContextProvider
 
-`InjectionContext` is a component to initialize injection context and provide dependencies to the children.
+`InjectionContextProvider` is a component to initialize injection context and provide dependencies to the children.
 
 ```tsx
-import { InjectionContext, useInject } from '@kidajs/react'
+import { provide } from 'kida'
+import { InjectionContextProvider, useInject } from '@kidajs/react'
 
-function Theme(): 'light' | 'dark' {
+function $Theme(): 'light' | 'dark' {
   return 'light'
 }
 
 function App() {
   return (
-    <InjectionContext providers={[[Theme, 'dark']]}>
+    <InjectionContextProvider context={[provide($Theme, 'dark')]}>
       <TopBar />
-    </InjectionContext>
+    </InjectionContextProvider>
   )
 }
 ```
@@ -104,37 +105,8 @@ function App() {
 import { useInject } from '@kidajs/react'
 
 function TopBar() {
-  const theme = useInject(Theme)
+  const theme = useInject($Theme)
 
   return <div>Current theme: {theme}</div>
-}
-```
-
-### useAction
-
-`useAction` hook creates an action that runs within the current injection context.
-
-```tsx
-import { signal } from 'kida'
-import { useInject, useAction } from '@kidajs/react'
-
-function Theme() {
-  return signal<'light' | 'dark'>('light')
-}
-
-function setThemeAction(theme: 'light' | 'dark') {
-  const $theme = useInject(Theme)
-
-  $theme(theme)
-}
-
-function TopBar() {
-  const setTheme = useAction(setThemeAction)
-
-  return (
-    <button onClick={() => setTheme('dark')}>
-      Switch to dark theme
-    </button>
-  )
 }
 ```

@@ -18,6 +18,9 @@ export default [
         projectService: true,
         tsconfigRootDir: import.meta.dirname
       }
+    },
+    rules: {
+      'no-multi-assign': 'off'
     }
   }
 ]

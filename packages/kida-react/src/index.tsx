@@ -1,11 +1,9 @@
 import {
-  type AnyFn,
   type ReadableSignal,
   type InjectionProvider,
   type InjectionFactory,
-  InjectionContext as KidaInjectionContext,
+  InjectionContext,
   inject,
-  action,
   effect
 } from 'kida'
 import {
@@ -43,7 +41,7 @@ export function useSignal<T>($signal: ReadableSignal<T>) {
   return useSyncExternalStore(sub, get, get)
 }
 
-export const ReactInjectionContext = /* @__PURE__ */ createContext<KidaInjectionContext | undefined>(undefined)
+export const ReactInjectionContext = /* @__PURE__ */ createContext<InjectionContext | undefined>(undefined)
 
 /**
  * Inject a dependency.
@@ -60,45 +58,35 @@ export function useInject<T>(factory: InjectionFactory<T>): T {
   return dependency
 }
 
-/**
- * Create an action that runs within the current injection context.
- * @param fn - The function to run.
- * @returns The action.
- */
-export function useAction<T extends AnyFn>(fn: T): T {
-  const currentContext = useContext(ReactInjectionContext)
-  const actionFn = useMemo(
-    () => action(fn, currentContext),
-    [currentContext, fn]
-  )
-
-  return actionFn
-}
-
 export interface InjectionContextProps {
-  provide?: InjectionProvider[]
+  context?: InjectionContext | InjectionProvider[]
   children: ReactNode
 }
 
 /**
  * Provide dependencies to children.
  * @param props
- * @param props.provide - The dependencies to provide.
+ * @param props.context - The dependencies to provide or InjectionContext instance.
  * @param props.children - The children to provide the dependencies to.
  * @returns The component.
  */
-export function InjectionContext({
-  provide,
+export function InjectionContextProvider({
+  context,
   children
 }: InjectionContextProps) {
   const currentContext = useContext(ReactInjectionContext)
+  const contextRef = useRef<InjectionContext>(null)
 
-  if (!provide && currentContext) {
+  if (!context && currentContext) {
     return children
   }
 
+  const value = contextRef.current ??= context instanceof InjectionContext
+    ? context
+    : new InjectionContext(context, currentContext)
+
   return (
-    <ReactInjectionContext.Provider value={new KidaInjectionContext(currentContext, provide)}>
+    <ReactInjectionContext.Provider value={value}>
       {children}
     </ReactInjectionContext.Provider>
   )

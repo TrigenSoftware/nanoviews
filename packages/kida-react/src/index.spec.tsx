@@ -9,11 +9,12 @@ import {
 } from '@testing-library/react'
 import {
   type ReadableSignal,
-  signal
+  signal,
+  provide
 } from 'kida'
 import {
   useSignal,
-  InjectionContext,
+  InjectionContextProvider,
   useInject
 } from './index.js'
 
@@ -48,12 +49,12 @@ describe('kida-react', () => {
     it('should provide dependency', () => {
       const $count = signal(0)
 
-      function Factory(): ReadableSignal<number> | null {
+      function $Factory(): ReadableSignal<number> | null {
         return null
       }
 
       function Test() {
-        const $count = useInject(Factory)!
+        const $count = useInject($Factory)!
         const count = useSignal($count)
 
         return (
@@ -64,11 +65,11 @@ describe('kida-react', () => {
       }
 
       const { container } = render(
-        <InjectionContext
-          provide={[[Factory, $count]]}
+        <InjectionContextProvider
+          context={[provide($Factory, $count)]}
         >
           <Test/>
-        </InjectionContext>
+        </InjectionContextProvider>
       )
 
       expect(container.innerHTML).toBe('<div>0</div>')
@@ -83,12 +84,12 @@ describe('kida-react', () => {
     it('should inject dependency', () => {
       const $count = signal(0)
 
-      function Factory() {
+      function $Factory() {
         return $count
       }
 
       function Test() {
-        const $count = useInject(Factory)
+        const $count = useInject($Factory)
         const count = useSignal($count)
 
         return (
@@ -99,9 +100,9 @@ describe('kida-react', () => {
       }
 
       const { container } = render(
-        <InjectionContext>
+        <InjectionContextProvider>
           <Test/>
-        </InjectionContext>
+        </InjectionContextProvider>
       )
 
       expect(container.innerHTML).toBe('<div>0</div>')
