@@ -1,5 +1,6 @@
 import {
   type Accessor,
+  type MaybeDestroy,
   isFunction,
   computed,
   untracked
@@ -156,6 +157,19 @@ export function throttle(fnOrDelay?: (() => void) | number) {
         if (!timer) {
           timer = setTimeout(invoke, remaining)
         }
+    }
+  }
+}
+
+/**
+ * Compose multiple destroy functions into a single destroy function.
+ * @param destroys - Destroy functions to compose.
+ * @returns A single destroy function that calls all provided destroy functions.
+ */
+export function composeDestroys(...destroys: MaybeDestroy[]) {
+  return () => {
+    for (let i = 0, len = destroys.length; i < len; i++) {
+      destroys[i]?.()
     }
   }
 }

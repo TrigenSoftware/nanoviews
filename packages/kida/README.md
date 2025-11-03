@@ -716,6 +716,19 @@ get(signal(1)) // 1
 get(1) // 1
 ```
 
+### `composeDestroys`
+
+`composeDestroys` method composes multiple destroy functions into one.
+
+```ts
+import { composeDestroys, effect } from 'kida'
+
+effect(() => composeDestroys(
+  intervalLogger($interval),
+  windowResizeLogger($size)
+))
+```
+
 ## Why?
 
 Nano Stores is a great library with wonderful idea of stores with lifecycles. But it has some drawbacks:
