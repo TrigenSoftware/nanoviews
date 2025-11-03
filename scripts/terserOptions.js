@@ -6,7 +6,8 @@ export const terserOptions = {
     beautify: true,
     indent_level: 2,
     ecma: 2025,
-    preserve_annotations: true
+    preserve_annotations: true,
+    comments: 'all'
   },
   compress: {
     defaults: false,

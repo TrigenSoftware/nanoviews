@@ -1,197 +1,27 @@
-diff --git a/dist/node/chunks/dep-glQox-ep.js b/dist/node/chunks/dep-glQox-ep.js
-index f09eca9b8a3ab0cd14840d6481235d633b53e222..65af4fa731e4a0e36f714e36849039425173b3ff 100644
---- a/dist/node/chunks/dep-glQox-ep.js
-+++ b/dist/node/chunks/dep-glQox-ep.js
-@@ -387,7 +387,7 @@ var constants$8 = {
- 	  }
- 
- 	  return last;
--	}; 
-+	};
- } (utils$d));
- 
- const utils$c = utils$d;
-@@ -2809,12 +2809,12 @@ var commondir = function (basedir, relfiles) {
-     else {
-         var files = basedir;
-     }
--    
-+
-     var res = files.slice(1).reduce(function (ps, file) {
-         if (!file.match(/^([A-Za-z]:)?\/|\\/)) {
-             throw new Error('relative path without a basedir');
-         }
--        
-+
-         var xs = file.split(/\/+|\\+/);
-         for (
-             var i = 0;
-@@ -2823,7 +2823,7 @@ var commondir = function (basedir, relfiles) {
-         );
-         return ps.slice(0, i);
-     }, files[0].split(/\/+|\\+/));
--    
-+
-     // Windows correctly handles paths with forward-slashes
-     return res.length > 1 ? res.join('/') : '/'
- };
-@@ -3574,7 +3574,7 @@ Object.defineProperty(types, "__esModule", { value: true });
- 	exports.fdir = void 0;
- 	const builder_1 = builder;
- 	Object.defineProperty(exports, "fdir", { enumerable: true, get: function () { return builder_1.Builder; } });
--	__exportStar(types, exports); 
-+	__exportStar(types, exports);
- } (dist));
- 
- const comma = ','.charCodeAt(0);
-@@ -9066,7 +9066,7 @@ function requireBrowser$1 () {
- 			} catch (error) {
- 				return '[UnexpectedJSONParseError]: ' + error.message;
- 			}
--		}; 
-+		};
- 	} (browser$1, browser$1.exports));
- 	return browser$1.exports;
- }
-@@ -9341,7 +9341,7 @@ function requireNode$1 () {
- 		formatters.O = function (v) {
- 			this.inspectOpts.colors = this.useColors;
- 			return util.inspect(v, this.inspectOpts);
--		}; 
-+		};
- 	} (node$1, node$1.exports));
- 	return node$1.exports;
- }
-@@ -12904,9 +12904,6 @@ function terserPlugin(config) {
-       !outputOptions.__vite_force_terser__) {
-         return null;
-       }
--      if (config.build.lib && outputOptions.format === "es") {
--        return null;
--      }
-       worker ||= makeWorker();
-       const terserPath2 = loadTerserPath(config.root);
-       const res = await worker.run(terserPath2, code, {
-@@ -14147,7 +14144,7 @@ var convertSourceMap$1 = {};
- 	exports.generateMapFileComment = function (file, options) {
- 	  var data = 'sourceMappingURL=' + file;
- 	  return options && options.multiline ? '/*# ' + data + ' */' : '//# ' + data;
--	}; 
-+	};
- } (convertSourceMap$1));
- 
- var convertSourceMap = /*@__PURE__*/getDefaultExportFromCjs(convertSourceMap$1);
-@@ -20836,7 +20833,7 @@ function requireDebug () {
- 		function coerce(val) {
- 		  if (val instanceof Error) return val.stack || val.message;
- 		  return val;
--		} 
-+		}
- 	} (debug$a, debug$a.exports));
- 	return debug$a.exports;
- }
-@@ -21031,7 +21028,7 @@ function requireBrowser () {
- 		  try {
- 		    return window.localStorage;
- 		  } catch (e) {}
--		} 
-+		}
- 	} (browser, browser.exports));
- 	return browser.exports;
- }
-@@ -21291,7 +21288,7 @@ function requireNode () {
- 		 * Enable namespaces listed in `process.env.DEBUG` initially.
- 		 */
- 
--		exports.enable(load()); 
-+		exports.enable(load());
- 	} (node, node.exports));
- 	return node.exports;
- }
-@@ -22501,7 +22498,7 @@ var utilsMerge = {exports: {}};
- 	    }
- 	  }
- 	  return a;
--	}; 
-+	};
- } (utilsMerge));
- 
- var utilsMergeExports = utilsMerge.exports;
-@@ -23514,7 +23511,7 @@ var constants$5 = {
- 	    output = `(?:^(?!${output}).*$)`;
- 	  }
- 	  return output;
--	}; 
-+	};
- } (utils$7));
- 
- const utils$6 = utils$7;
-@@ -26100,7 +26097,7 @@ var utils$3 = {};
- 
- 	  flat(args);
- 	  return result;
--	}; 
-+	};
- } (utils$3));
- 
- const utils$2 = utils$3;
-@@ -27714,7 +27711,7 @@ var constants$1 = {};
- 	exports.isWindows = platform === 'win32';
- 	exports.isMacos = platform === 'darwin';
- 	exports.isLinux = platform === 'linux';
--	exports.isIBMi = os.type() === 'OS400'; 
-+	exports.isIBMi = os.type() === 'OS400';
- } (constants$1));
- 
- const fs$4 = require$$0$3;
-@@ -30551,7 +30548,7 @@ function launchEditor (file, specifiedEditor, onErrorCallback) {
-         return `^"${str}^"`
-       } else if (str.includes(' ')) {
-         return `"${str}"`
--      } 
-+      }
-       return str
-     }
-     const launchCommand = [editor, ...args.map(escapeCmdArgs)]
-@@ -38545,7 +38542,7 @@ var eventemitter3 = {exports: {}};
- 	//
- 	{
- 	  module.exports = EventEmitter;
--	} 
-+	}
- } (eventemitter3));
- 
- var eventemitter3Exports = eventemitter3.exports;
-@@ -38640,7 +38637,7 @@ var requiresPort = function required(port, protocol) {
- 	  if (options.auth) {
- 	    outgoing.auth = options.auth;
- 	  }
--	  
-+
- 	  if (options.ca) {
- 	      outgoing.ca = options.ca;
- 	  }
-@@ -40234,7 +40231,7 @@ var wsIncoming = {
- 	  if(i === false) throw new Error('No such pass');
- 
- 	  passes.splice(i++, 0, callback);
--	}; 
-+	};
- } (httpProxy$3));
- 
- var httpProxyExports = httpProxy$3.exports;
-@@ -40308,12 +40305,12 @@ var httpProxy$2 = ProxyServer;
- /*!
-  * Caron dimonio, con occhi di bragia
-  * loro accennando, tutte le raccoglie;
-- * batte col remo qualunque s’adagia 
-+ * batte col remo qualunque s’adagia
-  *
-  * Charon the demon, with the eyes of glede,
-  * Beckoning to them, collects them all together,
-  * Beats with his oar whoever lags behind
-- *          
-+ *
-  *          Dante - The Divine Comedy (Canto III)
-  */
- 
+diff --git a/dist/node/chunks/dep-DZ2tZksn.js b/dist/node/chunks/dep-DZ2tZksn.js
+index 763b46fa0a0f32f78be6b253c5300f1c5f1b0c95..963cb398bcbb8485e8224bf2bd69dccaafccd63b 100644
+--- a/dist/node/chunks/dep-DZ2tZksn.js
++++ b/dist/node/chunks/dep-DZ2tZksn.js
+@@ -7135,7 +7135,6 @@ function terserPlugin(config$2) {
+ 		},
+ 		async renderChunk(code, _chunk, outputOptions) {
+ 			if (config$2.build.minify !== "terser" && !outputOptions.__vite_force_terser__) return null;
+-			if (config$2.build.lib && outputOptions.format === "es") return null;
+ 			worker ||= makeWorker();
+ 			const terserPath$1 = loadTerserPath(config$2.root);
+ 			const res = await worker.run(terserPath$1, code, {
+@@ -25619,12 +25618,12 @@ var require_http_proxy = __commonJS({ "../../node_modules/.pnpm/http-proxy@1.18.
+ 	/*!
+ 	* Caron dimonio, con occhi di bragia
+ 	* loro accennando, tutte le raccoglie;
+-	* batte col remo qualunque s’adagia 
++	* batte col remo qualunque s’adagia
+ 	*
+ 	* Charon the demon, with the eyes of glede,
+ 	* Beckoning to them, collects them all together,
+ 	* Beats with his oar whoever lags behind
+-	*          
++	*
+ 	*          Dante - The Divine Comedy (Canto III)
+ 	*/
+ 	module.exports = require_http_proxy$1();
