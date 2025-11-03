@@ -38,6 +38,21 @@ bench
 
     destroy()
   })
+  .add('agera / effectScope + mountable', () => {
+    const $a = agera.mountable(agera.signal(0))
+    const $b = agera.mountable(agera.signal(0))
+    const destroy = agera.effectScope(() => {
+      agera.effect(() => {
+        $a()
+      })
+      agera.effect(() => {
+        $a()
+        $b()
+      })
+    })
+
+    destroy()
+  })
   .add('agera / effectScope single instance', () => {
     const $a = agera.signal(0)
     const $b = agera.signal(0)

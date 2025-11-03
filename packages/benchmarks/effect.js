@@ -47,6 +47,19 @@ bench
 
     console.assert(logs.length === 3)
   })
+  .add('agera / effect + mountable', () => {
+    const $store = agera.mountable(agera.signal(0))
+    const logs = []
+
+    agera.effect(() => {
+      logs.push($store())
+    })
+
+    $store($store() + 1)
+    $store($store() + 1)
+
+    console.assert(logs.length === 3)
+  })
 
 await bench.run()
 

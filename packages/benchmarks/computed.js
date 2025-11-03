@@ -77,6 +77,29 @@ bench
 
     effect()
   })
+  .add('agera / computed + mountable', () => {
+    const $a = agera.mountable(agera.signal(0))
+    const $b = agera.mountable(agera.signal(1))
+    const $c = agera.mountable(agera.computed(() => $a() + $b()))
+    let value = $c()
+
+    $a(2)
+
+    value = $c()
+
+    $b(3)
+
+    // value = $c()
+
+    const effect = agera.effect(() => {
+      value = $c()
+    })
+
+    $a(4)
+    $b(5)
+
+    effect()
+  })
 
 await bench.run()
 

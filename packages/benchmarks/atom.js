@@ -23,6 +23,11 @@ bench
 
     $store($store() + 1)
   })
+  .add('agera / signal + mountable', () => {
+    const $store = agera.mountable(agera.signal(0))
+
+    $store($store() + 1)
+  })
 
 await bench.run()
 
