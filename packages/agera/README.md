@@ -77,7 +77,7 @@ yarn add agera
 Signal is a basic store type. It stores a single value.
 
 ```ts
-import { signal, update } from 'agera'
+import { signal } from 'agera'
 
 const $count = signal(0)
 
@@ -171,13 +171,15 @@ stop() // stop all effects
 
 One of main feature of Agera is that you can create *mountable* signals. It allows to create lazy signals, which will use resources only if signal is really used in the UI.
 
-- Signal is mounted when one or more effects is attached to it
-- Signal is unmounted when signal has no effects
-- `mountable` method makes signal mountable
-- `onMounted` lifecycle method adds callback for mount and unmount events
+- Signal is **mounted** when one or more effects is attached to it.
+- Signal is **unmounted** when signal has no effects.
+
+`mountable` method makes signal mountable.
+
+`onMounted` lifecycle method adds callback for mount and unmount events.
 
 ```ts
-import { mountable, signal, onMounted, effect } from 'agera'
+import { signal, mountable, onMounted, effect } from 'agera'
 
 const $count = mountable(signal(0))
 
