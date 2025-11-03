@@ -8,8 +8,7 @@ import {
   effect,
   computed,
   signal,
-  isSignal,
-  update
+  isSignal
 } from 'agera'
 import {
   record,
@@ -104,7 +103,7 @@ describe('kida', () => {
 
         expect($record.$firstname()).toBe('Dan')
 
-        update($record, data => ({
+        $record(data => ({
           ...data,
           firstname: 'Daniil'
         }))
@@ -133,7 +132,7 @@ describe('kida', () => {
 
         expect($record.$firstname()).toBe('Dan')
 
-        update($record, data => ({
+        $record(data => ({
           ...data,
           firstname: 'Daniil'
         }))
@@ -285,7 +284,7 @@ describe('kida', () => {
 
         expect($record.$location.$city()).toBe('Batumi')
 
-        update($record, data => ({
+        $record(data => ({
           ...data,
           location: {
             ...data.location,
@@ -323,7 +322,7 @@ describe('kida', () => {
 
         expect($record.$location.$city()).toBe('Batumi')
 
-        update($record, data => ({
+        $record(data => ({
           ...data,
           location: {
             ...data.location,

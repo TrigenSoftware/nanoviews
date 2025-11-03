@@ -1,8 +1,7 @@
 import {
   type WritableSignal,
   type ReadableSignal,
-  type Accessor,
-  update
+  type Accessor
 } from 'agera'
 import {
   child,
@@ -48,7 +47,7 @@ export function atIndex<T>(
 export function updateList<T, R>($list: WritableSignal<T[]>, fn: (state: T[]) => R): R {
   let result
 
-  update($list, (state) => {
+  $list((state) => {
     const nextState = state.slice()
 
     result = fn(nextState)

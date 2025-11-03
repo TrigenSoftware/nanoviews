@@ -4,8 +4,8 @@ import type {
 } from 'agera'
 import { start } from './internals/index.js'
 import {
-  Tasks,
-  allTasks
+  $TasksSet,
+  waitTasks
 } from './tasks.js'
 import {
   InjectionContext,
@@ -17,11 +17,11 @@ import {
  * Injection token for serialized data.
  * @returns The serialized data.
  */
-export function Serialized(): Record<string, unknown> | null {
+export function $Serialized(): Record<string, unknown> | null {
   return null
 }
 
-function ToSerialize(): Map<string, AnyAccessor> | null {
+function $ToSerialize(): Map<string, AnyAccessor> | null {
   return null
 }
 
@@ -32,14 +32,14 @@ function ToSerialize(): Map<string, AnyAccessor> | null {
  * @returns The signal.
  */
 export function serializable<T extends AnyWritableSignal>(id: string, $signal: T) {
-  const serialized = inject(Serialized)
+  const serialized = inject($Serialized)
 
   if (serialized) {
     if (Object.hasOwn(serialized, id)) {
       $signal(serialized[id])
     }
   } else {
-    const toSerialize = inject(ToSerialize)
+    const toSerialize = inject($ToSerialize)
 
     if (toSerialize) {
       toSerialize.set(id, $signal)
@@ -61,13 +61,13 @@ export async function serialize(
 ) {
   const toSerialize = new Map<string, AnyAccessor>()
 
-  context.set(ToSerialize, toSerialize)
+  context.set($ToSerialize, toSerialize)
 
   const stores = run(context, runner)
-  const tasks = context.get(Tasks)
+  const tasks = context.get($TasksSet)
   const stop = start(() => stores.forEach(store => store() as void))
 
-  await allTasks(tasks)
+  await waitTasks(tasks)
 
   const serialized: Record<string, unknown> = {}
 

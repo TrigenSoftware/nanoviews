@@ -8,6 +8,7 @@ import { get } from './utils.js'
  * @param right - Second operand
  * @returns An accessor that returns the first truthy value
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function or<L, R>(
   left: ValueOrAccessor<L>,
   right: ValueOrAccessor<R>
@@ -20,6 +21,7 @@ export function or<L, R>(
  * @param args - Variable number of operands
  * @returns An accessor that returns the first truthy value
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function some<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
   return () => {
     let value: T
@@ -42,6 +44,7 @@ export function some<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
  * @param right - Second operand
  * @returns An accessor that returns the AND result
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function and<L, R>(
   left: ValueOrAccessor<L>,
   right: ValueOrAccessor<R>
@@ -54,6 +57,7 @@ export function and<L, R>(
  * @param args - Variable number of operands
  * @returns An accessor that returns the last value if all are truthy
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function every<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
   return () => {
     let value: T
@@ -75,6 +79,7 @@ export function every<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
  * @param value - The value to negate
  * @returns An accessor that returns the negated boolean result
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function not<T>(value: ValueOrAccessor<T>): Accessor<boolean> {
   return () => !get(value)
 }
@@ -85,6 +90,7 @@ export function not<T>(value: ValueOrAccessor<T>): Accessor<boolean> {
  * @param right - Second value to compare
  * @returns An accessor that returns true if values are equal
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function is(
   left: ValueOrAccessor<unknown>,
   right: ValueOrAccessor<unknown>
@@ -98,6 +104,7 @@ export function is(
  * @param right - Second value to compare
  * @returns An accessor that returns true if values are not equal
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function isNot(
   left: ValueOrAccessor<unknown>,
   right: ValueOrAccessor<unknown>
@@ -111,6 +118,7 @@ export function isNot(
  * @param right - Right operand
  * @returns An accessor that returns true if left > right
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function gt(
   left: ValueOrAccessor<number>,
   right: ValueOrAccessor<number>
@@ -124,6 +132,7 @@ export function gt(
  * @param right - Right operand
  * @returns An accessor that returns true if left >= right
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function gte(
   left: ValueOrAccessor<number>,
   right: ValueOrAccessor<number>
@@ -137,6 +146,7 @@ export function gte(
  * @param right - Right operand
  * @returns An accessor that returns true if left < right
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function lt(
   left: ValueOrAccessor<number>,
   right: ValueOrAccessor<number>
@@ -150,6 +160,7 @@ export function lt(
  * @param right - Right operand
  * @returns An accessor that returns true if left <= right
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function lte(
   left: ValueOrAccessor<number>,
   right: ValueOrAccessor<number>
@@ -164,6 +175,7 @@ export function lte(
  * @param otherwise - Optional value to return if condition is falsy
  * @returns An accessor that returns the conditional result
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function when<T, U>(
   condition: ValueOrAccessor<unknown>,
   then: ValueOrAccessor<T>,

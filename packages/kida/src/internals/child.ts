@@ -2,13 +2,15 @@ import {
   type WritableSignal,
   type ReadableSignal,
   type Accessor,
+  type NewValue,
   computed,
   morph,
   $$get,
   $$set,
-  $$signal,
-  $$writable,
-  isWritable
+  isWritable,
+  unsafeMarkWritable,
+  isFunction,
+  untracked
 } from 'agera'
 import type { AnyObject } from './types/index.js'
 import { get } from './utils.js'
@@ -47,6 +49,7 @@ export function child<
   setValue?: (parentValue: P, key: K, value: V) => P
 ): ReadableSignal<V>
 
+/* @__NO_SIDE_EFFECTS__ */
 export function child<
   P extends AnyObject,
   K extends keyof P,
@@ -62,9 +65,18 @@ export function child<
     return getter
   }
 
-  const setter = (value: V) => $parent(setValue!($parent(), get(key), value))
+  const setter = (value: NewValue<V>) => untracked(() => {
+    const parent = $parent()
+    const k = get(key)
 
-  getter[$$signal][$$writable] = true
+    $parent(setValue!(
+      parent,
+      k,
+      isFunction(value) ? value(parent[k]) : value
+    ))
+  })
+
+  unsafeMarkWritable(getter)
 
   return morph(getter, {
     [$$get]: getter,

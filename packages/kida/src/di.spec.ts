@@ -8,8 +8,7 @@ import {
   InjectionContext,
   getContext,
   run,
-  inject,
-  action
+  inject
 } from './di.js'
 
 describe('kida', () => {
@@ -54,7 +53,7 @@ describe('kida', () => {
 
       it('should run nested contexts', () => {
         const parent = new InjectionContext()
-        const child = new InjectionContext(parent)
+        const child = new InjectionContext(undefined, parent)
         const fn = vi.fn(() => {
           expect(getContext()).toBe(child)
         })
@@ -99,7 +98,7 @@ describe('kida', () => {
 
       it('should inject provided dependency', () => {
         const factory = vi.fn(() => 42)
-        const context = new InjectionContext(undefined, [[factory, 404]])
+        const context = new InjectionContext([[factory, 404]])
         const app = vi.fn(() => {
           const value = inject(factory)
 
@@ -117,7 +116,7 @@ describe('kida', () => {
       it('should define dependency in root context', () => {
         const factory = vi.fn(() => 42)
         const root = new InjectionContext()
-        const child = new InjectionContext(root)
+        const child = new InjectionContext(undefined, root)
         const childApp = vi.fn(() => {
           const value = inject(factory)
 
@@ -141,7 +140,7 @@ describe('kida', () => {
       it('should get dependency from root context', () => {
         const factory = vi.fn(() => 42)
         const root = new InjectionContext()
-        const child = new InjectionContext(root)
+        const child = new InjectionContext(undefined, root)
         const childApp = vi.fn(() => {
           const value = inject(factory)
 
@@ -162,25 +161,6 @@ describe('kida', () => {
         expect(factory).toHaveBeenCalledTimes(1)
         expect(root.has(factory)).toBe(true)
         expect(child.has(factory)).toBe(true)
-      })
-    })
-
-    describe('action', () => {
-      it('should bind function to current context', () => {
-        const factory = () => 42
-        const act = () => {
-          const value = inject(factory)
-
-          return value - 2
-        }
-        const context = new InjectionContext()
-        let fn: () => number
-
-        run(context, () => {
-          fn = action(act)
-        })
-
-        expect(fn!()).toBe(40)
       })
     })
   })

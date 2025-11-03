@@ -1,19 +1,24 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import {
   describe,
   it,
   expect
 } from 'vitest'
-import { signal } from 'agera'
+import {
+  signal,
+  mountable
+} from 'agera'
 import {
   InjectionContext,
   run,
-  inject
+  inject,
+  provide
 } from './di.js'
-import { Tasks } from './tasks.js'
+import { $TasksSet } from './tasks.js'
 import { onMount } from './lifecycle.js'
 import { channel } from './channel.js'
 import {
-  Serialized,
+  $Serialized,
   serializable,
   serialize
 } from './serialize.js'
@@ -23,12 +28,12 @@ interface User {
 }
 
 function UserStore() {
-  const $user = serializable('user', signal<User | null>(null))
+  const $user = serializable('user', mountable(signal<User | null>(null)))
   const [
     userTask,
     $userLoading,
     $userError
-  ] = channel(inject(Tasks))
+  ] = channel(inject($TasksSet))
 
   onMount($user, () => {
     userTask(async () => {
@@ -69,7 +74,9 @@ describe('kida', () => {
           name: 'John'
         }
       }
-      const context = new InjectionContext(undefined, [[Serialized, serialized]])
+      const context = new InjectionContext([
+        provide($Serialized, serialized)
+      ])
       const { $user } = run(context, () => inject(UserStore))
 
       expect($user()).toEqual({

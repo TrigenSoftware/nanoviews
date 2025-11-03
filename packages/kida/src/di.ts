@@ -12,8 +12,8 @@ export class InjectionContext extends Map<InjectionFactory, unknown> {
   readonly #parent
 
   constructor(
-    parent?: Map<InjectionFactory, unknown>,
-    providers?: InjectionProvider[]
+    providers?: InjectionProvider[],
+    parent?: Map<InjectionFactory, unknown>
   ) {
     super()
 
@@ -49,6 +49,7 @@ let currentContext: InjectionContext | undefined
  * Get current injection context.
  * @returns The current injection context.
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function getContext() {
   return currentContext
 }
@@ -81,6 +82,17 @@ export function run<T extends AnyFn>(
 }
 
 /**
+ * Provide a dependency.
+ * @param token - The factory function to create or get the dependency.
+ * @param value - The value of the dependency.
+ * @returns The provider.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function provide<T>(token: InjectionFactory<T>, value: T): InjectionProvider {
+  return [token, value]
+}
+
+/**
  * Inject a dependency.
  * @param factory - The factory function to create or get the dependency.
  * @param context - Optional override for the injection context.
@@ -92,18 +104,4 @@ export function inject<T>(factory: InjectionFactory<T>, context = currentContext
   }
 
   return context.get(factory)
-}
-
-/**
- * Create an action that runs within the current injection context.
- * @param fn - The function to run.
- * @param context - Optional override for the injection context.
- * @returns The action.
- */
-export function action<T extends AnyFn>(fn: T, context = currentContext): T {
-  if (!context) {
-    throw new Error('Cannot bind action outside of injection context')
-  }
-
-  return (run as AnyFn).bind(null, context, fn) as T
 }

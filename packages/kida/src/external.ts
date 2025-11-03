@@ -1,10 +1,12 @@
 import {
   type WritableSignal,
+  type NewValue,
   $$get,
   $$set,
   $$source,
   morph,
-  signal
+  signal,
+  untracked
 } from 'agera'
 import type {
   ExternalFactory,
@@ -12,9 +14,9 @@ import type {
 } from './types/index.js'
 import { $$factory } from './internals/index.js'
 
-function lazyGetterSetter<T>(this: External<T>, ...value: [T]): T | void {
+function lazyGetterSetter<T>(this: External<T>, ...value: [NewValue<T>]): T | void {
   const $source = this[$$source]
-  const setter = this[$$factory]($source)
+  const setter = untracked(() => this[$$factory]($source))
 
   this[$$get] = $source
   this[$$set] = setter === undefined

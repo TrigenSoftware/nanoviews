@@ -3,7 +3,8 @@ import {
   type AnyAccessor,
   type MaybeDestroy,
   type AccessorValue,
-  onActivate,
+  type Mountable,
+  onMounted,
   effect
 } from 'agera'
 
@@ -14,10 +15,10 @@ import {
  * @returns Function to stop listening.
  */
 export function onStart(
-  $signal: AnySignal,
+  $signal: Mountable<AnySignal>,
   listener: () => void
 ) {
-  return onActivate($signal, mounted => mounted && listener())
+  return onMounted($signal, mounted => mounted && listener())
 }
 
 /**
@@ -27,10 +28,10 @@ export function onStart(
  * @returns Function to stop listening.
  */
 export function onStop(
-  $signal: AnySignal,
+  $signal: Mountable<AnySignal>,
   listener: () => void
 ) {
-  return onActivate($signal, mounted => !mounted && listener())
+  return onMounted($signal, mounted => !mounted && listener())
 }
 
 export const STORE_UNMOUNT_DELAY = 1000
@@ -42,13 +43,13 @@ export const STORE_UNMOUNT_DELAY = 1000
  * @returns Function to stop listening.
  */
 export function onMount(
-  $signal: AnySignal,
+  $signal: Mountable<AnySignal>,
   listener: () => MaybeDestroy
 ) {
   let active = false
   let destroy: MaybeDestroy
 
-  return onActivate($signal, (mounted) => {
+  return onMounted($signal, (mounted) => {
     if (mounted) {
       if (!active) {
         destroy = listener()

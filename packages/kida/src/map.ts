@@ -2,8 +2,7 @@
 import {
   type WritableSignal,
   type ReadableSignal,
-  type Accessor,
-  update
+  type Accessor
 } from 'agera'
 import {
   type AnyCollection,
@@ -60,7 +59,7 @@ export function getKey<T extends AnyCollection>($map: Accessor<T>, key: keyof T)
  * @returns The value.
  */
 export function setKey<T extends AnyCollection>($map: WritableSignal<T>, key: keyof T, value: T[keyof T]) {
-  update($map, state => assignKey(state, key, value))
+  $map(state => assignKey(state, key, value))
   return value
 }
 
@@ -73,7 +72,7 @@ export function setKey<T extends AnyCollection>($map: WritableSignal<T>, key: ke
 export function deleteKey<T extends AnyCollection>($map: WritableSignal<T>, key: keyof T) {
   let result
 
-  update($map, (state) => {
+  $map((state) => {
     let nextState
 
     ;({ [key]: result, ...nextState } = state)

@@ -4,8 +4,8 @@ import {
   expect
 } from 'vitest'
 import {
-  allTasks,
-  createTasksRunner
+  waitCurrentTasks,
+  tasksPool
 } from './tasks.js'
 
 describe('kida', () => {
@@ -13,13 +13,13 @@ describe('kida', () => {
     describe('allTasks', () => {
       it('should wait resolved task', async () => {
         const tasks = new Set<Promise<unknown>>()
-        const task = createTasksRunner(tasks)
+        const task = tasksPool(tasks)
         let resolve: () => void
         const promise = task(() => new Promise<void>((r) => {
           resolve = r
         }))
         let stamp = ''
-        const waitTasks = allTasks(tasks)
+        const waitTasks = waitCurrentTasks(tasks)
 
         waitTasks.then(() => {
           stamp += ' allTasks '
@@ -36,13 +36,13 @@ describe('kida', () => {
 
       it('should wait rejected task', async () => {
         const tasks = new Set<Promise<unknown>>()
-        const task = createTasksRunner(tasks)
+        const task = tasksPool(tasks)
         let reject: () => void
         const promise = task(() => new Promise<void>((_, r) => {
           reject = r
         }))
         let stamp = ''
-        const waitTasks = allTasks(tasks)
+        const waitTasks = waitCurrentTasks(tasks)
 
         waitTasks.then(() => {
           stamp += ' allTasks '

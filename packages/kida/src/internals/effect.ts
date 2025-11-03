@@ -1,6 +1,7 @@
 import {
   type AnySignal,
   type EffectCallback,
+  type Mountable,
   effect,
   effectScope
 } from 'agera'
@@ -12,7 +13,7 @@ import { onMount } from './lifecycle.js'
  * @param fn - The effect function.
  * @returns Function to stop listening.
  */
-export function onMountEffect($signal: AnySignal, fn: EffectCallback) {
+export function onMountEffect($signal: Mountable<AnySignal>, fn: EffectCallback) {
   return onMount($signal, () => effect(fn))
 }
 
@@ -22,6 +23,6 @@ export function onMountEffect($signal: AnySignal, fn: EffectCallback) {
  * @param fn - The effect scope function.
  * @returns Function to stop listening.
  */
-export function onMountEffectScope($signal: AnySignal, fn: () => void) {
+export function onMountEffectScope($signal: Mountable<AnySignal>, fn: () => void) {
   return onMount($signal, () => effectScope(fn))
 }

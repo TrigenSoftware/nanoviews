@@ -48,6 +48,7 @@ function abortableRun(
 
 /**
  * Create a channel for async tasks.
+ * @deprecated
  * @param tasks - Tasks queue.
  * @param mapErrorValue - Function to map the error value. Default is to get the error message.
  * @returns A tuple with the task, state and error signal.

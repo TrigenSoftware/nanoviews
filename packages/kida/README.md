@@ -27,7 +27,7 @@
 
 A small state management library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and based on [Agera](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/agera).
 
-- **Small**. Around 1.94 kB for basic methods (minified and brotlied). Zero dependencies.
+- **Small**. Around 2 kB for basic methods (minified and brotlied). Zero dependencies.
 - **~5x faster** than Nano Stores.
 - Designed for best **Tree-Shaking**: only the code you use is included in your bundle.
 - **TypeScript**-first.
@@ -59,7 +59,7 @@ import { $admins } from '../stores/admins.js'
 export function Admins() {
   return ul()(
     for$($admins, user => user.id)(
-      $admin => li()(record($admin).name)
+      $admin => li()(record($admin).$name)
     )
   )
 }
@@ -101,13 +101,13 @@ yarn add kida
 Signal is a basic store type. It stores a single value.
 
 ```ts
-import { signal, update } from 'kida'
+import { signal } from 'agera'
 
 const $count = signal(0)
 
 $count($count() + 1)
 // or
-update($count, count => count + 1)
+$count(count => count + 1)
 ```
 
 To watch signal changes, use the `effect` function. Effect will be called immediately and every time the signal changes.
@@ -196,9 +196,9 @@ stop() // stop all effects
 `onMountEffect` accepts a signal as a first argument to start effect on this [signal mount](#lifecycles).
 
 ```ts
-import { signal, onMountEffect } from 'kida'
+import { signal, mountable, onMountEffect } from 'kida'
 
-const $weather = signal('sunny')
+const $weather = mountable(signal('sunny'))
 const $city = signal('Batumi')
 
 onMountEffect($weather, () => {
@@ -211,9 +211,9 @@ onMountEffect($weather, () => {
 `onMountEffectScope` accepts a signal as a first argument to run effect scope on this [signal mount](#lifecycles).
 
 ```ts
-import { signal, onMountEffectScope, effect } from 'kida'
+import { signal, mountable, onMountEffectScope, effect } from 'kida'
 
-const $weather = signal('sunny')
+const $weather = mountable(signal('sunny'))
 const $city = signal('Batumi')
 
 onMountEffectScope($weather, () => {
@@ -229,17 +229,19 @@ onMountEffectScope($weather, () => {
 
 ### Lifecycles
 
-One of main feature of Kida is that every signal can be mounted (active) or unmounted (inactive). It allows to create lazy signals, which will use resources only if signal is really used in the UI.
+One of main feature of Kida is that you can create *mountable* signals. It allows to create lazy signals, which will use resources only if signal is really used in the UI.
 
 - Signal is **mounted** when one or more effects is attached to it.
 - Signal is **unmounted** when signal has no effects.
 
+`mountable` method makes signal mountable.
+
 `onMount` lifecycle method adds callback for mount and unmount events.
 
 ```ts
-import { signal, onMount, effect } from 'kida'
+import { signal, mountable, onMount, effect } from 'kida'
 
-const $count = signal(0)
+const $count = mountable(signal(0))
 
 onMount($count, () => {
   // Signal is now active
@@ -268,9 +270,9 @@ There are other lifecycle methods:
 `start` method starts signal and returns function to stop it. It can be useful to write tests for signals.
 
 ```ts
-import { signal, onMount, start } from 'kida'
+import { signal, mountable, onMount, start } from 'kida'
 
-const $count = signal(0)
+const $count = mountable(signal(0))
 
 onMount($count, () => {
   console.log('Signal started')
@@ -286,9 +288,9 @@ stop()
 `exec` method starts and immediately stops signal and returns signal value. It can be used to trigger onMount events.
 
 ```ts
-import { signal, onMount, exec } from 'kida'
+import { signal, mountable, onMount, exec } from 'kida'
 
-const $count = signal(0)
+const $count = mountable(signal(0))
 
 onMount($count, () => {
   console.log('Signal started')
@@ -444,18 +446,6 @@ There are also other methods to work with object maps:
 
 ## Extra signals
 
-### Lazy
-
-`lazy` method creates a signal that is runs initializer function only when it is accessed.
-
-```ts
-import { lazy } from 'kida'
-
-const $savedString = lazy(() => localStorage.getItem('string') ?? '')
-
-console.log($savedString()) // runs initializer function
-```
-
 ### External
 
 `external` method creates a signal that can receive value from external sources.
@@ -499,6 +489,18 @@ const $locale = external(($locale) => {
 $locale('ru') // will save 'ru' to localStorage
 ```
 
+Or you can implement lazy initialization with external signal.
+
+```ts
+import { external } from 'kida'
+
+const $savedString = external(($savedString) => {
+  $savedString(localStorage.getItem('string') ?? '')
+})
+
+console.log($savedString()) // runs initializer function
+```
+
 ### Paced
 
 `paced` method creates a signal where updates are rate-limited.
@@ -525,49 +527,33 @@ There is also `throttle` method to limit updates by time interval.
 `addTask` can be used to mark all async operations during signal initialization.
 
 ```ts
-import { signal, addTask, onMount } from 'kida'
+import { signal, mountable, addTask, onMount } from 'kida'
 
 const tasks = new Set()
-const $user = signal(null)
+const $user = mountable(signal(null))
 
 onMount($user, () => {
   addTask(tasks, fetchUser().then(user => $user(user)))
 })
 ```
 
-You can wait for all ongoing tasks end with `allTasks` method.
+You can wait for all current tasks end with `waitCurrentTasks` method.
 
 ```ts
-import { allTasks, start } from 'kida'
+import { waitCurrentTasks, start } from 'kida'
 
 start($user)
-await allTasks(tasks)
+await waitCurrentTasks(tasks)
 ```
 
-### Channel
-
-To handle async operations in your app, is better to use `channel` method. It creates task runner function and signals with loading and error states.
+Or you can wait for all tasks including future with `waitTasks` method.
 
 ```ts
-import { channel, signal, onMount } from 'kida'
+import { waitTasks, start } from 'kida'
 
-const tasks = new Set()
-const $user = signal(null)
-const [userTask, $userLoading, $userError] = channel(tasks)
-
-function fetchUser() {
-  return userTask(async (signal) => {
-    const response = await fetch('/user', { signal })
-    const user = await response.json()
-
-    $user(user)
-  })
-}
-
-onMount($user, fetchUser)
+start($user)
+await waitTasks(tasks)
 ```
-
-Task function receives `AbortSignal` as an argument, so you can run only one task at a time.
 
 ## SSR
 
@@ -583,44 +569,35 @@ Dependency injection implementation in Kida has four main methods:
 3. `action` - helper to bind action functions to the context.
 
 ```ts
-import { InjectionContext, run, inject, action, signal, onMount, Tasks, channel, effect } from 'kida'
+import { InjectionContext, run, inject, action, signal, mountable, onMount, $TasksSet, channel, effect } from 'kida'
 
-function UserChannel() {
-  const tasks = inject(Tasks)
-
-  return channel(tasks)
+function $UserChannel() {
+  return channel(inject($TasksSet))
 }
 
-function UserSignal() {
-  return signal(null)
+function $UserSignal() {
+  return mountable(signal(null))
 }
 
-function fetchUserAction() {
-  const [userTask] = inject(UserChannel)
-  const $user = inject(UserSignal)
-
-  return userTask(async (signal) => {
+function $UserStore() {
+  const [userTask, $userLoading, $userError] = inject($UserChannel)
+  const $user = inject($UserSignal)
+  const fetchUser = action(() => userTask(async (signal) => {
     const response = await fetch('/user', { signal })
     const user = await response.json()
 
     $user(user)
-  })
-}
-
-function UserStore() {
-  const [userTask, $userLoading, $userError] = inject(UserChannel)
-  const $user = inject(UserSignal)
-  const fetchUser = action(fetchUserAction)
+  }))
 
   onMount($user, fetchUser)
 
-  return { $user, $userLoading, $userError }
+  return { $user, $userLoading, $userError, fetchUser }
 }
 
 const context = new InjectionContext()
 
 run(context, () => {
-  const { $user, $userLoading, $userError } = inject(UserStore)
+  const { $user, $userLoading, $userError } = inject($UserStore)
 
   effect(() => {
     console.log('User:', $user())
@@ -640,7 +617,7 @@ To serialize signals while SSR, firstly you should mark signals with `serializab
 ```ts
 import { signal, serializable } from 'kida'
 
-function UserSignal() {
+function $UserSignal() {
   return serializable('user', signal(null))
 }
 ```
@@ -651,7 +628,7 @@ Then, on SSR server, you can use `serialize` method wait all tasks and serialize
 import { serialize } from 'kida'
 
 const serialized = await serialize(() => {
-  const { $user } = inject(UserStore)
+  const { $user } = inject($UserStore)
 
   return [$user] // signals to trigger mount event
 })
@@ -660,14 +637,14 @@ const serialized = await serialize(() => {
 On client side you should provide serialized data to context with `Serialized` factory.
 
 ```ts
-import { InjectionContext, Serialized, run, inject, effect } from 'kida'
+import { InjectionContext, $Serialized, provide, run, inject, effect } from 'kida'
 
 const serialized = {
   user: {
     name: 'John'
   }
 }
-const context = new InjectionContext(undefined, [[Serialized, serialized]])
+const context = new InjectionContext([provide($Serialized, serialized)])
 
 run(context, () => {
   const { $user, $userLoading, $userError } = inject(UserStore)

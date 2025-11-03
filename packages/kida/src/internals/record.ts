@@ -10,6 +10,7 @@ import { $$record } from './symbols.js'
 import { child } from './child.js'
 import { assignKey } from './utils.js'
 
+/* @__NO_SIDE_EFFECTS__ */
 export function createProxyHandler(
   ext: ($signal: AnySignal) => AnySignal
 ): ProxyHandler<AnyRecordStore> {
@@ -28,6 +29,7 @@ export function createProxyHandler(
   }
 }
 
+/* @__NO_SIDE_EFFECTS__ */
 export function recordBase(
   $source: AnyAccessorOrSignal & RecordStore,
   handler: ProxyHandler<AnyRecordStore>

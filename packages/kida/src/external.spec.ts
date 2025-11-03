@@ -8,7 +8,10 @@ import {
 } from 'vitest'
 import {
   type WritableSignal,
-  effect
+  type NewValue,
+  mountable,
+  effect,
+  isFunction
 } from 'agera'
 import { onMount } from './lifecycle.js'
 import { external } from './external.js'
@@ -31,7 +34,7 @@ describe('kida', () => {
         setter = $source
         $source(404)
 
-        onMount($source, mountListener)
+        onMount(mountable($source), mountListener)
       })
       const $ext = external(factory)
 
@@ -82,7 +85,7 @@ describe('kida', () => {
       const factory = vi.fn(($source: WritableSignal<number>) => {
         $source(404)
 
-        onMount($source, mountListener)
+        onMount(mountable($source), mountListener)
       })
       const $ext = external<number>(factory)
 
@@ -108,7 +111,11 @@ describe('kida', () => {
     it('should call setter returned from factory', () => {
       let setListener
       const factory = vi.fn(($source: WritableSignal<number>) => {
-        setListener = vi.fn((value: number) => $source(value * 2))
+        setListener = vi.fn((value: NewValue<number>) => $source(
+          isFunction(value)
+            ? newValue => value(newValue) * 2
+            : value * 2
+        ))
 
         return setListener
       })
@@ -133,10 +140,16 @@ describe('kida', () => {
       expect(factory).toHaveBeenCalledTimes(1)
       expect(setListener).toHaveBeenCalledTimes(2)
 
+      $ext(prev => prev + 3)
+
+      expect($ext()).toBe(14)
+      expect(factory).toHaveBeenCalledTimes(1)
+      expect(setListener).toHaveBeenCalledTimes(3)
+
       off()
       vi.runAllTimers()
 
-      expect(setListener).toHaveBeenCalledTimes(2)
+      expect(setListener).toHaveBeenCalledTimes(3)
     })
   })
 })

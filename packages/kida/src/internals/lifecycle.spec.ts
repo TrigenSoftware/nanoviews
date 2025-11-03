@@ -8,6 +8,7 @@ import {
 } from 'vitest'
 import {
   signal,
+  mountable,
   effect
 } from 'agera'
 import {
@@ -30,7 +31,7 @@ describe('kida', () => {
 
       describe('onStart', () => {
         it('should dispatch onStart event', () => {
-          const $signal = signal(1)
+          const $signal = mountable(signal(1))
           const listener = vi.fn()
           const off1 = effect(() => {
             $signal()
@@ -59,7 +60,7 @@ describe('kida', () => {
         })
 
         it('should not dispatch onStart event on get', () => {
-          const $signal = signal(1)
+          const $signal = mountable(signal(1))
           const listener = vi.fn()
           const off1 = effect(() => {
             $signal()
@@ -75,7 +76,7 @@ describe('kida', () => {
         })
 
         it('should call listener while set value in onStart', () => {
-          const $signal = signal(1)
+          const $signal = mountable(signal(1))
           const listener = vi.fn()
 
           onStart($signal, () => {
@@ -94,7 +95,7 @@ describe('kida', () => {
 
       describe('onStop', () => {
         it('should dispatch onStop event', () => {
-          const $signal = signal(1)
+          const $signal = mountable(signal(1))
           const listener = vi.fn()
 
           onStop($signal, listener)
@@ -115,7 +116,7 @@ describe('kida', () => {
 
       describe('onMount', () => {
         it('should dispatch onMount event', () => {
-          const $signal = signal(1)
+          const $signal = mountable(signal(1))
           const unmount = vi.fn()
           const mount = vi.fn(() => unmount)
           const off1 = effect(() => {
@@ -164,7 +165,7 @@ describe('kida', () => {
         })
 
         it('should debounce unmount callback', () => {
-          const $signal = signal(1)
+          const $signal = mountable(signal(1))
           const unmount = vi.fn()
           const mount = vi.fn(() => unmount)
           let off1: () => void
@@ -201,7 +202,7 @@ describe('kida', () => {
         })
 
         it('should call listener while set value in onMount', () => {
-          const $signal = signal(1)
+          const $signal = mountable(signal(1))
           const listener = vi.fn()
 
           onMount($signal, () => {

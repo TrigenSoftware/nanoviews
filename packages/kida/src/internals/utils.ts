@@ -73,6 +73,7 @@ export function toSignal<T>(
   valueOrSignal: T
 ): ToSignal<T>
 
+/* @__NO_SIDE_EFFECTS__ */
 export function toSignal(valueOrSignal: unknown) {
   return isSignal(valueOrSignal)
     ? valueOrSignal
@@ -90,6 +91,7 @@ export function toAccessor<T>(
   valueOrAccessor: T
 ): ToAccessor<T>
 
+/* @__NO_SIDE_EFFECTS__ */
 export function toAccessor(valueOrReadable: unknown) {
   return isAccessor(valueOrReadable)
     ? valueOrReadable
@@ -105,6 +107,7 @@ export function toAccessorOrSignal<T>(
   valueOrAccessor: T
 ): ToAccessor<T>
 
+/* @__NO_SIDE_EFFECTS__ */
 export function toAccessorOrSignal(valueOrReadable: unknown) {
   return isAccessor(valueOrReadable)
     ? valueOrReadable
