@@ -56,5 +56,9 @@ export function readonly<T extends AnyAccessor>($signal: T) {
     ($signal as AnyReadableSignal)[$$signal][$$flags] &= ~WritableSignalFlag
   }
 
-  return $signal as T extends AnyWritableSignal ? ReadableSignal<AccessorValue<T>> : T
+  return $signal as T extends Mountable<AnyWritableSignal>
+    ? Mountable<ReadableSignal<AccessorValue<T>>>
+    : T extends AnyWritableSignal
+      ? ReadableSignal<AccessorValue<T>>
+      : T
 }
