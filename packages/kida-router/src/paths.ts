@@ -6,11 +6,11 @@ import type {
 import { removeTrailingSlash } from './utils.js'
 
 function execPattern(
-  this: (string | ((params: Record<string, string>) => string))[],
-  params: Record<string, string>
+  this: (string | ((params: Record<string, string | number>) => string))[],
+  params: Record<string, string | number>
 ) {
   return this
-    .map((part, i) => (i % 2 === 0 ? part as string : (part as (params: Record<string, string>) => string)(params)))
+    .map((part, i) => (i % 2 === 0 ? part as string : (part as (params: Record<string, string | number>) => string)(params)))
     .join('')
 }
 
@@ -19,12 +19,12 @@ function partToFunction(part: string, i: number) {
     i % 2 === 0
       ? part
       : part === undefined
-        ? (params: Record<string, string> = {}) => (
+        ? (params: Record<string, string | number> = {}) => (
           params.wildcard
             ? `/${params.wildcard}`
             : ''
         )
-        : (params: Record<string, string> = {}) => (
+        : (params: Record<string, string | number> = {}) => (
           part in params
             ? `/${encodeURIComponent(params[part])}`
             : ''

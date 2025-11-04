@@ -37,16 +37,14 @@ A small and powerful router for [Kida](https://github.com/TrigenSoftware/nanovie
 import { browserNavigation, router, match, page, layout } from '@kidajs/router'
 
 // Setup navigation
-const [$location, navigation] = browserNavigation()
-// Create router
-const $route = router($location, {
+const [$location, navigation] = browserNavigation({
   home: '/',
   user: '/users/:id',
   userPosts: '/users/:id/posts',
   admin: '/admin/*'
 })
-// Setup page component matching
-const $page = match($route, [
+// Create router
+const [$page] = router($route, [
   page('home', HomePage),
   page('user', UserPage),
   layout(AdminLayout, [
@@ -83,13 +81,18 @@ yarn add kida @kidajs/router
 
 ### Navigation
 
-First, you need to set up navigation. "Navigation" consists of a signal for the current location and methods to change it:
+First, you need to set up navigation. "Navigation" consists of a signal for the current location with matched route and methods to change it:
 
 ```ts
 import { effect } from 'kida'
 import { browserNavigation } from '@kidajs/router'
 
-const [$location, navigation] = browserNavigation()
+const [$location, navigation] = browserNavigation({
+  home: '/',
+  user: '/users/:id',
+  userPosts: '/users/:id/posts',
+  admin: '/admin/*'
+})
 
 // Listen to location changes
 effect(() => {
@@ -98,6 +101,8 @@ effect(() => {
 
 // Navigate programmatically
 navigation.push('/users/123')
+$location().route // 'user'
+$location().params // { id: '123' }
 navigation.replace('/users/456')
 navigation.back()
 navigation.forward()
@@ -108,7 +113,12 @@ Besides browser navigation, you can also use virtual navigation for testing or S
 ```ts
 import { virtualNavigation } from '@kidajs/router'
 
-const [$location, navigation] = virtualNavigation('/initial-path')
+const [$location, navigation] = virtualNavigation('/initial-path', {
+  home: '/',
+  user: '/users/:id',
+  userPosts: '/users/:id/posts',
+  admin: '/admin/*'
+})
 
 navigation.push('/new-path')
 $location().action // 'push'
@@ -116,68 +126,40 @@ navigation.replace('/another-path')
 $location().action // 'replace'
 ```
 
-To listen links clicks and navigate automatically, use the `listenLinks` navigation enhancer:
+To listen links clicks and navigate automatically, use the `listenLinks` effect:
 
 ```ts
+import { onMount } from 'kida'
 import { browserNavigation, listenLinks } from '@kidajs/router'
 
-const [$location, navigation] = browserNavigation(listenLinks)
+const [$location, navigation] = browserNavigation()
+
+onMount($location, () => listenLinks(navigation))
 
 // Now all <a href> clicks will be handled by the router
 ```
 
 ### Router
 
-To create a router, define your route patterns and pass them along with the location signal to the `router` function:
+To map routes to page components, use the `router` function:
 
 ```ts
 import { effect } from 'kida'
-import { browserNavigation, router } from '@kidajs/router'
+import { browserNavigation, router, page, layout } from '@kidajs/router'
 
-const [$location, navigation] = browserNavigation()
-const $route = router($location, {
-  home: '/',
-  about: '/about',
-  user: '/users/:id', // Required parameter
-  post: '/posts/:id/:slug?', // Optional parameter
-  admin: '/admin/*' // Wildcard
-})
-
-// Listen to route changes
-effect(() => {
-  console.log('Current route:', $route())
-})
-
-navigation.push('/users/123')
-// Current route: { route: 'user', params: { id: '123' } }
-navigation.push('/posts/456/hello-world')
-// Current route: { route: 'post', params: { id: '456', slug: 'hello-world' } }
-navigation.push('/admin/settings/profile')
-// Current route: { route: 'admin', params: { wildcard: 'settings/profile' } }
-```
-
-### Page matcher
-
-To map routes to page components, use the `match` function:
-
-```ts
-import { effect } from 'kida'
-import { browserNavigation, router, match, page, layout } from '@kidajs/router'
-
-const [$location, navigation] = browserNavigation()
-const $route = router($location, {
+const [$location, navigation] = browserNavigation({
   home: '/',
   user: '/users/:id',
   login: '/login',
   register: '/register',
   admin: '/admin/*'
 })
-const $page = match($route, [
+const $page = router($route, [
   layout(MainLayout, [
     page('home', HomePage),
-    page('user', UserPage)
+    page('user', UserPage),
     layout(UnauthLayout, [
-      page('login', LoginPage)
+      page('login', LoginPage),
       page('register', RegisterPage)
     ])
   ]),
@@ -208,6 +190,21 @@ function composeLayoutFunction($nested, Layout) {
     )
   }
 }
+```
+
+Also you can define async loadable routes:
+
+```ts
+const $page = router($route, [
+  layout(loadable(() => import('./pages/Layout.js'), Loader), [
+    page('home', loadable(() => import('./pages/Home.js'), Loader)),
+    page('user', loadable(() => import('./pages/User.js'), Loader)),
+    layout(loadable(() => import('./pages/UnauthLayout.js'), Loader), [
+      page('login', loadable(() => import('./pages/Login.js'), Loader))
+      page('register', loadable(() => import('./pages/Register.js'), Loader))
+    ])
+  ])
+], composeLayoutFunction)
 ```
 
 ## Extras
@@ -279,12 +276,11 @@ const $fooNumber = searchParam($params, 'foo', Number)
 The `routeParam` function creates a signal for a specific route parameter:
 
 ```ts
-import { browserNavigation, router, routeParam } from '@kidajs/router'
+import { browserNavigation, routeParam } from '@kidajs/router'
 
-const [$location, navigation] = browserNavigation()
-const $route = router($location, {
+const [$location, navigation] = browserNavigation({
   user: '/users/:id'
 })
 // Get 'id' route parameter and parse it as number
-const $userId = routeParam($route, 'id', Number)
+const $userId = routeParam($location, 'id', Number)
 ```

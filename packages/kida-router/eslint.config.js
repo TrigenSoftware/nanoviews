@@ -21,8 +21,10 @@ export default [
     },
     rules: {
       'no-cond-assign': 'off',
+      'no-multi-assign': 'off',
       '@typescript-eslint/no-use-before-define': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off'
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@stylistic/array-element-newline': 'off'
     }
   }
 ]

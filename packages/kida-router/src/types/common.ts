@@ -1,14 +1,14 @@
-export interface HrefObject {
+export interface UrlObject {
   hash: string
   pathname: string
   search: string
 }
 
-export interface Location extends HrefObject {
+export interface UrlHrefObject extends UrlObject {
   href: string
 }
 
-export interface NavigationUpdate {
+export interface UrlUpdate {
   hash?: string
   pathname?: string
   search?: string

@@ -1,61 +1,112 @@
 import type {
-  Location,
-  NavigationUpdate,
-  HrefObject
+  UrlUpdate,
+  UrlObject,
+  UrlHrefObject,
+  HistoryAction,
+  Location
 } from './types/index.js'
 
+/**
+ * Removes trailing slash from a path string.
+ * @param path - The path string to process.
+ * @returns The path string without a trailing slash.
+ */
+/* @__NO_SIDE_EFFECTS__ */
 export function removeTrailingSlash(path: string) {
   return path.replace(/(.)\/($|\?)/, '$1$2')
 }
 
+/**
+ * Parses a href string into a URL object.
+ * @param href - The href string to parse.
+ * @returns URL object representing the parsed href.
+ */
+/* @__NO_SIDE_EFFECTS__ */
 export function parseHref(href: string) {
   return new URL(removeTrailingSlash(href), 'http://a')
 }
 
-export function getHref(location: HrefObject): string {
+/**
+ * Generates a href string from a URL object.
+ * @param location - The URL object containing pathname, search, and hash.
+ * @returns The generated href string.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function getHref(location: UrlObject): string {
   return removeTrailingSlash(location.pathname + location.search + location.hash)
 }
 
-export function updateHrefObject(
-  href: HrefObject,
-  update: NavigationUpdate
-): Location {
-  const updatedUrl = parseHref(update.pathname ?? href.pathname)
-
-  updatedUrl.search = update.search ?? href.search
-  updatedUrl.hash = update.hash ?? href.hash
-
-  if (update.searchParams) {
-    updatedUrl.search = update.searchParams.toString()
-  }
-
+/**
+ * Creates an URL object with href from a UrlObject.
+ * @param url - The UrlObject containing pathname, search, and hash.
+ * @returns UrlHrefObject with generated href.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function createHrefObject(url: UrlObject): UrlHrefObject {
   return {
-    pathname: updatedUrl.pathname,
-    search: updatedUrl.search,
-    hash: updatedUrl.hash,
-    href: getHref(updatedUrl)
+    pathname: url.pathname,
+    search: url.search,
+    hash: url.hash,
+    href: getHref(url)
   }
 }
 
 /**
- * Updates an href string with navigation changes.
- * @param href - The original href string to update
- * @param update - Navigation update object containing new pathname, search, hash, or searchParams
- * @returns Updated href string
+ * Applies navigation updates to an UrlObject.
+ * @param url - The original UrlObject to update.
+ * @param update - Navigation update string or UrlUpdate object with partial URL components.
+ * @returns Updated UrlHrefObject.
  */
-export function updateHref(href: string, update: NavigationUpdate): string {
+/* @__NO_SIDE_EFFECTS__ */
+export function updateHrefObject(
+  url: UrlObject,
+  update: string | UrlUpdate
+): UrlHrefObject {
+  const updateObject = typeof update === 'string'
+    ? parseHref(update)
+    : update
+  const updatedUrl = parseHref(updateObject.pathname ?? url.pathname)
+
+  updatedUrl.search = updateObject.search ?? url.search
+  updatedUrl.hash = updateObject.hash ?? url.hash
+
+  if (updateObject.searchParams) {
+    updatedUrl.search = updateObject.searchParams.toString()
+  }
+
+  return createHrefObject(updatedUrl)
+}
+
+/**
+ * Updates a href string with navigation changes.
+ * @param href - The original href string to update.
+ * @param update - Navigation update string or UrlUpdate object with partial URL components.
+ * @returns Updated href string.
+ */
+export function updateHref(href: string, update: string | UrlUpdate): string {
+  if (typeof update === 'string') {
+    return removeTrailingSlash(update)
+  }
+
   return updateHrefObject(parseHref(href), update).href
 }
 
-export function composeMatchers<V = string | null, R = unknown, N = null>(
-  matchers: ((value: V) => R | N)[],
+/**
+ * Composes multiple matcher functions into a single matcher.
+ * @param matchers - Array of matcher functions to compose.
+ * @param nomatch - Value to return if no match is found (default: null).
+ * @returns Composed matcher function.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function composeMatchers<A extends unknown[], R = unknown, N = null>(
+  matchers: ((...args: [...A]) => R | N)[],
   nomatch: N = null as N
 ) {
   const len = matchers.length
 
-  return (value: V) => {
+  return (...args: A) => {
     for (let i = 0, result; i < len; i++) {
-      if (result = matchers[i](value)) {
+      if (result = matchers[i](...args)) {
         return result
       }
     }
@@ -63,3 +114,40 @@ export function composeMatchers<V = string | null, R = unknown, N = null>(
     return nomatch
   }
 }
+
+/**
+ * Creates a location object with action for navigation.
+ * @param url - The UrlObject representing the location.
+ * @param action - The history action associated with the location (default: null).
+ * @returns Location object with URL and action.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function createLocation(
+  url: UrlObject,
+  action: HistoryAction = null
+): Location {
+  return {
+    ...createHrefObject(url),
+    action
+  }
+}
+
+/**
+ * Updates a location object with navigation changes.
+ * @param url - The original UrlObject to update.
+ * @param update - Navigation update string or UrlUpdate object with partial URL components.
+ * @param action - The history action associated with the updated location.
+ * @returns Updated Location object.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function updateLocation(
+  url: UrlObject,
+  update: string | UrlUpdate,
+  action: HistoryAction
+): Location {
+  return {
+    ...updateHrefObject(url, update),
+    action
+  }
+}
+

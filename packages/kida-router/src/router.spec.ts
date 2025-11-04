@@ -1,429 +1,453 @@
 import {
   describe,
   it,
-  expect
+  expect,
+  vi
 } from 'vitest'
-import {
-  router,
-  routeParam
-} from './router.js'
+import type { ReadableSignal } from 'kida'
 import { virtualNavigation } from './navigation.js'
+import {
+  page,
+  layout,
+  router,
+  loadable,
+  loadPages,
+  loadPage
+} from './router.js'
 
 describe('kida-router', () => {
   describe('router', () => {
-    it('should match simple routes', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
+    it('should match correct page based on route', () => {
+      const [$location, navigation] = virtualNavigation('/', {
+        home: '/home',
+        about: '/about'
+      })
+      const [$page] = router($location, [
+        page('home', 'Home Page'),
+        page('about', 'About Page')
+      ])
+
+      navigation.push('/home')
+      expect($page()).toBe('Home Page')
+
+      navigation.push('/about')
+      expect($page()).toBe('About Page')
+    })
+
+    it('should return null for unmatched routes', () => {
+      const [$location, navigation] = virtualNavigation('/', {
+        home: '/home',
+        about: '/about'
+      })
+      const [$page] = router($location, [
+        page('home', 'Home Page'),
+        page('about', 'About Page')
+      ])
+
+      navigation.push('/unknown')
+      expect($page()).toBeNull()
+
+      navigation.push('/')
+      expect($page()).toBeNull()
+    })
+
+    it('should handle empty pages array', () => {
+      const [$location, navigation] = virtualNavigation('/', {
+        home: '/home'
+      })
+      const [$page] = router($location, [])
+
+      navigation.push('/home')
+      expect($page()).toBeNull()
+    })
+
+    it('should update when route changes', () => {
+      const [$location, navigation] = virtualNavigation('/', {
+        home: '/home',
+        about: '/about'
+      })
+      const [$page] = router($location, [
+        page('home', 'Home Page'),
+        page('about', 'About Page')
+      ])
+
+      navigation.push('/')
+      expect($page()).toBeNull()
+
+      navigation.push('/home')
+      expect($page()).toBe('Home Page')
+
+      navigation.push('/about')
+      expect($page()).toBe('About Page')
+
+      navigation.push('/')
+      expect($page()).toBeNull()
+    })
+
+    it('should expose page stores when provided', () => {
+      const [$location, navigation] = virtualNavigation('/', {
+        home: '/home',
+        about: '/about'
+      })
+      const $homeData = () => 'home-store'
+      const $aboutData = () => 'about-store'
+      const [, storesToPreload] = router($location, [
+        page('home', 'Home Page', () => [$homeData]),
+        page('about', 'About Page', () => [$aboutData])
+      ])
+
+      expect(storesToPreload()).toEqual([])
+
+      navigation.push('/home')
+
+      expect(storesToPreload()).toEqual([$homeData])
+
+      navigation.push('/about')
+
+      expect(storesToPreload()).toEqual([$aboutData])
+
+      navigation.push('/unknown')
+
+      expect(storesToPreload()).toEqual([])
+    })
+
+    it('should render loadable page', async () => {
+      const [$location, navigation] = virtualNavigation('/', {
         home: '/home',
         about: '/about',
         contact: '/contact'
       })
+      const $homeData = () => 'home-store'
+      const homePagePromise = Promise.resolve({
+        default: 'Home Page',
+        storesToPreload: () => [$homeData]
+      })
+      const $aboutData = () => 'about-store'
+      const aboutPagePromise = Promise.resolve({
+        default: 'About Page',
+        storesToPreload: () => [$aboutData]
+      })
+      const contactPagePromise = Promise.resolve({
+        default: 'Contact Page'
+      })
+      const [$page, storesToPreload] = router($location, [
+        page('home', loadable(() => homePagePromise, 'Home Fallback')),
+        page('about', loadable(() => aboutPagePromise, 'About Fallback')),
+        page('contact', loadable(() => contactPagePromise))
+      ])
+
+      expect($page()).toBeNull()
+      expect(storesToPreload()).toEqual([])
 
       navigation.push('/home')
-      expect($match()).toEqual({
-        route: 'home',
-        params: {}
-      })
+
+      expect($page()).toBe('Home Fallback')
+      expect(storesToPreload()).toEqual([])
+
+      await homePagePromise
+
+      expect($page()).toBe('Home Page')
+      expect(storesToPreload()).toEqual([$homeData])
 
       navigation.push('/about')
-      expect($match()).toEqual({
-        route: 'about',
-        params: {}
-      })
+
+      expect($page()).toBe('About Fallback')
+      expect(storesToPreload()).toEqual([])
+
+      await aboutPagePromise
+
+      expect($page()).toBe('About Page')
+      expect(storesToPreload()).toEqual([$aboutData])
 
       navigation.push('/contact')
-      expect($match()).toEqual({
-        route: 'contact',
-        params: {}
-      })
+
+      expect($page()).toBeNull()
+      expect(storesToPreload()).toEqual([])
+
+      await contactPagePromise
+
+      expect($page()).toBe('Contact Page')
+      expect(storesToPreload()).toEqual([])
+
+      navigation.push('/unknown')
+
+      expect($page()).toBeNull()
+      expect(storesToPreload()).toEqual([])
     })
 
-    it('should match routes with parameters', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        user: '/users/:id',
-        userEdit: '/users/:id/edit',
-        post: '/posts/:postId'
-      })
-
-      navigation.push('/users/123')
-      expect($match()).toEqual({
-        route: 'user',
-        params: {
-          id: '123'
-        }
-      })
-
-      navigation.push('/users/456/edit')
-      expect($match()).toEqual({
-        route: 'userEdit',
-        params: {
-          id: '456'
-        }
-      })
-
-      navigation.push('/posts/abc-def')
-      expect($match()).toEqual({
-        route: 'post',
-        params: {
-          postId: 'abc-def'
-        }
-      })
-    })
-
-    it('should match routes with optional parameters', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        blog: '/blog/:page?',
-        category: '/blog/category/:slug/:page?'
-      })
-
-      navigation.push('/blog')
-      expect($match()).toEqual({
-        route: 'blog',
-        params: {
-          page: ''
-        }
-      })
-
-      navigation.push('/blog/2')
-      expect($match()).toEqual({
-        route: 'blog',
-        params: {
-          page: '2'
-        }
-      })
-
-      navigation.push('/blog/category/tech')
-      expect($match()).toEqual({
-        route: 'category',
-        params: {
-          slug: 'tech',
-          page: ''
-        }
-      })
-
-      navigation.push('/blog/category/tech/3')
-      expect($match()).toEqual({
-        route: 'category',
-        params: {
-          slug: 'tech',
-          page: '3'
-        }
-      })
-    })
-
-    it('should match wildcard routes', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        files: '/files/*',
-        api: '/api/*'
-      })
-
-      navigation.push('/files/documents/report.pdf')
-      expect($match()).toEqual({
-        route: 'files',
-        params: {
-          wildcard: 'documents/report.pdf'
-        }
-      })
-
-      navigation.push('/api/v1/users/123')
-      expect($match()).toEqual({
-        route: 'api',
-        params: {
-          wildcard: 'v1/users/123'
-        }
-      })
-    })
-
-    it('should handle URL encoding in parameters', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        search: '/search/:query'
-      })
-
-      navigation.push('/search/hello%20world')
-      expect($match()).toEqual({
-        route: 'search',
-        params: {
-          query: 'hello world'
-        }
-      })
-
-      navigation.push('/search/special%2Bchars%26symbols')
-      expect($match()).toEqual({
-        route: 'search',
-        params: {
-          query: 'special+chars&symbols'
-        }
-      })
-    })
-
-    it('should handle special characters in route patterns', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        apiV1: '/api/v1.0/:endpoint',
-        brackets: '/data[test]/:id',
-        special: '/path+with+plus/:param'
-      })
-
-      navigation.push('/api/v1.0/test')
-      expect($match()).toEqual({
-        route: 'apiV1',
-        params: {
-          endpoint: 'test'
-        }
-      })
-
-      navigation.push('/data[test]/123')
-      expect($match()).toEqual({
-        route: 'brackets',
-        params: {
-          id: '123'
-        }
-      })
-
-      navigation.push('/path+with+plus/value')
-      expect($match()).toEqual({
-        route: 'special',
-        params: {
-          param: 'value'
-        }
-      })
-    })
-
-    it('should handle trailing slashes correctly', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        home: '/home',
-        users: '/users/'
-      })
-
-      navigation.push('/home/')
-      expect($match()).toEqual({
-        route: 'home',
-        params: {}
-      })
-
-      navigation.push('/users')
-      expect($match()).toEqual({
-        route: 'users',
-        params: {}
-      })
-
-      navigation.push('/users/')
-      expect($match()).toEqual({
-        route: 'users',
-        params: {}
-      })
-    })
-
-    it('should handle root path', () => {
-      const [$location] = virtualNavigation()
-      const $match = router($location, {
-        home: '/',
-        about: '/about'
-      })
-
-      expect($match()).toEqual({
-        route: 'home',
-        params: {}
-      })
-    })
-
-    it('should return nomatch when no route matches', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        home: '/home',
-        about: '/about'
-      })
-
-      navigation.push('/unknown-path')
-      expect($match()).toEqual({
-        route: null,
-        params: {}
-      })
-    })
-
-    it('should be case insensitive', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        home: '/home',
-        about: '/about'
-      })
-
-      navigation.push('/HOME')
-      expect($match()).toEqual({
-        route: 'home',
-        params: {}
-      })
-
-      navigation.push('/ABOUT')
-      expect($match()).toEqual({
-        route: 'about',
-        params: {}
-      })
-    })
-
-    it('should prioritize exact matches over parameterized routes', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        userNew: '/users/new',
-        user: '/users/:id'
-      })
-
-      navigation.push('/users/new')
-      expect($match()).toEqual({
-        route: 'userNew',
-        params: {}
-      })
-    })
-
-    it('should handle complex nested routes', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        adminUserPermission: '/admin/users/:userId/permissions/:permission',
-        adminUser: '/admin/users/:id',
-        admin: '/admin'
-      })
-
-      navigation.push('/admin/users/123/permissions/read')
-      expect($match()).toEqual({
-        route: 'adminUserPermission',
-        params: {
-          userId: '123',
-          permission: 'read'
-        }
-      })
-    })
-
-    it('should update when pathname changes', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $match = router($location, {
-        home: '/home',
-        about: '/about'
-      })
-
-      navigation.push('/home')
-      expect($match()).toEqual({
-        route: 'home',
-        params: {}
-      })
-
-      navigation.push('/about')
-      expect($match()).toEqual({
-        route: 'about',
-        params: {}
-      })
-    })
-
-    describe('routeParam', () => {
-      it('should extract and parse route parameters', () => {
-        const [$location, navigation] = virtualNavigation()
-        const $route = router($location, {
-          user: '/users/:id/:category'
+    describe('layout', () => {
+      it('should compose layout with nested content', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home',
+          login: '/login',
+          register: '/register'
         })
+        const compose = ($nested: ReadableSignal<{ v: (() => string) | null }>, layout: string) => () => `${layout} > ${$nested().v?.()}`
+        const [$page] = router($location, [
+          page('home', (): string => 'Home Page'),
+          layout('AuthLayout', [
+            page('login', (): string => 'Login Page'),
+            page('register', (): string => 'Register Page')
+          ])
+        ], compose)
 
-        navigation.push('/users/123/tech')
+        navigation.push('/login')
+        expect($page()!()).toBe('AuthLayout > Login Page')
 
-        const $id = routeParam($route, 'id')
-        const $category = routeParam($route, 'category')
+        navigation.push('/register')
+        expect($page()!()).toBe('AuthLayout > Register Page')
 
-        expect($id()).toBe('123')
-        expect($category()).toBe('tech')
+        navigation.push('/home')
+        expect($page()!()).toBe('Home Page')
       })
 
-      it('should parse parameter with custom parser', () => {
-        const [$location, navigation] = virtualNavigation()
-        const $route = router($location, {
-          user: '/users/:id/:page/:active'
+      it('should handle complex nested structure', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home',
+          about: '/about',
+          login: '/login',
+          register: '/register',
+          dashboard: '/dashboard',
+          settings: '/settings'
         })
+        const compose = ($nested: ReadableSignal<{ v: (() => string) | null }>, layout: string) => () => `${layout}(${$nested().v?.()})`
+        const [$page] = router($location, [
+          page('home', (): string => 'Home'),
+          page('about', (): string => 'About'),
+          layout('AuthLayout', [
+            page('login', (): string => 'Login'),
+            page('register', (): string => 'Register'),
+            layout('DashboardLayout', [
+              page('dashboard', (): string => 'Dashboard'),
+              page('settings', (): string => 'Settings')
+            ])
+          ])
+        ], compose)
 
-        navigation.push('/users/123/5/true')
+        navigation.push('/settings')
+        expect($page()!()).toBe('AuthLayout(DashboardLayout(Settings))')
 
-        const $id = routeParam($route, 'id', Number)
-        const $page = routeParam($route, 'page', parseInt)
-        const $active = routeParam($route, 'active', value => value === 'true')
+        navigation.push('/dashboard')
+        expect($page()!()).toBe('AuthLayout(DashboardLayout(Dashboard))')
 
-        expect($id()).toBe(123)
-        expect($page()).toBe(5)
-        expect($active()).toBe(true)
+        navigation.push('/login')
+        expect($page()!()).toBe('AuthLayout(Login)')
+
+        navigation.push('/home')
+        expect($page()!()).toBe('Home')
+
+        navigation.push('/about')
+        expect($page()!()).toBe('About')
       })
 
-      it('should handle missing parameters gracefully', () => {
-        const [$location, navigation] = virtualNavigation()
-        const $route = router($location, {
-          user: '/users/:id'
+      it('should combine layout stores with nested page stores', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home',
+          about: '/about',
+          dashboard: '/dashboard',
+          admin: '/dashboard/admin'
         })
+        const $homeData = () => 'home-store'
+        const $aboutData = () => 'about-store'
+        const $layoutData = () => 'layout-store'
+        const $dashboardData = () => 'dashboard-store'
+        const $adminData = () => 'admin-store'
+        const compose = ($nested: ReadableSignal<{ v: (() => string) | null }>, layout: string) => () => `${layout} > ${$nested().v?.()}`
+        const [, storesToPreload] = router($location, [
+          page('home', (): string => 'Home', () => [$homeData]),
+          page('about', (): string => 'About', () => [$aboutData]),
+          layout('MainLayout', () => [$layoutData], [
+            page('dashboard', (): string => 'Dashboard', () => [$dashboardData]),
+            page('admin', (): string => 'Admin', () => [$adminData])
+          ])
+        ], compose)
 
-        navigation.push('/users/123')
+        expect(storesToPreload()).toEqual([])
 
-        const $missing = routeParam($route, 'missing' as any)
+        navigation.push('/home')
 
-        expect($missing()).toBeUndefined()
+        expect(storesToPreload()).toEqual([$homeData])
+
+        navigation.push('/about')
+
+        expect(storesToPreload()).toEqual([$aboutData])
+
+        navigation.push('/dashboard')
+
+        expect(storesToPreload()).toEqual([$layoutData, $dashboardData])
+
+        navigation.push('/dashboard/admin')
+
+        expect(storesToPreload()).toEqual([$layoutData, $adminData])
+
+        navigation.push('/unknown')
+
+        expect(storesToPreload()).toEqual([])
       })
 
-      it('should update when route changes', () => {
-        const [$location, navigation] = virtualNavigation()
-        const $route = router($location, {
-          user: '/users/:id'
+      it('should render loadable page within layout', async () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home',
+          about: '/about',
+          dashboard: '/dashboard',
+          admin: '/dashboard/admin'
         })
+        const $homeData = () => 'home-store'
+        const homePagePromise = Promise.resolve({
+          default: (): string => 'Home',
+          storesToPreload: () => [$homeData]
+        })
+        const $aboutData = () => 'about-store'
+        const aboutPagePromise = Promise.resolve({
+          default: (): string => 'About',
+          storesToPreload: () => [$aboutData]
+        })
+        const $layoutData = () => 'layout-store'
+        const layoutPromise = Promise.resolve({
+          default: 'Layout',
+          storesToPreload: () => [$layoutData]
+        })
+        const $dashboardData = () => 'dashboard-store'
+        const dashboardPagePromise = Promise.resolve({
+          default: (): string => 'Dashboard',
+          storesToPreload: () => [$dashboardData]
+        })
+        const $adminData = () => 'admin-store'
+        const adminPagePromise = Promise.resolve({
+          default: (): string => 'Admin',
+          storesToPreload: () => [$adminData]
+        })
+        const compose = (nested: ReadableSignal<{ v: (() => string) | null }>, layout: string) => () => `${layout}:${nested().v?.()}`
+        const [$page, storesToPreload] = router($location, [
+          page('home', loadable(() => homePagePromise, () => 'Home Fallback')),
+          page('about', loadable(() => aboutPagePromise, () => 'About Fallback')),
+          layout(loadable(() => layoutPromise, 'Layout Fallback'), [
+            page('dashboard', loadable(() => dashboardPagePromise, () => 'Dashboard Fallback')),
+            page('admin', loadable(() => adminPagePromise, () => 'Admin Fallback'))
+          ])
+        ], compose)
 
-        navigation.push('/users/123')
+        expect($page()).toBeNull()
+        expect(storesToPreload()).toEqual([])
 
-        const $id = routeParam($route, 'id', Number)
+        navigation.push('/home')
 
-        expect($id()).toBe(123)
+        expect($page()!()).toBe('Home Fallback')
+        expect(storesToPreload()).toEqual([])
 
-        navigation.push('/users/456')
-        expect($id()).toBe(456)
+        await homePagePromise
+
+        expect($page()!()).toBe('Home')
+        expect(storesToPreload()).toEqual([$homeData])
+
+        navigation.push('/about')
+
+        expect($page()!()).toBe('About Fallback')
+        expect(storesToPreload()).toEqual([])
+
+        await aboutPagePromise
+
+        expect($page()!()).toBe('About')
+        expect(storesToPreload()).toEqual([$aboutData])
+
+        navigation.push('/dashboard')
+
+        expect($page()).toBe('Layout Fallback')
+        expect(storesToPreload()).toEqual([])
+
+        await layoutPromise
+
+        expect($page()!()).toBe('Layout:Dashboard')
+        expect(storesToPreload()).toEqual([$layoutData, $dashboardData])
+
+        navigation.push('/dashboard/admin')
+
+        expect($page()!()).toBe('Layout:Admin Fallback')
+        expect(storesToPreload()).toEqual([$layoutData])
+
+        await adminPagePromise
+
+        expect($page()!()).toBe('Layout:Admin')
+        expect(storesToPreload()).toEqual([$layoutData, $adminData])
+
+        navigation.push('/unknown')
+
+        expect($page()).toBeNull()
+        expect(storesToPreload()).toEqual([])
+      })
+    })
+
+    describe('utils', () => {
+      it('should preload all loadable refs and collect tasks', async () => {
+        const homePageLoader = vi.fn(() => Promise.resolve({
+          default: 'Home'
+        }))
+        const aboutPageLoader = vi.fn(() => Promise.resolve({
+          default: 'About'
+        }))
+        const layoutLoader = vi.fn(() => Promise.resolve({
+          default: 'Layout'
+        }))
+        const dashboardPageLoader = vi.fn(() => Promise.resolve({
+          default: 'Dashboard'
+        }))
+        const adminPageLoader = vi.fn(() => Promise.resolve({
+          default: 'Admin'
+        }))
+        const pages = [
+          page('home', loadable(homePageLoader)),
+          page('about', loadable(aboutPageLoader)),
+          layout(loadable(layoutLoader), [
+            page('dashboard', loadable(dashboardPageLoader)),
+            page('admin', loadable(adminPageLoader))
+          ])
+        ]
+        const tasks = new Set<Promise<unknown>>()
+
+        loadPages(pages, tasks)
+
+        await Promise.all(tasks)
+
+        expect(tasks.size).toBe(5)
+        expect(homePageLoader).toHaveBeenCalledOnce()
+        expect(aboutPageLoader).toHaveBeenCalledOnce()
+        expect(layoutLoader).toHaveBeenCalledOnce()
+        expect(dashboardPageLoader).toHaveBeenCalledOnce()
+        expect(adminPageLoader).toHaveBeenCalledOnce()
       })
 
-      it('should parse with complex transformations', () => {
-        const [$location, navigation] = virtualNavigation()
-        const $route = router($location, {
-          search: '/search/:tags'
-        })
+      it('should preload matched route and its parent layouts', async () => {
+        const homePageLoader = vi.fn(() => Promise.resolve({
+          default: 'Home'
+        }))
+        const aboutPageLoader = vi.fn(() => Promise.resolve({
+          default: 'About'
+        }))
+        const layoutLoader = vi.fn(() => Promise.resolve({
+          default: 'Layout'
+        }))
+        const dashboardPageLoader = vi.fn(() => Promise.resolve({
+          default: 'Dashboard'
+        }))
+        const adminPageLoader = vi.fn(() => Promise.resolve({
+          default: 'Admin'
+        }))
+        const pages = [
+          page('home', loadable(homePageLoader)),
+          page('about', loadable(aboutPageLoader)),
+          layout(loadable(layoutLoader), [
+            page('dashboard', loadable(dashboardPageLoader)),
+            page('admin', loadable(adminPageLoader))
+          ])
+        ]
 
-        navigation.push('/search/javascript,typescript,react')
+        await loadPage(pages, 'admin')
 
-        const $tags = routeParam($route, 'tags', value => value?.split(',') || [])
-
-        expect($tags()).toEqual([
-          'javascript',
-          'typescript',
-          'react'
-        ])
-
-        navigation.push('/search/vue,angular')
-        expect($tags()).toEqual(['vue', 'angular'])
-      })
-
-      it('should handle empty string parameters', () => {
-        const [$location, navigation] = virtualNavigation()
-        const $route = router($location, {
-          page: '/page/:optional?'
-        })
-
-        navigation.push('/page')
-
-        const $optional = routeParam($route, 'optional')
-
-        expect($optional()).toBe('')
-      })
-
-      it('should work with wildcard parameters', () => {
-        const [$location, navigation] = virtualNavigation()
-        const $route = router($location, {
-          files: '/files/*'
-        })
-
-        navigation.push('/files/documents/report.pdf')
-
-        const $wildcard = routeParam($route, 'wildcard')
-
-        expect($wildcard()).toBe('documents/report.pdf')
+        expect(homePageLoader).not.toHaveBeenCalled()
+        expect(aboutPageLoader).not.toHaveBeenCalled()
+        expect(layoutLoader).toHaveBeenCalledOnce()
+        expect(dashboardPageLoader).not.toHaveBeenCalled()
+        expect(adminPageLoader).toHaveBeenCalledOnce()
       })
     })
   })

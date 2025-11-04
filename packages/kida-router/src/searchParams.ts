@@ -3,7 +3,7 @@ import {
   computed
 } from 'kida'
 import type {
-  LocationRecord,
+  RouteLocationRecord,
   SearchParamsSignal
 } from './types/index.js'
 
@@ -13,7 +13,7 @@ import type {
  * @returns A computed signal that returns URLSearchParams instance
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function searchParams($location: LocationRecord): SearchParamsSignal {
+export function searchParams($location: RouteLocationRecord<{}>): SearchParamsSignal {
   const { $search } = $location
 
   return computed(() => new URLSearchParams($search()))

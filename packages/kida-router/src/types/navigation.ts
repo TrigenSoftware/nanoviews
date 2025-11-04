@@ -1,32 +1,61 @@
+import type { ReadableSignal } from 'kida'
 import type {
-  ReadableRecord,
-  ReadableSignal
-} from 'kida'
-import type {
-  Location,
-  NavigationUpdate
+  UrlHrefObject,
+  UrlUpdate
 } from './common.js'
+import type {
+  RouteLocation,
+  Routes
+} from './location.js'
 
-export type VirtualAction = 'push' | 'replace' | null
+export type HistoryAction = 'push' | 'replace' | 'pop' | null
 
-export interface VirtualLocation extends Location {
-  action: VirtualAction
+export interface Location extends UrlHrefObject {
+  action: HistoryAction
 }
 
+/**
+ * Navigation interface for managing route transitions.
+ */
 export interface Navigation {
-  go(steps: number): void
+  /**
+   * Handle a transition between two locations.
+   * You can redefine this method to perform custom actions like transition confirmation.
+   * @param fn - Function to execute during the transition.
+   * @param nextLocation - The next location to navigate to, or null.
+   * @param prevLocation - The previous location.
+   */
+  transition<R extends Routes = Routes>(
+    fn: (
+      nextLocation: RouteLocation<R> | null
+    ) => void,
+    nextLocation: RouteLocation<R> | null,
+    prevLocation: RouteLocation<R>
+  ): void
+  /**
+   * Number of entries in the history stack.
+   */
+  length: number
+  /**
+   * Navigate back in history.
+   */
   back(): void
+  /**
+   * Navigate forward in history.
+   */
   forward(): void
-  push(to: string | NavigationUpdate): void
-  replace(to: string | NavigationUpdate): void
+  /**
+   * Navigate to a new URL by pushing a new entry onto the history stack.
+   * @param to - The target URL as a string or UrlUpdate object with partial URL components.
+   */
+  push(to: string | UrlUpdate): void
+  /**
+   * Navigate to a new URL by replacing the current entry in the history stack.
+   * @param to - The target URL as a string or UrlUpdate object with partial URL components.
+   */
+  replace(to: string | UrlUpdate): void
 }
 
 export type LocationSignal = ReadableSignal<Location>
-
-export type LocationRecord = ReadableRecord<LocationSignal>
-
-export type VirtualLocationSignal = ReadableSignal<VirtualLocation>
-
-export type VirtualLocationRecord = ReadableRecord<VirtualLocationSignal>
 
 export type SearchParamsSignal = ReadableSignal<URLSearchParams>

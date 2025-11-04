@@ -1,237 +1,330 @@
 import {
-  type Destroy,
+  type KeysOf,
+  type ValueOfKey,
+  type ReadableSignal,
   atIndex,
-  endBatch,
   onMount,
   readonly,
   record,
   signal,
   startBatch,
-  updateList
+  endBatch,
+  updateList,
+  action,
+  computed,
+  untracked,
+  mountable
 } from 'kida'
 import type {
   Location,
-  LocationRecord,
   Navigation,
-  NavigationUpdate,
-  VirtualAction,
-  VirtualLocation,
-  VirtualLocationRecord
+  RouteLocation,
+  RouteLocationRecord,
+  RouteMatch,
+  Routes
 } from './types/index.js'
 import {
-  getHref,
+  PopHistoryAction,
+  PushHistoryAction,
+  ReplaceHistoryAction
+} from './constants.js'
+import {
+  composeMatchers,
+  createLocation,
   parseHref,
   removeTrailingSlash,
-  updateHref,
-  updateHrefObject
+  updateLocation
 } from './utils.js'
 
-function getBrowserLocationState(prevLocation?: Location): Location {
-  const href = getHref(location)
+function createPatternRegex(pattern: string) {
+  return new RegExp(`^${
+    removeTrailingSlash(pattern)
+      // Escape all special regex characters
+      .replace(/[\s!#$()+,.:<=?[\\\]^{|}]/g, '\\$&')
+      // /:param? -> (?:/(?<param>(?<=/)[^/]+))?
+      .replace(/\/\\:(\w+)\\\?/g, '(?:/(?<$1>(?<=/)[^/]+))?')
+      // /:param -> /(?<param>[^/]+)
+      .replace(/\/\\:(\w+)/g, '/(?<$1>[^/]+)')
+      // /* - > (?:/(?<wildcard>.+))?$
+      .replace(/\/\*$/g, '(?:/(?<wildcard>.+))?$')
+  }$`, 'i')
+}
 
-  if (prevLocation?.href === href) {
-    return prevLocation
+function patternMatcher(this: RegExp, route: string, path: string) {
+  const matches = path.match(this)
+
+  if (!matches) {
+    return null
+  }
+
+  const params: Record<string, string> = {}
+
+  if (matches.groups) {
+    Object.entries(matches.groups).forEach(([key, value]) => {
+      params[key] = value
+        ? decodeURIComponent(value)
+        : ''
+    })
   }
 
   return {
-    hash: location.hash,
-    pathname: location.pathname,
-    search: location.search,
-    href
+    route,
+    params
   }
 }
 
-function getNavigationUrl(to: string | NavigationUpdate): string {
-  if (typeof to === 'string') {
-    return removeTrailingSlash(to)
-  }
-
-  return updateHref(location.href, to)
+const nomatch = {
+  route: null,
+  params: {}
 }
 
-function getVirtualNavigationState(
-  location: Location,
-  to: string | NavigationUpdate,
-  action: VirtualAction
-): VirtualLocation {
-  const update = typeof to === 'string'
-    ? parseHref(to)
-    : to
-  const hrefObject = updateHrefObject(location, update)
+function createMatcher(routes: Routes) {
+  return composeMatchers(Object.entries(routes).map(
+    ([route, pattern]) => patternMatcher.bind(
+      createPatternRegex(pattern),
+      route
+    )
+  ), nomatch)
+}
 
-  return {
-    ...hrefObject,
-    action
+// For SSR purposes, create matcher once
+const matcherCache = new WeakMap<Routes, ReturnType<typeof createMatcher>>()
+
+function createCachedMatcher(routes: Routes) {
+  let matcher = matcherCache.get(routes)
+
+  if (!matcher) {
+    matcher = createMatcher(routes)
+    matcherCache.set(routes, matcher)
+  }
+
+  return matcher
+}
+
+function applyBrowserLocation({ href, action }: Location) {
+  if (action === PushHistoryAction) {
+    history.pushState(null, '', href)
+  } else if (action === ReplaceHistoryAction) {
+    history.replaceState(null, '', href)
   }
 }
 
 /**
- * Sets up event handlers to intercept link clicks and perform navigation
- * through the router instead of default browser behavior.
- * @param navigation - Navigation object for performing transitions
- * @returns Function to remove event handlers
- */
-export function listenLinks(navigation: Navigation) {
-  const onLinkClick = (event: MouseEvent) => {
-    const link = (event.target as HTMLElement).closest('a')
-
-    if (
-      link
-      && event.button === 0 // Left mouse button
-      && link.target !== '_blank' // Not for new tab
-      && link.origin === location.origin // Not external link
-      && link.rel !== 'external' // Not external link
-      && link.target !== '_self' // Now manually disabled
-      && !link.download // Not download link
-      && !event.altKey // Not download link by user
-      && !event.metaKey // Not open in new tab by user
-      && !event.ctrlKey // Not open in new tab by user
-      && !event.shiftKey // Not open in new window by user
-      && !event.defaultPrevented // Click was not cancelled
-    ) {
-      event.preventDefault()
-
-      const hashChanged = location.hash !== link.hash
-
-      navigation.push(link.href)
-
-      if (hashChanged) {
-        location.hash = link.hash
-
-        if (link.hash === '' || link.hash === '#') {
-          window.dispatchEvent(new HashChangeEvent('hashchange'))
-        }
-      }
-    }
-  }
-
-  document.body.addEventListener('click', onLinkClick)
-
-  return () => {
-    document.body.removeEventListener('click', onLinkClick)
-  }
-}
-
-/**
- * Creates navigation based on browser History API.
- * Synchronizes routing state with browser URL.
- * @param enhance - Optional function to extend navigation functionality
- * @returns Tuple of current location signal and navigation methods
+ * Creates a browser navigation instance with route matching.
+ * @param routes - Routes object defining path patterns.
+ * @returns Tuple of current location signal and navigation methods object.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function browserNavigation(
-  enhance?: (navigation: Navigation) => Destroy
-): [LocationRecord, Navigation] {
-  const $location = signal<Location>(getBrowserLocationState())
-  const update = () => {
-    $location(getBrowserLocationState($location()))
+export function browserNavigation<const R extends Routes = {}>(
+  routes: R = {} as R
+): [RouteLocationRecord<R>, Navigation] {
+  const match = createCachedMatcher(routes)
+  const routerLocation = (location: Location) => ({
+    ...location,
+    ...match(location.pathname)
+  }) as RouteLocation<R>
+  const $location = mountable(signal(
+    routerLocation(createLocation(location))
+  ))
+  const update = (location: RouteLocation<R> | null) => {
+    if (location !== null) {
+      applyBrowserLocation(location)
+      $location(location)
+    }
   }
-  const navigation = {
-    go(steps: number) {
-      history.go(steps)
-    },
-    back() {
-      history.back()
-    },
-    forward() {
-      history.forward()
-    },
-    push(to: string | NavigationUpdate) {
-      const currentHref = getHref(location)
-      const nextHref = getNavigationUrl(to)
+  const maybeUpdate = (nextLocation: Location) => {
+    const location = $location()
 
-      if (currentHref !== nextHref) {
-        history.pushState(null, '', nextHref)
-        update()
-      }
-    },
-    replace(to: string | NavigationUpdate) {
-      const currentHref = getHref(location)
-      const nextHref = getNavigationUrl(to)
+    if (
+      location.href !== nextLocation.href
+      // Always update if there is a hash change
+      // (to allow scrolling to anchors on the same page)
+      || nextLocation.hash.length > 1
+    ) {
+      const { action } = nextLocation
+      const nextRouteLocation = routerLocation(nextLocation)
 
-      if (currentHref !== nextHref) {
-        history.replaceState(null, '', nextHref)
-        update()
+      if (action === null || action === PopHistoryAction) {
+        update(nextRouteLocation)
+      } else {
+        navigation.transition(
+          update,
+          nextRouteLocation,
+          location
+        )
       }
     }
+  }
+  const sync = (event?: unknown) => {
+    maybeUpdate(
+      createLocation(
+        location,
+        event ? PopHistoryAction : null
+      )
+    )
+  }
+  const navigation: Navigation = {
+    transition(fn, nextLocation) {
+      fn(nextLocation)
+    },
+    get length() {
+      return history.length
+    },
+    back: action(() => {
+      navigation.transition(history.back, null, $location())
+    }),
+    forward: action(() => {
+      navigation.transition(history.forward, null, $location())
+    }),
+    push: action((to) => {
+      maybeUpdate(
+        updateLocation(location, to, PushHistoryAction)
+      )
+    }),
+    replace: action((to) => {
+      maybeUpdate(
+        updateLocation(location, to, ReplaceHistoryAction)
+      )
+    })
   }
 
   onMount($location, () => {
-    update()
+    sync()
 
-    window.addEventListener('popstate', update)
-    window.addEventListener('hashchange', update)
-
-    const destroy = enhance?.(navigation)
+    window.addEventListener('popstate', sync)
 
     return () => {
-      destroy?.()
-      window.removeEventListener('popstate', update)
-      window.removeEventListener('hashchange', update)
+      window.removeEventListener('popstate', sync)
     }
   })
-
-  return [record(readonly($location)), navigation] as const
-}
-
-/**
- * Creates virtual navigation without synchronization with browser URL.
- * Useful for SSR or testing purposes.
- * @param initialPath - Initial path for the virtual location
- * @param enhance - Optional function to extend navigation functionality
- * @returns Tuple of current virtual location signal and navigation methods
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function virtualNavigation(
-  initialPath = '/',
-  enhance?: (navigation: Navigation) => Destroy
-): [VirtualLocationRecord, Navigation] {
-  const $history = signal<VirtualLocation[]>([getVirtualNavigationState(parseHref(initialPath), {}, null)])
-  const $activeIndex = signal(0)
-  const $location = atIndex($history, $activeIndex)
-  const navigation = {
-    go(steps: number) {
-      const newIndex = Math.max(0, Math.min(
-        $history().length - 1,
-        $activeIndex() + steps
-      ))
-
-      $activeIndex(newIndex)
-    },
-    back() {
-      navigation.go(-1)
-    },
-    forward() {
-      navigation.go(1)
-    },
-    push(to: string | NavigationUpdate) {
-      const activeIndex = $activeIndex()
-      const currentLocation = $location()
-      const nextLocation = getVirtualNavigationState(currentLocation, to, 'push')
-
-      if (currentLocation.href !== nextLocation.href) {
-        const nextIndex = activeIndex + 1
-
-        startBatch()
-        updateList($history, (history) => {
-          history.splice(nextIndex, history.length - activeIndex - 1, nextLocation)
-        })
-        $activeIndex(nextIndex)
-        endBatch()
-      }
-    },
-    replace(to: string | NavigationUpdate) {
-      const currentLocation = $location()
-      const nextLocation = getVirtualNavigationState(currentLocation, to, 'replace')
-
-      if (currentLocation.href !== nextLocation.href) {
-        $location(nextLocation)
-      }
-    }
-  }
-
-  onMount($location, () => enhance?.(navigation))
 
   return [record(readonly($location)), navigation]
 }
 
+/**
+ * Creates a virtual navigation instance with route matching.
+ * @param initialPath - Initial path for the virtual navigation (default: '/').
+ * @param routes - Routes object defining path patterns.
+ * @returns Tuple of current location signal and navigation methods object.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function virtualNavigation<const R extends Routes = {}>(
+  initialPath = '/',
+  routes: R = {} as R
+): [RouteLocationRecord<R>, Navigation] {
+  const match = createCachedMatcher(routes)
+  const routerLocation = (location: Location) => ({
+    ...location,
+    ...match(location.pathname)
+  }) as RouteLocation<R>
+  const $history = signal(
+    [routerLocation(createLocation(parseHref(initialPath)))]
+  )
+  const $activeIndex = signal(0)
+  const $location = mountable(atIndex($history, $activeIndex))
+  const go = (steps: number) => {
+    const newIndex = Math.max(0, Math.min(
+      $history().length - 1,
+      $activeIndex() + steps
+    ))
+
+    startBatch()
+    $activeIndex(newIndex)
+    $location((location): RouteLocation<R> => ({
+      ...location,
+      action: PopHistoryAction
+    }))
+    endBatch()
+  }
+  const back = () => go(-1)
+  const forward = () => go(1)
+  const update = (location: RouteLocation<R> | null) => {
+    if (location !== null) {
+      if (location.action === PushHistoryAction) {
+        const activeIndex = $activeIndex()
+        const nextIndex = activeIndex + 1
+
+        startBatch()
+        updateList($history, (history) => {
+          history.splice(nextIndex, history.length - activeIndex - 1, location)
+        })
+        $activeIndex(nextIndex)
+        endBatch()
+      } else if (location.action === ReplaceHistoryAction) {
+        $location(location)
+      }
+    }
+  }
+  const maybeUpdate = (nextLocation: Location, location: RouteLocation<R>) => {
+    if (
+      location.href !== nextLocation.href
+      // Always update if there is a hash change
+      // (to allow scrolling to anchors on the same page)
+      || nextLocation.hash.length > 1
+    ) {
+      const nextRouteLocation = routerLocation(nextLocation)
+
+      navigation.transition(
+        update,
+        nextRouteLocation,
+        location
+      )
+    }
+  }
+  const navigation: Navigation = {
+    transition(fn, location) {
+      fn(location)
+    },
+    get length() {
+      return untracked($history).length
+    },
+    back: action(() => {
+      navigation.transition(back, null, $location())
+    }),
+    forward: action(() => {
+      navigation.transition(forward, null, $location())
+    }),
+    push: action((to) => {
+      const location = $location()
+
+      maybeUpdate(
+        updateLocation(location, to, PushHistoryAction),
+        location
+      )
+    }),
+    replace: action((to) => {
+      const location = $location()
+
+      maybeUpdate(
+        updateLocation(location, to, ReplaceHistoryAction),
+        location
+      )
+    })
+  }
+
+  return [record(readonly($location)), navigation]
+}
+
+/**
+ * Computed signal for a specific route parameter.
+ * @param $location - Current location signal.
+ * @param key - Parameter key to extract.
+ * @param parser - Optional parser function for the parameter value.
+ * @returns Computed signal of the parameter value.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function routeParam<
+  const R extends Routes,
+  M extends RouteMatch<R> = RouteMatch<R>,
+  K extends KeysOf<M['params']> = KeysOf<M['params']>,
+  V extends ValueOfKey<M['params'], K> = ValueOfKey<M['params'], K>,
+  T = V | undefined
+>(
+  $location: RouteLocationRecord<R>,
+  key: K,
+  parser: (value: NoInfer<V> | undefined) => T = _ => _ as unknown as T
+): ReadableSignal<T> {
+  const { $params } = $location as RouteLocationRecord<{}>
+
+  return computed(() => parser(($params() as Record<K, V>)[key]))
+}

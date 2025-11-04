@@ -1,54 +1,71 @@
-import type { ReadableSignal } from 'kida'
+import {
+  type AnyAccessor,
+  type ReadableSignal
+} from 'kida'
 
-type Split<S extends string, D extends string> = string extends S
-  ? string[]
-  : S extends ''
-    ? []
-    : S extends `${infer T}${D}${infer U}`
-      ? [T, ...Split<U, D>]
-      : [S]
+export type StoresPreload = () => AnyAccessor[]
 
-type PathToParams<PathArray, Params = {}> = PathArray extends [
-  infer First,
-  ...infer Rest
-]
-  ? First extends `:${infer Param}`
-    ? First extends `:${infer Param}?`
-      ? PathToParams<Rest, Params & Partial<Record<Param, string>>>
-      : PathToParams<Rest, Params & Record<Param, string>>
-    : Rest extends []
-      ? First extends '*'
-        ? Params & { wildcard: string }
-        : PathToParams<Rest, Params>
-      : PathToParams<Rest, Params>
-  : Params
-
-type Simplify<T> = {
-  [K in keyof T]: T[K]
-} & {}
-
-type ParseUrl<Path extends string> = Simplify<PathToParams<Split<Path, '/'>>>
-
-export type Routes = Record<string, string>
-
-export type RouteMatch<R extends Routes, K extends keyof R = keyof R> = {
-  [K in keyof R]: {
-    route: K
-    params: ParseUrl<R[K]>
-  }
-}[K]
-
-export type RouteMatchSignal<R extends Routes> = ReadableSignal<RouteMatch<R> | {
-  route: null
-  params: {}
-}>
-
-type RemoveTrailingSlash<T extends string> = T extends '/' ? T : T extends `${infer U}/` ? U : T
-
-export type Paths<R extends Routes> = {
-  [K in keyof R]: ParseUrl<R[K]> extends Record<string, never>
-    ? RemoveTrailingSlash<R[K]>
-    : {} extends ParseUrl<R[K]>
-      ? (params?: ParseUrl<R[K]>) => string
-      : (params: ParseUrl<R[K]>) => string
+export interface ViewRef<C> {
+  /**
+   * The component or value of the view.
+   */
+  c: C | undefined
+  /**
+   * Optional function to preload stores associated with the view.
+   */
+  s?: StoresPreload
+  /**
+   * Indicates if the view is loading.
+   */
+  l?: boolean
 }
+
+export type ViewRefGetter<C> = (tasks?: Set<Promise<unknown> | null>) => ViewRef<C>
+
+export interface PageMatchRef<R extends string, P> {
+  /**
+   * The expected route name to match.
+   */
+  e: R
+  /**
+   * Function to get the view reference for the matched page.
+   */
+  p: ViewRefGetter<P>
+}
+
+export interface LayoutMatchRef<R extends string, P, L> {
+  /**
+   * Function to get the view reference for the layout.
+   */
+  l: ViewRefGetter<L>
+  /**
+   * Children match references for nested routes.
+   */
+  p: MatchRef<R, P, L>[]
+}
+
+export type MatchRef<R extends string, P, L> =
+  | PageMatchRef<R, P>
+  | LayoutMatchRef<R, P, L>
+
+export interface ViewModule<C> {
+  default: C
+  storesToPreload?: StoresPreload
+}
+
+export type ViewModuleLoader<P> = () => Promise<ViewModule<P>>
+
+export interface LoadableRef<P> {
+  /**
+   * Function to load the view module asynchronously.
+   */
+  g: ViewRefGetter<P>
+}
+
+export type UnknownPageMatchRef = PageMatchRef<string, unknown>
+
+export type UnknownLayoutMatchRef = LayoutMatchRef<string, unknown, unknown>
+
+export type UnknownMatchRef = MatchRef<string, unknown, unknown>
+
+export type UnknownComposer = ($nested: ReadableSignal<{ v: unknown }>, layout: unknown) => unknown
