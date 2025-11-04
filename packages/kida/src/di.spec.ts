@@ -162,6 +162,31 @@ describe('kida', () => {
         expect(root.has(factory)).toBe(true)
         expect(child.has(factory)).toBe(true)
       })
+
+      it('should inject into given context from argument', () => {
+        const factory = vi.fn(() => 42)
+        const context = new InjectionContext()
+
+        expect(inject(factory, context)).toBe(42)
+        expect(inject(factory, context)).toBe(42)
+
+        expect(factory).toHaveBeenCalledTimes(1)
+        expect(context.has(factory)).toBe(true)
+      })
+
+      it('should support nested injection while using context from argument', () => {
+        const A = vi.fn(() => 1)
+        const B = vi.fn(() => inject(A) + 1)
+        const context = new InjectionContext()
+
+        expect(inject(B, context)).toBe(2)
+        expect(inject(B, context)).toBe(2)
+
+        expect(A).toHaveBeenCalledTimes(1)
+        expect(B).toHaveBeenCalledTimes(1)
+        expect(context.has(A)).toBe(true)
+        expect(context.has(B)).toBe(true)
+      })
     })
   })
 })

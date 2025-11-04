@@ -35,7 +35,7 @@ export class InjectionContext extends Map<InjectionFactory, unknown> {
     const parent = this.#parent
     const value = parent
       ? parent.get(factory) as T
-      : factory()
+      : run(this, factory)
 
     this.set(factory, value)
 
