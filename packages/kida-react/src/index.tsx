@@ -58,6 +58,15 @@ export function useInject<T>(factory: InjectionFactory<T>): T {
   return dependency
 }
 
+/**
+ * Create a hook to inject a dependency.
+ * @param factory - The factory function to create or get the dependency.
+ * @returns A hook function to get the dependency.
+ */
+export function hook<T>(factory: InjectionFactory<T>): () => T {
+  return () => useInject(factory)
+}
+
 export interface InjectionContextProps {
   context?: InjectionContext | InjectionProvider[]
   children: ReactNode

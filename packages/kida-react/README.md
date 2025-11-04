@@ -110,3 +110,19 @@ function TopBar() {
   return <div>Current theme: {theme}</div>
 }
 ```
+
+### hook
+
+`hook` function creates a hook to inject a dependency.
+
+```tsx
+import { hook } from '@kidajs/react'
+
+const useTheme = hook($Theme)
+
+function TopBar() {
+  const theme = useTheme()
+
+  return <div>Current theme: {theme}</div>
+}
+```
