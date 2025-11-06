@@ -9,6 +9,7 @@ import { virtualNavigation } from './navigation.js'
 import {
   page,
   layout,
+  notFound,
   router,
   loadable,
   loadPages,
@@ -82,6 +83,30 @@ describe('kida-router', () => {
 
       navigation.push('/')
       expect($page()).toBeNull()
+    })
+
+    it('should render not found page', () => {
+      const [$location, navigation] = virtualNavigation('/', {
+        home: '/home',
+        about: '/about'
+      })
+      const [$page] = router($location, [
+        page('home', 'Home Page'),
+        page('about', 'About Page'),
+        notFound('Not Found Page')
+      ])
+
+      navigation.push('/')
+      expect($page()).toBe('Not Found Page')
+
+      navigation.push('/home')
+      expect($page()).toBe('Home Page')
+
+      navigation.push('/about')
+      expect($page()).toBe('About Page')
+
+      navigation.push('/')
+      expect($page()).toBe('Not Found Page')
     })
 
     it('should expose page stores when provided', () => {
@@ -182,7 +207,7 @@ describe('kida-router', () => {
           login: '/login',
           register: '/register'
         })
-        const compose = ($nested: ReadableSignal<{ v: (() => string) | null }>, layout: string) => () => `${layout} > ${$nested().v?.()}`
+        const compose = ($nested: ReadableSignal<(() => string) | null>, layout: string) => () => `${layout} > ${$nested()?.()}`
         const [$page] = router($location, [
           page('home', (): string => 'Home Page'),
           layout('AuthLayout', [
@@ -210,7 +235,7 @@ describe('kida-router', () => {
           dashboard: '/dashboard',
           settings: '/settings'
         })
-        const compose = ($nested: ReadableSignal<{ v: (() => string) | null }>, layout: string) => () => `${layout}(${$nested().v?.()})`
+        const compose = ($nested: ReadableSignal<(() => string) | null>, layout: string) => () => `${layout}(${$nested()?.()})`
         const [$page] = router($location, [
           page('home', (): string => 'Home'),
           page('about', (): string => 'About'),
@@ -252,7 +277,7 @@ describe('kida-router', () => {
         const $layoutData = () => 'layout-store'
         const $dashboardData = () => 'dashboard-store'
         const $adminData = () => 'admin-store'
-        const compose = ($nested: ReadableSignal<{ v: (() => string) | null }>, layout: string) => () => `${layout} > ${$nested().v?.()}`
+        const compose = ($nested: ReadableSignal<(() => string) | null>, layout: string) => () => `${layout} > ${$nested()?.()}`
         const [, storesToPreload] = router($location, [
           page('home', (): string => 'Home', () => [$homeData]),
           page('about', (): string => 'About', () => [$aboutData]),
@@ -317,7 +342,7 @@ describe('kida-router', () => {
           default: (): string => 'Admin',
           storesToPreload: () => [$adminData]
         })
-        const compose = (nested: ReadableSignal<{ v: (() => string) | null }>, layout: string) => () => `${layout}:${nested().v?.()}`
+        const compose = (nested: ReadableSignal<(() => string) | null>, layout: string) => () => `${layout}:${nested()?.()}`
         const [$page, storesToPreload] = router($location, [
           page('home', loadable(() => homePagePromise, () => 'Home Fallback')),
           page('about', loadable(() => aboutPagePromise, () => 'About Fallback')),

@@ -183,6 +183,39 @@ export function page<R extends string, const P>(
 }
 
 /**
+ * Define a page match reference for route matching.
+ * @param expected - The expected route name to match
+ * @param page - The page component or value to return when matched
+ * @returns Page view reference object
+ */
+export function notFound<const P>(
+  page: LoadableRef<P>
+): PageMatchRef<null, P>
+
+/**
+ * Define a page match reference for route matching.
+ * @param expected - The expected route name to match
+ * @param page - The page component or value to return when matched
+ * @param storesToPreload - Optional function to preload stores
+ * @returns Page view reference object
+ */
+export function notFound<const P>(
+  page: P,
+  storesToPreload?: StoresPreload
+): PageMatchRef<null, P>
+
+/* @__NO_SIDE_EFFECTS__ */
+export function notFound<const P>(
+  page: P | LoadableRef<P>,
+  storesToPreload?: StoresPreload
+): PageMatchRef<null, P> {
+  return {
+    e: null,
+    p: getViewRefGetter(page, storesToPreload)
+  }
+}
+
+/**
  * Define a layout match reference for nested route matching.
  * @param layout - The layout component or value
  * @param pages - Array of page or nested layout match references
@@ -284,7 +317,7 @@ function createLayoutMatcher({ l, p }: UnknownLayoutMatchRef): UnknownMatcher {
 
 function createComposed(compose: UnknownComposer | undefined): Composed {
   const storage = new Map<unknown, {
-    p: WritableSignal<{ v: unknown }>
+    p: WritableSignal<unknown>
     c: unknown
   }>()
 
@@ -292,9 +325,7 @@ function createComposed(compose: UnknownComposer | undefined): Composed {
     let entry = storage.get(layout)
 
     if (!entry) {
-      const $page = signal({
-        v: page
-      })
+      const $page = signal(page)
 
       entry = {
         p: $page,
@@ -302,9 +333,7 @@ function createComposed(compose: UnknownComposer | undefined): Composed {
       }
       storage.set(layout, entry)
     } else {
-      entry.p({
-        v: page
-      })
+      entry.p(() => page)
     }
 
     return entry.c
@@ -319,7 +348,10 @@ function createComposed(compose: UnknownComposer | undefined): Composed {
  */
 export function router<R extends Routes, K extends keyof R & string, P>(
   $location: RouteLocationRecord<R>,
-  pages: PageMatchRef<NoInfer<K>, P>[]
+  pages: (
+    | PageMatchRef<NoInfer<K>, P>
+    | PageMatchRef<null, P>
+  )[]
 ): [ReadableSignal<P | null>, StoresPreload]
 
 /**
@@ -334,9 +366,10 @@ export function router<R extends Routes, K extends keyof R & string, P, N, L, C>
   $location: RouteLocationRecord<R>,
   pages: (
     | PageMatchRef<NoInfer<K>, P>
+    | PageMatchRef<null, P>
     | LayoutMatchRef<NoInfer<K>, N, L>
   )[],
-  compose: ($nested: ReadableSignal<{ v: N | null }>, layout: L) => C
+  compose: ($nested: ReadableSignal<N | null>, layout: L) => C
 ): [ReadableSignal<P | C | null>, StoresPreload]
 
 /* @__NO_SIDE_EFFECTS__ */

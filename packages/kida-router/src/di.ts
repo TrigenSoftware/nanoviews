@@ -73,7 +73,10 @@ export function virtualNavigation$$<const R extends Routes = {}>(
  */
 export function router$$<R extends Routes, K extends keyof R & string, P>(
   $Location: InjectionFactory<RouteLocationRecord<R>>,
-  pages: PageMatchRef<NoInfer<K>, P>[]
+  pages: (
+    | PageMatchRef<NoInfer<K>, P>
+    | PageMatchRef<null, P>
+  )[]
 ): [
   InjectionFactory<ReadableSignal<P | null>>,
   InjectionFactory<StoresPreload>
@@ -90,6 +93,7 @@ export function router$$<R extends Routes, K extends keyof R & string, P, N, L, 
   $Location: InjectionFactory<RouteLocationRecord<R>>,
   pages: (
     | PageMatchRef<NoInfer<K>, P>
+    | PageMatchRef<null, P>
     | LayoutMatchRef<NoInfer<K>, N, L>
   )[],
   compose: ($nested: ReadableSignal<N | null>, layout: L) => C

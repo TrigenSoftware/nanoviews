@@ -34,7 +34,7 @@ A small and powerful router for [Kida](https://github.com/TrigenSoftware/nanovie
 - **SSR-ready**. Works seamlessly with server-side rendering.
 
 ```ts
-import { browserNavigation, router, match, page, layout } from '@kidajs/router'
+import { browserNavigation, router, page, layout, notFound } from '@kidajs/router'
 
 // Setup navigation
 const [$location, navigation] = browserNavigation({
@@ -49,7 +49,8 @@ const [$page] = router($route, [
   page('user', UserPage),
   layout(AdminLayout, [
     page('admin', AdminPage)
-  ])
+  ]),
+  notFound(NotFoundPage)
 ], composeLayoutFunction)
 
 effect(() => {
@@ -145,7 +146,7 @@ To map routes to page components, use the `router` function:
 
 ```ts
 import { effect } from 'kida'
-import { browserNavigation, router, page, layout } from '@kidajs/router'
+import { browserNavigation, router, page, layout, notFound } from '@kidajs/router'
 
 const [$location, navigation] = browserNavigation({
   home: '/',
@@ -165,7 +166,8 @@ const $page = router($route, [
   ]),
   layout(AdminLayout, [
     page('admin', AdminPage)
-  ])
+  ]),
+  notFound(NotFoundPage)
 ], composeLayoutFunction)
 
 effect(() => {
@@ -203,7 +205,8 @@ const $page = router($route, [
       page('login', loadable(() => import('./pages/Login.js'), Loader))
       page('register', loadable(() => import('./pages/Register.js'), Loader))
     ])
-  ])
+  ]),
+  notFound(loadable(() => import('./pages/NotFound.js'), Loader))
 ], composeLayoutFunction)
 ```
 

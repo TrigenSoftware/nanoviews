@@ -22,7 +22,7 @@ export interface ViewRef<C> {
 
 export type ViewRefGetter<C> = (tasks?: Set<Promise<unknown> | null>) => ViewRef<C>
 
-export interface PageMatchRef<R extends string, P> {
+export interface PageMatchRef<R extends string | null, P> {
   /**
    * The expected route name to match.
    */
@@ -46,6 +46,7 @@ export interface LayoutMatchRef<R extends string, P, L> {
 
 export type MatchRef<R extends string, P, L> =
   | PageMatchRef<R, P>
+  | PageMatchRef<null, P>
   | LayoutMatchRef<R, P, L>
 
 export interface ViewModule<C> {
@@ -62,10 +63,10 @@ export interface LoadableRef<P> {
   g: ViewRefGetter<P>
 }
 
-export type UnknownPageMatchRef = PageMatchRef<string, unknown>
+export type UnknownPageMatchRef = PageMatchRef<string, unknown> | PageMatchRef<null, unknown>
 
 export type UnknownLayoutMatchRef = LayoutMatchRef<string, unknown, unknown>
 
 export type UnknownMatchRef = MatchRef<string, unknown, unknown>
 
-export type UnknownComposer = ($nested: ReadableSignal<{ v: unknown }>, layout: unknown) => unknown
+export type UnknownComposer = ($nested: ReadableSignal<unknown>, layout: unknown) => unknown
