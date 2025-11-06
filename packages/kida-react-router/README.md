@@ -29,11 +29,10 @@ React integration for [@kidajs/router](../kida-router#readme).
 
 ```tsx
 import { useSignal } from '@kidajs/react'
-import { browserNavigation, router, match, page, layout, Outlet } from '@kidajs/react-router'
+import { browserNavigation, router, page, layout, notFound, loadable, Outlet } from '@kidajs/react-router'
 
-// Setup navigation and router
-const [$location, navigation] = browserNavigation()
-const $route = router($location, {
+// Setup navigation
+const [$location, navigation] = browserNavigation({
   home: '/',
   user: '/users/:id'
 })
@@ -44,9 +43,9 @@ function HomePage() {
 }
 
 function UserPage() {
-  const route = useSignal($route)
+  const location = useSignal($location)
 
-  return <div>User ID: {route?.params.id}</div>
+  return <div>User ID: {location?.params.id}</div>
 }
 
 function Layout() {
@@ -60,19 +59,14 @@ function Layout() {
   )
 }
 
-// Setup page matching with React components
-const $page = match($route, [
+// Setup app
+const App = app($location, [
   layout(Layout, [
-    page('home', HomePage),
-    page('user', UserPage)
+    page('home', loadable(() => import('./Home'), Loader)),
+    page('user', loadable(() => import('./User'), Loader)),
+    notFound(loadable(() => import('./NotFound'), Loader))
   ])
 ])
-
-function App() {
-  const Page = useSignal($page)
-
-  return Page ? <Page /> : <div>Not Found</div>
-}
 ```
 
 <hr />
@@ -96,18 +90,64 @@ yarn add kida @kidajs/router @kidajs/react @kidajs/react-router
 
 Basically, `@kidajs/react-router` re-exports everything from `@kidajs/router` with some additions for React integration:
 
-### `match`
+### `router`
 
-Enhanced version of `match` from `@kidajs/router` that works seamlessly with React components and layouts.
+Enhanced version of `router` from `@kidajs/router` that works seamlessly with React components and layouts.
 
 ```tsx
-import { match, page, layout } from '@kidajs/react-router'
+import { router, page, layout } from '@kidajs/react-router'
 
-const $page = match($route, [
+const [$page] = router($location, [
   page('home', HomePage),
   layout(MainLayout, [
     page('user', UserPage),
     page('settings', SettingsPage)
+  ])
+])
+```
+
+### `router$$`
+
+Enhanced version of `router$$` from `@kidajs/router` that works like `router` but with injection factories.
+
+```tsx
+import { router$$, page, layout } from '@kidajs/react-router'
+
+const [$Page] = router$$($Location, [
+  page('home', HomePage),
+  layout(MainLayout, [
+    page('user', UserPage),
+    page('settings', SettingsPage)
+  ])
+])
+```
+
+### `app`
+
+Creates a React application component that renders the current page based on the routing configuration.
+
+```tsx
+import { app, page, layout } from '@kidajs/react-router'
+
+const App = app($location, [
+  layout(MainLayout, [
+    page('home', HomePage),
+    page('user', UserPage)
+  ])
+])
+```
+
+### `app$$`
+
+Creates a React application component using injection factory and that should be used within dependency injection context.
+
+```tsx
+import { app, page, layout } from '@kidajs/react-router'
+
+const App = app($Location, [
+  layout(MainLayout, [
+    page('home', HomePage),
+    page('user', UserPage)
   ])
 ])
 ```
@@ -130,4 +170,58 @@ function MainLayout() {
     </div>
   )
 }
+```
+
+### `link`
+
+Creates a React component for navigation links.
+
+```tsx
+import { buildPaths } from '@kidajs/router'
+import { link } from '@kidajs/react-router'
+
+const routes = {
+  home: '/',
+  user: '/users/:id'
+}
+const Link = link(navigation, buildPaths(routes))
+// ...
+<Link to='home'>Home</Link>
+<Link to='user' params={{ id: '123' }}>User 123</Link>
+```
+
+Also you can pass hook to preload pages on link hover or focus:
+
+```tsx
+import { buildPaths } from '@kidajs/router'
+import { link, preloadable } from '@kidajs/react-router'
+
+const routes = {
+  home: '/',
+  user: '/users/:id'
+}
+const pages = [
+  layout(loadable(() => import('./MainLayout'), Loader), [
+    page('home', loadable(() => import('./HomePage'), Loader)),
+    page('user', loadable(() => import('./UserPage'), Loader))
+  ])
+]
+const Link = link(navigation, buildPaths(routes), preloadable(pages))
+// ...
+<Link to='user' params={{ id: '123' }} preload>User 123</Link>
+```
+
+### `link$$`
+
+Creates a React component for navigation links using injection factory and that should be used within dependency injection context.
+
+```tsx
+import { buildPaths } from '@kidajs/router'
+import { link } from '@kidajs/react-router'
+
+const routes = {
+  home: '/',
+  user: '/users/:id'
+}
+const Link = link(navigation, buildPaths(routes))
 ```

@@ -9,22 +9,24 @@ import {
   act
 } from '@testing-library/react'
 import {
-  router,
   virtualNavigation,
   page,
-  layout
+  layout,
+  notFound,
+  buildPaths
 } from '@kidajs/router'
 import { useSignal } from '@kidajs/react'
 import {
-  match,
-  Outlet
+  router,
+  Outlet,
+  link,
+  app
 } from './index.js'
 
 describe('kida-react-router', () => {
-  describe('match', () => {
+  describe('router', () => {
     it('should match correct page component based on route', () => {
-      const [$location, navigation] = virtualNavigation()
-      const $route = router($location, {
+      const [$location, navigation] = virtualNavigation('/', {
         home: '/home',
         about: '/about'
       })
@@ -37,7 +39,7 @@ describe('kida-react-router', () => {
         return <div>About Page</div>
       }
 
-      const $page = match($route, [
+      const [$page] = router($location, [
         page('home', HomePage),
         page('about', AboutPage)
       ])
@@ -70,8 +72,7 @@ describe('kida-react-router', () => {
 
     describe('layout', () => {
       it('should compose layout with nested content using Outlet', () => {
-        const [$location, navigation] = virtualNavigation()
-        const $route = router($location, {
+        const [$location, navigation] = virtualNavigation('/', {
           home: '/home',
           login: '/login',
           register: '/register'
@@ -106,7 +107,7 @@ describe('kida-react-router', () => {
           )
         }
 
-        const $page = match($route, [
+        const [$page] = router($location, [
           page('home', HomePage),
           layout(AuthLayout, [
             page('login', LoginPage),
@@ -145,8 +146,7 @@ describe('kida-react-router', () => {
       })
 
       it('should handle complex nested layout structure', () => {
-        const [$location, navigation] = virtualNavigation()
-        const $route = router($location, {
+        const [$location, navigation] = virtualNavigation('/', {
           home: '/home',
           about: '/about',
           login: '/login',
@@ -208,7 +208,7 @@ describe('kida-react-router', () => {
           )
         }
 
-        const $page = match($route, [
+        const [$page] = router($location, [
           page('home', HomePage),
           page('about', AboutPage),
           layout(AuthLayout, [
@@ -262,6 +262,62 @@ describe('kida-react-router', () => {
         })
         expect(container.innerHTML).toBe('<div>About</div>')
       })
+    })
+  })
+
+  describe('link', () => {
+    it('should create link elements that navigate without full page reload', () => {
+      const routes = {
+        home: '/home',
+        about: '/about'
+      }
+      const [$location, navigation] = virtualNavigation('/', routes)
+      const paths = buildPaths(routes)
+      const Link = link(navigation, paths)
+
+      function HomePage() {
+        return <div>Home Page</div>
+      }
+
+      function AboutPage() {
+        return <div>About Page</div>
+      }
+
+      function NotFoundPage() {
+        return <div>Not Found</div>
+      }
+
+      const App = app($location, [
+        page('home', HomePage),
+        page('about', AboutPage),
+        notFound(NotFoundPage)
+      ])
+      const { container } = render(
+        <div>
+          <nav>
+            <Link to='home'>Home</Link>
+            <Link to='about'>About</Link>
+          </nav>
+          <App/>
+        </div>
+      )
+      const nav = container.querySelector('nav')!
+      const homeLink = nav.children[0] as HTMLAnchorElement
+      const aboutLink = nav.children[1] as HTMLAnchorElement
+
+      expect(container.innerHTML).toContain('Not Found')
+
+      act(() => {
+        homeLink.click()
+      })
+      expect(container.innerHTML).toContain('Home Page')
+      expect($location().href).toBe('/home')
+
+      act(() => {
+        aboutLink.click()
+      })
+      expect(container.innerHTML).toContain('About Page')
+      expect($location().href).toBe('/about')
     })
   })
 })

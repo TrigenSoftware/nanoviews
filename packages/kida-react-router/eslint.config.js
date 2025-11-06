@@ -18,6 +18,10 @@ export default [
         projectService: true,
         tsconfigRootDir: import.meta.dirname
       }
+    },
+    rules: {
+      '@typescript-eslint/no-empty-object-type': 'off',
+      'react/function-component-definition': 'off'
     }
   }
 ]
