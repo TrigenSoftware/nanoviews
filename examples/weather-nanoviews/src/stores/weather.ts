@@ -1,5 +1,6 @@
 import {
   channel,
+  mountable,
   onMountEffect,
   record,
   signal
@@ -12,13 +13,13 @@ import * as WeatherService from '../services/weather.js'
 import { tasks } from './tasks.js'
 import { $currentLocation } from './location.js'
 
-export const $currentWeather = record(signal<Weather | null>(null))
+export const $currentWeather = mountable(record(signal<Weather | null>(null)))
 
 onMountEffect($currentWeather, () => {
   fetchWeather($currentLocation())
 })
 
-export const $weatherForecast = signal<Weather[]>([])
+export const $weatherForecast = mountable(signal<Weather[]>([]))
 
 onMountEffect($weatherForecast, () => {
   fetchWeatherForecast($currentLocation())

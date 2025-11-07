@@ -6,7 +6,7 @@ export function Counter() {
 
   return button({
     onClick() {
-      $count($count() + 1)
+      $count(count => count + 1)
     }
   })(
     'count is ', $count

@@ -1,5 +1,9 @@
+- Return dev builds with debug features, prod build - less size - ?
+- update eslint rules
+
 ## Nanoviews
 
+- wrap into untracked needed parts
 - for loop array or empty check for else
 - rework return slot$ to look like element/component? fn.prop is faster than {f,p}
 - util to transform static props to signal props?
@@ -15,13 +19,43 @@ for$($items)(
 
 ## Kida/Agera
 
-- serialize - start all marked stores?
-- injectable class
+- map -> object, create real map
 
+~~~
+
+- injectable class?
 - bundle types?
 - lazy scope to start and stop methods? for example for resort in loop
 - later: resort effects
 - store injection effectScope to stop effects after context stop? - UPD: wtf is this? i dont remember what it mean. Wrap serialize in effectScope? Or wrap inject ? bad practice, maybe just for safety into serialize
+~ Theory: rm onMount, use injection point like mount, use effects inside factories, injection is not more used -> "unmount" -> stop effects in factories --- dupe of previous point
+~~~
+
+## 🔥🔥🔥 Query 🔥🔥🔥
+
+- gready strategy (do not abort, cache response, do not apply)
+- early abort strategy
+- cache strategy + lifetime strategies
+- maxParallel
+- revalidateOn* strategies
+- entities
+
+- hydration provider / etc
+- serialize -> dehydrate / hydrate
+- combine serialize + serializable / dont do request with preloaded data
+
+## Router
+
+- dynamic redirect in storesToPreload and static in pages structure
+- vite ssr integration
+- loadable+react.lazy like util
+- ~loadable and~ lazy preload on client after ssr - how?
+- onBeforeLeave / blocker
+
+# React Router
+
+- hydrate helper
+- server helper
 
 ## Perf
 
@@ -99,4 +133,137 @@ obj = props$({
 	c: true,
 	d: null
 })
+```
+
+```
+function _$LocationNavigation() {
+  return browserNavigation(routes)
+}
+
+function $Location() {
+  return inject(_$LocationNavigation)[0]
+}
+
+function $Navigation() {
+  return inject(_$LocationNavigation)[1]
+}
+
+function $Page() {
+  const $location = inject($Location)
+  const [$page] = router($location, pages)
+
+  return $page
+}
+
+function App() {
+  const $page = useInject($Page)
+  const Page = useSignal($page)
+
+  return Page && <Page />
+}
+
+async function browser() {
+  const context = new InjectionContext([
+    provide(Serialized, window.__SERIALIZED__ || null)
+  ])
+  const $location = inject($Location, context)
+
+  await preloadPage(pages, $location().route)
+
+  hydrateRoot(
+    document.getElementById('root'),
+    <InjectionContextProvider
+      context={context}
+    >
+      <App />
+    </InjectionContext>,
+  )
+}
+
+await preloadPages(pages)
+
+async function ssr(path) {
+  const [$location, navigation] = virtualNavigation(path, paths)
+  const [$page, storesToPrelod] = router($location, pages)
+  const context = new InjectionContext([
+    provide($Location, $location),
+    provide($Navigation, $navigation),
+    provide($Page, $page)
+  ])
+  const serialized = await serialize(storesToPrelod, context)
+  const html = renderToString(
+    <>
+      <script>
+        {`__SERIALIZED__ = ${JSON.stringify(serialized)}`}
+      </script>
+      <InjectionContextProvider
+        context={context}
+      >
+        <App />
+      </InjectionContext>
+    <>
+  )
+
+  return html
+}
+
+```
+
+```
+const [$Location, $Navigation] = browserNavigation$$(routes)
+
+const [$Page, $StoresToPreload] = router$$($Location, pages)
+
+const useLocation = hook($Location)
+
+const App = app($location, pages) // app$$($Location, pages)
+
+const Link = link(builtPaths) // link(builtPaths, preloadPage)
+```
+
+```
+async function browser() {
+  const context = new InjectionContext()
+  const $location = inject($Location, context)
+  const storesToPrelod = inject($StoresToPreload, context)
+
+  await preloadPage(pages, $location().route)
+  deserialize(storesToPrelod, window.__SERIALIZED__)
+
+  hydrateRoot(
+    document.getElementById('root'),
+    <InjectionContextProvider
+      context={context}
+    >
+      <App />
+    </InjectionContext>,
+  )
+}
+
+await preloadPages(pages)
+
+async function ssr(path) {
+  const [$location, navigation] = virtualNavigation(path, paths)
+  const [$page, storesToPrelod] = router($location, pages)
+  const context = new InjectionContext([
+    provide($Location, $location),
+    provide($Navigation, navigation),
+    provide($Page, $page)
+  ])
+  const serialized = await serialize(storesToPrelod, context)
+  const html = renderToString(
+    <>
+      <script>
+        {`__SERIALIZED__ = ${JSON.stringify(serialized)}`}
+      </script>
+      <InjectionContextProvider
+        context={context}
+      >
+        <App />
+      </InjectionContext>
+    <>
+  )
+
+  return html
+}
 ```

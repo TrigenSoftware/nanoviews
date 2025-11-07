@@ -1,5 +1,5 @@
 import {
-  type ReadableSignal,
+  type Accessor,
   computed,
   record
 } from 'nanoviews/store'
@@ -14,8 +14,8 @@ import type { Weather } from '../services/types.js'
 import styles from './ForecastWeather.module.css'
 
 export interface Props {
-  weather: ReadableSignal<Weather | undefined>
-  mode: ReadableSignal<string>
+  weather: Accessor<Weather | undefined>
+  mode: Accessor<string>
 }
 
 export function ForecastWeather({

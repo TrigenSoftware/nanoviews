@@ -1,7 +1,6 @@
 /* eslint-disable */
 import {
   signal,
-  update,
   record,
   deleteIndex,
   updateList,
@@ -106,7 +105,7 @@ export function App(ref = {}) {
   const $data = signal([])
   const $selected = signal()
   const add = () => {
-    update($data, data => [...data, ...buildData(1000)])
+    $data(data => [...data, ...buildData(1000)])
   }
   const clear = () => {
     clearList($data)

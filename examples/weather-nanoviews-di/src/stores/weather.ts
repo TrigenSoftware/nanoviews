@@ -3,8 +3,9 @@ import {
   onMountEffect,
   record,
   signal,
-  Tasks,
-  inject
+  $TasksSet,
+  inject,
+  mountable
 } from 'nanoviews/store'
 import type {
   City,
@@ -15,8 +16,8 @@ import { CurrentLocationStore } from './location.js'
 
 export function CurrentWeatherStore() {
   const $currentLocation = inject(CurrentLocationStore)
-  const $currentWeather = record(signal<Weather | null>(null))
-  const tasks = inject(Tasks)
+  const $currentWeather = mountable(record(signal<Weather | null>(null)))
+  const tasks = inject($TasksSet)
   const [weatherTask] = channel(tasks)
 
   function fetchWeather(city: City | undefined) {
@@ -38,8 +39,8 @@ export function CurrentWeatherStore() {
 
 export function WeatherForecastStore() {
   const $currentLocation = inject(CurrentLocationStore)
-  const $weatherForecast = signal<Weather[]>([])
-  const tasks = inject(Tasks)
+  const $weatherForecast = mountable(signal<Weather[]>([]))
+  const tasks = inject($TasksSet)
   const [weatherForecastTask] = channel(tasks)
 
   function fetchWeatherForecast(city: City | undefined) {

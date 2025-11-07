@@ -6,7 +6,9 @@ import {
   atIndex,
   onMountEffect,
   onMount,
-  channel
+  channel,
+  untracked,
+  mountable
 } from 'nanoviews/store'
 import type { City } from '../services/types.js'
 import * as Cities from '../services/cities.js'
@@ -15,14 +17,14 @@ import { tasks } from './tasks.js'
 
 const INPUT_DEBOUNCE = 300
 
-export const $locationSearch = external<string>(($locationSearch) => {
+export const $locationSearch = mountable(external<string>(($locationSearch) => {
   $locationSearch(localStorage.getItem('locationSearch') || '')
 
   return (nextValue) => {
-    localStorage.setItem('locationSearch', nextValue)
     $locationSearch(nextValue)
+    localStorage.setItem('locationSearch', untracked($locationSearch))
   }
-})
+}))
 
 export const $locationSearchPaced = paced($locationSearch, debounce(INPUT_DEBOUNCE))
 
@@ -32,7 +34,7 @@ onMount($locationSearch, () => {
   }
 })
 
-export const $citySuggestions = signal<City[]>([])
+export const $citySuggestions = mountable(signal<City[]>([]))
 
 onMountEffect($citySuggestions, () => {
   fetchCitySuggestions($locationSearch())
