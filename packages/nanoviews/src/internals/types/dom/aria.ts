@@ -89,43 +89,46 @@ export interface AriaAttributes {
   /** Indicates an element is being modified and that assistive technologies MAY want to wait until the modifications are complete before exposing them to the user. */
   /**
    * Defines a string value that labels the current element, which is intended to be converted into Braille.
-   * @see aria-label.
+   * @see aria-label
    */
   'aria-braillelabel'?: ValueOrAccessor<string | EmptyValue>
   /**
    * Defines a human-readable, author-localized abbreviated description for the role of an element, which is intended to be converted into Braille.
-   * @see aria-roledescription.
+   * @see aria-roledescription
    */
   'aria-brailleroledescription'?: ValueOrAccessor<string | EmptyValue>
   'aria-busy'?: ValueOrAccessor<Booleanish | EmptyValue>
   /**
    * Indicates the current "checked" state of checkboxes, radio buttons, and other widgets.
-   * @see aria-pressed @see aria-selected.
+   * @see aria-pressed
+   * @see aria-selected
    */
   'aria-checked'?: ValueOrAccessor<boolean | 'false' | 'mixed' | 'true' | EmptyValue>
   /**
    * Defines the total number of columns in a table, grid, or treegrid.
-   * @see aria-colindex.
+   * @see aria-colindex
    */
   'aria-colcount'?: ValueOrAccessor<number | EmptyValue>
   /**
    * Defines an element's column index or position with respect to the total number of columns within a table, grid, or treegrid.
-   * @see aria-colcount @see aria-colspan.
+   * @see aria-colcount
+   * @see aria-colspan
    */
   'aria-colindex'?: ValueOrAccessor<number | EmptyValue>
   /**
    * Defines a human readable text alternative of aria-colindex.
-   * @see aria-rowindextext.
+   * @see aria-rowindextext
    */
   'aria-colindextext'?: ValueOrAccessor<string | EmptyValue>
   /**
    * Defines the number of columns spanned by a cell or gridcell within a table, grid, or treegrid.
-   * @see aria-colindex @see aria-rowspan.
+   * @see aria-colindex
+   * @see aria-rowspan
    */
   'aria-colspan'?: ValueOrAccessor<number | EmptyValue>
   /**
    * Identifies the element (or elements) whose contents or presence are controlled by the current element.
-   * @see aria-owns.
+   * @see aria-owns
    */
   'aria-controls'?: ValueOrAccessor<string | EmptyValue>
   /** Indicates the element that represents the current item within a container or set of related elements. */
@@ -142,12 +145,13 @@ export interface AriaAttributes {
   'aria-description'?: ValueOrAccessor<string | EmptyValue>
   /**
    * Identifies the element that provides a detailed, extended description for the object.
-   * @see aria-describedby.
+   * @see aria-describedby
    */
   'aria-details'?: ValueOrAccessor<string | EmptyValue>
   /**
    * Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable.
-   * @see aria-hidden @see aria-readonly.
+   * @see aria-hidden
+   * @see aria-readonly
    */
   'aria-disabled'?: ValueOrAccessor<Booleanish | EmptyValue>
   /**
@@ -157,7 +161,8 @@ export interface AriaAttributes {
   'aria-dropeffect'?: ValueOrAccessor<'none' | 'copy' | 'execute' | 'link' | 'move' | 'popup' | EmptyValue>
   /**
    * Identifies the element that provides an error message for the object.
-   * @see aria-invalid @see aria-describedby.
+   * @see aria-invalid
+   * @see aria-describedby
    */
   'aria-errormessage'?: ValueOrAccessor<string | EmptyValue>
   /** Indicates whether the element, or another grouping element it controls, is currently expanded or collapsed. */
@@ -176,24 +181,24 @@ export interface AriaAttributes {
   'aria-haspopup'?: ValueOrAccessor<boolean | 'false' | 'true' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog' | EmptyValue>
   /**
    * Indicates whether the element is exposed to an accessibility API.
-   * @see aria-disabled.
+   * @see aria-disabled
    */
   'aria-hidden'?: ValueOrAccessor<Booleanish | EmptyValue>
   /**
    * Indicates the entered value does not conform to the format expected by the application.
-   * @see aria-errormessage.
+   * @see aria-errormessage
    */
   'aria-invalid'?: ValueOrAccessor<boolean | 'false' | 'true' | 'grammar' | 'spelling' | EmptyValue>
   /** Indicates keyboard shortcuts that an author has implemented to activate or give focus to an element. */
   'aria-keyshortcuts'?: ValueOrAccessor<string | EmptyValue>
   /**
    * Defines a string value that labels the current element.
-   * @see aria-labelledby.
+   * @see aria-labelledby
    */
   'aria-label'?: ValueOrAccessor<string | EmptyValue>
   /**
    * Identifies the element (or elements) that labels the current element.
-   * @see aria-describedby.
+   * @see aria-describedby
    */
   'aria-labelledby'?: ValueOrAccessor<string | EmptyValue>
   /** Defines the hierarchical level of an element within a structure. */
@@ -211,7 +216,7 @@ export interface AriaAttributes {
   /**
    * Identifies an element (or elements) in order to define a visual, functional, or contextual parent/child relationship
    * between DOM elements where the DOM hierarchy cannot be used to represent the relationship.
-   * @see aria-controls.
+   * @see aria-controls
    */
   'aria-owns'?: ValueOrAccessor<string | EmptyValue>
   /**
@@ -221,22 +226,23 @@ export interface AriaAttributes {
   'aria-placeholder'?: ValueOrAccessor<string | EmptyValue>
   /**
    * Defines an element's number or position in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM.
-   * @see aria-setsize.
+   * @see aria-setsize
    */
   'aria-posinset'?: ValueOrAccessor<number | EmptyValue>
   /**
    * Indicates the current "pressed" state of toggle buttons.
-   * @see aria-checked @see aria-selected.
+   * @see aria-checked
+   * @see aria-selected
    */
   'aria-pressed'?: ValueOrAccessor<boolean | 'false' | 'mixed' | 'true' | EmptyValue>
   /**
    * Indicates that the element is not editable, but is otherwise operable.
-   * @see aria-disabled.
+   * @see aria-disabled
    */
   'aria-readonly'?: ValueOrAccessor<Booleanish | EmptyValue>
   /**
    * Indicates what notifications the user agent will trigger when the accessibility tree within a live region is modified.
-   * @see aria-atomic.
+   * @see aria-atomic
    */
   'aria-relevant'?: ValueOrAccessor<
     | 'additions'
@@ -257,32 +263,35 @@ export interface AriaAttributes {
   'aria-roledescription'?: ValueOrAccessor<string | EmptyValue>
   /**
    * Defines the total number of rows in a table, grid, or treegrid.
-   * @see aria-rowindex.
+   * @see aria-rowindex
    */
   'aria-rowcount'?: ValueOrAccessor<number | EmptyValue>
   /**
    * Defines an element's row index or position with respect to the total number of rows within a table, grid, or treegrid.
-   * @see aria-rowcount @see aria-rowspan.
+   * @see aria-rowcount
+   * @see aria-rowspan
    */
   'aria-rowindex'?: ValueOrAccessor<number | EmptyValue>
   /**
    * Defines a human readable text alternative of aria-rowindex.
-   * @see aria-colindextext.
+   * @see aria-colindextext
    */
   'aria-rowindextext'?: ValueOrAccessor<string | EmptyValue>
   /**
    * Defines the number of rows spanned by a cell or gridcell within a table, grid, or treegrid.
-   * @see aria-rowindex @see aria-colspan.
+   * @see aria-rowindex
+   * @see aria-colspan
    */
   'aria-rowspan'?: ValueOrAccessor<number | EmptyValue>
   /**
    * Indicates the current "selected" state of various widgets.
-   * @see aria-checked @see aria-pressed.
+   * @see aria-checked
+   * @see aria-pressed
    */
   'aria-selected'?: ValueOrAccessor<Booleanish | EmptyValue>
   /**
    * Defines the number of items in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM.
-   * @see aria-posinset.
+   * @see aria-posinset
    */
   'aria-setsize'?: ValueOrAccessor<number | EmptyValue>
   /** Indicates if items in a table or grid are sorted in ascending or descending order. */
@@ -293,7 +302,7 @@ export interface AriaAttributes {
   'aria-valuemin'?: ValueOrAccessor<number | EmptyValue>
   /**
    * Defines the current value for a range widget.
-   * @see aria-valuetext.
+   * @see aria-valuetext
    */
   'aria-valuenow'?: ValueOrAccessor<number | EmptyValue>
   /** Defines the human readable text alternative of aria-valuenow for a range widget. */
