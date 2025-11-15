@@ -134,7 +134,7 @@ export function app<R extends Routes, K extends keyof R & string>(
  * Notice: App should be used within a dependency injection context.
  * @param $Location - Injection factory for the route location record.
  * @param pages - Array of page and layout match references.
- * @returns React application component.
+ * @returns React application component and stores preload injection factory.
  */
 export function app$$<R extends Routes, K extends keyof R & string>(
   $Location: InjectionFactory<RouteLocationRecord<R>>,
@@ -144,17 +144,20 @@ export function app$$<R extends Routes, K extends keyof R & string>(
     | LayoutMatchRef<NoInfer<K>, PageComponent, PageComponent>
   )[]
 ) {
-  const [$Page] = router$$($Location, pages)
+  const [$Page, $StoresToPreload] = router$$($Location, pages)
 
   /**
    * React application component.
    */
-  return function App() {
-    const $page = useInject($Page)
-    const Page = useSignal($page)
+  return [
+    function App() {
+      const $page = useInject($Page)
+      const Page = useSignal($page)
 
-    return Page && <Page/>
-  }
+      return Page && <Page/>
+    },
+    $StoresToPreload
+  ] as const
 }
 
 /**

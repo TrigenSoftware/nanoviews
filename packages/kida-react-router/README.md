@@ -144,7 +144,7 @@ Creates a React application component using injection factory and that should be
 ```tsx
 import { app, page, layout } from '@kidajs/react-router'
 
-const App = app($Location, [
+const [App, $StoresToPreload] = app($Location, [
   layout(MainLayout, [
     page('home', HomePage),
     page('user', UserPage)
