@@ -1,7 +1,8 @@
 import {
   type WritableSignal,
   type ReadableSignal,
-  type Accessor
+  type Accessor,
+  computed
 } from 'agera'
 import {
   child,
@@ -36,6 +37,36 @@ export function atIndex<T>(
   index: number | Accessor<number>
 ) {
   return child($list, index, assignIndex)
+}
+
+/**
+ * Get writable item signal by predicate from the list signal.
+ * @param $list - The list signal.
+ * @param predicate - Predicate to select the item (same semantics as `Array.prototype.findIndex`).
+ * @returns The writable item signal for the first matched item.
+ */
+export function atFindIndex<T>(
+  $list: WritableSignal<T[]>,
+  predicate: (item: T, index: number, array: T[]) => boolean
+): WritableSignal<T>
+
+/**
+ * Get readable item signal by predicate from the list signal.
+ * @param $list - The list signal.
+ * @param predicate - Predicate to select the item (same semantics as `Array.prototype.findIndex`).
+ * @returns The readable item signal for the first matched item.
+ */
+export function atFindIndex<T>(
+  $list: Accessor<T[]>,
+  predicate: (item: T, index: number, array: T[]) => boolean
+): ReadableSignal<T>
+
+/* @__NO_SIDE_EFFECTS__ */
+export function atFindIndex<T>(
+  $list: Accessor<T[]> | WritableSignal<T[]>,
+  predicate: (item: T, index: number, array: T[]) => boolean
+): ReadableSignal<T | undefined> {
+  return atIndex($list, computed(() => $list().findIndex(predicate)))
 }
 
 /**

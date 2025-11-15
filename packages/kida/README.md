@@ -384,6 +384,7 @@ console.log($user()) // John
 
 There are also other methods to work with arrays:
 
+- `atFindIndex($list, predicate)` - create a signal for the first element that satisfies the predicate function.
 - `updateList($list, fn)` - update the value of the list signal using a function.
 - `push($list, ...values)` - add values to the list signal.
 - `pop($list)` - removes the last element from a list signal and returns it.

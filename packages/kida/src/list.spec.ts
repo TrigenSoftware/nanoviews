@@ -15,6 +15,7 @@ import {
 import { record } from './record.js'
 import {
   atIndex,
+  atFindIndex,
   updateList
 } from './list.js'
 
@@ -297,6 +298,108 @@ describe('kida', () => {
         location: 'Tallinn'
       })
       expect(record(atIndex($list, 1)).$name()).toBe('Savva B')
+    })
+
+    it('should get item by predicate', () => {
+      const $list = signal([
+        {
+          id: 1,
+          name: 'Alice'
+        },
+        {
+          id: 2,
+          name: 'Bob'
+        },
+        {
+          id: 3,
+          name: 'Charlie'
+        }
+      ])
+      const $bob = atFindIndex($list, item => item.id === 2)
+
+      expect($bob()).toEqual({
+        id: 2,
+        name: 'Bob'
+      })
+
+      $bob({
+        id: 2,
+        name: 'Bobby'
+      })
+
+      expect($list()).toEqual([
+        {
+          id: 1,
+          name: 'Alice'
+        },
+        {
+          id: 2,
+          name: 'Bobby'
+        },
+        {
+          id: 3,
+          name: 'Charlie'
+        }
+      ])
+      expect($bob()).toEqual({
+        id: 2,
+        name: 'Bobby'
+      })
+    })
+
+    it('should track predicate result changes', () => {
+      const $list = signal([
+        {
+          id: 1,
+          name: 'Alice',
+          active: false
+        },
+        {
+          id: 2,
+          name: 'Bob',
+          active: true
+        },
+        {
+          id: 3,
+          name: 'Charlie',
+          active: false
+        }
+      ])
+      const $firstActive = atFindIndex($list, item => item.active)
+
+      expect($firstActive()).toEqual({
+        id: 2,
+        name: 'Bob',
+        active: true
+      })
+
+      updateList($list, (list) => {
+        [list[0], list[1]] = [list[1], list[0]]
+      })
+
+      expect($list()).toEqual([
+        {
+          id: 2,
+          name: 'Bob',
+          active: true
+        },
+        {
+          id: 1,
+          name: 'Alice',
+          active: false
+        },
+        {
+          id: 3,
+          name: 'Charlie',
+          active: false
+        }
+      ])
+
+      expect($firstActive()).toEqual({
+        id: 2,
+        name: 'Bob',
+        active: true
+      })
     })
   })
 })
