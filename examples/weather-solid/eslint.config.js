@@ -14,10 +14,6 @@ export default [
         projectService: true,
         tsconfigRootDir: import.meta.dirname
       }
-    },
-    rules: {
-      'import/no-default-export': 'off',
-      'import/no-anonymous-default-export': 'off'
     }
   }
 ]

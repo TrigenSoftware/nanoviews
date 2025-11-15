@@ -27,8 +27,7 @@ export default [
       'no-return-assign': 'off',
       '@typescript-eslint/unified-signatures': 'off',
       '@typescript-eslint/no-redundant-type-constituents': 'off',
-      '@typescript-eslint/no-use-before-define': 'off',
-      '@stylistic/array-bracket-newline': 'off'
+      '@typescript-eslint/no-use-before-define': 'off'
     }
   }
 ]

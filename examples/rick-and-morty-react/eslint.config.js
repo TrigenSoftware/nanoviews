@@ -16,8 +16,7 @@ export default [
       }
     },
     rules: {
-      'import/no-default-export': 'off',
-      'import/no-anonymous-default-export': 'off'
+      'import/no-default-export': 'off'
     }
   }
 ]
