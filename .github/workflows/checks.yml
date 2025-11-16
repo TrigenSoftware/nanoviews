@@ -11,7 +11,7 @@ jobs:
       test-size: ${{ steps.set-matrix.outputs.test-size }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -27,7 +27,7 @@ jobs:
     name: ${{ matrix.workspace }} / size-limit
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
@@ -48,7 +48,7 @@ jobs:
     name: editorconfig
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Check editorconfig
         uses: editorconfig-checker/action-editorconfig-checker@main
   package-json:
@@ -56,7 +56,7 @@ jobs:
     name: package.json
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
