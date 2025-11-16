@@ -2,6 +2,7 @@ import {
   type KeysOf,
   type ValueOfKey,
   type ReadableSignal,
+  type WritableSignal,
   atIndex,
   onMount,
   readonly,
@@ -221,7 +222,7 @@ export function virtualNavigation<const R extends Routes = {}>(
     [routerLocation(createLocation(parseHref(initialPath)))]
   )
   const $activeIndex = signal(0)
-  const $location = mountable(atIndex($history, $activeIndex))
+  const $location = mountable(atIndex($history, $activeIndex) as WritableSignal<RouteLocation<R>>)
   const go = (steps: number) => {
     const newIndex = Math.max(0, Math.min(
       $history().length - 1,
