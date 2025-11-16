@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nanoviews/compare/kida@1.0.0-alpha.3...kida@1.0.0-alpha.4) (2025-11-16)
+
+### Bug Fixes
+
+* list utils can return undefined on out of range index ([08eb7b3](https://github.com/TrigenSoftware/nanoviews/commit/08eb7b3f7515550c2de56e0fc585c04e74c817e1))
+
 ## 1.0.0-alpha.3 (2025-11-15)
 
 ### Features

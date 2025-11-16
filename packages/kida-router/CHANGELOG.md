@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nanoviews/compare/router@1.0.0-alpha.1...router@1.0.0-alpha.2) (2025-11-16)
+
+### Bug Fixes
+
+* fix atIndex types ([553026e](https://github.com/TrigenSoftware/nanoviews/commit/553026e44b191fdde906677d2409f4c6de2afacc))
+
 ## 1.0.0-alpha.1 (2025-11-15)
 
 ### Features
