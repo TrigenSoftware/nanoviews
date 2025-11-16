@@ -18,7 +18,7 @@ import {
 export function atIndex<T>(
   $list: WritableSignal<T[]>,
   index: number | Accessor<number>
-): WritableSignal<T>
+): WritableSignal<T | undefined>
 
 /**
  * Get readable item signal at index from the list signal.
@@ -29,7 +29,7 @@ export function atIndex<T>(
 export function atIndex<T>(
   $list: Accessor<T[]>,
   index: number | Accessor<number>
-): ReadableSignal<T>
+): ReadableSignal<T | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */
 export function atIndex<T>(
@@ -48,7 +48,7 @@ export function atIndex<T>(
 export function atFindIndex<T>(
   $list: WritableSignal<T[]>,
   predicate: (item: T, index: number, array: T[]) => boolean
-): WritableSignal<T>
+): WritableSignal<T | undefined>
 
 /**
  * Get readable item signal by predicate from the list signal.
@@ -59,7 +59,7 @@ export function atFindIndex<T>(
 export function atFindIndex<T>(
   $list: Accessor<T[]>,
   predicate: (item: T, index: number, array: T[]) => boolean
-): ReadableSignal<T>
+): ReadableSignal<T | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */
 export function atFindIndex<T>(
@@ -134,7 +134,7 @@ export function unshift<T>($list: WritableSignal<T[]>, ...values: T[]) {
  * @returns The value at the index.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function getIndex<T>($list: Accessor<T[]>, index: number) {
+export function getIndex<T>($list: Accessor<T[]>, index: number): T | undefined {
   return $list()[index]
 }
 
@@ -155,7 +155,7 @@ export function setIndex<T>($list: WritableSignal<T[]>, index: number, value: T)
  * @param index - The index to delete.
  * @returns The removed value.
  */
-export function deleteIndex<T>($list: WritableSignal<T[]>, index: number) {
+export function deleteIndex<T>($list: WritableSignal<T[]>, index: number): T | undefined {
   return updateList($list, state => state.splice(index, 1)[0])
 }
 
