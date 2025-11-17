@@ -69,7 +69,11 @@ export function buildPaths<const R extends Routes>(routes: R) {
  * @returns New route patterns with the base path prepended.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function basePath<const R extends Routes>(base: string, routes: R): R {
+export function basePath<const R extends Routes>(base: string | null | undefined, routes: R): R {
+  if (!base) {
+    return routes
+  }
+
   const normalizedBase = removeTrailingSlash(base).replace(/^\.\//, '/')
 
   if (normalizedBase === '' || normalizedBase === '/') {
