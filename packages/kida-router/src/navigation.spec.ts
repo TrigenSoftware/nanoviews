@@ -307,6 +307,21 @@ describe('kida-router', () => {
         })
       })
 
+      it('should handle trailing slash', () => {
+        location.pathname = '/about/'
+
+        const [$location] = browserNavigation({
+          home: '/home',
+          about: '/about',
+          contact: '/contact'
+        })
+
+        expect($location()).toMatchObject({
+          route: 'about',
+          params: {}
+        })
+      })
+
       describe('routeParam', () => {
         it('should extract and parse route parameters', () => {
           const [$location, navigation] = virtualNavigation('/', {

@@ -48,7 +48,7 @@ function createPatternRegex(pattern: string) {
       .replace(/\/\\:(\w+)/g, '/(?<$1>[^/]+)')
       // /* - > (?:/(?<wildcard>.+))?$
       .replace(/\/\*$/g, '(?:/(?<wildcard>.+))?$')
-  }$`, 'i')
+  }/?$`, 'i')
 }
 
 function patternMatcher(this: RegExp, route: string, path: string) {
