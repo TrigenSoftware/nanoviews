@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nanoviews/compare/router@1.0.0-alpha.2...router@1.0.0-alpha.3) (2025-11-17)
+
+### Features
+
+* basePath util to add base for routes ([d8fa8dc](https://github.com/TrigenSoftware/nanoviews/commit/d8fa8dc6c252e11eaa9e7adf2b1854052fa55626))
+
+### Bug Fixes
+
+* handle trailing slashes in url ([5d2d1fd](https://github.com/TrigenSoftware/nanoviews/commit/5d2d1fd75b5faab8f1d781ae086176162b1fd753))
+
 ## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nanoviews/compare/router@1.0.0-alpha.1...router@1.0.0-alpha.2) (2025-11-16)
 
 ### Bug Fixes
