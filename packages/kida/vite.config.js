@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 import {
   DEV,
-  terserOptions,
   inlineSymbols
 } from '../../scripts/index.js'
 import * as ageraSymbols from '../agera/src/internals/symbols.min.ts'
@@ -22,8 +21,7 @@ export default defineConfig({
       external: ['agera']
     },
     sourcemap: true,
-    minify: !DEV && 'terser',
-    terserOptions,
+    minify: !DEV && 'esbuild',
     emptyOutDir: false
   },
   plugins: [

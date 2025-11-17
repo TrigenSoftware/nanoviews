@@ -9,7 +9,7 @@
     "name": "Signal",
     "path": "dist/index.js",
     "import": "{ signal }",
-    "limit": "1.46 kB"
+    "limit": "1.48 kB"
   },
   {
     "name": "Minimal set",

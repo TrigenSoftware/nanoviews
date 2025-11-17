@@ -1,3 +1,6 @@
 packages:
   - 'packages/*'
 autoInstallPeers: false
+onlyBuiltDependencies:
+  - esbuild
+  - simple-git-hooks

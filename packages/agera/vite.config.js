@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 import {
   DEV,
-  terserOptions,
   inlineSymbols
 } from '../../scripts/index.js'
 import * as symbols from './src/internals/symbols.ts'
@@ -18,8 +17,7 @@ export default defineConfig({
       }
     },
     sourcemap: true,
-    minify: !DEV && 'terser',
-    terserOptions,
+    minify: !DEV && 'esbuild',
     emptyOutDir: false
   },
   plugins: [

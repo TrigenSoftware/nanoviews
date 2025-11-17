@@ -50,14 +50,5 @@
     "simple-git-hooks": "^2.7.0",
     "typescript": "^5.8.3",
     "vite-plugin-filter-replace": "^0.1.14"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "vite": "patches/vite.patch"
-    },
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "simple-git-hooks"
-    ]
   }
 }

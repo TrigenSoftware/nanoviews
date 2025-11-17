@@ -1,9 +1,6 @@
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
-import {
-  DEV,
-  terserOptions
-} from '../../scripts/index.js'
+import { DEV } from '../../scripts/index.js'
 
 export default defineConfig({
   build: {
@@ -19,8 +16,7 @@ export default defineConfig({
       external: ['agera', 'kida']
     },
     sourcemap: true,
-    minify: !DEV && 'terser',
-    terserOptions,
+    minify: !DEV && 'esbuild',
     emptyOutDir: false
   },
   test: {

@@ -3,7 +3,7 @@
     "name": "All publics",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "6.9 kB"
+    "limit": "7 kB"
   },
   {
     "name": "Average usage",
