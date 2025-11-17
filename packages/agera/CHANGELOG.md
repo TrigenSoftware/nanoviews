@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nanoviews/compare/agera@1.0.0-alpha.3...agera@1.0.0-alpha.4) (2025-11-17)
+
+### Bug Fixes
+
+* use esbuild for minification ([2e48553](https://github.com/TrigenSoftware/nanoviews/commit/2e48553b567e56cc88f68c4a14936b715b1c0577))
+
 ## 1.0.0-alpha.3 (2025-11-15)
 
 ### Features
