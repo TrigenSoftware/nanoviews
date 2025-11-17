@@ -233,6 +233,20 @@ paths.post({ id: '456', slug: 'hello-world' }) // '/posts/456/hello-world'
 paths.admin({ wildcard: 'settings/profile' }) // '/admin/settings/profile'
 ```
 
+### `basePath`
+
+The `basePath` function allows you to set a base path for all routes in navigation:
+
+```ts
+import { browserNavigation, basePath } from '@kidajs/router'
+
+const routes = basePath('/github-pages', {
+  home: '/',
+  user: '/users/:id'
+})
+const [$location, navigation] = browserNavigation(routes)
+```
+
 ### `updateHref`
 
 The `updateHref` function allows you to update parts of a URL string easily:

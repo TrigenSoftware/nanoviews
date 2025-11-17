@@ -61,3 +61,27 @@ export function buildPaths<const R extends Routes>(routes: R) {
     {}
   ) as Paths<R>
 }
+
+/**
+ * Adds a base path to all route patterns.
+ * @param base - The base path to prepend.
+ * @param routes - The original route patterns.
+ * @returns New route patterns with the base path prepended.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function basePath<const R extends Routes>(base: string, routes: R): R {
+  const normalizedBase = removeTrailingSlash(base).replace(/^\.\//, '/')
+
+  if (normalizedBase === '' || normalizedBase === '/') {
+    return routes
+  }
+
+  return Object.entries(routes).reduce<Record<string, string>>(
+    (paths, [route, pattern]) => {
+      paths[route] = removeTrailingSlash(`${normalizedBase}${pattern}`)
+
+      return paths
+    },
+    {}
+  ) as R
+}
