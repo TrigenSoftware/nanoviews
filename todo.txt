@@ -47,6 +47,7 @@ button({
 - map -> object, create real map?
 - subscribe and subscribeLater from nanoviews?
 - onChange/onSet - effect but without trigger mount
+-- more *FindIndex helpers? trackers from nanoviews to kida to use with FindIndex? / FoundIndex
 
 ~~~
 - injectable class?
@@ -84,6 +85,7 @@ button({
 
 ## Router
 
+- add payload to push, replace to store it in location state, for example mark transition without scroll, instead of compare prev route and next
 - dynamic redirect in storesToPreload and static in pages structure
 - vite ssr integration
 - loadable+react.lazy like util
