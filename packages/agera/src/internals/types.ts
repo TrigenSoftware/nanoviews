@@ -60,6 +60,8 @@ export type MaybeDestroy = Destroy | void
 
 export type EffectCallback = (warmup?: true) => MaybeDestroy
 
+export type ObserverCallback<T> = (value: T) => void
+
 export interface Effect extends Subscriber, Dependency {
   [$$effect]: EffectCallback
   [$$destroy]: MaybeDestroy

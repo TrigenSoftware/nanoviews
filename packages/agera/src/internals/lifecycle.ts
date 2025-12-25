@@ -6,7 +6,9 @@ import type {
   SignalInstance,
   ComputedSignalInstance,
   Link,
-  EffectScope
+  EffectScope,
+  AnySignal,
+  ReadableSignal
 } from './types.js'
 import {
   $$flags,
@@ -15,7 +17,8 @@ import {
   $$nextDep,
   $$nextSub,
   $$mounted,
-  $$subsCount
+  $$subsCount,
+  $$signal
 } from './symbols.js'
 import {
   EffectScopeSubscriberFlag,
@@ -120,10 +123,25 @@ export function markMountableUsed() {
 // eslint-disable-next-line import/no-mutable-exports
 export let activeSkipMount: SignalInstance | undefined
 
-export function skipMount<T>(instance: SignalInstance, fn: () => T): T {
+/**
+ * Get the valie of a signal without mount trigger.
+ * @param $signal - The signal to get the value from.
+ * @returns The value of the signal.
+ */
+export function unmounted<T>($signal: ReadableSignal<T>): T
+
+/**
+ * Call a function without signal mount trigger.
+ * @param $signal - The signal to ignore mount for.
+ * @param fn - The function to call.
+ * @returns The result of the function.
+ */
+export function unmounted<T>($signal: AnySignal, fn: () => T): T
+
+export function unmounted($signal: AnySignal, fn: () => unknown = $signal) {
   const prevSkipMount = activeSkipMount
 
-  activeSkipMount = instance
+  activeSkipMount = $signal[$$signal]
 
   try {
     return fn()

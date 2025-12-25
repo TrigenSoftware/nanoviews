@@ -4,7 +4,10 @@ import {
   type Effect,
   type EffectScope,
   type EffectCallback,
+  type ObserverCallback,
   type Destroy,
+  type Accessor,
+  type ReadableSignal,
   $$subs,
   $$subsTail,
   $$flags,
@@ -26,7 +29,9 @@ import {
   activeSub,
   notifyMounted,
   activeSkipMount,
-  isMountableUsed
+  isMountableUsed,
+  untracked,
+  unmounted
 } from './internals/index.js'
 
 function effectStop(this: Subscriber | Effect): void {
@@ -162,3 +167,70 @@ export function effectScope(
 export function createEffectScope() {
   return runEffectScopeInstance.bind(null, createEffectScopeInstance()) as typeof effectScope
 }
+
+function singleEffect<T>(
+  $accessor: Accessor<T>,
+  fn: ObserverCallback<T>,
+  skipWarmup: boolean,
+  ignoreLazy?: boolean
+) {
+  return effect((warmup) => {
+    const value = $accessor()
+
+    if (!skipWarmup || !warmup) {
+      untracked(() => fn(value))
+    }
+  }, ignoreLazy)
+}
+
+/**
+ * Subscribe to accessor changes.
+ * Callback will be called immediately.
+ * Will trigger accessor mount if applicable.
+ * @param $accessor - The accessor to subscribe to.
+ * @param fn - The callback to call on value change.
+ * @param ignoreLazy - Whether to ignore lazyness inheritence.
+ * @returns A function to stop the subscription.
+ */
+export function subscribe<T>(
+  $accessor: Accessor<T>,
+  fn: ObserverCallback<T>,
+  ignoreLazy?: boolean
+) {
+  return singleEffect($accessor, fn, false, ignoreLazy)
+}
+
+/**
+ * Listen accessor changes.
+ * Callback will be called only on value change, without initial call.
+ * Will trigger accessor mount if applicable.
+ * @param $accessor - The accessor to subscribe to.
+ * @param fn - The callback to call on value change.
+ * @param ignoreLazy - Whether to ignore lazyness inheritence.
+ * @returns A function to stop the subscription.
+ */
+export function listen<T>(
+  $accessor: Accessor<T>,
+  fn: ObserverCallback<T>,
+  ignoreLazy?: boolean
+) {
+  return singleEffect($accessor, fn, true, ignoreLazy)
+}
+
+/**
+ * Observe accessor changes.
+ * Callback will be called only on value change, without initial call.
+ * Will not trigger accessor mount.
+ * @param $accessor - The accessor to subscribe to.
+ * @param fn - The callback to call on value change.
+ * @param ignoreLazy - Whether to ignore lazyness inheritence.
+ * @returns A function to stop the subscription.
+ */
+export function observe<T>(
+  $accessor: ReadableSignal<T>,
+  fn: ObserverCallback<T>,
+  ignoreLazy?: boolean
+) {
+  return singleEffect(() => unmounted($accessor), fn, true, ignoreLazy)
+}
+

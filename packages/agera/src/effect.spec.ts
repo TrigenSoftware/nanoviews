@@ -9,10 +9,9 @@ import {
   effect,
   effectScope,
   createEffectScope,
-  endBatch,
+  batch,
   untracked,
   signal,
-  startBatch,
   onMounted,
   mountable
 } from './index.js'
@@ -77,10 +76,10 @@ describe('agera', () => {
         }
       })
 
-      startBatch()
-      b(0)
-      a(0)
-      endBatch()
+      batch(() => {
+        b(0)
+        a(0)
+      })
     })
 
     it('should not trigger inner effect when resolve maybe dirty', () => {
@@ -125,10 +124,10 @@ describe('agera', () => {
 
       order.length = 0
 
-      startBatch()
-      b(1)
-      a(1)
-      endBatch()
+      batch(() => {
+        b(1)
+        a(1)
+      })
 
       expect(order).toEqual(['first inner', 'last inner'])
     })
@@ -153,25 +152,17 @@ describe('agera', () => {
 
       order.length = 0
 
-      startBatch()
-      b(1)
-      a(1)
-      endBatch()
+      batch(() => {
+        b(1)
+        a(1)
+      })
 
       expect(order).toEqual(['first inner', 'last inner'])
     })
 
     it('should custom effect support batch', () => {
       function batchEffect(fn: () => void) {
-        return effect(() => {
-          startBatch()
-
-          try {
-            return fn()
-          } finally {
-            endBatch()
-          }
-        })
+        return effect(() => batch(fn))
       }
 
       const logs: string[] = []

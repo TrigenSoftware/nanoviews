@@ -167,6 +167,70 @@ const stop = start()
 stop() // stop all effects
 ```
 
+### `subscribe`
+
+`subscribe` subscribes to accessor changes. Callback will be called immediately with the current value and on every subsequent change. Will trigger accessor mount if applicable.
+
+```ts
+import { signal, subscribe } from 'agera'
+
+const $count = signal(0)
+
+const stop = subscribe($count, (value) => {
+  console.log('Count:', value)
+})
+// Console: Count: 0
+
+$count(1)
+// Console: Count: 1
+
+stop()
+```
+
+### `listen`
+
+`listen` listens to accessor changes. Callback will be called only on value change, without initial call. Will trigger accessor mount if applicable.
+
+```ts
+import { signal, listen } from 'agera'
+
+const $count = signal(0)
+
+const stop = listen($count, (value) => {
+  console.log('Count changed:', value)
+})
+// No console output
+
+$count(1)
+// Console: Count changed: 1
+
+stop()
+```
+
+### `observe`
+
+`observe` observes accessor changes. Callback will be called only on value change, without initial call. Unlike `subscribe` and `listen`, it will **not** trigger accessor mount.
+
+```ts
+import { signal, mountable, observe, onMounted } from 'agera'
+
+const $count = mountable(signal(0))
+
+onMounted($count, (mounted) => {
+  console.log('Signal is', mounted ? 'mounted' : 'unmounted')
+})
+
+const stop = observe($count, (value) => {
+  console.log('Count changed:', value)
+})
+// No mount event, no console output
+
+$count(1)
+// Console: Count changed: 1
+
+stop()
+```
+
 ### Lifecycles
 
 One of main feature of Agera is that you can create *mountable* signals. It allows to create lazy signals, which will use resources only if signal is really used in the UI.
@@ -197,10 +261,10 @@ stop()
 
 ### Batch updates
 
-To batch updates you should wrap signal updates between `startBatch` and `endBatch`.
+To batch updates you should wrap signal updates in `batch` function.
 
 ```ts
-import { signal, startBatch, endBatch, effect } from 'agera'
+import { signal, batch, effect } from 'agera'
 
 const $a = signal(0)
 const $b = signal(0)
@@ -210,10 +274,10 @@ effect(() => {
 })
 
 // Effects will be called only once
-startBatch()
-$a(1)
-$b(2)
-endBatch()
+batch(() => {
+  $a(1)
+  $b(2)
+})
 ```
 
 ### Skip tracking

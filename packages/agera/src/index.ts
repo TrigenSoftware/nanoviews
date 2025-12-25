@@ -25,7 +25,10 @@ export {
   $$source,
   $$signal
 } from './internals/symbols.js'
-export { untracked } from './internals/index.js'
+export {
+  untracked,
+  unmounted
+} from './internals/index.js'
 export * from './signal.js'
 export * from './modes.js'
 export * from './effect.js'

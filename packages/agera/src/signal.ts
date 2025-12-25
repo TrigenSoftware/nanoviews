@@ -32,10 +32,9 @@ import {
   propagate,
   processEffectNotifications,
   activeSub,
-  skipMount,
-  untracked
+  unmounted
 } from './internals/index.js'
-import { effect } from './effect.js'
+import { listen } from './effect.js'
 import { isFunction } from './utils.js'
 
 /**
@@ -48,33 +47,27 @@ export function onMounted(
   $signal: Mountable<AnySignal>,
   listener: (mounted: boolean) => void
 ) {
-  const instance = $signal[$$signal]
-  const $mounted = (instance[$$mounted] ||= signal(false)) as ReadableSignal<boolean>
+  const $mounted = ($signal[$$signal][$$mounted] ||= signal(false)) as ReadableSignal<boolean>
 
-  return effect((warmup) => {
-    const mounted = $mounted()
-
-    if (!warmup) {
-      untracked(() => skipMount(instance, () => listener(mounted)))
-    }
-  }, true)
+  return unmounted($signal, () => listen($mounted, listener, true))
 }
 
 let batchDepth = 0
 
 /**
- * Start a batch of signal updates.
+ * Execute a function within a batch of signal updates.
+ * @param fn - The function to execute.
+ * @returns The result of the function.
  */
-export function startBatch() {
+export function batch<T>(fn: () => T): T {
   ++batchDepth
-}
 
-/**
- * End a batch of signal updates.
- */
-export function endBatch() {
-  if (!--batchDepth) {
-    processEffectNotifications()
+  try {
+    return fn()
+  } finally {
+    if (!--batchDepth) {
+      processEffectNotifications()
+    }
   }
 }
 
