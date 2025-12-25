@@ -5,8 +5,7 @@ import {
   signal,
   effectScope,
   atIndex,
-  startBatch,
-  endBatch
+  batch
 } from 'kida'
 import type {
   Destroy,
@@ -281,8 +280,7 @@ export function loop(
       // [...m] -> [...n]
       // swap
       return effectScope(() => {
-        startBatch()
-        reconcile(
+        batch(() => reconcile(
           itemsList,
           blocksMap,
           $items,
@@ -290,8 +288,7 @@ export function loop(
           track,
           end,
           items
-        )
-        endBatch()
+        ))
       }, true)()
     }
 

@@ -4,9 +4,11 @@ import {
   type ValueOrAccessor,
   isAccessor,
   effect,
+  subscribe as sub,
   createEffectScope,
   getContext,
-  run
+  run,
+  untracked
 } from 'kida'
 import type { EffectScopeSwapperCallback } from './types/index.js'
 
@@ -14,9 +16,7 @@ export function subscribeAccessor<T>(
   $signal: Accessor<T>,
   callback: (value: T) => void
 ) {
-  effect(() => {
-    callback($signal())
-  }, true)
+  sub($signal, callback, true)
 }
 
 export function subscribe<T>(
@@ -47,7 +47,7 @@ export function effectScopeSwapper<T>(
   effect((warmup) => {
     const value = $signal()
 
-    stop = callback(stop, value, prevValue)
+    stop = untracked(() => callback(stop, value, prevValue))
 
     if (warmup) {
       start = stop as () => Destroy
