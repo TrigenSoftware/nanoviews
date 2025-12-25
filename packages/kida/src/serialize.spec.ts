@@ -14,7 +14,7 @@ import {
   inject,
   provide
 } from './di.js'
-import { $TasksSet } from './tasks.js'
+import { $TasksPool } from './tasks.js'
 import { onMount } from './lifecycle.js'
 import { channel } from './channel.js'
 import {
@@ -33,7 +33,7 @@ function UserStore() {
     userTask,
     $userLoading,
     $userError
-  ] = channel(inject($TasksSet))
+  ] = channel(inject($TasksPool))
 
   onMount($user, () => {
     userTask(async () => {

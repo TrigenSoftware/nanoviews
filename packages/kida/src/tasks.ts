@@ -1,70 +1,82 @@
-import type { TasksSet } from './types/index.js'
+import { isFunction } from 'agera'
+import type {
+  Task,
+  TasksPool,
+  TasksRunner
+} from './types/index.js'
 import { inject } from './di.js'
 
 /**
  * Wait for all currently running tasks to finish.
- * @param tasksSet - Tasks queue.
+ * @param tasksPool - Tasks pool storage.
  * @returns Promise that resolves when all currently running tasks are finished.
  */
-export function waitCurrentTasks(tasksSet: TasksSet) {
-  return Promise.allSettled(tasksSet)
+/* @__NO_SIDE_EFFECTS__ */
+export function waitCurrentTasks(tasksPool: TasksPool) {
+  return Promise.allSettled(tasksPool)
 }
 
 /**
  * Wait for all tasks to finish.
- * @param tasksSet - Tasks queue.
+ * @param tasksPool - Tasks pool storage.
  * @returns Promise that resolves when all tasks are finished.
  */
-export async function waitTasks(tasksSet: TasksSet) {
-  while (tasksSet.size) {
-    await waitCurrentTasks(tasksSet)
+/* @__NO_SIDE_EFFECTS__ */
+export async function waitTasks(tasksPool: TasksPool) {
+  while (tasksPool.size) {
+    await waitCurrentTasks(tasksPool)
   }
 }
 
+export function taskPromise<T>(task: Task<T>): Promise<T> {
+  return isFunction(task) ? task() : task
+}
+
 /**
- * Define an asynchronous task.
- * @param tasksSet - Tasks queue.
- * @param task - The task promise.
+ * Add a task to the tasks pool.
+ * @param tasksPool - Tasks pool storage.
+ * @param task - The task promise or function that returns a promise.
  * @returns The task promise.
  */
 export function addTask<T = void>(
-  tasksSet: TasksSet,
-  task: Promise<T>
+  tasksPool: TasksPool,
+  task: Task<T>
 ) {
-  const done = (): boolean => tasksSet.delete(taskDone)
-  const taskDone = task.then(done, done)
+  const promise = taskPromise(task)
+  const done = (): boolean => tasksPool.delete(taskDone)
+  const taskDone = promise.then(done, done)
 
-  tasksSet.add(taskDone)
+  tasksPool.add(taskDone)
 
-  return task
+  return promise
 }
 
 /**
- * Create a tasks pool.
- * @param tasksSet - Tasks pool storage.
+ * Create a tasks runner.
+ * @param tasksPool - Tasks pool storage.
  * @returns The function to run task within the pool.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function tasksPool(
-  tasksSet: TasksSet = new Set()
-) {
-  return <T>(fn: () => Promise<T>) => addTask(tasksSet, fn())
-}
-
-/**
- * DI factory for tasks set.
- * @returns The tasks set.
- */
-export function $TasksSet() {
-  return new Set<Promise<unknown>>()
+export function tasksRunner(
+  tasksPool: TasksPool = new Set()
+): TasksRunner {
+  return fn => addTask(tasksPool, fn)
 }
 
 /**
  * DI factory for tasks pool.
+ * @returns The tasks pool.
+ */
+export function $TasksPool(): TasksPool {
+  return new Set<Promise<unknown>>()
+}
+
+/**
+ * DI factory for tasks runner.
  * @returns The function to run task within the pool.
  */
-export function $TasksPool() {
-  const tasksSet = inject($TasksSet)
+export function $TasksRunner() {
+  const tasksPool = inject($TasksPool)
 
-  return tasksPool(tasksSet)
+  return tasksRunner(tasksPool)
 }

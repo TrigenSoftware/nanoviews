@@ -4,210 +4,254 @@ import {
   it,
   expect
 } from 'vitest'
+import { effect } from 'agera'
+import type { SignalsMap } from './internals/index.js'
 import {
-  effect,
-  signal,
-  isSignal,
-  computed
-} from 'agera'
-import { record } from './record.js'
-import {
-  atKey,
-  setKey
+  getMapKey,
+  setMapKey,
+  clearMap,
+  deleteMapKey
 } from './map.js'
 
 describe('kida', () => {
   describe('map', () => {
-    it('should get item by key', () => {
-      const $map = signal({
-        first: 1,
-        second: 2
+    describe('getMapKey', () => {
+      it('should return undefined for non-existent key', () => {
+        const map: SignalsMap<string, number> = new Map()
+
+        expect(getMapKey(map, 'foo')).toBeUndefined()
       })
 
-      expect($map()).toEqual({
-        first: 1,
-        second: 2
-      })
-      expect(atKey($map, 'first')).toSatisfy(isSignal)
-      expect(atKey($map, 'second')).toSatisfy(isSignal)
+      it('should return value for existing key', () => {
+        const map: SignalsMap<string, number> = new Map()
 
-      expect(atKey($map, 'first')()).toBe(1)
-      expect(atKey($map, 'second')()).toBe(2)
+        setMapKey(map, 'foo', 42)
+
+        expect(getMapKey(map, 'foo')).toBe(42)
+      })
+
+      it('should track new key insertions', () => {
+        const map: SignalsMap<string, number> = new Map()
+        const listener = vi.fn()
+        const off = effect(() => {
+          listener(getMapKey(map, 'foo'))
+        })
+
+        expect(listener).toHaveBeenCalledTimes(1)
+        expect(listener).toHaveBeenCalledWith(undefined)
+
+        setMapKey(map, 'foo', 42)
+
+        expect(listener).toHaveBeenCalledTimes(2)
+        expect(listener).toHaveBeenCalledWith(42)
+
+        off()
+      })
+
+      it('should track value updates', () => {
+        const map: SignalsMap<string, number> = new Map()
+        const listener = vi.fn()
+
+        setMapKey(map, 'foo', 42)
+
+        const off = effect(() => {
+          listener(getMapKey(map, 'foo'))
+        })
+
+        expect(listener).toHaveBeenCalledTimes(1)
+        expect(listener).toHaveBeenCalledWith(42)
+
+        setMapKey(map, 'foo', 100)
+
+        expect(listener).toHaveBeenCalledTimes(2)
+        expect(listener).toHaveBeenCalledWith(100)
+
+        off()
+      })
+
+      it('should track clear events', () => {
+        const map: SignalsMap<string, number> = new Map()
+        const listener = vi.fn()
+
+        setMapKey(map, 'foo', 42)
+
+        const off = effect(() => {
+          listener(getMapKey(map, 'foo'))
+        })
+
+        expect(listener).toHaveBeenCalledTimes(1)
+        expect(listener).toHaveBeenCalledWith(42)
+
+        clearMap(map)
+
+        expect(listener).toHaveBeenCalledTimes(2)
+        expect(listener).toHaveBeenCalledWith(undefined)
+
+        off()
+      })
     })
 
-    it('should update root by child', () => {
-      const $map = signal({
-        first: 1,
-        second: 2
+    describe('setMapKey', () => {
+      it('should set value for new key', () => {
+        const map: SignalsMap<string, number> = new Map()
+
+        setMapKey(map, 'foo', 42)
+
+        expect(getMapKey(map, 'foo')).toBe(42)
       })
 
-      expect(atKey($map, 'first')()).toBe(1)
+      it('should update value for existing key', () => {
+        const map: SignalsMap<string, number> = new Map()
 
-      atKey($map, 'first')(3)
+        setMapKey(map, 'foo', 42)
 
-      expect(atKey($map, 'first')()).toBe(3)
-      expect($map()).toEqual({
-        first: 3,
-        second: 2
+        expect(getMapKey(map, 'foo')).toBe(42)
+
+        setMapKey(map, 'foo', 100)
+
+        expect(getMapKey(map, 'foo')).toBe(100)
+      })
+
+      it('should set value with updater function', () => {
+        const map: SignalsMap<string, number> = new Map()
+
+        setMapKey(map, 'foo', 42)
+
+        expect(getMapKey(map, 'foo')).toBe(42)
+
+        setMapKey(map, 'foo', prev => (prev ?? 0) + 10)
+
+        expect(getMapKey(map, 'foo')).toBe(52)
+      })
+
+      it('should notify listeners on insert', () => {
+        const map: SignalsMap<string, number> = new Map()
+        const listener = vi.fn()
+        const off = effect(() => {
+          listener(getMapKey(map, 'foo'))
+        })
+
+        expect(listener).toHaveBeenCalledTimes(1)
+        expect(listener).toHaveBeenCalledWith(undefined)
+
+        setMapKey(map, 'foo', 42)
+
+        expect(listener).toHaveBeenCalledTimes(2)
+        expect(listener).toHaveBeenCalledWith(42)
+
+        off()
+      })
+
+      it('should notify listeners on update', () => {
+        const map: SignalsMap<string, number> = new Map()
+
+        setMapKey(map, 'foo', 42)
+
+        const listener = vi.fn()
+        const off = effect(() => {
+          listener(getMapKey(map, 'foo'))
+        })
+
+        expect(listener).toHaveBeenCalledTimes(1)
+        expect(listener).toHaveBeenCalledWith(42)
+
+        setMapKey(map, 'foo', 100)
+
+        expect(listener).toHaveBeenCalledTimes(2)
+        expect(listener).toHaveBeenCalledWith(100)
+
+        off()
       })
     })
 
-    it('should update root by child and notify listeners', () => {
-      const $map = signal({
-        first: 1,
-        second: 2
-      })
-      const rootListener = vi.fn()
-      const childListener = vi.fn()
-      const off = effect(() => {
-        rootListener($map())
-      })
-      const offChild = effect(() => {
-        childListener(atKey($map, 'first')())
+    describe('clearMap', () => {
+      it('should remove all keys from map', () => {
+        const map: SignalsMap<string, number> = new Map()
+
+        setMapKey(map, 'foo', 42)
+        setMapKey(map, 'bar', 100)
+
+        clearMap(map)
+
+        expect(getMapKey(map, 'foo')).toBeUndefined()
+        expect(getMapKey(map, 'bar')).toBeUndefined()
       })
 
-      expect(rootListener).toHaveBeenCalledTimes(1)
-      expect(childListener).toHaveBeenCalledTimes(1)
+      it('should notify listeners', () => {
+        const map: SignalsMap<string, number> = new Map()
 
-      atKey($map, 'first')(3)
+        setMapKey(map, 'foo', 42)
 
-      expect(rootListener).toHaveBeenCalledTimes(2)
-      expect(rootListener).toHaveBeenCalledWith({
-        first: 3,
-        second: 2
+        const listener = vi.fn()
+        const off = effect(() => {
+          listener(getMapKey(map, 'foo'))
+        })
+
+        expect(listener).toHaveBeenCalledTimes(1)
+        expect(listener).toHaveBeenCalledWith(42)
+
+        clearMap(map)
+
+        expect(listener).toHaveBeenCalledTimes(2)
+        expect(listener).toHaveBeenCalledWith(undefined)
+
+        setMapKey(map, 'foo', 100)
+
+        expect(listener).toHaveBeenCalledTimes(3)
+        expect(listener).toHaveBeenCalledWith(100)
+
+        off()
       })
-      expect(childListener).toHaveBeenCalledTimes(2)
-      expect(childListener).toHaveBeenCalledWith(3)
-
-      off()
-      offChild()
     })
 
-    it('should update child by root', () => {
-      const $map = signal({
-        first: 1,
-        second: 2
+    describe('deleteMapKey', () => {
+      it('should delete existing key', () => {
+        const map: SignalsMap<string, number> = new Map()
+
+        setMapKey(map, 'foo', 42)
+
+        expect(getMapKey(map, 'foo')).toBe(42)
+
+        deleteMapKey(map, 'foo')
+
+        expect(map.has('foo')).toBe(false)
       })
 
-      expect(atKey($map, 'first')()).toBe(1)
+      it('should allow re-adding deleted key', () => {
+        const map: SignalsMap<string, number> = new Map()
 
-      setKey($map, 'first', 3)
+        setMapKey(map, 'foo', 42)
+        deleteMapKey(map, 'foo')
+        setMapKey(map, 'foo', 100)
 
-      expect(atKey($map, 'first')()).toBe(3)
-    })
-
-    it('should update child by root and notify listeners', () => {
-      const $map = signal({
-        first: 1,
-        second: 2
-      })
-      const rootListener = vi.fn()
-      const childListener = vi.fn()
-      const off = effect(() => {
-        rootListener($map())
-      })
-      const offChild = effect(() => {
-        childListener(atKey($map, 'first')())
+        expect(getMapKey(map, 'foo')).toBe(100)
       })
 
-      expect(rootListener).toHaveBeenCalledTimes(1)
-      expect(childListener).toHaveBeenCalledTimes(1)
+      it('should notify listeners on delete', () => {
+        const map: SignalsMap<string, number> = new Map()
 
-      expect(atKey($map, 'first')()).toBe(1)
+        setMapKey(map, 'foo', 42)
 
-      setKey($map, 'first', 3)
+        const listener = vi.fn()
+        const off = effect(() => {
+          listener(getMapKey(map, 'foo'))
+        })
 
-      expect(rootListener).toHaveBeenCalledTimes(2)
-      expect(rootListener).toHaveBeenCalledWith({
-        first: 3,
-        second: 2
+        expect(listener).toHaveBeenCalledTimes(1)
+        expect(listener).toHaveBeenCalledWith(42)
+
+        deleteMapKey(map, 'foo')
+
+        expect(listener).toHaveBeenCalledTimes(2)
+        expect(listener).toHaveBeenCalledWith(undefined)
+
+        setMapKey(map, 'foo', 100)
+
+        expect(listener).toHaveBeenCalledTimes(3)
+        expect(listener).toHaveBeenCalledWith(100)
+
+        off()
       })
-      expect(childListener).toHaveBeenCalledTimes(2)
-      expect(childListener).toHaveBeenCalledWith(3)
-
-      off()
-      offChild()
-    })
-
-    it('should get item by dynamic index', () => {
-      const $map = signal({
-        first: 1,
-        second: 2
-      })
-      const $key = signal<'first' | 'second'>('first')
-      const $item = atKey($map, $key)
-
-      expect($item()).toBe(1)
-
-      $key('second')
-
-      expect($item()).toBe(2)
-    })
-
-    it('should get item by key from computed store', () => {
-      const $item = signal(1)
-      const $map = computed(() => ({
-        first: $item(),
-        second: 2
-      }))
-
-      expect($map()).toEqual({
-        first: 1,
-        second: 2
-      })
-      expect(atKey($map, 'first')()).toBe(1)
-
-      $item(3)
-
-      expect($map()).toEqual({
-        first: 3,
-        second: 2
-      })
-      expect(atKey($map, 'first')()).toBe(3)
-    })
-
-    it('should work with record', () => {
-      const users = {
-        1: {
-          name: 'Dan',
-          location: 'Batumi'
-        },
-        2: {
-          name: 'Savva',
-          location: 'Tallinn'
-        },
-        3: {
-          name: 'Diman',
-          location: 'Novosibirsk'
-        }
-      }
-      const $map = signal(users)
-
-      expect($map()).toEqual(users)
-      expect(atKey($map, 2)()).toEqual(users[2])
-      expect(record(atKey($map, 2)).$name()).toBe('Savva')
-
-      record(atKey($map, 2)).$name('Savva B')
-
-      expect($map()).toEqual({
-        1: {
-          name: 'Dan',
-          location: 'Batumi'
-        },
-        2: {
-          name: 'Savva B',
-          location: 'Tallinn'
-        },
-        3: {
-          name: 'Diman',
-          location: 'Novosibirsk'
-        }
-      })
-      expect(atKey($map, 2)()).toEqual({
-        name: 'Savva B',
-        location: 'Tallinn'
-      })
-      expect(record(atKey($map, 2)).$name()).toBe('Savva B')
     })
   })
 })

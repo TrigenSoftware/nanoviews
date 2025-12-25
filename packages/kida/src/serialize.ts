@@ -4,7 +4,7 @@ import type {
 } from 'agera'
 import { start } from './internals/index.js'
 import {
-  $TasksSet,
+  $TasksPool,
   waitTasks
 } from './tasks.js'
 import {
@@ -64,7 +64,7 @@ export async function serialize(
   context.set($ToSerialize, toSerialize)
 
   const stores = run(context, runner)
-  const tasks = context.get($TasksSet)
+  const tasks = context.get($TasksPool)
   const stop = start(() => stores.forEach(store => store() as void))
 
   await waitTasks(tasks)

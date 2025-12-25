@@ -45,7 +45,7 @@ export function atIndex<T>(
  * @param predicate - Predicate to select the item (same semantics as `Array.prototype.findIndex`).
  * @returns The writable item signal for the first matched item.
  */
-export function atFindIndex<T>(
+export function atFoundIndex<T>(
   $list: WritableSignal<T[]>,
   predicate: (item: T, index: number, array: T[]) => boolean
 ): WritableSignal<T | undefined>
@@ -56,13 +56,13 @@ export function atFindIndex<T>(
  * @param predicate - Predicate to select the item (same semantics as `Array.prototype.findIndex`).
  * @returns The readable item signal for the first matched item.
  */
-export function atFindIndex<T>(
+export function atFoundIndex<T>(
   $list: Accessor<T[]>,
   predicate: (item: T, index: number, array: T[]) => boolean
 ): ReadableSignal<T | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */
-export function atFindIndex<T>(
+export function atFoundIndex<T>(
   $list: Accessor<T[]> | WritableSignal<T[]>,
   predicate: (item: T, index: number, array: T[]) => boolean
 ): ReadableSignal<T | undefined> {
@@ -157,16 +157,6 @@ export function setIndex<T>($list: WritableSignal<T[]>, index: number, value: T)
  */
 export function deleteIndex<T>($list: WritableSignal<T[]>, index: number): T | undefined {
   return updateList($list, state => state.splice(index, 1)[0])
-}
-
-/**
- * Clear the list signal.
- * @param $list - The list signal.
- * @returns The cleared list signal.
- */
-export function clearList<T>($list: WritableSignal<T[]>) {
-  $list([])
-  return $list
 }
 
 /**

@@ -8,36 +8,52 @@ import {
   effect
 } from 'agera'
 
+function onStartStop(
+  $signal: Mountable<AnySignal>,
+  startstop: boolean,
+  listener: () => MaybeDestroy
+) {
+  let destroy: MaybeDestroy
+
+  return onMounted(
+    $signal,
+    mounted => destroy = mounted === startstop
+      ? listener()
+      : (destroy?.(), undefined)
+  )
+}
+
 /**
  * Listen to signal start.
  * @param $signal - The signal to listen to.
- * @param listener - The listener function.
+ * @param listener - The listener function that returns a destroy function.
  * @returns Function to stop listening.
  */
 export function onStart(
   $signal: Mountable<AnySignal>,
-  listener: () => void
+  listener: () => MaybeDestroy
 ) {
-  return onMounted($signal, mounted => mounted && listener())
+  return onStartStop($signal, true, listener)
 }
 
 /**
  * Listen to signal stop.
  * @param $signal - The signal to listen to.
- * @param listener - The listener function.
+ * @param listener - The listener function that returns a destroy function.
  * @returns Function to stop listening.
  */
 export function onStop(
   $signal: Mountable<AnySignal>,
-  listener: () => void
+  listener: () => MaybeDestroy
 ) {
-  return onMounted($signal, mounted => !mounted && listener())
+  return onStartStop($signal, false, listener)
 }
 
 export const STORE_UNMOUNT_DELAY = 1000
 
 /**
  * Listen to signal mount and unmount.
+ * Unmount is delayed to avoid rapid mount/unmount cycles.
  * @param $signal - The signal to listen to.
  * @param listener - The mount listener function that returns an unmount listener.
  * @returns Function to stop listening.
@@ -59,6 +75,7 @@ export function onMount(
       setTimeout(() => {
         if (active) {
           destroy?.()
+          destroy = undefined
           active = false
         }
       }, STORE_UNMOUNT_DELAY)

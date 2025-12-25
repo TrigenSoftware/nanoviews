@@ -1,5 +1,5 @@
 import { signal } from 'agera'
-import type { TasksSet } from './types/index.js'
+import type { TasksPool } from './types/index.js'
 import { addTask } from './tasks.js'
 
 /**
@@ -55,7 +55,7 @@ function abortableRun(
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function channel<E = string>(
-  tasks: TasksSet,
+  tasks: TasksPool,
   mapErrorValue: (error: unknown) => E = error => (error as Error).message as E
 ) {
   const $loading = signal(false)

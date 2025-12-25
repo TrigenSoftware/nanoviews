@@ -1,105 +1,104 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+import { signal, type NewValue } from 'agera'
 import {
-  type WritableSignal,
-  type ReadableSignal,
-  type Accessor
-} from 'agera'
-import {
-  type AnyCollection,
-  child,
-  assignKey
+  type SignalsMap,
+  $$insert,
+  $$clear,
+  $$deleted,
+  subMapEvent,
+  fireMapEvent
+} from './internals/index.js'
+
+export {
+  $$clear,
+  $$deleted,
+  $$insert,
+  subMapEvent,
+  fireMapEvent
 } from './internals/index.js'
 
 /**
- * Get writable item signal by key from the map signal.
- * @param $map - The map signal.
- * @param key - The key to get.
- * @returns The writable item signal by the key.
- */
-export function atKey<T extends AnyCollection>(
-  $map: WritableSignal<T>,
-  key: keyof T | Accessor<keyof T>
-): WritableSignal<T[keyof T]>
-
-/**
- * Get readable item signal by key from the map signal.
- * @param $map - The map signal.
- * @param key - The key to get.
- * @returns The readable item signal by the key.
- */
-export function atKey<T extends AnyCollection>(
-  $map: Accessor<T>,
-  key: keyof T | Accessor<keyof T>
-): ReadableSignal<T[keyof T]>
-
-/* @__NO_SIDE_EFFECTS__ */
-export function atKey<T extends AnyCollection>(
-  $map: Accessor<T> | WritableSignal<T>,
-  key: keyof T | Accessor<keyof T>
-) {
-  return child($map, key, assignKey)
-}
-
-/**
- * Get value by key from the map signal.
- * @param $map - The map signal.
+ * Get value by key from the signals map.
+ * @param map - The signals map.
  * @param key - The key to get.
  * @returns The value.
  */
-/* @__NO_SIDE_EFFECTS__ */
-export function getKey<T extends AnyCollection>($map: Accessor<T>, key: keyof T) {
-  return $map()[key]
+export function getMapKey<
+  K,
+  V
+>(
+  map: SignalsMap<K, V>,
+  key: K
+) {
+  const $signal = map.get(key)
+
+  if ($signal === undefined) {
+    subMapEvent(map, $$insert)
+    return undefined
+  }
+
+  subMapEvent(map, $$clear)
+
+  return $signal()
 }
 
 /**
- * Set value by key to the map signal.
- * @param $map - The map signal.
+ * Set value by key to the signals map.
+ * @param map - The signals map.
  * @param key - The key to set.
  * @param value - The value to set.
- * @returns The value.
  */
-export function setKey<T extends AnyCollection>($map: WritableSignal<T>, key: keyof T, value: T[keyof T]) {
-  $map(state => assignKey(state, key, value))
-  return value
+export function setMapKey<
+  K,
+  V
+>(
+  map: SignalsMap<K, V>,
+  key: K,
+  value: NewValue<V | undefined>
+) {
+  let $item = map.get(key)
+  const insert = $item === undefined
+
+  if (insert) {
+    map.set(key, $item = signal())
+  }
+
+  $item!(value)
+
+  if (insert) {
+    fireMapEvent(map, $$insert)
+  }
 }
 
 /**
- * Delete item by key from the map signal.
- * @param $map - The map signal.
+ * Clear the signals map.
+ * @param map - The signals map.
+ */
+export function clearMap<
+  K,
+  V
+>(
+  map: SignalsMap<K, V>
+) {
+  map.clear()
+  fireMapEvent(map, $$clear)
+}
+
+/**
+ * Delete item by key from the signals map.
+ * @param map - The signals map.
  * @param key - The key to delete.
- * @returns The value.
  */
-export function deleteKey<T extends AnyCollection>($map: WritableSignal<T>, key: keyof T) {
-  let result
+export function deleteMapKey<
+  K,
+  V
+>(
+  map: SignalsMap<K, V>,
+  key: K
+) {
+  const $item = map.get(key)
 
-  $map((state) => {
-    let nextState
-
-    ;({ [key]: result, ...nextState } = state)
-
-    return nextState as T
-  })
-
-  return result as T[keyof T]
-}
-
-/**
- * Clear the map signal.
- * @param $map - The map signal.
- * @returns The cleared map signal.
- */
-export function clearMap<T extends AnyCollection>($map: WritableSignal<T>) {
-  $map({} as T)
-  return $map
-}
-
-/**
- * Check if the map signal has the key.
- * @param $map - The map signal.
- * @param key - The key to check.
- * @returns Whether the map signal has the key.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function has<T extends AnyCollection>($map: Accessor<T>, key: keyof T) {
-  return key in $map()
+  if ($item !== undefined) {
+    map.delete(key)
+    $item($$deleted as V)
+  }
 }

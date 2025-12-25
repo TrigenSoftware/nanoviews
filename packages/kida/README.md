@@ -262,8 +262,8 @@ For performance reasons, signal will move to disabled mode with 1 second delay a
 
 There are other lifecycle methods:
 
-- `onStart($signal, () => void)`: first effect was attached. Low-level method. It is better to use `onMount` for simple lazy signals.
-- `onStop($signal, () => void)`: last effect was detached. Low-level method. It is better to use `onMount` for simple lazy signals.
+- `onStart($signal, () => Destroy)`: first effect was attached. Low-level method. It is better to use `onMount` for simple lazy signals.
+- `onStop($signal, () => Destroy)`: last effect was detached. Low-level method. It is better to use `onMount` for simple lazy signals.
 
 #### `start`
 
@@ -384,7 +384,7 @@ console.log($user()) // John
 
 There are also other methods to work with arrays:
 
-- `atFindIndex($list, predicate)` - create a signal for the first element that satisfies the predicate function.
+- `atFoundIndex($list, predicate)` - create a signal for the first element that satisfies the predicate function.
 - `updateList($list, fn)` - update the value of the list signal using a function.
 - `push($list, ...values)` - add values to the list signal.
 - `pop($list)` - removes the last element from a list signal and returns it.
@@ -393,12 +393,11 @@ There are also other methods to work with arrays:
 - `getIndex($list, index)` - get value at index from the list signal.
 - `setIndex($list, index, value)` - set value at index in the list signal.
 - `deleteIndex($list, index)` - delete element at index from the list signal.
-- `clearList($list)` - clear the list signal.
 - `includes($list, value)` - check if the list signal includes a value.
 
-### Map
+### Object
 
-`atKey` method creates a signal for a specific key of an object map.
+`atKey` method creates a signal for a specific key of an object.
 
 ```ts
 import { signal, atKey } from 'kida'
@@ -439,11 +438,35 @@ console.log($user()) // Alice
 
 There are also other methods to work with object maps:
 
-- `getKey($map, key)` - get value by key from the map signal.
-- `setKey($map, key, value)` - set value by key to the map signal.
-- `deleteKey($map, key)` - delete item by key from the map signal.
-- `clearMap($map)` - clear the map signal.
-- `has($map, key)` - check if the map signal has the key.
+- `getKey($object, key)` - get value by key from the object signal.
+- `setKey($object, key, value)` - set value by key to the object signal.
+- `deleteKey($object, key)` - delete item by key from the object signal.
+- `has($object, key)` - check if the object signal has the key.
+
+### Signals Map
+
+`SignalsMap` is a Map where each value is a signal. It provides reactive access to map entries.
+
+```ts
+import { getMapKey, setMapKey, deleteMapKey, clearMap, type SignalsMap } from 'kida'
+
+const map: SignalsMap<string, User> = new Map()
+
+// Set value by key
+setMapKey(map, 'user1', { name: 'Dan', age: 30 })
+
+// Get value by key (reactive)
+effect(() => {
+  const user = getMapKey(map, 'user1')
+  console.log('User:', user)
+})
+
+// Delete entry
+deleteMapKey(map, 'user1')
+
+// Clear entire map
+clearMap(map)
+```
 
 ## Extra signals
 

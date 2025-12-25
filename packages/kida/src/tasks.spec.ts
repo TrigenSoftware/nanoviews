@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import {
   waitCurrentTasks,
-  tasksPool
+  tasksRunner
 } from './tasks.js'
 
 describe('kida', () => {
@@ -13,7 +13,7 @@ describe('kida', () => {
     describe('allTasks', () => {
       it('should wait resolved task', async () => {
         const tasks = new Set<Promise<unknown>>()
-        const task = tasksPool(tasks)
+        const task = tasksRunner(tasks)
         let resolve: () => void
         const promise = task(() => new Promise<void>((r) => {
           resolve = r
@@ -36,7 +36,7 @@ describe('kida', () => {
 
       it('should wait rejected task', async () => {
         const tasks = new Set<Promise<unknown>>()
-        const task = tasksPool(tasks)
+        const task = tasksRunner(tasks)
         let reject: () => void
         const promise = task(() => new Promise<void>((_, r) => {
           reject = r

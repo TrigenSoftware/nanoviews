@@ -9,13 +9,12 @@ import {
   signal,
   isSignal,
   computed,
-  startBatch,
-  endBatch
+  batch
 } from 'agera'
 import { record } from './record.js'
 import {
   atIndex,
-  atFindIndex,
+  atFoundIndex,
   updateList
 } from './list.js'
 
@@ -201,11 +200,11 @@ describe('kida', () => {
       const $two = atIndex($list, $twoIndex)
       const $three = atIndex($list, $threeIndex)
       const onListChange = vi.fn((v) => {
-        startBatch()
-        $oneIndex(v.indexOf('one'))
-        $twoIndex(v.indexOf('two'))
-        $threeIndex(v.indexOf('three'))
-        endBatch()
+        batch(() => {
+          $oneIndex(v.indexOf('one'))
+          $twoIndex(v.indexOf('two'))
+          $threeIndex(v.indexOf('three'))
+        })
       })
       const onOneChange = vi.fn()
       const onTwoChange = vi.fn()
@@ -315,7 +314,7 @@ describe('kida', () => {
           name: 'Charlie'
         }
       ])
-      const $bob = atFindIndex($list, item => item.id === 2)
+      const $bob = atFoundIndex($list, item => item.id === 2)
 
       expect($bob()).toEqual({
         id: 2,
@@ -365,7 +364,7 @@ describe('kida', () => {
           active: false
         }
       ])
-      const $firstActive = atFindIndex($list, item => item.active)
+      const $firstActive = atFoundIndex($list, item => item.active)
 
       expect($firstActive()).toEqual({
         id: 2,
