@@ -8,8 +8,7 @@ import {
   readonly,
   record,
   signal,
-  startBatch,
-  endBatch,
+  batch,
   updateList,
   action,
   computed,
@@ -229,13 +228,13 @@ export function virtualNavigation<const R extends Routes = {}>(
       $activeIndex() + steps
     ))
 
-    startBatch()
-    $activeIndex(newIndex)
-    $location((location): RouteLocation<R> => ({
-      ...location,
-      action: PopHistoryAction
-    }))
-    endBatch()
+    batch(() => {
+      $activeIndex(newIndex)
+      $location((location): RouteLocation<R> => ({
+        ...location,
+        action: PopHistoryAction
+      }))
+    })
   }
   const back = () => go(-1)
   const forward = () => go(1)
@@ -245,12 +244,12 @@ export function virtualNavigation<const R extends Routes = {}>(
         const activeIndex = $activeIndex()
         const nextIndex = activeIndex + 1
 
-        startBatch()
-        updateList($history, (history) => {
-          history.splice(nextIndex, history.length - activeIndex - 1, location)
+        batch(() => {
+          updateList($history, (history) => {
+            history.splice(nextIndex, history.length - activeIndex - 1, location)
+          })
+          $activeIndex(nextIndex)
         })
-        $activeIndex(nextIndex)
-        endBatch()
       } else if (location.action === ReplaceHistoryAction) {
         $location(location)
       }
