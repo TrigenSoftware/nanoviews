@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nanoviews/compare/nanoviews@1.0.0-alpha.4...nanoviews@1.0.0-alpha.5) (2026-01-02)
+
+### Bug Fixes
+
+* use new batch and observer apis ([b270a2b](https://github.com/TrigenSoftware/nanoviews/commit/b270a2b468eb1ee3e3c173229b114aff27381c03))
+
 ## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nanoviews/compare/nanoviews@1.0.0-alpha.3...nanoviews@1.0.0-alpha.4) (2025-11-17)
 
 ### Bug Fixes

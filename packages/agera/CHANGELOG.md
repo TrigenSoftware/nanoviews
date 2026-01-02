@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nanoviews/compare/agera@1.0.0-alpha.4...agera@1.0.0-alpha.5) (2026-01-02)
+
+### Features
+
+* new batch api, observer methods ([41d98ad](https://github.com/TrigenSoftware/nanoviews/commit/41d98adac431df8c8267cc894631d7bb8a31002b))
+
+### Bug Fixes
+
+* fix signal mount escaping ([9496e4f](https://github.com/TrigenSoftware/nanoviews/commit/9496e4f7878d8f5ed54f24834c88a032bc267540))
+
 ## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nanoviews/compare/agera@1.0.0-alpha.3...agera@1.0.0-alpha.4) (2025-11-17)
 
 ### Bug Fixes
