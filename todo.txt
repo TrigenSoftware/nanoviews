@@ -1,5 +1,15 @@
+- REMOVE SYMBOLS
+
 - Return dev builds with debug features, prod build - less size - ?
 - update eslint rules
+- cleanup naming. Should mark everything that can subscribe on effect with $ at beginning
+  - can subscribe to effect while call
+  - DI factory
+  - returns and accepts DI factories
+  - nanovies operators/stuff functions
+- rename packages, use nano_kit org
+- docs website
+- first spa only beta release of nano_kit
 
 ## Nanoviews
 
@@ -17,71 +27,20 @@ for$($items)(
   as$(record, ($item) => li()($item.$name))
 )
 
-```
-const $onNumpadClick = event(event => event.currentTarget.dataset.payload)
-const $onSubmit = event()
-
-effect(() => {
-  const num = $onNumpadClick()
-
-  if (num !== null) {
-    console.log('Numpad clicked', num)
-  }
-})
-
-effect(() => {
-  if ($onSubmit()) {
-    submitData()
-    $onSubmit(null)
-  }
-})
-
-button({
-  onClick: $onNumpadClick
-  'data-payload': 5
-})('Click!')
-```
-
 ## Kida/Agera
 
-- map -> object, create real map?
-- subscribe and subscribeLater from nanoviews?
-- onChange/onSet - effect but without trigger mount
--- more *FindIndex helpers? trackers from nanoviews to kida to use with FindIndex? / FoundIndex
-
-~~~
 - injectable class?
 - bundle types?
 - lazy scope to start and stop methods? for example for resort in loop
 - later: resort effects
 - store injection effectScope to stop effects after context stop? - UPD: wtf is this? i dont remember what it mean. Wrap serialize in effectScope? Or wrap inject ? bad practice, maybe just for safety into serialize
-~ Theory: rm onMount, use injection point like mount, use effects inside factories, injection is not more used -> "unmount" -> stop effects in factories --- dupe of previous point
-~~~
 
 ## 🔥🔥🔥 Query 🔥🔥🔥
 
-+- client
-+- dedupeTime + cacheTime
-+- revalidateOn focus/reconnect/interval
-+- onError
-+- mapError
-+- query
-+- mutation
-+- refetch
-+- invalidate
-+- revalidate
-+- updateCache
-+- onSuccess?
-+- onSettled?
-+- onErrorRetry
-+- persistent cache
-+- throttleCalls mutation
-
-- entities/db
-
-- hydration provider / etc
-- serialize -> dehydrate / hydrate
-- combine serialize + serializable / dont do request with preloaded data
+- hydration provider / etc?
+- serialize -> dehydrate / hydrate?
+- combine serialize + serializable?
+- synced cache between tabs
 
 ## Router
 
@@ -176,18 +135,6 @@ obj = props$({
 ```
 
 ```
-const [$Location, $Navigation] = browserNavigation$$(routes)
-
-const [$Page, $StoresToPreload] = router$$($Location, pages)
-
-const useLocation = hook($Location)
-
-const App = app($location, pages) // app$$($Location, pages)
-
-const Link = link(builtPaths) // link(builtPaths, preloadPage)
-```
-
-```
 async function browser() {
   const context = new InjectionContext()
   const $location = inject($Location, context)
@@ -235,269 +182,26 @@ async function ssr(path) {
 ```
 
 ```
-const {
-  query,
-  mutation,
-  invalidate,
-  revalidate,
-  updateCache
-} = client(
-  memoryStorage(), // persistentStorage(), indexedDbStorage(1000 * 60 * 60 * 24)
-  dedupeTime(10_000),
-  cacheTime(60_000),
-  revalidateOnFocus(),
-  revalidateOnReconnect(),
-  onEveryError((err, stoped) => {
+const $onNumpadClick = event(event => event.currentTarget.dataset.payload)
+const $onSubmit = event()
 
-  })
-)
+effect(() => {
+  const num = $onNumpadClick()
 
-
-const [$post, $loading, $error] = query('post', [$postId], (postId, ctx) => {
-  onError(ctx, () => console.log('failed', postId))
-
-  return fetchPost(postId)
-}, [
-  mapError(err => err.message + '\n' + err.stack),
-  dedupeTime(10_000),
-  revalidateOnInterval(120_000)
-])
-
-invalidate(PostKey, 1)
-invalidate(PostKey)
-
-const [$post, $loading, $error] = query('post', [$postId], (postId) => fetchPost(postId))
-
-
-const PostKey = queryKey<[string], Post>('post')
-const [$post, $loading, $error] = query(PostKey, [$postId], (postId) => fetchPost(postId))
-
-
-const [$post, $loading, $error] = query('post', [$postId], (postId, ctx) => {
-  onError(ctx, () => console.log('failed', postId))
-
-  return fetchPost(postId)
-})
-
-const [$posts, $loading, $error] = query('posts', [$userId], [$page], async (userId, page, ctx) => {
-  stopErrorPropagation(ctx)
-  onSuccess(ctx, () => console.log('Success'))
-
-  const posts = await fetchPosts(userId, page)
-
-  return [
-    ...getState(ctx),
-    ...posts
-  ]
-})
-
-const [addComment, $loading, $error] = mutation(async (comment, ctx) => {
-  const postId = $postId()
-  const revert = updateCache(PostKey, postId, (post) => ({
-    ...post,
-    comments: [...post.comments, comment]
-  }))
-
-  onError(ctx, revert)
-  onErrorRetry(ctx, (err, retryCount) => someRetry(retryCount))
-
-  await postComment(postId, comment)
-
-  return 'ok'
-})
-
-const [addComment, $loading, $error] = mutation(async (comment, ctx) => {
-  const postId = $postId()
-
-  onSuccess(ctx, () => revalidate(PostKey, postId))
-  await postComment(postId, comment)
-
-  return 'ok'
-}, [unthrottled()])
-
-
-
-function map() {
-  return signal({
-    keys: [],
-    map: new Map()
-  })
-}
-
-function atMapKey($map, key) {
-  return $map.get
-}
-
-
-
-// PROTO VARIANTS:
-
-const [$posts, $loading, $error] = query('posts', [$userId], [$page], async (userId, page, prevState) => {
-  const posts = await fetchPosts(userId, page)
-
-  return [
-    ...prevState,
-    ...posts
-  ]
-})
-
-const [addComment, $loading, $error] = mutation(async (comment) => {
-  const postId = $postId()
-  const revert = updateCache('post', postId, (post) => ({
-    ...post,
-    comments: [...post.comments, comment]
-  }))
-
-  try {
-    await postComment(postId, comment)
-
-    return 'ok'
-  } catch (err) {
-    revert()
-    throw err
+  if (num !== null) {
+    console.log('Numpad clicked', num)
   }
 })
 
-const [addComment, $loading, $error] = mutation(async (comment, later) => {
-  const postId = $postId()
-
-  later(() => revalidate('post', postId))
-  await postComment(postId, comment)
-
-  return 'ok'
-})
-
-
-
-
-
-
-
-const [addComment, $loading, $error] = mutation(async (comment) => {
-  const postId = $postId()
-  const revert = updateCache(PostKey, postId, (post) => ({
-    ...post,
-    comments: [...post.comments, comment]
-  }))
-
-  try {
-    await postComment(postId, comment)
-
-    return 'ok'
-  } catch (err) {
-    revert()
-    throw err
+effect(() => {
+  if ($onSubmit()) {
+    submitData()
+    $onSubmit(null)
   }
 })
 
-const [addComment, $loading, $error] = mutation(async (comment, later) => {
-  const postId = $postId()
-
-  later(() => revalidate(PostKey, postId))
-  await postComment(postId, comment)
-
-  return 'ok'
-})
-
-
-
-
-const [$post, $loading, $error] = query('post', [$postId], (postId, { onError }) => {
-  onError(() => console.log('failed', postId))
-
-  return fetchPost(postId)
-})
-
-const [$posts, $loading, $error] = query('posts', [$userId], [$page], async (userId, page, {
-  onSuccess,
-  state
-}) => {
-  onSuccess(() => console.log('Success'))
-
-  const posts = await fetchPosts(userId, page)
-
-  return [
-    ...state,
-    ...posts
-  ]
-})
-
-const [addComment, $loading, $error] = mutation(async (comment, { onError }) => {
-  const postId = $postId()
-  const revert = updateCache(PostKey, postId, (post) => ({
-    ...post,
-    comments: [...post.comments, comment]
-  }))
-
-  onError(revert)
-
-  await postComment(postId, comment)
-
-  return 'ok'
-})
-
-const [addComment, $loading, $error] = mutation(async (comment, { onSuccess, onSettled }) => {
-  const postId = $postId()
-
-  onSuccess(() => revalidate(PostKey, postId))
-  await postComment(postId, comment)
-
-  return 'ok'
-})
-
-
-
-const [addComment, $loading, $error] = mutation(async (comment, later) => {
-  const postId = $postId()
-  const revert = updateCache(PostKey, postId, (post) => ({
-    ...post,
-    comments: [...post.comments, comment]
-  }))
-
-  later(err => err && revert())
-
-  await postComment(postId, comment)
-
-  return 'ok'
-})
-
-const [addComment, $loading, $error] = mutation(async (comment, later) => {
-  const postId = $postId()
-
-  later((err) => !err && revalidate(PostKey, postId))
-  later(() => revalidate(PostKey, postId)) // settled
-  await postComment(postId, comment)
-
-  return 'ok'
-})
-
-
-
-
-
-const [addComment, $loading, $error] = mutation(async (comment) => {
-  await postComment($postId(), comment)
-
-  return 'ok'
-}, async (run, comment) => {
-  const revert = updateCache(PostKey, $postId(), (post) => ({ // $postId() can be different - not ok
-    ...post,
-    comments: [...post.comments, comment]
-  }))
-
-  try {
-    await run()
-  } catch {
-    revert()
-  }
-})
-
-const [addComment, $loading, $error] = mutation(async (comment, later) => {
-  await postComment($postId(), comment)
-
-  return 'ok'
-}, async (run) => {
-  await run()
-  revalidate(PostKey, $postId())
-})
+button({
+  onClick: $onNumpadClick
+  'data-payload': 5
+})('Click!')
 ```
