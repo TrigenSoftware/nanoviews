@@ -123,6 +123,18 @@ export function markMountableUsed() {
 // eslint-disable-next-line import/no-mutable-exports
 export let activeSkipMount: SignalInstance | undefined
 
+export function pushSkipMount(signal: SignalInstance | undefined) {
+  const prevSkipMount = activeSkipMount
+
+  activeSkipMount = signal
+
+  return prevSkipMount
+}
+
+export function popSkipMount(prevSkipMount: SignalInstance | undefined) {
+  activeSkipMount = prevSkipMount
+}
+
 /**
  * Get the valie of a signal without mount trigger.
  * @param $signal - The signal to get the value from.
@@ -139,13 +151,11 @@ export function unmounted<T>($signal: ReadableSignal<T>): T
 export function unmounted<T>($signal: AnySignal, fn: () => T): T
 
 export function unmounted($signal: AnySignal, fn: () => unknown = $signal) {
-  const prevSkipMount = activeSkipMount
-
-  activeSkipMount = $signal[$$signal]
+  const prevSkipMount = pushSkipMount($signal[$$signal])
 
   try {
     return fn()
   } finally {
-    activeSkipMount = prevSkipMount
+    popSkipMount(prevSkipMount)
   }
 }

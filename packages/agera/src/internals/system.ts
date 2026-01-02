@@ -43,7 +43,9 @@ import {
   isActiveSubscriber,
   decrementEffectCount,
   notifyMounted,
-  isMountableUsed
+  isMountableUsed,
+  pushSkipMount,
+  popSkipMount
 } from './lifecycle.js'
 
 /**
@@ -518,9 +520,14 @@ export function processPendingInnerEffects(sub: Subscriber, flags: number): void
 
 export function runEffect(e: Effect, warmup?: true): void {
   const prevSub = activeSub
+  let prevSkipMount
 
   activeSub = e
   startTracking(e)
+
+  if (isMountableUsed) {
+    prevSkipMount = pushSkipMount(e[$$skipMount])
+  }
 
   try {
     if (e[$$destroy] !== undefined) {
@@ -530,6 +537,11 @@ export function runEffect(e: Effect, warmup?: true): void {
     e[$$destroy] = e[$$effect](warmup)
   } finally {
     activeSub = prevSub
+
+    if (isMountableUsed) {
+      popSkipMount(prevSkipMount)
+    }
+
     endTracking(e)
   }
 }

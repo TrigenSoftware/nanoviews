@@ -76,10 +76,6 @@ export function effect(fn: EffectCallback, ignoreLazy = false): Destroy {
   if (activeSub !== undefined) {
     link(e, activeSub)
 
-    if (isMountableUsed && activeSub[$$skipMount] !== undefined) {
-      e[$$skipMount] = activeSub[$$skipMount]
-    }
-
     if (!ignoreLazy && activeSub[$$flags] & LazyEffectSubscriberFlag) {
       e[$$flags] |= LazyEffectSubscriberFlag
       return effectStop.bind(e)
