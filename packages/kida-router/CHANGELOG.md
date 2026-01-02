@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nanoviews/compare/router@1.0.0-alpha.4...router@1.0.0-alpha.5) (2026-01-02)
+
+### Bug Fixes
+
+* use new batch api ([0e4c111](https://github.com/TrigenSoftware/nanoviews/commit/0e4c111ba2681cc6248e4e5a288fa4a73070c384))
+
 ## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nanoviews/compare/router@1.0.0-alpha.3...router@1.0.0-alpha.4) (2025-11-17)
 
 ### Features

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nanoviews/compare/kida@1.0.0-alpha.5...kida@1.0.0-alpha.6) (2026-01-02)
+
+### Features
+
+* map -> object, signals map api, tasks minor rework, destroy function for onStart and onStop ([91d1683](https://github.com/TrigenSoftware/nanoviews/commit/91d1683cfec08de0f88c6ee53ff0f01dee24a20e))
+
 ## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nanoviews/compare/kida@1.0.0-alpha.4...kida@1.0.0-alpha.5) (2025-11-17)
 
 ### Bug Fixes
