@@ -3,7 +3,7 @@ import type {
   ExtendedClient,
   AnyClientSetting,
   AnyClientExtension
-} from './types/index.js'
+} from './client.types.js'
 import {
   type QueryClientContext,
   type MutationClientContext,
@@ -20,6 +20,8 @@ import {
   operation,
   mutation
 } from './queries/index.js'
+
+export * from './client.types.js'
 
 /**
  * Create a query client with optional settings and extensions.

@@ -4,7 +4,7 @@ import {
   it,
   expect
 } from 'vitest'
-import { effect } from 'kida'
+import { effect } from '@nano_kit/store'
 import { CacheStorage } from './CacheStorage.js'
 import {
   queryKey,

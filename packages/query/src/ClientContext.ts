@@ -3,19 +3,20 @@ import {
   type TasksRunner,
   type Task,
   taskPromise
-} from 'kida'
-import type {
-  OnEveryError,
-  CacheKey,
-  ClientSetting,
-  CacheEntry
-} from './types/index.js'
+} from '@nano_kit/store'
+import type { ClientSetting } from './client.types.js'
 import type { RequestContext } from './RequestContext.js'
-import { CacheStorage } from './CacheStorage.js'
+import {
+  type CacheKey,
+  type CacheEntry,
+  CacheStorage
+} from './CacheStorage.js'
 import {
   addFn,
   settle
 } from './utils.js'
+
+export type OnEveryError = (error: unknown, stopped: boolean) => void
 
 export class ClientContext<T = unknown> extends CacheStorage {
   $key?: ReadableSignal<CacheKey> = undefined

@@ -1,8 +1,6 @@
-import type { PickNonEmptyValue } from 'kida'
-import type {
-  CacheKey,
-  ClientSetting
-} from '../types/index.js'
+import type { PickNonEmptyValue } from '@nano_kit/store'
+import type { ClientSetting } from '../client.types.js'
+import type { CacheKey } from '../CacheStorage.types.js'
 import type {
   ClientContext,
   MutationClientContext,
@@ -75,7 +73,7 @@ export function entity<T extends { id: number | string }>(
     }
 
     if (isEntityRef(idOrRefOrEntity)) {
-      return currentCtx.get(idOrRefOrEntity[ENTITY_KEY]).data
+      return currentCtx.$get(idOrRefOrEntity[ENTITY_KEY]).data
     }
 
     const key = EntityKey(name, id(idOrRefOrEntity))

@@ -11,7 +11,7 @@ import {
   signal,
   tasksRunner,
   waitTasks
-} from 'kida'
+} from '@nano_kit/store'
 import { operationKey, queryKey } from '../cache.js'
 import { dedupe, tasks } from '../ClientContext.js'
 import { client, operations } from '../client.js'

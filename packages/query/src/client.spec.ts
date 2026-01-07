@@ -3,10 +3,12 @@ import {
   it,
   expect
 } from 'vitest'
-import type { ClientExtension } from './types/client.js'
 import type { QueryClientContext } from './ClientContext.js'
 import { queryKey } from './cache.js'
-import { client } from './client.js'
+import {
+  type ClientExtension,
+  client
+} from './client.js'
 
 describe('query', () => {
   describe('client', () => {

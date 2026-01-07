@@ -10,7 +10,7 @@ import {
   signal,
   tasksRunner,
   waitTasks
-} from 'kida'
+} from '@nano_kit/store'
 import {
   type Post,
   type PostsPage,

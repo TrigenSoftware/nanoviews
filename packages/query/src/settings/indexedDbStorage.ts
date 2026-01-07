@@ -1,10 +1,10 @@
-import { untracked } from 'kida'
+import { untracked } from '@nano_kit/store'
+import type { ClientSetting } from '../client.types.js'
 import type {
-  ClientSetting,
   CacheKey,
   CacheShardKey,
   CacheEntry
-} from '../types/index.js'
+} from '../CacheStorage.types.js'
 import type { QueryClientContext } from '../ClientContext.js'
 import { revLock, revLocked, UNSET_REV } from '../CacheStorage.js'
 import { hasShardedMapKey } from '../map.js'
@@ -175,12 +175,12 @@ export function indexedDbStorage(lifetime: number): ClientSetting<QueryClientCon
     }
 
     if (ctx.indexedDbStorageLifetime === undefined) {
-      const superGet = ctx.get
+      const superGet = ctx.$get
       const superSet = ctx.set
       const superInvalidate = ctx.invalidate
       const db = connect()
 
-      ctx.get = function (key) {
+      ctx.$get = function (key) {
         const cache = this.cache
         const hasKey = hasShardedMapKey(cache, key)
         const entry = superGet.call(this, key)

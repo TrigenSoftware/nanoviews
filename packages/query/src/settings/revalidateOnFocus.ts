@@ -3,8 +3,8 @@ import {
   external,
   onMount,
   mountable
-} from 'kida'
-import type { ClientSetting } from '../types/index.js'
+} from '@nano_kit/store'
+import type { ClientSetting } from '../client.types.js'
 import type { QueryClientContext } from '../ClientContext.js'
 import { addFn } from '../utils.js'
 

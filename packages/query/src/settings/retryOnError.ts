@@ -1,7 +1,5 @@
-import type {
-  CacheKey,
-  ClientSetting
-} from '../types/index.js'
+import type { ClientSetting } from '../client.types.js'
+import type { CacheKey } from '../CacheStorage.types.js'
 import type { QueryClientContext } from '../ClientContext.js'
 import type { QueryContext } from '../RequestContext.js'
 

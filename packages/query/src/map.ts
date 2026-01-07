@@ -1,20 +1,31 @@
 import {
   type SignalsMap,
+  type SignalsMapEvents,
   type NewValue,
   batch,
-  getMapKey,
+  $getMapKey,
   setMapKey,
   clearMap,
   deleteMapKey,
   $$insert,
   fireMapEvent,
   subMapEvent
-} from 'kida'
-import type {
-  ShardKey,
-  ShardedKey,
-  ShardedSignalsMap
-} from './types/index.js'
+} from '@nano_kit/store'
+
+export interface ShardKey<S> {
+  shard: S
+  key?: undefined
+}
+
+export interface ShardedKey<S, K> {
+  shard: S
+  key: K
+}
+
+export interface ShardedSignalsMap<S, K, T> extends SignalsMapEvents, Map<
+  S,
+  SignalsMap<K, T>
+> {}
 
 /**
  * Check if sharded map has the key.
@@ -47,7 +58,7 @@ export function hasShardedMapKey<S, K, T>(
  * @returns The value or undefined if not found.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function getShardedMapKey<S, K, T>(
+export function $getShardedMapKey<S, K, T>(
   map: ShardedSignalsMap<S, K, T>,
   shardedKey: ShardedKey<S, K>
 ) {
@@ -62,7 +73,7 @@ export function getShardedMapKey<S, K, T>(
     return undefined
   }
 
-  return getMapKey(shardMap, key)
+  return $getMapKey(shardMap, key)
 }
 
 /**

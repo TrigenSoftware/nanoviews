@@ -3,19 +3,21 @@ import {
   effect,
   effectScope,
   onStart
-} from 'kida'
+} from '@nano_kit/store'
+import type { ClientSetting } from '../client.types.js'
 import type {
   CacheKey,
-  CacheKeyBuilder,
-  ClientSetting,
-  SignalsParams
-} from '../types/index.js'
+  CacheKeyBuilder
+} from '../cache.types.js'
 import type {
   ClientContext,
   QueryClientContext
 } from '../ClientContext.js'
 import type { QueryContext } from '../RequestContext.js'
-import { baseQuery } from './base.js'
+import {
+  type SignalsParams,
+  baseQuery
+} from './base.js'
 
 /**
  * Create a query that automatically fetches data when parameters change with cache management.

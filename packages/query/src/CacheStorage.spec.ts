@@ -5,7 +5,7 @@ import {
   expect,
   beforeEach
 } from 'vitest'
-import { effect } from 'kida'
+import { effect } from '@nano_kit/store'
 import { queryKey } from './cache.js'
 import { hasShardedMapKey } from './map.js'
 import {
@@ -56,7 +56,7 @@ describe('query', () => {
     describe('get', () => {
       it('should create entry for new key', () => {
         const key = queryKey('test')('a')
-        const entry = storage.get(key)
+        const entry = storage.$get(key)
 
         expect(entry).toEqual({
           rev: expect.any(Number),
@@ -71,14 +71,14 @@ describe('query', () => {
       it('should return existing entry', () => {
         const key = queryKey('test')('a')
 
-        expect(storage.get(key)).toBe(storage.get(key))
+        expect(storage.$get(key)).toBe(storage.$get(key))
       })
 
       it('should notify listeners on entry create', () => {
         const key = queryKey('test')('a')
         const listener = vi.fn()
         const off = effect(() => {
-          listener(storage.get(key).data)
+          listener(storage.$get(key).data)
         })
 
         expect(listener).toHaveBeenCalledTimes(1)
@@ -107,19 +107,19 @@ describe('query', () => {
 
         storage.set(key, entry)
 
-        expect(storage.get(key)).toBe(entry)
+        expect(storage.$get(key)).toBe(entry)
       })
 
       it('should update entry with updater function', () => {
         const key = queryKey('test')('a')
 
-        storage.get(key)
+        storage.$get(key)
         storage.set(key, entry => entry && {
           ...entry,
           data: 'updated'
         })
 
-        const entry = storage.get(key)
+        const entry = storage.$get(key)
 
         expect(entry.data).toBe('updated')
       })
@@ -131,7 +131,7 @@ describe('query', () => {
 
         const listener = vi.fn()
         const off = effect(() => {
-          listener(storage.get(key).data)
+          listener(storage.$get(key).data)
         })
 
         expect(listener).toHaveBeenCalledTimes(1)
@@ -150,7 +150,7 @@ describe('query', () => {
       it('should delete entry by key', () => {
         const key = queryKey('test')('a')
 
-        storage.get(key)
+        storage.$get(key)
 
         expect(hasShardedMapKey(storage.cache, key)).toBe(true)
 
@@ -164,8 +164,8 @@ describe('query', () => {
         const keyA = TestKey('a')
         const keyB = TestKey('b')
 
-        storage.get(keyA)
-        storage.get(keyB)
+        storage.$get(keyA)
+        storage.$get(keyB)
 
         expect(hasShardedMapKey(storage.cache, keyA)).toBe(true)
         expect(hasShardedMapKey(storage.cache, keyB)).toBe(true)
@@ -183,7 +183,7 @@ describe('query', () => {
 
         const listener = vi.fn()
         const off = effect(() => {
-          listener(storage.get(key).data)
+          listener(storage.$get(key).data)
         })
 
         expect(listener).toHaveBeenCalledTimes(1)
@@ -208,10 +208,10 @@ describe('query', () => {
         const listenerA = vi.fn()
         const listenerB = vi.fn()
         const offA = effect(() => {
-          listenerA(storage.get(keyA).data)
+          listenerA(storage.$get(keyA).data)
         })
         const offB = effect(() => {
-          listenerB(storage.get(keyB).data)
+          listenerB(storage.$get(keyB).data)
         })
 
         expect(listenerA).toHaveBeenCalledTimes(1)
@@ -246,7 +246,7 @@ describe('query', () => {
 
         storage.revalidate(key)
 
-        const entry = storage.get(key)
+        const entry = storage.$get(key)
 
         expect(entry.rev).toBe(UNSET_REV)
         expect(entry.dedupes).toBe(0)
@@ -268,7 +268,7 @@ describe('query', () => {
 
         const listener = vi.fn()
         const off = effect(() => {
-          listener(storage.get(key).data)
+          listener(storage.$get(key).data)
         })
 
         expect(listener).toHaveBeenCalledTimes(1)
@@ -378,7 +378,7 @@ describe('query', () => {
 
         storage.loading(key)
 
-        const entry = storage.get(key)
+        const entry = storage.$get(key)
 
         expect(entry.loading).toBe(true)
         expect(entry.error).toBe(null)
@@ -406,7 +406,7 @@ describe('query', () => {
 
         storage.loading(key)
 
-        const entry = storage.get(key)
+        const entry = storage.$get(key)
 
         expect(entry.loading).toBe(true)
         expect(entry.data).toBe('cached data')
@@ -426,7 +426,7 @@ describe('query', () => {
 
         storage.loading(key)
 
-        const entry = storage.get(key)
+        const entry = storage.$get(key)
 
         expect(entry.loading).toBe(true)
         expect(entry.data).toBe(null)
@@ -436,7 +436,7 @@ describe('query', () => {
         const key = queryKey('test')('a')
         const listener = vi.fn()
         const off = effect(() => {
-          listener(storage.get(key).loading)
+          listener(storage.$get(key).loading)
         })
 
         expect(listener).toHaveBeenCalledTimes(1)
@@ -462,7 +462,7 @@ describe('query', () => {
 
         storage.settled(key, 'result', null)
 
-        const entry = storage.get(key)
+        const entry = storage.$get(key)
 
         expect(entry.data).toBe('result')
         expect(entry.error).toBe(null)
@@ -483,7 +483,7 @@ describe('query', () => {
 
         storage.settled(key, null, 'error message')
 
-        const entry = storage.get(key)
+        const entry = storage.$get(key)
 
         expect(entry.data).toBe('previous data')
         expect(entry.error).toBe('error message')
@@ -496,11 +496,11 @@ describe('query', () => {
 
         storage.settled(key, 'first', null, rev)
 
-        expect(storage.get(key).data).toBe('first')
+        expect(storage.$get(key).data).toBe('first')
 
         storage.settled(key, 'second', null, rev + 1)
 
-        expect(storage.get(key).data).toBe('first')
+        expect(storage.$get(key).data).toBe('first')
       })
 
       it('should update dedupes and expires timestamps', () => {
@@ -509,7 +509,7 @@ describe('query', () => {
 
         storage.settled(key, 'result', null)
 
-        const entry = storage.get(key)
+        const entry = storage.$get(key)
 
         expect(entry.dedupes).toBeGreaterThanOrEqual(now + DEFAULT_DEDUPE_TIME)
         expect(entry.expires).toBe(Infinity)
@@ -521,13 +521,13 @@ describe('query', () => {
 
         const key = queryKey('test')('a')
 
-        storage.get(key)
+        storage.$get(key)
 
         const now = Date.now()
 
         storage.settled(key, 'result', null)
 
-        const entry = storage.get(key)
+        const entry = storage.$get(key)
 
         expect(entry.dedupes).toBeGreaterThanOrEqual(now + 1000)
         expect(entry.dedupes).toBeLessThanOrEqual(now + 1100)
@@ -539,7 +539,7 @@ describe('query', () => {
         const key = queryKey('test')('a')
         const listener = vi.fn()
         const off = effect(() => {
-          const entry = storage.get(key)
+          const entry = storage.$get(key)
 
           listener(entry.error || entry.data)
         })

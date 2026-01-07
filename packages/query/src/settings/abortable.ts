@@ -1,4 +1,4 @@
-import type { ClientSetting } from '../types/index.js'
+import type { ClientSetting } from '../client.types.js'
 import type { ClientContext } from '../ClientContext.js'
 import type { RequestContext } from '../RequestContext.js'
 

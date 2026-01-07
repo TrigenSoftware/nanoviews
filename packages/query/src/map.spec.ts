@@ -4,11 +4,11 @@ import {
   it,
   expect
 } from 'vitest'
-import { effect } from 'kida'
-import type { ShardedSignalsMap } from './types/index.js'
+import { effect } from '@nano_kit/store'
 import {
+  type ShardedSignalsMap,
   hasShardedMapKey,
-  getShardedMapKey,
+  $getShardedMapKey,
   setShardedMapKey,
   deleteShardedMapKey
 } from './map.js'
@@ -74,7 +74,7 @@ describe('query', () => {
           key: 'a'
         }
 
-        expect(getShardedMapKey(cache, key)).toBeUndefined()
+        expect($getShardedMapKey(cache, key)).toBeUndefined()
       })
 
       it('should return undefined for shard-only key', () => {
@@ -85,7 +85,7 @@ describe('query', () => {
           key: 'a'
         }, 42)
 
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: undefined
         })).toBeUndefined()
@@ -100,7 +100,7 @@ describe('query', () => {
 
         setShardedMapKey(cache, key, 42)
 
-        expect(getShardedMapKey(cache, key)).toBe(42)
+        expect($getShardedMapKey(cache, key)).toBe(42)
       })
 
       it('should return undefined for non-existing key', () => {
@@ -111,7 +111,7 @@ describe('query', () => {
           key: 'a'
         }, 42)
 
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'b'
         })).toBeUndefined()
@@ -125,7 +125,7 @@ describe('query', () => {
         }
         const listener = vi.fn()
         const off = effect(() => {
-          listener(getShardedMapKey(cache, key))
+          listener($getShardedMapKey(cache, key))
         })
 
         expect(listener).toHaveBeenCalledTimes(1)
@@ -150,7 +150,7 @@ describe('query', () => {
 
         const listener = vi.fn()
         const off = effect(() => {
-          listener(getShardedMapKey(cache, key))
+          listener($getShardedMapKey(cache, key))
         })
 
         expect(listener).toHaveBeenCalledTimes(1)
@@ -175,7 +175,7 @@ describe('query', () => {
 
         const listener = vi.fn()
         const off = effect(() => {
-          listener(getShardedMapKey(cache, key))
+          listener($getShardedMapKey(cache, key))
         })
 
         expect(listener).toHaveBeenCalledTimes(1)
@@ -203,7 +203,7 @@ describe('query', () => {
 
         setShardedMapKey(cache, key, 42)
 
-        expect(getShardedMapKey(cache, key)).toBe(42)
+        expect($getShardedMapKey(cache, key)).toBe(42)
       })
 
       it('should update value for existing key', () => {
@@ -215,11 +215,11 @@ describe('query', () => {
 
         setShardedMapKey(cache, key, 42)
 
-        expect(getShardedMapKey(cache, key)).toBe(42)
+        expect($getShardedMapKey(cache, key)).toBe(42)
 
         setShardedMapKey(cache, key, 100)
 
-        expect(getShardedMapKey(cache, key)).toBe(100)
+        expect($getShardedMapKey(cache, key)).toBe(100)
       })
 
       it('should set value with updater function', () => {
@@ -231,11 +231,11 @@ describe('query', () => {
 
         setShardedMapKey(cache, key, 42)
 
-        expect(getShardedMapKey(cache, key)).toBe(42)
+        expect($getShardedMapKey(cache, key)).toBe(42)
 
         setShardedMapKey(cache, key, prev => (prev ?? 0) + 10)
 
-        expect(getShardedMapKey(cache, key)).toBe(52)
+        expect($getShardedMapKey(cache, key)).toBe(52)
       })
 
       it('should update all entries in shard when key is undefined', () => {
@@ -254,15 +254,15 @@ describe('query', () => {
           key: 'c'
         }, 3)
 
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'a'
         })).toBe(1)
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'b'
         })).toBe(2)
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'c'
         })).toBe(3)
@@ -272,15 +272,15 @@ describe('query', () => {
           key: undefined
         }, 100)
 
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'a'
         })).toBe(100)
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'b'
         })).toBe(100)
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'c'
         })).toBe(100)
@@ -305,7 +305,7 @@ describe('query', () => {
         }
         const listener = vi.fn()
         const off = effect(() => {
-          listener(getShardedMapKey(cache, key))
+          listener($getShardedMapKey(cache, key))
         })
 
         expect(listener).toHaveBeenCalledTimes(1)
@@ -330,7 +330,7 @@ describe('query', () => {
 
         setShardedMapKey(cache, key, 42)
 
-        expect(getShardedMapKey(cache, key)).toBe(42)
+        expect($getShardedMapKey(cache, key)).toBe(42)
 
         deleteShardedMapKey(cache, key)
 
@@ -349,11 +349,11 @@ describe('query', () => {
           key: 'b'
         }, 2)
 
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'a'
         })).toBe(1)
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'b'
         })).toBe(2)
@@ -363,11 +363,11 @@ describe('query', () => {
           key: undefined
         })
 
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'a'
         })).toBeUndefined()
-        expect(getShardedMapKey(cache, {
+        expect($getShardedMapKey(cache, {
           shard: 'test',
           key: 'b'
         })).toBeUndefined()
@@ -384,7 +384,7 @@ describe('query', () => {
 
         const listener = vi.fn()
         const off = effect(() => {
-          listener(getShardedMapKey(cache, key))
+          listener($getShardedMapKey(cache, key))
         })
 
         expect(listener).toHaveBeenCalledTimes(1)

@@ -9,7 +9,7 @@ import {
   type TasksPool,
   effect,
   signal
-} from 'kida'
+} from '@nano_kit/store'
 import {
   queryKey,
   operationKey

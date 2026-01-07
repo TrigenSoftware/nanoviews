@@ -1,14 +1,14 @@
 import {
+  type ReadableSignal,
   action,
   computed,
   mountable
-} from 'kida'
+} from '@nano_kit/store'
+import type { ClientSetting } from '../client.types.js'
 import type {
   CacheKey,
-  CacheKeyBuilder,
-  ClientSetting,
-  SignalsParams
-} from '../types/index.js'
+  CacheKeyBuilder
+} from '../cache.types.js'
 import { UNSET_REV } from '../CacheStorage.js'
 import {
   type ClientContext,
@@ -16,6 +16,10 @@ import {
   forkQueryClient
 } from '../ClientContext.js'
 import { QueryContext } from '../RequestContext.js'
+
+export type SignalsParams<T extends unknown[]> = T extends [infer First, ...infer Rest]
+  ? [ReadableSignal<First>, ...SignalsParams<Rest>]
+  : []
 
 /* @__NO_SIDE_EFFECTS__ */
 export function baseQuery<
@@ -44,7 +48,7 @@ export function baseQuery<
     return nextKey
   })
   const clientCtx = forkQueryClient<R>(rootCtx, $key, settings)
-  const $entry = computed(() => clientCtx.get($key()))
+  const $entry = computed(() => clientCtx.$get($key()))
   /**
    * Changes on every entry rev reset
    */

@@ -6,8 +6,8 @@ import {
   mountable,
   readonly,
   signal
-} from 'kida'
-import type { ClientSetting } from '../types/index.js'
+} from '@nano_kit/store'
+import type { ClientSetting } from '../client.types.js'
 import {
   type ClientContext,
   type MutationClientContext,

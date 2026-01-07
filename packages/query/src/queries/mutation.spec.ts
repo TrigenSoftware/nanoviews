@@ -8,7 +8,7 @@ import {
 import {
   type TasksPool,
   effect
-} from 'kida'
+} from '@nano_kit/store'
 import {
   dedupe,
   onEveryError

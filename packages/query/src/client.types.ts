@@ -2,7 +2,7 @@ import type {
   ClientContext,
   QueryClientContext,
   MutationClientContext
-} from '../ClientContext.js'
+} from './ClientContext.js'
 
 export type ClientSetting<T extends QueryClientContext | MutationClientContext = QueryClientContext | MutationClientContext> = (ctx: T) => void
 

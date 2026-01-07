@@ -2,21 +2,23 @@ import {
   type ReadableSignal,
   effectScope,
   onStart
-} from 'kida'
+} from '@nano_kit/store'
+import type { ClientSetting } from '../client.types.js'
 import type {
   CacheKey,
   CacheKeyBuilder,
-  ExtrasCacheKeyBuilder,
-  ClientSetting,
-  SignalsParams
-} from '../types/index.js'
+  ExtrasCacheKeyBuilder
+} from '../cache.types.js'
 import type { QueryContext } from '../RequestContext.js'
 import {
   type ClientContext,
   type QueryClientContext,
   dedupe
 } from '../ClientContext.js'
-import { baseQuery } from './base.js'
+import {
+  type SignalsParams,
+  baseQuery
+} from './base.js'
 
 /**
  * Create an operation that do requests on demand with cache management.

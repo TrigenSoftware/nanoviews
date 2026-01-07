@@ -4,19 +4,21 @@ import {
   effect,
   effectScope,
   onStart
-} from 'kida'
+} from '@nano_kit/store'
+import type { ClientSetting } from '../client.types.js'
 import type {
   CacheKey,
-  CacheKeyBuilder,
-  ClientSetting,
-  SignalsParams
-} from '../types/index.js'
+  CacheKeyBuilder
+} from '../cache.types.js'
 import type {
   ClientContext,
   QueryClientContext
 } from '../ClientContext.js'
 import type { QueryContext } from '../RequestContext.js'
-import { baseQuery } from './base.js'
+import {
+  type SignalsParams,
+  baseQuery
+} from './base.js'
 
 export interface InfinitePages<P, C> {
   pages: P[]
@@ -98,7 +100,7 @@ export function infinite<P extends unknown[], C, R>(
     $loading
   } = baseQuery<P, [cursor: C | undefined], InfinitePages<R, C>>(this, key, params, async (...args) => {
     const queryCtx = args[args.length - 1] as QueryContext<P, InfinitePages<R, C>>
-    const data = clientCtx.get(queryCtx).data as InfinitePages<R, C> | null
+    const data = clientCtx.$get(queryCtx).data as InfinitePages<R, C> | null
     const page = await fn(...args)
     const nextValue = next(page)
 

@@ -1,11 +1,13 @@
-import type { NewValue } from 'kida'
+import type { NewValue } from '@nano_kit/store'
 import type {
   CacheKeyBuilder,
   CacheDataFacade,
   CacheKey,
   ExtrasCacheKeyBuilder
-} from './types/index.js'
+} from './cache.types.js'
 import type { CacheStorage } from './CacheStorage.js'
+
+export * from './cache.types.js'
 
 /**
  * Create a query cache key builder.
@@ -72,7 +74,7 @@ function dataCacheGetterSetter<P extends unknown[], R>(
         : newValue
     }))
   } else {
-    return this.get(key).data as R | null
+    return this.$get(key).data as R | null
   }
 }
 
@@ -83,7 +85,7 @@ function dataCacheGetterSetter<P extends unknown[], R>(
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function loadingCacheFacade(cache: CacheStorage) {
-  return (key: CacheKey) => cache.get(key).loading
+  return (key: CacheKey) => cache.$get(key).loading
 }
 
 /**
@@ -93,5 +95,5 @@ export function loadingCacheFacade(cache: CacheStorage) {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function errorCacheFacade(cache: CacheStorage) {
-  return (key: CacheKey) => cache.get(key).error
+  return (key: CacheKey) => cache.$get(key).error
 }

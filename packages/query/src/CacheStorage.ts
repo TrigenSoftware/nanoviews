@@ -1,16 +1,18 @@
-import type { NewValue } from 'kida'
+import type { NewValue } from '@nano_kit/store'
 import type {
   CacheMap,
   CacheShardKey,
   CacheKey,
   CacheEntry
-} from './types/index.js'
+} from './CacheStorage.types.js'
 import {
   hasShardedMapKey,
-  getShardedMapKey,
+  $getShardedMapKey,
   setShardedMapKey,
   deleteShardedMapKey
 } from './map.js'
+
+export * from './CacheStorage.types.js'
 
 export const DEFAULT_DEDUPE_TIME = 4_000
 export const DEFAULT_CACHE_TIME = Infinity
@@ -51,14 +53,14 @@ export class CacheStorage {
     }
   }
 
-  get(key: CacheKey) {
+  $get(key: CacheKey) {
     const cache = this.cache
 
     if (!hasShardedMapKey(cache, key)) {
       setShardedMapKey(cache, key, this.initial())
     }
 
-    const result = getShardedMapKey(cache, key)!
+    const result = $getShardedMapKey(cache, key)!
 
     return result
   }

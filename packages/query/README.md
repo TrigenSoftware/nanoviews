@@ -25,16 +25,16 @@
 [coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nanoviews.svg
 [coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nanoviews
 
-A small and powerful remote data manager for [Kida](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida) state manager.
+A small and powerful remote data manager for [@nano_kit/store](../store/) state manager.
 
 - **Small**. Minimal footprint with tree-shakable architecture.
 - **Type-safe**. Full TypeScript support with type inference for queries and mutations.
-- **Signal-based**. Built on top of Kida's reactive signals for automatic UI updates.
+- **Signal-based**. Built on top of [@nano_kit/store](../store/)'s reactive signals for automatic UI updates.
 - **Flexible**. Supports queries, infinite queries, mutations, and operations with cache management.
 - **Extensible**. Customizable with settings and extensions.
 
 ```ts
-import { signal, effect } from 'kida'
+import { signal, effect } from '@nano_kit/store'
 import { queryKey, client } from '@nano_kit/query'
 
 // Define query cache key
@@ -72,11 +72,11 @@ effect(() => {
 ## Install
 
 ```bash
-pnpm add kida @nano_kit/query
+pnpm add @nano_kit/store @nano_kit/query
 # or
-npm i kida @nano_kit/query
+npm i @nano_kit/store @nano_kit/query
 # or
-yarn add kida @nano_kit/query
+yarn add @nano_kit/store @nano_kit/query
 ```
 
 ## Basics
@@ -132,7 +132,7 @@ $data(PostKey(1), newPostData) // update post with ID 1 in the cache
 `query` creates a reactive query that automatically fetches data when mounted and refetches when parameters change:
 
 ```ts
-import { signal, effect } from 'kida'
+import { signal, effect } from '@nano_kit/store'
 import { client } from '@nano_kit/query'
 
 const PostKey = queryKey<[postId: number], Post | null>('post')
@@ -205,7 +205,7 @@ Post: { ...updated post data... }
 `mutation` creates a method for data modifications:
 
 ```ts
-import { signal } from 'kida'
+import { signal } from '@nano_kit/store'
 import { client, mutations, queryKey } from '@nano_kit/query'
 
 const PostKey = queryKey<[postId: number], Post | null>('post')
@@ -340,7 +340,7 @@ const [updatePost] = mutation<[params: UpdatePostParams], Post>(PostsService.upd
 The `disabled` setting allows you to disable requests based on a signal. When the signal is `true`, requests will not be made.
 
 ```ts
-import { signal } from 'kida'
+import { signal } from '@nano_kit/store'
 import { client, disabled } from '@nano_kit/query'
 
 const { query } = client()
@@ -689,7 +689,7 @@ updatePost({
 To await all client tasks completion, you can use the `tasks` extension that adds task tracking to the client:
 
 ```ts
-import { type TasksPool, tasksRunner, waitTasks } from 'kida/tasks'
+import { type TasksPool, tasksRunner, waitTasks } from '@nano_kit/store'
 import { client, tasks } from '@nano_kit/query'
 
 const tasksPool = new Set()

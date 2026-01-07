@@ -1,10 +1,11 @@
-import type {
-  CacheKey,
-  OnSuccess,
-  OnError,
-  OnSettled
-} from './types/index.js'
+import type { CacheKey } from './CacheStorage.types.js'
 import { addFn } from './utils.js'
+
+export type OnSuccess<T> = (data: T) => void
+
+export type OnError = (error: unknown) => void
+
+export type OnSettled<T> = (data: T | undefined, error: unknown) => void
 
 export class RequestContext<T> {
   onSuccess: OnSuccess<T> | undefined = undefined

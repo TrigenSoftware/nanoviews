@@ -62,13 +62,13 @@
     "test": "run -p lint test:unit test:types"
   },
   "peerDependencies": {
-    "kida": "workspace:^"
+    "@nano_kit/store": "workspace:^"
   },
   "devDependencies": {
+    "@nano_kit/store": "workspace:^",
     "@size-limit/preset-small-lib": "^11.1.6",
     "@vitest/coverage-v8": "^3.0.0",
     "fake-indexeddb": "^6.2.5",
-    "kida": "workspace:^",
     "size-limit": "^11.1.6",
     "typescript": "^5.3.3",
     "vite": "^7.0.0",

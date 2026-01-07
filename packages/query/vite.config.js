@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
+import { DEV } from '../../scripts/index.js'
 
 export default defineConfig({
   build: {
@@ -11,10 +12,10 @@ export default defineConfig({
       }
     },
     rollupOptions: {
-      external: ['kida']
+      external: ['@nano_kit/store']
     },
     sourcemap: true,
-    minify: false,
+    minify: !DEV && 'esbuild',
     emptyOutDir: false
   },
   test: {
