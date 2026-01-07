@@ -13,8 +13,8 @@ import {
   layout,
   notFound,
   buildPaths
-} from '@kidajs/router'
-import { useSignal } from '@kidajs/react'
+} from '@nano_kit/router'
+import { useSignal } from '@nano_kit/react'
 import {
   router,
   Outlet,
@@ -22,7 +22,7 @@ import {
   app
 } from './index.js'
 
-describe('kida-react-router', () => {
+describe('react-router', () => {
   describe('router', () => {
     it('should match correct page component based on route', () => {
       const [$location, navigation] = virtualNavigation('/', {

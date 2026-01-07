@@ -12,11 +12,11 @@ import {
   type InjectionFactory,
   type ReadableSignal,
   signal
-} from 'kida'
+} from '@nano_kit/store'
 import {
   useSignal,
   useInject
-} from '@kidajs/react'
+} from '@nano_kit/react'
 import {
   type LayoutMatchRef,
   type Navigation,
@@ -29,10 +29,10 @@ import {
   loadPage,
   onLinkClick,
   router as vanillaRouter,
-  router$$ as vanillaRouter$$
-} from '@kidajs/router'
+  router$ as vanillaRouter$
+} from '@nano_kit/router'
 
-export * from '@kidajs/router'
+export * from '@nano_kit/router'
 
 export type PageComponent = () => ReactNode
 
@@ -85,12 +85,12 @@ export function router<R extends Routes, K extends keyof R & string>(
 
 /**
  * Creates a current route matching page and layout injection factory.
- * @param $Location - Injection factory for the route location record.
+ * @param Location$ - Injection factory for the route location record.
  * @param pages - Array of page and layout match references.
  * @returns Tuple of page injection factory and stores preload injection factory.
  */
-export function router$$<R extends Routes, K extends keyof R & string>(
-  $Location: InjectionFactory<RouteLocationRecord<R>>,
+export function router$<R extends Routes, K extends keyof R & string>(
+  Location$: InjectionFactory<RouteLocationRecord<R>>,
   pages: (
     | PageMatchRef<NoInfer<K>, PageComponent>
     | PageMatchRef<null, PageComponent>
@@ -100,7 +100,7 @@ export function router$$<R extends Routes, K extends keyof R & string>(
   InjectionFactory<ReadableSignal<PageComponent | null>>,
   InjectionFactory<StoresPreload>
 ] {
-  return vanillaRouter$$($Location, pages, compose)
+  return vanillaRouter$(Location$, pages, compose)
 }
 
 /**
@@ -132,31 +132,31 @@ export function app<R extends Routes, K extends keyof R & string>(
 /**
  * Creates a React application component that renders the matched page based on the current route.
  * Notice: App should be used within a dependency injection context.
- * @param $Location - Injection factory for the route location record.
+ * @param Location$ - Injection factory for the route location record.
  * @param pages - Array of page and layout match references.
  * @returns React application component and stores preload injection factory.
  */
-export function app$$<R extends Routes, K extends keyof R & string>(
-  $Location: InjectionFactory<RouteLocationRecord<R>>,
+export function app$<R extends Routes, K extends keyof R & string>(
+  Location$: InjectionFactory<RouteLocationRecord<R>>,
   pages: (
     | PageMatchRef<NoInfer<K>, PageComponent>
     | PageMatchRef<null, PageComponent>
     | LayoutMatchRef<NoInfer<K>, PageComponent, PageComponent>
   )[]
 ) {
-  const [$Page, $StoresToPreload] = router$$($Location, pages)
+  const [Page$, StoresToPreload$] = router$(Location$, pages)
 
   /**
    * React application component.
    */
   return [
     function App() {
-      const $page = useInject($Page)
+      const $page = useInject(Page$)
       const Page = useSignal($page)
 
       return Page && <Page/>
     },
-    $StoresToPreload
+    StoresToPreload$
   ] as const
 }
 
@@ -321,18 +321,18 @@ export function link<R extends Routes>(
 /**
  * Creates a Link component for navigation.
  * Notice: Link should be used within a dependency injection context.
- * @param $Navigation - Injection factory for the navigation object.
+ * @param Navigation$ - Injection factory for the navigation object.
  * @param paths - Path builders for routes
  * @param usePreload - Preload hook for preloading pages
  * @returns Link component for navigation.
  */
-export function link$$<R extends Routes>(
-  $Navigation: InjectionFactory<Navigation>,
+export function link$<R extends Routes>(
+  Navigation$: InjectionFactory<Navigation>,
   paths: Paths<R>,
   usePreload?: ReturnType<typeof preloadable>
 ) {
   return createLink(() => {
-    const navigation = useInject($Navigation)
+    const navigation = useInject(Navigation$)
 
     return useMemo(() => onLinkClick.bind(navigation), [navigation])
   }, paths, usePreload)
