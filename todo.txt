@@ -1,13 +1,10 @@
-- REMOVE SYMBOLS
-
-- Return dev builds with debug features, prod build - less size - ?
-- update eslint rules
-- cleanup naming. Should mark everything that can subscribe on effect with $ at beginning
-  - can subscribe to effect while call
-  - DI factory
-  - returns and accepts DI factories
-  - nanovies operators/stuff functions
-- rename packages, use nano_kit org
+- migrate examples
+  - rick-and-morty-react
+  - wearher-nanoviews - nano_kit store + query
+  - wearher-nanoviews-di - nano_kit store + query
+  - weather-solid - nanostores query
+  - weather-svelte - nanostores query
+  - add new example CV APP
 - docs website
 - first spa only beta release of nano_kit
 
@@ -23,8 +20,12 @@
 - controls addEventListener to events system
 - static index for untracked loop?
 
-for$($items)(
-  as$(record, ($item) => li()($item.$name))
+for_($items)(
+  as_(record, ($item) => li()($item.$name))
+)
+
+for_($items)(
+  asRecord(($item) => li()($item.$name))
 )
 
 ## Kida/Agera
