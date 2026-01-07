@@ -5,6 +5,7 @@
 | [`nanoviews`](packages/nanoviews#readme) | [![NPM version][nanoviews-npm]][nanoviews-npm-url] | [![Dependencies status][nanoviews-deps]][nanoviews-deps-url] |
 | [`agera`](packages/agera#readme) | [![NPM version][agera-npm]][agera-npm-url] | [![Dependencies status][agera-deps]][agera-deps-url] |
 | [`kida`](packages/kida#readme) | [![NPM version][kida-npm]][kida-npm-url] | [![Dependencies status][kida-deps]][kida-deps-url] |
+| [`@nano_kit/store`](packages/store#readme) | [![NPM version][store-npm]][store-npm-url] | [![Dependencies status][store-deps]][store-deps-url] |
 | [`@nano_kit/react`](packages/react#readme) | [![NPM version][react-npm]][react-npm-url] | [![Dependencies status][react-deps]][react-deps-url] |
 | [`@nano_kit/router`](packages/router#readme) | [![NPM version][router-npm]][router-npm-url] | [![Dependencies status][router-deps]][router-deps-url] |
 | [`@nano_kit/react-router`](packages/react-router#readme) | [![NPM version][react-router-npm]][react-router-npm-url] | [![Dependencies status][react-router-deps]][react-router-deps-url] |
@@ -33,6 +34,14 @@
 
 [kida-deps]: https://img.shields.io/librariesio/release/npm/kida
 [kida-deps-url]: https://libraries.io/npm/kida/tree
+
+<!-- store -->
+
+[store-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fstore.svg
+[store-npm-url]: https://npmjs.com/package/@nano_kit/store
+
+[store-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Fstore
+[store-deps-url]: https://libraries.io/npm/%40nano_kit%2Fstore/tree
 
 <!-- react -->
 
