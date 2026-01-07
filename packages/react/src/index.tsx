@@ -5,7 +5,7 @@ import {
   InjectionContext,
   inject,
   effect
-} from 'kida'
+} from '@nano_kit/store'
 import {
   type ReactNode,
   useCallback,

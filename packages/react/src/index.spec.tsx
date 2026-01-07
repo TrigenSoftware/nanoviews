@@ -11,7 +11,7 @@ import {
   type ReadableSignal,
   signal,
   provide
-} from 'kida'
+} from '@nano_kit/store'
 import {
   useSignal,
   InjectionContextProvider,
@@ -49,12 +49,12 @@ describe('kida-react', () => {
     it('should provide dependency', () => {
       const $count = signal(0)
 
-      function $Factory(): ReadableSignal<number> | null {
+      function Factory$(): ReadableSignal<number> | null {
         return null
       }
 
       function Test() {
-        const $count = useInject($Factory)!
+        const $count = useInject(Factory$)!
         const count = useSignal($count)
 
         return (
@@ -66,7 +66,7 @@ describe('kida-react', () => {
 
       const { container } = render(
         <InjectionContextProvider
-          context={[provide($Factory, $count)]}
+          context={[provide(Factory$, $count)]}
         >
           <Test/>
         </InjectionContextProvider>
@@ -84,12 +84,12 @@ describe('kida-react', () => {
     it('should inject dependency', () => {
       const $count = signal(0)
 
-      function $Factory() {
+      function Factory$() {
         return $count
       }
 
       function Test() {
-        const $count = useInject($Factory)
+        const $count = useInject(Factory$)
         const count = useSignal($count)
 
         return (

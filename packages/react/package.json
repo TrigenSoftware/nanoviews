@@ -1,16 +1,16 @@
 {
-  "name": "@kidajs/react",
+  "name": "@nano_kit/react",
   "type": "module",
   "version": "1.0.0-alpha.3",
-  "description": "Kida integration for React.",
+  "description": "@nano_kit/stores integration for React.",
   "author": "dangreen",
   "license": "MIT",
-  "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida-react#readme",
+  "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/react#readme",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",
     "url": "https://github.com/TrigenSoftware/nanoviews.git",
-    "directory": "packages/kida-react"
+    "directory": "packages/react"
   },
   "bugs": {
     "url": "https://github.com/TrigenSoftware/nanoviews/issues"
@@ -62,10 +62,11 @@
     "test": "run -p lint test:unit test:types"
   },
   "peerDependencies": {
-    "kida": "workspace:^",
+    "@nano_kit/store": "workspace:^",
     "react": "^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@nano_kit/store": "workspace:^",
     "@size-limit/preset-small-lib": "^11.1.6",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -74,7 +75,6 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^3.0.0",
     "happy-dom": "^18.0.0",
-    "kida": "workspace:^",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "size-limit": "^11.1.6",

@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { DEV } from '../../scripts/index.js'
 
 export default defineConfig({
   plugins: [react()],
@@ -16,11 +17,11 @@ export default defineConfig({
       external: [
         'react',
         'react/jsx-runtime',
-        'kida'
+        '@nano_kit/store'
       ]
     },
     sourcemap: true,
-    minify: false,
+    minify: !DEV && 'esbuild',
     emptyOutDir: false
   },
   test: {
