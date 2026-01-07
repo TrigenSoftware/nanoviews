@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
 import { b } from '../elements/elements.js'
-import { if$ } from './if.js'
+import { if_ } from './if.js'
 
 const meta: Meta<{
   value: boolean
 }> = {
-  title: 'Logic/if$'
+  title: 'Logic/if_'
 }
 
 export default meta
@@ -14,7 +14,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
-  render: nanoStory(() => if$(true)(
+  render: nanoStory(() => if_(true)(
     () => b()('True'),
     () => 'False'
   ))
@@ -24,7 +24,7 @@ export const ReactiveValue: Story = {
   args: {
     value: true
   },
-  render: nanoStory(({ value }) => if$(value)(
+  render: nanoStory(({ value }) => if_(value)(
     $val => b()('True: ', $val),
     () => 'False'
   ))
@@ -34,7 +34,7 @@ export const ReactiveValueThenOnly: Story = {
   args: {
     value: true
   },
-  render: nanoStory(({ value }) => if$(value)(
+  render: nanoStory(({ value }) => if_(value)(
     $val => b()('True: ', $val)
   ))
 }

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
 import { signal } from 'kida'
 import { textarea } from './elements.js'
-import { autoFocus$ } from './autoFocus.js'
+import { $$autoFocus } from './autoFocus.js'
 
 const meta: Meta = {
   title: 'Elements/Effect Attributes/Auto Focus'
@@ -14,12 +14,12 @@ type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
   render: nanoStory(() => textarea({
-    [autoFocus$]: true
+    [$$autoFocus]: true
   })('Hello, world!'))
 }
 
 export const ReactiveValue: Story = {
   render: nanoStory(() => textarea({
-    [autoFocus$]: signal(true)
+    [$$autoFocus]: signal(true)
   })('Hello, world!'))
 }

@@ -28,7 +28,8 @@ export default [
       'no-return-assign': 'off',
       'no-multi-assign': 'off',
       '@typescript-eslint/prefer-string-starts-ends-with': 'off',
-      'no-param-reassign': 'off'
+      'no-param-reassign': 'off',
+      '@typescript-eslint/naming-convention': 'off'
     }
   }
 ]

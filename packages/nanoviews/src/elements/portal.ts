@@ -9,7 +9,7 @@ import {
  * @param target
  * @param child
  */
-export function portal$(target: () => ParentNode, child: Child) {
+export function portal(target: () => ParentNode, child: Child) {
   const unmount = mountChild(target(), child)
 
   if (unmount !== undefined) {

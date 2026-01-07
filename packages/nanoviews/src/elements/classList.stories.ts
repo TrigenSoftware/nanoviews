@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
 import { when } from 'kida'
 import { button, div } from './elements.js'
-import { classList$ } from './classList.js'
+import { $$classList } from './classList.js'
 
 const meta: Meta = {
   title: 'Elements/Effect Attributes/Class List'
@@ -14,7 +14,7 @@ type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
   render: nanoStory(() => div({
-    [classList$]: [
+    [$$classList]: [
       'class1',
       false,
       'class3'
@@ -39,7 +39,7 @@ export const ReactiveValue: StoryObj<{
     rounded: false
   },
   render: nanoStory(({ primary, rounded }) => button({
-    [classList$]: [
+    [$$classList]: [
       'button',
       when(primary, 'primary', 'regular'),
       when(rounded, 'rounded')

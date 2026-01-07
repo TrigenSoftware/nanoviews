@@ -10,7 +10,7 @@ import * as Stories from './portal.stories.js'
 const { Default } = composeStories(Stories)
 
 describe('nanoviews', () => {
-  describe('logic', () => {
+  describe('elements', () => {
     describe('portal', () => {
       it('should portal block to target', () => {
         render(Default())

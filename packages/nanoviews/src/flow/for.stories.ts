@@ -3,14 +3,14 @@ import { effect, record } from 'kida'
 import { nanoStory } from '@nanoviews/storybook'
 import { ul, li } from '../elements/elements.js'
 import {
-  for$,
+  for_,
   trackById
 } from './for.js'
 
 const meta: Meta<{
   items: string[]
 }> = {
-  title: 'Logic/for$'
+  title: 'Logic/for_'
 }
 
 export default meta
@@ -19,7 +19,7 @@ type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
   render: nanoStory(() => ul()(
-    for$([
+    for_([
       'Yatoro',
       'Larl',
       'Collapse',
@@ -42,7 +42,7 @@ export const ReactiveValue: Story = {
     ]
   },
   render: nanoStory(({ items }) => ul()(
-    for$(items)(
+    for_(items)(
       item => li()(item),
       () => li()('No items')
     )
@@ -83,7 +83,7 @@ export const EntitiesValue: StoryObj<{
     ]
   },
   render: nanoStory(({ onEffect, items }) => ul()(
-    for$(items, trackById)(
+    for_(items, trackById)(
       (item) => {
         const { $name } = record(item)
 

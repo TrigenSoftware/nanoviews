@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 import {
   type ValueOrAccessor,
-  get
+  $get
 } from 'kida'
 import {
   type FalsyValue,
@@ -29,11 +29,11 @@ function cx(parts: unknown[]) {
 /**
  * Effect attribute to set class list on element
  */
-export const classList$ = /* @__PURE__ */ createEffectAttribute<'classList$', HTMLElement, ClassList>(
-  'classList$',
+export const $$classList = /* @__PURE__ */ createEffectAttribute<'$$classList', HTMLElement, ClassList>(
+  '$$classList',
   (element, parts) => {
     subscribeAccessor(
-      () => cx(parts.map(get)),
+      () => cx(parts.map($get)),
       className => element.className = className
     )
   }
@@ -41,10 +41,10 @@ export const classList$ = /* @__PURE__ */ createEffectAttribute<'classList$', HT
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
-    classList$: ClassList
+    $$classList: ClassList
   }
 
   interface EffectAttributeTargets {
-    classList$: HTMLElement
+    $$classList: HTMLElement
   }
 }

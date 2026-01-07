@@ -51,48 +51,48 @@ type StaticEach<T> = (
 
 type UnknownTrack = (item: unknown, index: number) => unknown
 
-export function for$<T>(
+export function for_<T>(
   $items: WritableSignal<T[]>,
   track?: (item: T, index: number) => unknown
 ): (
-  each$: WritableEach<T>,
-  $else?: () => Child
+  each_: WritableEach<T>,
+  else_?: () => Child
 ) => Child
 
-export function for$<T>(
+export function for_<T>(
   $items: Accessor<T[]>,
   track?: (item: T, index: number) => unknown
 ): (
-  each$: ReadableEach<T>,
-  $else?: () => Child
+  each_: ReadableEach<T>,
+  else_?: () => Child
 ) => Child
 
-export function for$<T>(
+export function for_<T>(
   $items: T[]
 ): (
-  each$: StaticEach<T>,
-  $else?: () => Child
+  each_: StaticEach<T>,
+  else_?: () => Child
 ) => Child
 
 /**
  * Iterate over items and render each item
  * @param $items - Target items
  * @param track - Tracker function to identify items
- * @returns Function to receive each$ and else$ functions
+ * @returns Function to receive each_ and else_ functions
  */
-export function for$(
+export function for_(
   $items: unknown[] | Accessor<unknown[]>,
   track?: UnknownTrack
 ) {
   if (isAccessor($items)) {
     return (
-      each$: AnyEach,
-      else$?: () => Child
-    ) => loop($items, each$, else$, track)
+      each_: AnyEach,
+      else_?: () => Child
+    ) => loop($items, each_, else_, track)
   }
 
   return (
-    each$: StaticEach<unknown>,
-    else$?: () => Child
-  ) => ($items?.length ? fragment(...$items.map(each$)) : else$?.())
+    each_: StaticEach<unknown>,
+    else_?: () => Child
+  ) => ($items?.length ? fragment(...$items.map(each_)) : else_?.())
 }

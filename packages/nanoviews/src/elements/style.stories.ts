@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
 import { div } from './elements.js'
-import { style$ } from './style.js'
+import { $$style } from './style.js'
 
 const meta: Meta<{
   color: string
@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
   render: nanoStory(() => div({
-    [style$]: {
+    [$$style]: {
       color: 'green'
     }
   })('Hello, world!'))
@@ -26,7 +26,7 @@ export const ReactiveValue: Story = {
     color: 'green'
   },
   render: nanoStory(({ color }) => div({
-    [style$]: {
+    [$$style]: {
       color
     }
   })('Hello, world!'))

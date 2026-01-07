@@ -14,22 +14,22 @@ import {
  * @param $value - Static value or store
  * @returns Function that accepts then and else functions and returns Block that renders decided child
  */
-export function if$<T>($value: T) {
+export function if_<T>($value: T) {
   /**
    * Decide which child to render based on condition
-   * @param then$ - Function that returns child if condition is true
-   * @param else$ - Function that returns child if condition is false
+   * @param then_ - Function that returns child if condition is true
+   * @param else_ - Function that returns child if condition is false
    * @returns Block that renders decided child
    */
   return (
-    then$: (value: TruthyValueOrSignal<T>) => Child,
-    else$?: (value: FalsyValueOrSignal<T>) => Child
+    then_: (value: TruthyValueOrSignal<T>) => Child,
+    else_?: (value: FalsyValueOrSignal<T>) => Child
   ) => decide(
     isAccessor($value) ? boolean($value) : $value as boolean,
     confition => (
       confition
-        ? then$($value as TruthyValueOrSignal<T>)
-        : else$?.($value as FalsyValueOrSignal<T>)
+        ? then_($value as TruthyValueOrSignal<T>)
+        : else_?.($value as FalsyValueOrSignal<T>)
     )
   )
 }

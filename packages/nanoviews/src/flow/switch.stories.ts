@@ -2,15 +2,15 @@ import type { Meta, StoryObj } from '@nanoviews/storybook'
 import { nanoStory } from '@nanoviews/storybook'
 import { b } from '../elements/elements.js'
 import {
-  switch$,
-  case$,
-  default$
+  switch_,
+  case_,
+  default_
 } from './switch.js'
 
 const meta: Meta<{
   state: 'loading' | 'success' | 'error'
 }> = {
-  title: 'Logic/switch$'
+  title: 'Logic/switch_'
 }
 
 export default meta
@@ -18,10 +18,10 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
-  render: nanoStory(() => switch$('loading')(
-    case$('loading', () => b()('Loading')),
-    case$('error', () => b()('Error')),
-    default$(() => 'Success')
+  render: nanoStory(() => switch_('loading')(
+    case_('loading', () => b()('Loading')),
+    case_('error', () => b()('Error')),
+    default_(() => 'Success')
   ))
 }
 
@@ -29,9 +29,9 @@ export const ReactiveValue: Story = {
   args: {
     state: 'loading'
   },
-  render: nanoStory(({ state }) => switch$(state)(
-    case$('loading', () => b()('Loading')),
-    case$('error', () => b()('Error')),
-    default$(() => 'Success')
+  render: nanoStory(({ state }) => switch_(state)(
+    case_('loading', () => b()('Loading')),
+    case_('error', () => b()('Error')),
+    default_(() => 'Success')
   ))
 }

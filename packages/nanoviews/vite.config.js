@@ -13,7 +13,7 @@ export default defineConfig({
       }
     },
     rollupOptions: {
-      external: ['agera', 'kida']
+      external: ['kida']
     },
     sourcemap: true,
     minify: !DEV && 'esbuild',

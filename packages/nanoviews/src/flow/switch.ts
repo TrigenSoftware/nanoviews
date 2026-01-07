@@ -7,14 +7,14 @@ import {
   decide
 } from '../internals/index.js'
 
-export type SwitchCase<T> = readonly [T | typeof default$, () => Child]
+export type SwitchCase<T> = readonly [T | typeof default_, () => Child]
 
 /**
  * Decide which child to render based on switch cases
  * @param $value - Static value or store
  * @returns Function that accepts cases and returns Block that renders decided child
  */
-export function switch$<T>($value: ValueOrAccessor<T>) {
+export function switch_<T>($value: ValueOrAccessor<T>) {
   type Value = MaybeAccessorValue<T>
 
   /**
@@ -28,15 +28,15 @@ export function switch$<T>($value: ValueOrAccessor<T>) {
     return decide($value, value => (
       casesMap.has(value)
         ? casesMap.get(value)!()
-        : casesMap.get(default$)?.()
+        : casesMap.get(default_)?.()
     ))
   }
 }
 
-export function case$<T>(value: T, then$: () => Child): SwitchCase<T> {
-  return [value, then$]
+export function case_<T>(value: T, then_: () => Child): SwitchCase<T> {
+  return [value, then_]
 }
 
-export function default$(then$: () => Child): SwitchCase<typeof default$> {
-  return [default$, then$]
+export function default_(then_: () => Child): SwitchCase<typeof default_> {
+  return [default_, then_]
 }

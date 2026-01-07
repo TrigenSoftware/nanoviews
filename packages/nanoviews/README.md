@@ -73,7 +73,7 @@ mount(App, document.querySelector('#app'))
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#components">Components</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#logic-methods">Logic methods</a>
+<a href="#control-flow">Control flow</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#special-methods">Special methods</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
@@ -165,35 +165,35 @@ mount(App, document.querySelector('#app'))
 
 Effect attributes are special attributes that can control element's behavior.
 
-### ref$
+### $$ref
 
-`ref$` is an effect attribute that can provide a reference to the DOM node.
+`$$ref` is an effect attribute that can provide a reference to the DOM node.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { div, ref$ } from 'nanoviews'
+import { div, $$ref } from 'nanoviews'
 
 const $ref = signal(null)
 
 div({
-  [ref$]: $ref
+  [$$ref]: $ref
 })(
   'Target element'
 )
 ```
 
-### style$
+### $$style
 
-`style$` is an effect attribute that manages the style of the element.
+`$$style` is an effect attribute that manages the style of the element.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { button, style$ } from 'nanoviews'
+import { button, $$style } from 'nanoviews'
 
 const $color = signal('white')
 
 button({
-  [style$]: {
+  [$$style]: {
     color: $color,
     backgroundColor: 'black'
   }
@@ -202,50 +202,50 @@ button({
 )
 ```
 
-### autoFocus$
+### $$autoFocus
 
-`autoFocus$` is an effect attribute that sets the auto focus on the element.
+`$$autoFocus` is an effect attribute that sets the auto focus on the element.
 
 ```js
-import { input, autoFocus$ } from 'nanoviews'
+import { input, $$autoFocus } from 'nanoviews'
 
 input({
   type: 'text',
-  [autoFocus$]: true
+  [$$autoFocus]: true
 })
 ```
 
-### value$
+### $$value
 
-`value$` is an effect attribute that manages the value of text inputs.
+`$$value` is an effect attribute that manages the value of text inputs.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { textarea, value$ } from 'nanoviews'
+import { textarea, $$value } from 'nanoviews'
 
 const $review = signal('')
 
 textarea({
   name: 'review',
-  [value$]: $review
+  [$$value]: $review
 })(
   'Write your review here'
 )
 ```
 
-### checked$
+### $$checked
 
-`checked$` is an effect attribute that manages the checked state of checkboxes and radio buttons.
+`$$checked` is an effect attribute that manages the checked state of checkboxes and radio buttons.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { input, checked$, Indeterminate } from 'nanoviews'
+import { input, $$checked, Indeterminate } from 'nanoviews'
 
 const $checked = signal(false)
 
 input({
   type: 'checkbox',
-  [checked$]: $checked
+  [$$checked]: $checked
 })
 ```
 
@@ -255,19 +255,19 @@ Also you can manage [indeterminate state of checkboxes](https://developer.mozill
 $checked(Indeterminate)
 ```
 
-### selected$
+### $$selected
 
-`selected$` is an effect attribute that manages the selected state of select's options.
+`$$selected` is an effect attribute that manages the selected state of select's options.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { select, option, selected$ } from 'nanoviews'
+import { select, option, $$selected } from 'nanoviews'
 
 const $selected = signal('mid')
 
 select({
   name: 'player-pos',
-  [selected$]: $selected
+  [$$selected]: $selected
 })(
   option({
     value: 'carry'
@@ -294,7 +294,7 @@ const $selected = signal(['mid', 'carry'])
 
 select({
   name: 'player-pos',
-  [selected$]: $selected
+  [$$selected]: $selected
 })(
   option({
     value: 'carry'
@@ -314,19 +314,19 @@ select({
 )
 ```
 
-### files$
+### $$files
 
-`files$` is an effect attribute that can provide the files of file inputs.
+`$$files` is an effect attribute that can provide the files of file inputs.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { input, files$ } from 'nanoviews'
+import { input, $$files } from 'nanoviews'
 
 const $files = signal([])
 
 input({
   type: 'file',
-  [files$]: $files
+  [$$files]: $files
 })
 ```
 
@@ -386,15 +386,15 @@ function MyComponent() {
 }
 ```
 
-### children$
+### $$children
 
-`children$` is a method that creates optional children receiver.
+`$$children` is a method that creates optional children receiver.
 
 ```js
-import { div, children$ } from 'nanoviews'
+import { div, $$children } from 'nanoviews'
 
 function MyComponent(props) {
-  return children$(children => div(props)(
+  return $$children(children => div(props)(
     'My component children: ',
     ...children || ['empty']
   ))
@@ -405,23 +405,23 @@ MyComponent() // <div>My component children: empty</div>
 MyComponent()('Hello, Nanoviews!') // <div>My component children: Hello, Nanoviews!</div>
 ```
 
-### slots$
+### $$slots
 
-`slots$` is a method to receive slots and rest children.
+`$$slots` is a method to receive slots and rest children.
 
 ```js
-import { main, header, footer, slot$, slots$ } from 'nanoviews'
+import { main, header, footer, $$slot, $$slots } from 'nanoviews'
 
 function LayoutHeader(text) {
-  return slot$(LayoutHeader, text)
+  return $$slot(LayoutHeader, text)
 }
 
 function LayoutFooter(text) {
-  return slot$(LayoutFooter, text)
+  return $$slot(LayoutFooter, text)
 }
 
 function Layout() {
-  return slots$(
+  return $$slots(
     [LayoutHeader, LayoutFooter],
     (headerSlot, footerSlot, children) => main()(
       header()(headerSlot),
@@ -441,17 +441,17 @@ Layout()(
 Slot's content can be anything, including functions, that can be used to render lists:
 
 ```js
-import { ul, li, b, slot$, slots$, for$ } from 'nanoviews'
+import { ul, li, b, $$slot, $$slots, for_ } from 'nanoviews'
 
 function ListItem(renderItem) {
-  return slot$(ListItem, renderItem)
+  return $$slot(ListItem, renderItem)
 }
 
 function List(items) {
-  return slots$(
+  return $$slots(
     [ListItem],
     (listItemSlot) => ul()(
-      for$(items)(
+      for_(items)(
         item => li()(
           listItemSlot(item.name)
         )
@@ -472,13 +472,13 @@ List([
 )
 ```
 
-### context$
+### context
 
-`context$` is a method that can provide a context to the children.
+`context` is a method that can provide a context to the children.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { div, context$, provide, inject } from 'nanoviews'
+import { div, context, provide, inject } from 'nanoviews'
 
 function ThemeContext() {
   return signal('light') // default value
@@ -496,7 +496,7 @@ function MyComponent() {
 function App() {
   const $theme = signal('dark')
 
-  return context$(
+  return context(
     [provide(ThemeContext, $theme)],
     () => MyComponent()
   )
@@ -508,54 +508,54 @@ App() // <div>Current theme: dark</div>
 > [!NOTE]
 > Nanoviews contexts are based on [Kida's dependency injection system](../kida#dependency-injection).
 
-## Logic methods
+## Control flow
 
-### if$
+### if_
 
-`if$` is a method that can render different childs based on the condition.
+`if_` is a method that can render different childs based on the condition.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { if$, div, p } from 'nanoviews'
+import { if_, div, p } from 'nanoviews'
 
 const $show = signal(false)
 
-if$($show)(
+if_($show)(
   () => div()('Hello, Nanoviews!')
 )
 
 const $toggle = signal(false)
 
-if$($toggle)(
+if_($toggle)(
   () => p()('Toggle is true'),
   () => div()('Toggle is false')
 )
 ```
 
-### switch$
+### switch_
 
-`switch$` is a method like `if$` but with multiple conditions.
+`switch_` is a method like `if_` but with multiple conditions.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { switch$, case$, default$, div, p } from 'nanoviews'
+import { switch_, case_, default_, div, p } from 'nanoviews'
 
 const $state = signal('loading')
 
-switch$(state)(
-  case$('loading', () => b()('Loading')),
-  case$('error', () => b()('Error')),
-  default$(() => 'Success')
+switch_(state)(
+  case_('loading', () => b()('Loading')),
+  case_('error', () => b()('Error')),
+  default_(() => 'Success')
 )
 ```
 
-### for$
+### for_
 
-`for$` is a method that can iterate over an array to render a fragment of elements.
+`for_` is a method that can iterate over an array to render a fragment of elements.
 
 ```js
 import { signal, record } from 'nanoviews/store'
-import { for$, trackById, ul, li } from 'nanoviews'
+import { for_, trackById, ul, li } from 'nanoviews'
 
 const $players = signal([
   { id: 0, name: 'chopper' },
@@ -567,7 +567,7 @@ const $players = signal([
 ])
 
 ul()(
-  for$($players, trackById)(
+  for_($players, trackById)(
     $player => li()(
       record($player).$name
     )
@@ -577,28 +577,15 @@ ul()(
 
 There are exported predefined `trackById` function to track by `id` property and `trackBy(key)` function to create a tracker for specified key.
 
-### portal$
+### throw_
 
-`portal$` is a method that can render a DOM node in a different place in the DOM.
-
-```js
-import { div, portal$ } from 'nanoviews'
-
-portal$(
-  document.body,
-  div()('I am in the body!')
-)
-```
-
-### throw$
-
-`throw$` is a helper to throw an error in expressions.
+`throw_` is a helper to throw an error in expressions.
 
 ```js
-import { ul, children$, throw$ } from 'nanoviews'
+import { ul, $$children, throw_ } from 'nanoviews'
 
 function MyComponent() {
-  return children$((children = throw$(new Error('Children are required'))) => ul()(children))
+  return $$children((children = throw_(new Error('Children are required'))) => ul()(children))
 }
 ```
 
@@ -657,6 +644,19 @@ shadow(
 )
 ```
 
+### portal
+
+`portal` is a method that can render a DOM node in a different place in the DOM.
+
+```js
+import { div, portal } from 'nanoviews'
+
+portal(
+  () => document.body,
+  div()('I am in the body!')
+)
+```
+
 ## Why?
 
 ### Bundle size
@@ -665,7 +665,7 @@ Nanoviews and Kida are small libraries and designed to be tree-shakable. So apps
 
 | Example | Nanoviews | SolidJS | Svelte |
 | ------- | --------- | ------- | ------ |
-| Vite Demo | 7.66 kB / gzip: 3.22 kB<br>[source code](../../examples/vite-demo-nanoviews/) | 8.93 kB / gzip: 3.73 kB<br>[source code](../../examples/vite-demo-solid/) | 12.73 kB / gzip: 5.54 kB kB<br>[source code](../../examples/vite-demo-svelte/) |
+| Vite Demo | 7.66 kB / gzip: 3.22 kB<br>[source code](../../examples/vite-demo-nanoviews/) | 8.93 kB / gzip: 3.73 kB<br>[source code](../../examples/vite-demo-solid/) | 12.73 kB / gzip: 5.54 kB<br>[source code](../../examples/vite-demo-svelte/) |
 | Weather | + Kida<br>17.27 kB / gzip: 6.96 kB<br>[source code](../../examples/weather-nanoviews/) | + nanostores + @nanostores/solid<br>25.23 kB / gzip: 9.80 kB<br>[source code](../../examples/weather-solid/) | + nanostores<br>26.80 kB / gzip: 10.84 kB<br>[source code](../../examples/weather-svelte/) |
 
 ### Performance

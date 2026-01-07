@@ -94,7 +94,7 @@ function reconcile(
   itemsList: LoopItemsList,
   lookupMap: LookupMap,
   $items: Accessor<unknown[]>,
-  each$: AnyEach,
+  each_: AnyEach,
   track: UnknownTrack,
   anchor: ChildNode,
   nextItems: unknown[]
@@ -112,7 +112,7 @@ function reconcile(
     item = lookupMap.get(key)
 
     if (item === undefined) {
-      item = createEachBlock($items, each$, key, i, getAnchor(current, anchor))
+      item = createEachBlock($items, each_, key, i, getAnchor(current, anchor))
       item.p = prev
       item.n = prev === undefined ? itemsList.f : prev.n
 
@@ -225,7 +225,7 @@ function destroyLoopItem(itemsList: LoopItemsList, item: LoopItem, lookupMap: Lo
 
 function createEachBlock(
   $items: Accessor<unknown[]>,
-  each$: AnyEach,
+  each_: AnyEach,
   key: unknown,
   i: number,
   anchor: ChildNode
@@ -242,7 +242,7 @@ function createEachBlock(
   }
 
   item.d = effectScope(() => insertChildBeforeAnchor(
-    each$(atIndex($items, $index), $index),
+    each_(atIndex($items, $index), $index),
     anchor,
     item
   ))
@@ -252,8 +252,8 @@ function createEachBlock(
 
 export function loop(
   $items: Accessor<unknown[]>,
-  each$: AnyEach,
-  else$?: () => Child,
+  each_: AnyEach,
+  else_?: () => Child,
   track: UnknownTrack = (_, i) => i
 ): Child {
   const start = createTextNode()
@@ -284,7 +284,7 @@ export function loop(
           itemsList,
           blocksMap,
           $items,
-          each$,
+          each_,
           track,
           end,
           items
@@ -311,7 +311,7 @@ export function loop(
           itemsList,
           blocksMap,
           $items,
-          each$,
+          each_,
           track,
           end,
           items
@@ -321,7 +321,7 @@ export function loop(
       // ([...n] | []) -> []
       isPlaceholder = true
       runEffects = effectScope(
-        () => insertChildBeforeAnchor(else$?.(), end),
+        () => insertChildBeforeAnchor(else_?.(), end),
         true
       )
     }
