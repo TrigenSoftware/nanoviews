@@ -1,18 +1,30 @@
-import type { ReadableSignal } from 'kida'
 import type {
-  UrlHrefObject,
-  UrlUpdate
-} from './common.js'
+  ReadableRecord,
+  ReadableSignal,
+  Mountable
+} from '@nano_kit/store'
 import type {
-  RouteLocation,
-  Routes
-} from './location.js'
+  Routes,
+  ParseUrl,
+  UrlUpdate,
+  Location
+} from './types.js'
 
-export type HistoryAction = 'push' | 'replace' | 'pop' | null
+export type RouteMatch<R extends Routes, K extends keyof R = keyof R> = {
+  [K in keyof R]: {
+    route: K
+    params: ParseUrl<R[K]>
+  }
+}[K]
 
-export interface Location extends UrlHrefObject {
-  action: HistoryAction
-}
+export type RouteLocation<R extends Routes> = Location & (RouteMatch<R> | {
+  route: null
+  params: {}
+})
+
+export type RouteLocationSignal<R extends Routes> = Mountable<ReadableSignal<RouteLocation<R>>>
+
+export type RouteLocationRecord<R extends Routes> = ReadableRecord<RouteLocationSignal<R>>
 
 /**
  * Navigation interface for managing route transitions.
@@ -55,7 +67,3 @@ export interface Navigation {
    */
   replace(to: string | UrlUpdate): void
 }
-
-export type LocationSignal = ReadableSignal<Location>
-
-export type SearchParamsSignal = ReadableSignal<URLSearchParams>

@@ -11,7 +11,7 @@ import {
   updateHref
 } from './utils.js'
 
-describe('kida-router', () => {
+describe('router', () => {
   describe('utils', () => {
     describe('removeTrailingSlash', () => {
       it('should remove trailing slash from path', () => {

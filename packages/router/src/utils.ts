@@ -4,7 +4,7 @@ import type {
   UrlHrefObject,
   HistoryAction,
   Location
-} from './types/index.js'
+} from './types.js'
 
 /**
  * Removes trailing slash from a path string.

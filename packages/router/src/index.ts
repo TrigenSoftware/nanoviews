@@ -1,4 +1,4 @@
-export * from './types/index.js'
+export * from './types.js'
 export * from './constants.js'
 export * from './diy.js'
 export * from './utils.js'

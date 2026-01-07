@@ -4,7 +4,7 @@ import {
   expect,
   vi
 } from 'vitest'
-import type { ReadableSignal } from 'kida'
+import type { ReadableSignal } from '@nano_kit/store'
 import { virtualNavigation } from './navigation.js'
 import {
   page,
@@ -16,7 +16,7 @@ import {
   loadPage
 } from './router.js'
 
-describe('kida-router', () => {
+describe('router', () => {
   describe('router', () => {
     it('should match correct page based on route', () => {
       const [$location, navigation] = virtualNavigation('/', {

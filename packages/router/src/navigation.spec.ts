@@ -10,7 +10,7 @@ import {
   routeParam
 } from './navigation.js'
 
-describe('kida-router', () => {
+describe('router', () => {
   describe('navigation', () => {
     describe('match', () => {
       it('should match simple routes', () => {

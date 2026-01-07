@@ -1,12 +1,11 @@
 import {
   type ReadableSignal,
   computed
-} from 'kida'
-import type {
-  RouteLocationRecord,
-  Routes,
-  SearchParamsSignal
-} from './types/index.js'
+} from '@nano_kit/store'
+import type { Routes } from './types.js'
+import type { RouteLocationRecord } from './navigation.types.js'
+
+export type SearchParamsSignal = ReadableSignal<URLSearchParams>
 
 /**
  * Creates a computed signal that provides access to URL search parameters.

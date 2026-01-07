@@ -1,9 +1,9 @@
-import type { AnyFn } from 'kida'
-import type {
-  Paths,
-  Routes
-} from './types/index.js'
+import type { AnyFn } from '@nano_kit/store'
+import type { Routes } from './types.js'
+import type { Paths } from './paths.types.js'
 import { removeTrailingSlash } from './utils.js'
+
+export * from './paths.types.js'
 
 function execPattern(
   this: (string | ((params: Record<string, string | number>) => string))[],

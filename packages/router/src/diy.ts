@@ -1,4 +1,4 @@
-import type { Navigation } from './types/index.js'
+import type { Navigation } from './navigation.js'
 
 /**
  * Handle link click events to navigate using the router.

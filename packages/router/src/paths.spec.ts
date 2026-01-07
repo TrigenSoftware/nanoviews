@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import { buildPaths } from './paths.js'
 
-describe('kida-router', () => {
+describe('router', () => {
   describe('buildPaths', () => {
     it('should return static strings for routes without parameters', () => {
       const routes = {

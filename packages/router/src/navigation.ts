@@ -14,15 +14,17 @@ import {
   computed,
   untracked,
   mountable
-} from 'kida'
+} from '@nano_kit/store'
 import type {
   Location,
+  Routes
+} from './types.js'
+import type {
   Navigation,
   RouteLocation,
   RouteLocationRecord,
-  RouteMatch,
-  Routes
-} from './types/index.js'
+  RouteMatch
+} from './navigation.types.js'
 import {
   PopHistoryAction,
   PushHistoryAction,
@@ -35,6 +37,8 @@ import {
   removeTrailingSlash,
   updateLocation
 } from './utils.js'
+
+export * from './navigation.types.js'
 
 function createPatternRegex(pattern: string) {
   return new RegExp(`^${

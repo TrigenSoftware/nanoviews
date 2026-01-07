@@ -1,47 +1,47 @@
-import {
-  type AnyAccessor,
-  type ReadableSignal
-} from 'kida'
+import type {
+  AnyAccessor,
+  ReadableSignal
+} from '@nano_kit/store'
 
 export type StoresPreload = () => AnyAccessor[]
 
-export interface ViewRef<C> {
+export interface ViewRef<V> {
   /**
    * The component or value of the view.
    */
-  c: C | undefined
+  view: V | undefined
   /**
    * Optional function to preload stores associated with the view.
    */
-  s?: StoresPreload
+  storesToPreload?: StoresPreload
   /**
    * Indicates if the view is loading.
    */
-  l?: boolean
+  loading?: boolean
 }
 
-export type ViewRefGetter<C> = (tasks?: Set<Promise<unknown> | null>) => ViewRef<C>
+export type ViewRefGetter<V> = (tasks?: Set<Promise<unknown> | null>) => ViewRef<V>
 
 export interface PageMatchRef<R extends string | null, P> {
   /**
    * The expected route name to match.
    */
-  e: R
+  expected: R
   /**
    * Function to get the view reference for the matched page.
    */
-  p: ViewRefGetter<P>
+  page: ViewRefGetter<P>
 }
 
 export interface LayoutMatchRef<R extends string, P, L> {
   /**
    * Function to get the view reference for the layout.
    */
-  l: ViewRefGetter<L>
+  layout: ViewRefGetter<L>
   /**
    * Children match references for nested routes.
    */
-  p: MatchRef<R, P, L>[]
+  pages: MatchRef<R, P, L>[]
 }
 
 export type MatchRef<R extends string, P, L> =
@@ -49,8 +49,8 @@ export type MatchRef<R extends string, P, L> =
   | PageMatchRef<null, P>
   | LayoutMatchRef<R, P, L>
 
-export interface ViewModule<C> {
-  default: C
+export interface ViewModule<V> {
+  default: V
   storesToPreload?: StoresPreload
 }
 
@@ -60,7 +60,7 @@ export interface LoadableRef<P> {
   /**
    * Function to load the view module asynchronously.
    */
-  g: ViewRefGetter<P>
+  load: ViewRefGetter<P>
 }
 
 export type UnknownPageMatchRef = PageMatchRef<string, unknown> | PageMatchRef<null, unknown>

@@ -2,22 +2,22 @@ import {
   type InjectionFactory,
   type ReadableSignal,
   inject
-} from 'kida'
-import type {
-  LayoutMatchRef,
-  Navigation,
-  PageMatchRef,
-  RouteLocationRecord,
-  Routes,
-  StoresPreload,
-  UnknownComposer,
-  UnknownMatchRef
-} from './types/index.js'
+} from '@nano_kit/store'
+import type { Routes } from './types.js'
 import {
+  type Navigation,
+  type RouteLocationRecord,
   browserNavigation,
   virtualNavigation
 } from './navigation.js'
-import { router } from './router.js'
+import {
+  type LayoutMatchRef,
+  type PageMatchRef,
+  type StoresPreload,
+  type UnknownComposer,
+  type UnknownMatchRef,
+  router
+} from './router.js'
 
 /**
  * Create browser navigation and location injection factories.
@@ -25,19 +25,19 @@ import { router } from './router.js'
  * @returns Tuple of location and navigation injection factories.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function browserNavigation$$<const R extends Routes = {}>(
+export function browserNavigation$<const R extends Routes = {}>(
   routes: R = {} as R
 ): [
   InjectionFactory<RouteLocationRecord<R>>,
   InjectionFactory<Navigation>
 ] {
-  const $BrowserNavigation = () => browserNavigation(routes)
-  const $Location = () => inject($BrowserNavigation)[0]
-  const $Navigation = () => inject($BrowserNavigation)[1]
+  const BrowserNavigation$ = () => browserNavigation(routes)
+  const Location$ = () => inject(BrowserNavigation$)[0]
+  const Navigation$ = () => inject(BrowserNavigation$)[1]
 
   return [
-    $Location,
-    $Navigation
+    Location$,
+    Navigation$
   ]
 }
 
@@ -48,31 +48,31 @@ export function browserNavigation$$<const R extends Routes = {}>(
  * @returns Tuple of location and navigation injection factories.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function virtualNavigation$$<const R extends Routes = {}>(
+export function virtualNavigation$<const R extends Routes = {}>(
   initialPath?: string,
   routes?: R
 ): [
   InjectionFactory<RouteLocationRecord<R>>,
   InjectionFactory<Navigation>
 ] {
-  const $VirtualNavigation = () => virtualNavigation(initialPath, routes)
-  const $Location = () => inject($VirtualNavigation)[0]
-  const $Navigation = () => inject($VirtualNavigation)[1]
+  const VirtualNavigation$ = () => virtualNavigation(initialPath, routes)
+  const Location$ = () => inject(VirtualNavigation$)[0]
+  const Navigation$ = () => inject(VirtualNavigation$)[1]
 
   return [
-    $Location,
-    $Navigation
+    Location$,
+    Navigation$
   ]
 }
 
 /**
  * Creates a current route matching page injection factory.
- * @param $Location - Injection factory for the route location record.
+ * @param Location$ - Injection factory for the route location record.
  * @param pages - Array of page match references.
  * @returns Tuple of page injection factory and stores preload injection factory.
  */
-export function router$$<R extends Routes, K extends keyof R & string, P>(
-  $Location: InjectionFactory<RouteLocationRecord<R>>,
+export function router$<R extends Routes, K extends keyof R & string, P>(
+  Location$: InjectionFactory<RouteLocationRecord<R>>,
   pages: (
     | PageMatchRef<NoInfer<K>, P>
     | PageMatchRef<null, P>
@@ -84,13 +84,13 @@ export function router$$<R extends Routes, K extends keyof R & string, P>(
 
 /**
  * Creates a current route matching page and layout injection factory.
- * @param $Location - Injection factory for the route location record.
+ * @param Location$ - Injection factory for the route location record.
  * @param pages - Array of page and layout match references.
  * @param compose - Function to compose layouts with nested content.
  * @returns Tuple of page injection factory and stores preload injection factory.
  */
-export function router$$<R extends Routes, K extends keyof R & string, P, N, L, C>(
-  $Location: InjectionFactory<RouteLocationRecord<R>>,
+export function router$<R extends Routes, K extends keyof R & string, P, N, L, C>(
+  Location$: InjectionFactory<RouteLocationRecord<R>>,
   pages: (
     | PageMatchRef<NoInfer<K>, P>
     | PageMatchRef<null, P>
@@ -103,24 +103,24 @@ export function router$$<R extends Routes, K extends keyof R & string, P, N, L, 
 ]
 
 /* @__NO_SIDE_EFFECTS__ */
-export function router$$(
-  $Location: InjectionFactory<RouteLocationRecord<Routes>>,
+export function router$(
+  Location$: InjectionFactory<RouteLocationRecord<Routes>>,
   pages: UnknownMatchRef[],
   compose?: UnknownComposer
 ): [
   InjectionFactory<ReadableSignal<unknown>>,
   InjectionFactory<StoresPreload>
 ] {
-  const $Router = () => router(
-    inject($Location),
+  const Router$ = () => router(
+    inject(Location$),
     pages,
     compose!
   )
-  const $Page = () => inject($Router)[0]
-  const $StoresToPreload = () => inject($Router)[1]
+  const Page$ = () => inject(Router$)[0]
+  const StoresToPreload$ = () => inject(Router$)[1]
 
   return [
-    $Page,
-    $StoresToPreload
+    Page$,
+    StoresToPreload$
   ]
 }

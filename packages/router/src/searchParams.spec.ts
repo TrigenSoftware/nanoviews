@@ -9,7 +9,7 @@ import {
   searchParam
 } from './searchParams.js'
 
-describe('kida-router', () => {
+describe('router', () => {
   describe('searchParams', () => {
     it('should return URLSearchParams and react to search changes', () => {
       const [$location, navigation] = virtualNavigation()

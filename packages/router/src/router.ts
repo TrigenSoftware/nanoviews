@@ -3,14 +3,14 @@ import {
   type WritableSignal,
   computed,
   signal
-} from 'kida'
+} from '@nano_kit/store'
+import type { Routes } from './types.js'
+import type { RouteLocationRecord } from './navigation.types.js'
 import type {
   StoresPreload,
   PageMatchRef,
   LayoutMatchRef,
   MatchRef,
-  RouteLocationRecord,
-  Routes,
   ViewModuleLoader,
   LoadableRef,
   ViewRef,
@@ -19,8 +19,10 @@ import type {
   UnknownMatchRef,
   UnknownPageMatchRef,
   UnknownComposer
-} from './types/index.js'
+} from './router.types.js'
 import { composeMatchers } from './utils.js'
+
+export * from './router.types.js'
 
 type Composed = (layout: unknown, page: unknown) => unknown
 
@@ -38,11 +40,11 @@ export async function loadPages(
   const allTasks = tasks ?? new Set()
 
   for (const ref of pages) {
-    if ('e' in ref) {
-      ref.p(allTasks)
+    if ('expected' in ref) {
+      ref.page(allTasks)
     } else {
-      ref.l(allTasks)
-      void loadPages(ref.p, allTasks)
+      ref.layout(allTasks)
+      void loadPages(ref.pages, allTasks)
     }
   }
 
@@ -65,16 +67,16 @@ export async function loadPage<R extends Routes, K extends keyof R & string, P, 
   const allTasks = tasks ?? new Set()
 
   for (const ref of pages) {
-    if ('e' in ref) {
-      if (ref.e === route) {
-        ref.p(allTasks)
+    if ('expected' in ref) {
+      if (ref.expected === route) {
+        ref.page(allTasks)
         // Page can be not async loadable
         allTasks.add(null)
         break
       }
     } else
-      if (allTasks.size < (loadPage(ref.p, route, allTasks), allTasks.size)) {
-        ref.l(allTasks)
+      if (allTasks.size < (loadPage(ref.pages, route, allTasks), allTasks.size)) {
+        ref.layout(allTasks)
         break
       }
   }
@@ -91,19 +93,19 @@ export async function loadPage<R extends Routes, K extends keyof R & string, P, 
  * @returns Loadable view reference object
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function loadable<const C>(
-  load: ViewModuleLoader<C>,
-  fallback?: C
-): LoadableRef<C> {
-  const $viewRef = signal<ViewRef<C>>({
-    c: fallback,
-    l: true
+export function loadable<const V>(
+  load: ViewModuleLoader<V>,
+  fallback?: V
+): LoadableRef<V> {
+  const $viewRef = signal<ViewRef<V>>({
+    view: fallback,
+    loading: true
   })
   const init = (tasks?: Set<Promise<unknown> | null>) => {
     const promise = load().then(module => $viewRef({
-      c: module.default,
-      s: module.storesToPreload,
-      l: false
+      view: module.default,
+      storesToPreload: module.storesToPreload,
+      loading: false
     }))
 
     tasks?.add(promise)
@@ -111,7 +113,7 @@ export function loadable<const C>(
   let initialized = false
 
   return {
-    g(tasks) {
+    load(tasks) {
       if (!initialized) {
         initialized = true
         init(tasks)
@@ -123,7 +125,7 @@ export function loadable<const C>(
 }
 
 function isLoadable<C = unknown>(ref: unknown): ref is LoadableRef<C> {
-  return typeof (ref as LoadableRef<C>)?.g === 'function'
+  return typeof (ref as LoadableRef<C>)?.load === 'function'
 }
 
 function getViewRefGetter<C>(
@@ -133,11 +135,11 @@ function getViewRefGetter<C>(
   let getter: ViewRefGetter<C>
 
   if (isLoadable(page)) {
-    getter = page.g
+    getter = page.load
   } else {
     const ref = {
-      c: page,
-      s: storesToPreload
+      view: page,
+      storesToPreload
     }
 
     getter = () => ref
@@ -177,8 +179,8 @@ export function page<R extends string, const P>(
   storesToPreload?: StoresPreload
 ): PageMatchRef<R, P> {
   return {
-    e: expected,
-    p: getViewRefGetter(page, storesToPreload)
+    expected,
+    page: getViewRefGetter(page, storesToPreload)
   }
 }
 
@@ -210,8 +212,8 @@ export function notFound<const P>(
   storesToPreload?: StoresPreload
 ): PageMatchRef<null, P> {
   return {
-    e: null,
-    p: getViewRefGetter(page, storesToPreload)
+    expected: null,
+    page: getViewRefGetter(page, storesToPreload)
   }
 }
 
@@ -256,14 +258,14 @@ export function layout(
   }
 
   return {
-    l: getViewRefGetter(layout, storesToPreload),
-    p: pages
+    layout: getViewRefGetter(layout, storesToPreload),
+    pages
   }
 }
 
 function createMatcher(pages: UnknownMatchRef[]): UnknownMatcher {
   return composeMatchers(pages.map(
-    ref => ('e' in ref
+    ref => ('expected' in ref
       ? createPageMatcher(ref)
       : createLayoutMatcher(ref))
   ))
@@ -283,31 +285,31 @@ function createCachedMatcher(pages: UnknownMatchRef[]) {
   return matcher
 }
 
-function createPageMatcher({ e, p }: UnknownPageMatchRef): UnknownMatcher {
-  return (route: string | null) => (route === e ? p() : null)
+function createPageMatcher({ expected, page }: UnknownPageMatchRef): UnknownMatcher {
+  return (route: string | null) => (route === expected ? page() : null)
 }
 
-function createLayoutMatcher({ l, p }: UnknownLayoutMatchRef): UnknownMatcher {
-  const match = createCachedMatcher(p)
+function createLayoutMatcher({ layout, pages }: UnknownLayoutMatchRef): UnknownMatcher {
+  const match = createCachedMatcher(pages)
 
   return (route: string | null, composed: Composed) => {
     const ref = match(route, composed)
 
     if (ref) {
-      const layoutRef = l()
+      const layoutRef = layout()
 
-      if (layoutRef.l || !layoutRef.c) {
+      if (layoutRef.loading || !layoutRef.view) {
         return layoutRef
       }
 
       const storesToPreload = () => [
-        ...layoutRef.s?.() ?? [],
-        ...ref.s?.() ?? []
+        ...layoutRef.storesToPreload?.() ?? [],
+        ...ref.storesToPreload?.() ?? []
       ]
 
       return {
-        c: composed(layoutRef.c, ref.c),
-        s: storesToPreload
+        view: composed(layoutRef.view, ref.view),
+        storesToPreload
       }
     }
 
@@ -317,8 +319,8 @@ function createLayoutMatcher({ l, p }: UnknownLayoutMatchRef): UnknownMatcher {
 
 function createComposed(compose: UnknownComposer | undefined): Composed {
   const storage = new Map<unknown, {
-    p: WritableSignal<unknown>
-    c: unknown
+    page: WritableSignal<unknown>
+    composed: unknown
   }>()
 
   return (layout: unknown, page: unknown) => {
@@ -328,15 +330,15 @@ function createComposed(compose: UnknownComposer | undefined): Composed {
       const $page = signal(page)
 
       entry = {
-        p: $page,
-        c: compose?.($page, layout)
+        page: $page,
+        composed: compose?.($page, layout)
       }
       storage.set(layout, entry)
     } else {
-      entry.p(() => page)
+      entry.page(() => page)
     }
 
-    return entry.c
+    return entry.composed
   }
 }
 
@@ -382,10 +384,10 @@ export function router(
   const match = createCachedMatcher(pages)
   const composed = createComposed(compose)
   let ref: ViewRef<unknown> | null = null
-  const $page = computed(() => (ref = match($route(), composed))?.c ?? null)
+  const $page = computed(() => (ref = match($route(), composed))?.view ?? null)
   const storesToPreload = () => {
     $page()
-    return ref?.s?.() ?? []
+    return ref?.storesToPreload?.() ?? []
   }
 
   return [$page, storesToPreload]

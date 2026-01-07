@@ -8,11 +8,11 @@ import { fireEvent } from '@testing-library/dom'
 import {
   onMount,
   start
-} from 'kida'
+} from '@nano_kit/store'
 import { browserNavigation } from './navigation.js'
 import { listenLinks } from './diy.js'
 
-describe('kid-router', () => {
+describe('router', () => {
   describe('diy', () => {
     beforeEach(() => {
       window.history.replaceState(null, '', '/')

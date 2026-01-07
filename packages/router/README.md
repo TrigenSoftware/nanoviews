@@ -1,4 +1,4 @@
-# @kidajs/router
+# @nano_kit/router
 
 [![ESM-only package][package]][package-url]
 [![NPM version][npm]][npm-url]
@@ -10,14 +10,14 @@
 [package]: https://img.shields.io/badge/package-ESM--only-ffe536.svg
 [package-url]: https://nodejs.org/api/esm.html
 
-[npm]: https://img.shields.io/npm/v/@kidajs/router.svg
-[npm-url]: https://npmjs.com/package/@kidajs/router
+[npm]: https://img.shields.io/npm/v/@nano_kit/router.svg
+[npm-url]: https://npmjs.com/package/@nano_kit/router
 
-[deps]: https://img.shields.io/librariesio/release/npm/@kidajs/router
-[deps-url]: https://libraries.io/npm/@kidajs/router/tree
+[deps]: https://img.shields.io/librariesio/release/npm/@nano_kit/router
+[deps-url]: https://libraries.io/npm/@nano_kit/router/tree
 
-[size]: https://deno.bundlejs.com/badge?q=@kidajs/router
-[size-url]: https://bundlejs.com/?q=@kidajs/router
+[size]: https://deno.bundlejs.com/badge?q=@nano_kit/router
+[size-url]: https://bundlejs.com/?q=@nano_kit/router
 
 [build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=main
 [build-url]: https://github.com/TrigenSoftware/nanoviews/actions
@@ -25,7 +25,7 @@
 [coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nanoviews.svg
 [coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nanoviews
 
-A small and powerful router for [Kida](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida) state manager.
+A small and powerful router for [@nano_kit/store](../store) state manager.
 
 - **Small**. Around 2 kB (minified and brotlied). Zero dependencies except Kida.
 - **Type-safe**. Full TypeScript support with type inference for routes and parameters.
@@ -34,7 +34,7 @@ A small and powerful router for [Kida](https://github.com/TrigenSoftware/nanovie
 - **SSR-ready**. Works seamlessly with server-side rendering.
 
 ```ts
-import { browserNavigation, router, page, layout, notFound } from '@kidajs/router'
+import { browserNavigation, router, page, layout, notFound } from '@nano_kit/router'
 
 // Setup navigation
 const [$location, navigation] = browserNavigation({
@@ -71,11 +71,11 @@ effect(() => {
 ## Install
 
 ```bash
-pnpm add kida @kidajs/router
+pnpm add @nano_kit/store @nano_kit/router
 # or
-npm i kida @kidajs/router
+npm i @nano_kit/store @nano_kit/router
 # or
-yarn add kida @kidajs/router
+yarn add @nano_kit/store @nano_kit/router
 ```
 
 ## Basics
@@ -85,8 +85,8 @@ yarn add kida @kidajs/router
 First, you need to set up navigation. "Navigation" consists of a signal for the current location with matched route and methods to change it:
 
 ```ts
-import { effect } from 'kida'
-import { browserNavigation } from '@kidajs/router'
+import { effect } from '@nano_kit/store'
+import { browserNavigation } from '@nano_kit/router'
 
 const [$location, navigation] = browserNavigation({
   home: '/',
@@ -112,7 +112,7 @@ navigation.forward()
 Besides browser navigation, you can also use virtual navigation for testing or SSR:
 
 ```ts
-import { virtualNavigation } from '@kidajs/router'
+import { virtualNavigation } from '@nano_kit/router'
 
 const [$location, navigation] = virtualNavigation('/initial-path', {
   home: '/',
@@ -130,8 +130,8 @@ $location().action // 'replace'
 To listen links clicks and navigate automatically, use the `listenLinks` effect:
 
 ```ts
-import { onMount } from 'kida'
-import { browserNavigation, listenLinks } from '@kidajs/router'
+import { onMount } from '@nano_kit/store'
+import { browserNavigation, listenLinks } from '@nano_kit/router'
 
 const [$location, navigation] = browserNavigation()
 
@@ -145,8 +145,8 @@ onMount($location, () => listenLinks(navigation))
 To map routes to page components, use the `router` function:
 
 ```ts
-import { effect } from 'kida'
-import { browserNavigation, router, page, layout, notFound } from '@kidajs/router'
+import { effect } from '@nano_kit/store'
+import { browserNavigation, router, page, layout, notFound } from '@nano_kit/router'
 
 const [$location, navigation] = browserNavigation({
   home: '/',
@@ -179,7 +179,7 @@ effect(() => {
 You can compose layouts and pages using the `layout` function, allowing for nested structures. To let it work, provide a `composeLayoutFunction` that combines layout and page components. Here is a simple example for React:
 
 ```tsx
-import { usSignal } from '@kidajs/react'
+import { useSignal } from '@nano_kit/react'
 
 function composeLayoutFunction($nested, Layout) {
   return function Composed() {
@@ -217,7 +217,7 @@ const $page = router($route, [
 The `buildPaths` function helps to generate URLs based on route names and parameters:
 
 ```ts
-import { buildPaths } from '@kidajs/router'
+import { buildPaths } from '@nano_kit/router'
 
 const paths = buildPaths({
   home: '/',
@@ -238,7 +238,7 @@ paths.admin({ wildcard: 'settings/profile' }) // '/admin/settings/profile'
 The `basePath` function allows you to set a base path for all routes in navigation:
 
 ```ts
-import { browserNavigation, basePath } from '@kidajs/router'
+import { browserNavigation, basePath } from '@nano_kit/router'
 
 const routes = basePath('/github-pages', {
   home: '/',
@@ -252,7 +252,7 @@ const [$location, navigation] = browserNavigation(routes)
 The `updateHref` function allows you to update parts of a URL string easily:
 
 ```ts
-import { updateHref } from '@kidajs/router'
+import { updateHref } from '@nano_kit/router'
 
 updateHref('/new-path', { search: 'foo=bar' }) // '/new-path?foo=bar'
 updateHref('/auth?token=***', { pathname: '/' }) // '/?token=***'
@@ -264,7 +264,7 @@ updateHref('/posts?page=2', { searrchParams: new URLSearchParams({ page: '3' }) 
 The `searchParams` function manages URL query parameters reactively:
 
 ```ts
-import { browserNavigation, searchParams } from '@kidajs/router'
+import { browserNavigation, searchParams } from '@nano_kit/router'
 
 const [$location, navigation] = browserNavigation()
 const $searchParams = searchParams($location)
@@ -278,7 +278,7 @@ $searchParams().get('foo') // Get 'foo' query parameter
 The `searchParam` function creates a signal for a specific query parameter:
 
 ```ts
-import { browserNavigation, searchParams, searchParam } from '@kidajs/router'
+import { browserNavigation, searchParams, searchParam } from '@nano_kit/router'
 
 const [$location, navigation] = browserNavigation()
 const $params = searchParams($location)
@@ -293,7 +293,7 @@ const $fooNumber = searchParam($params, 'foo', Number)
 The `routeParam` function creates a signal for a specific route parameter:
 
 ```ts
-import { browserNavigation, routeParam } from '@kidajs/router'
+import { browserNavigation, routeParam } from '@nano_kit/router'
 
 const [$location, navigation] = browserNavigation({
   user: '/users/:id'
