@@ -10,8 +10,9 @@ import type {
   PickNonEmptyValue,
   ToAccessor,
   ToSignal,
+  ToAccessorOrSignal,
   ValueOrAccessor
-} from './types/index.js'
+} from './types.js'
 
 /**
  * Set value by index
@@ -60,7 +61,7 @@ export function assignKey<
  * @returns Value
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function get<T>(valueOr$signal: ValueOrAccessor<T>): T {
+export function $get<T>(valueOr$signal: ValueOrAccessor<T>): T {
   return isAccessor(valueOr$signal) ? valueOr$signal() : valueOr$signal
 }
 
@@ -105,7 +106,7 @@ export function toAccessor(valueOrReadable: unknown) {
  */
 export function toAccessorOrSignal<T>(
   valueOrAccessor: T
-): ToAccessor<T>
+): ToAccessorOrSignal<T>
 
 /* @__NO_SIDE_EFFECTS__ */
 export function toAccessorOrSignal(valueOrReadable: unknown) {

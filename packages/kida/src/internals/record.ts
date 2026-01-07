@@ -2,13 +2,14 @@ import type {
   AnyAccessorOrSignal,
   AnySignal
 } from 'agera'
-import type {
-  AnyRecordStore,
-  RecordStore
-} from './types/index.js'
-import { $$record } from './symbols.js'
 import { child } from './child.js'
 import { assignKey } from './utils.js'
+
+export type AnyRecordStore = AnyAccessorOrSignal & Partial<Record<PropertyKey, AnySignal>>
+
+export interface RecordStore {
+  record?: AnyRecordStore
+}
 
 /* @__NO_SIDE_EFFECTS__ */
 export function createProxyHandler(
@@ -34,10 +35,10 @@ export function recordBase(
   $source: AnyAccessorOrSignal & RecordStore,
   handler: ProxyHandler<AnyRecordStore>
 ): AnyRecordStore {
-  let cached = $source[$$record]
+  let cached = $source.record
 
   if (!cached) {
-    $source[$$record] = cached = new Proxy($source, handler) as AnyRecordStore
+    $source.record = cached = new Proxy($source, handler) as AnyRecordStore
   }
 
   return cached

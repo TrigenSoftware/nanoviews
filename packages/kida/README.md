@@ -384,16 +384,13 @@ console.log($user()) // John
 
 There are also other methods to work with arrays:
 
-- `atFoundIndex($list, predicate)` - create a signal for the first element that satisfies the predicate function.
 - `updateList($list, fn)` - update the value of the list signal using a function.
 - `push($list, ...values)` - add values to the list signal.
 - `pop($list)` - removes the last element from a list signal and returns it.
 - `shift($list)` - removes the first element from a list signal and returns it.
 - `unshift($list, ...values)` - inserts new elements at the start of an list signal, and returns the new length of the list.
-- `getIndex($list, index)` - get value at index from the list signal.
 - `setIndex($list, index, value)` - set value at index in the list signal.
 - `deleteIndex($list, index)` - delete element at index from the list signal.
-- `includes($list, value)` - check if the list signal includes a value.
 
 ### Object
 
@@ -438,251 +435,8 @@ console.log($user()) // Alice
 
 There are also other methods to work with object maps:
 
-- `getKey($object, key)` - get value by key from the object signal.
 - `setKey($object, key, value)` - set value by key to the object signal.
 - `deleteKey($object, key)` - delete item by key from the object signal.
-- `has($object, key)` - check if the object signal has the key.
-
-### Signals Map
-
-`SignalsMap` is a Map where each value is a signal. It provides reactive access to map entries.
-
-```ts
-import { getMapKey, setMapKey, deleteMapKey, clearMap, type SignalsMap } from 'kida'
-
-const map: SignalsMap<string, User> = new Map()
-
-// Set value by key
-setMapKey(map, 'user1', { name: 'Dan', age: 30 })
-
-// Get value by key (reactive)
-effect(() => {
-  const user = getMapKey(map, 'user1')
-  console.log('User:', user)
-})
-
-// Delete entry
-deleteMapKey(map, 'user1')
-
-// Clear entire map
-clearMap(map)
-```
-
-## Extra signals
-
-### External
-
-`external` method creates a signal that can receive value from external sources.
-
-```ts
-import { external, onMount, effect } from 'kida'
-
-const $mq = external(($mq) => {
-  const mq = window.matchMedia('(min-width: 600px)')
-  const setMatched = (mq) => $mq(mq.matches)
-
-  setMatched(mq)
-
-  onMount($mq, () => {
-    setMatched(mq)
-    mq.addEventListener('change', setMatched)
-
-    return () => mq.removeEventListener('change', setMatched)
-  })
-})
-
-effect(() => {
-  console.log('Media query matched:', $mq())
-})
-```
-
-Also you can create external signal to save value in external storage.
-
-```ts
-import { external, effect } from 'kida'
-
-const $locale = external(($locale) => {
-  $local(localStorage.getItem('locale') ?? 'en')
-
-  return (newLocale) => {
-    localStorage.setItem('locale', newLocale)
-    $locale(newLocale)
-  }
-})
-
-$locale('ru') // will save 'ru' to localStorage
-```
-
-Or you can implement lazy initialization with external signal.
-
-```ts
-import { external } from 'kida'
-
-const $savedString = external(($savedString) => {
-  $savedString(localStorage.getItem('string') ?? '')
-})
-
-console.log($savedString()) // runs initializer function
-```
-
-### Paced
-
-`paced` method creates a signal where updates are rate-limited.
-
-```ts
-import { signal, paced, effect, debounce } from 'kida'
-
-const $search = signal('')
-const $searchPaced = paced($search, debounce(300))
-
-effect(() => {
-  console.log('Search:', $search())
-})
-
-$searchPaced('a')
-$searchPaced('ab')
-// will log only 'ab' after 300ms
-```
-
-There is also `throttle` method to limit updates by time interval.
-
-## Tasks
-
-`addTask` can be used to mark all async operations during signal initialization.
-
-```ts
-import { signal, mountable, addTask, onMount } from 'kida'
-
-const tasks = new Set()
-const $user = mountable(signal(null))
-
-onMount($user, () => {
-  addTask(tasks, fetchUser().then(user => $user(user)))
-})
-```
-
-You can wait for all current tasks end with `waitCurrentTasks` method.
-
-```ts
-import { waitCurrentTasks, start } from 'kida'
-
-start($user)
-await waitCurrentTasks(tasks)
-```
-
-Or you can wait for all tasks including future with `waitTasks` method.
-
-```ts
-import { waitTasks, start } from 'kida'
-
-start($user)
-await waitTasks(tasks)
-```
-
-## SSR
-
-To successfully use signals with SSR, signals should be created for each request. To save tree-shaking capabilities and implement SSR features, mini dependency injection system is implemented in Kida.
-
-### Dependency Injection
-
-Dependency injection implementation in Kida has four main methods:
-
-1. `InjectionContext` - store for shared dependencies.
-2. `run` - function to run code within the context.
-3. `inject` - accepts a factory function and returns dependency from the context or initializes it.
-3. `action` - helper to bind action functions to the context.
-
-```ts
-import { InjectionContext, run, inject, action, signal, mountable, onMount, $TasksSet, channel, effect } from 'kida'
-
-function $UserChannel() {
-  return channel(inject($TasksSet))
-}
-
-function $UserSignal() {
-  return mountable(signal(null))
-}
-
-function $UserStore() {
-  const [userTask, $userLoading, $userError] = inject($UserChannel)
-  const $user = inject($UserSignal)
-  const fetchUser = action(() => userTask(async (signal) => {
-    const response = await fetch('/user', { signal })
-    const user = await response.json()
-
-    $user(user)
-  }))
-
-  onMount($user, fetchUser)
-
-  return { $user, $userLoading, $userError, fetchUser }
-}
-
-const context = new InjectionContext()
-
-run(context, () => {
-  const { $user, $userLoading, $userError } = inject($UserStore)
-
-  effect(() => {
-    console.log('User:', $user())
-    console.log('Loading:', $userLoading())
-    console.log('Error:', $userError())
-  })
-})
-```
-
-> [!NOTE]
-> With UI frameworks you will not use `InjectionContext` and `run` directly. Integrations with frameworks should include own more convenient API to work with injection context.
-
-### Serialization
-
-To serialize signals while SSR, firstly you should mark signals with `serializable` method to assign serialization key.
-
-```ts
-import { signal, serializable } from 'kida'
-
-function $UserSignal() {
-  return serializable('user', signal(null))
-}
-```
-
-Then, on SSR server, you can use `serialize` method wait all tasks and serialize signals.
-
-```ts
-import { serialize } from 'kida'
-
-const serialized = await serialize(() => {
-  const { $user } = inject($UserStore)
-
-  return [$user] // signals to trigger mount event
-})
-```
-
-On client side you should provide serialized data to context with `Serialized` factory.
-
-```ts
-import { InjectionContext, $Serialized, provide, run, inject, effect } from 'kida'
-
-const serialized = {
-  user: {
-    name: 'John'
-  }
-}
-const context = new InjectionContext([provide($Serialized, serialized)])
-
-run(context, () => {
-  const { $user, $userLoading, $userError } = inject(UserStore)
-
-  effect(() => {
-    console.log('User:', $user())
-    console.log('Loading:', $userLoading())
-    console.log('Error:', $userError())
-  })
-})
-```
-
-> [!NOTE]
-> With UI frameworks you will not use `InjectionContext` and `run` directly. Integrations with frameworks should include own more convenient API to work with injection context.
 
 ## Utils
 
@@ -729,15 +483,15 @@ const $user = signal(null)
 const $hasUser = boolean($user)
 ```
 
-### `get`
+### `$get`
 
-`get` method gets the value from the signal or returns the given value.
+`$get` method gets the value from the signal or returns the given value.
 
 ```ts
-import { signal, get } from 'kida'
+import { signal, $get } from 'kida'
 
-get(signal(1)) // 1
-get(1) // 1
+$get(signal(1)) // 1
+$get(1) // 1
 ```
 
 ### `composeDestroys`

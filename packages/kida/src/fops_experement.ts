@@ -1,6 +1,6 @@
 import type { Accessor } from 'agera'
-import type { ValueOrAccessor } from './types/index.js'
-import { get } from './utils.js'
+import type { ValueOrAccessor } from './types.js'
+import { $get } from './utils.js'
 
 /**
  * Logical OR. Returns an accessor for the first truthy value from two operands.
@@ -13,7 +13,7 @@ export function or<L, R>(
   left: ValueOrAccessor<L>,
   right: ValueOrAccessor<R>
 ): Accessor<L | R> {
-  return () => get(left) || get(right)
+  return () => $get(left) || $get(right)
 }
 
 /**
@@ -27,7 +27,7 @@ export function some<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
     let value: T
 
     for (let i = 0, len = args.length; i < len; i++) {
-      value = get(args[i])
+      value = $get(args[i])
 
       if (value) {
         return value
@@ -49,7 +49,7 @@ export function and<L, R>(
   left: ValueOrAccessor<L>,
   right: ValueOrAccessor<R>
 ): Accessor<L | R> {
-  return () => get(left) && get(right)
+  return () => $get(left) && $get(right)
 }
 
 /**
@@ -63,7 +63,7 @@ export function every<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
     let value: T
 
     for (let i = 0, len = args.length; i < len; i++) {
-      value = get(args[i])
+      value = $get(args[i])
 
       if (!value) {
         return value
@@ -81,7 +81,7 @@ export function every<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function not<T>(value: ValueOrAccessor<T>): Accessor<boolean> {
-  return () => !get(value)
+  return () => !$get(value)
 }
 
 /**
@@ -95,7 +95,7 @@ export function is(
   left: ValueOrAccessor<unknown>,
   right: ValueOrAccessor<unknown>
 ): Accessor<boolean> {
-  return () => get(left) === get(right)
+  return () => $get(left) === $get(right)
 }
 
 /**
@@ -109,7 +109,7 @@ export function isNot(
   left: ValueOrAccessor<unknown>,
   right: ValueOrAccessor<unknown>
 ): Accessor<boolean> {
-  return () => get(left) !== get(right)
+  return () => $get(left) !== $get(right)
 }
 
 /**
@@ -123,7 +123,7 @@ export function gt(
   left: ValueOrAccessor<number>,
   right: ValueOrAccessor<number>
 ): Accessor<boolean> {
-  return () => get(left) > get(right)
+  return () => $get(left) > $get(right)
 }
 
 /**
@@ -137,7 +137,7 @@ export function gte(
   left: ValueOrAccessor<number>,
   right: ValueOrAccessor<number>
 ): Accessor<boolean> {
-  return () => get(left) >= get(right)
+  return () => $get(left) >= $get(right)
 }
 
 /**
@@ -151,7 +151,7 @@ export function lt(
   left: ValueOrAccessor<number>,
   right: ValueOrAccessor<number>
 ): Accessor<boolean> {
-  return () => get(left) < get(right)
+  return () => $get(left) < $get(right)
 }
 
 /**
@@ -165,7 +165,7 @@ export function lte(
   left: ValueOrAccessor<number>,
   right: ValueOrAccessor<number>
 ): Accessor<boolean> {
-  return () => get(left) <= get(right)
+  return () => $get(left) <= $get(right)
 }
 
 /**
@@ -181,5 +181,5 @@ export function when<T, U>(
   then: ValueOrAccessor<T>,
   otherwise?: ValueOrAccessor<U>
 ): Accessor<T | U | undefined> {
-  return () => (get(condition) ? get(then) : otherwise && get(otherwise))
+  return () => ($get(condition) ? $get(then) : otherwise && $get(otherwise))
 }

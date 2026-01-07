@@ -5,15 +5,13 @@ import {
   type NewValue,
   computed,
   morph,
-  $$get,
-  $$set,
   isWritable,
   unsafeMarkWritable,
   isFunction,
   untracked
 } from 'agera'
-import type { AnyObject } from './types/index.js'
-import { get } from './utils.js'
+import type { AnyObject } from './types.js'
+import { $get } from './utils.js'
 
 /**
  * Create a writable child signal from a parent signal.
@@ -59,7 +57,7 @@ export function child<
   key: K | Accessor<K>,
   setValue?: (parentValue: P, key: K, value: V) => P
 ) {
-  const getter = computed(() => $parent()[get(key)])
+  const getter = computed(() => $parent()[$get(key)])
 
   if (!isWritable($parent)) {
     return getter
@@ -67,7 +65,7 @@ export function child<
 
   const setter = (value: NewValue<V>) => untracked(() => {
     const parent = $parent()
-    const k = get(key)
+    const k = $get(key)
 
     $parent(setValue!(
       parent,
@@ -79,7 +77,7 @@ export function child<
   unsafeMarkWritable(getter)
 
   return morph(getter, {
-    [$$get]: getter,
-    [$$set]: setter
+    get: getter,
+    set: setter
   })
 }

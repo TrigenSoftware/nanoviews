@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import type {
-  AnyFn,
-  InjectionFactory,
-  InjectionProvider
-} from './types/index.js'
+import type { AnyFn } from 'agera'
+
+export type InjectionFactory<T = unknown> = () => T
+
+export type InjectionProvider = readonly [InjectionFactory, unknown]
 
 /**
  * InjectionContext is a Map that holds the dependencies for the current context.

@@ -1,8 +1,7 @@
 import {
   type WritableSignal,
   type ReadableSignal,
-  type Accessor,
-  computed
+  type Accessor
 } from 'agera'
 import {
   child,
@@ -37,36 +36,6 @@ export function atIndex<T>(
   index: number | Accessor<number>
 ) {
   return child($list, index, assignIndex)
-}
-
-/**
- * Get writable item signal by predicate from the list signal.
- * @param $list - The list signal.
- * @param predicate - Predicate to select the item (same semantics as `Array.prototype.findIndex`).
- * @returns The writable item signal for the first matched item.
- */
-export function atFoundIndex<T>(
-  $list: WritableSignal<T[]>,
-  predicate: (item: T, index: number, array: T[]) => boolean
-): WritableSignal<T | undefined>
-
-/**
- * Get readable item signal by predicate from the list signal.
- * @param $list - The list signal.
- * @param predicate - Predicate to select the item (same semantics as `Array.prototype.findIndex`).
- * @returns The readable item signal for the first matched item.
- */
-export function atFoundIndex<T>(
-  $list: Accessor<T[]>,
-  predicate: (item: T, index: number, array: T[]) => boolean
-): ReadableSignal<T | undefined>
-
-/* @__NO_SIDE_EFFECTS__ */
-export function atFoundIndex<T>(
-  $list: Accessor<T[]> | WritableSignal<T[]>,
-  predicate: (item: T, index: number, array: T[]) => boolean
-): ReadableSignal<T | undefined> {
-  return atIndex($list, computed(() => $list().findIndex(predicate)))
 }
 
 /**
@@ -128,17 +97,6 @@ export function unshift<T>($list: WritableSignal<T[]>, ...values: T[]) {
 }
 
 /**
- * Get value at index from the list signal.
- * @param $list - The list signal.
- * @param index - The index to get.
- * @returns The value at the index.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function getIndex<T>($list: Accessor<T[]>, index: number): T | undefined {
-  return $list()[index]
-}
-
-/**
  * Set value at index in the list signal.
  * @param $list - The list signal.
  * @param index - The index to set.
@@ -157,15 +115,4 @@ export function setIndex<T>($list: WritableSignal<T[]>, index: number, value: T)
  */
 export function deleteIndex<T>($list: WritableSignal<T[]>, index: number): T | undefined {
   return updateList($list, state => state.splice(index, 1)[0])
-}
-
-/**
- * Check if the list signal includes a value.
- * @param $list - The list signal.
- * @param value - The value to check.
- * @returns Whether the list signal includes the value.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function includes<T>($list: Accessor<T[]>, value: T) {
-  return $list().includes(value)
 }

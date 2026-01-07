@@ -1,19 +1,85 @@
 import type {
+  AccessorValue,
   AnyAccessor,
   AnyWritableSignal,
+  ReadableSignal,
   WritableSignal
 } from 'agera'
 import type {
-  ReadableRecord,
-  WritableRecord,
-  ReadableDeepRecord,
-  WritableDeepRecord
-} from './types/index.js'
+  AnyObject,
+  EmptyValue,
+  PickEmptyValue,
+  PickNonEmptyValue,
+  PickObjectValue,
+  RequiredMergeUnion
+} from './types.js'
 import {
   createProxyHandler,
   recordBase,
   toAccessorOrSignal
 } from './internals/index.js'
+
+export type GenericRecordValue = AnyObject | EmptyValue
+
+export type ReadableRecord<
+  T extends AnyAccessor
+> = AccessorValue<T> extends infer V
+  ? [V] extends [GenericRecordValue]
+    ? [RequiredMergeUnion<PickNonEmptyValue<V>>, PickEmptyValue<V>] extends [infer Value, infer Empty]
+      ? T & {
+        [K in keyof Value as `$${string & K}`]-?: ReadableSignal<Value[K] | Empty>
+      }
+      : never
+    : never
+  : never
+
+export type WritableRecord<
+  T extends AnyWritableSignal
+> = AccessorValue<T> extends infer V
+  ? [V] extends [GenericRecordValue]
+    ? [RequiredMergeUnion<PickNonEmptyValue<V>>, PickEmptyValue<V>] extends [infer Value, infer Empty]
+      ? T & {
+        [K in keyof Value as `$${string & K}`]-?: WritableSignal<Value[K] | Empty>
+      }
+      : never
+    : never
+  : never
+
+export type ReadableDeepRecord<
+  T extends AnyAccessor
+> = AccessorValue<T> extends infer V
+  ? [V] extends [GenericRecordValue]
+    ? [RequiredMergeUnion<PickNonEmptyValue<V>>, PickEmptyValue<V>] extends [infer Value, infer Empty]
+      ? T & {
+        [K in keyof Value as `$${string & K}`]-?: PickNonEmptyValue<Value[K]> extends PickObjectValue<Value[K]>
+          ? Value[K] | Empty extends infer C
+            ? [C] extends [GenericRecordValue]
+              ? ReadableDeepRecord<ReadableSignal<C>>
+              : never
+            : never
+          : ReadableSignal<Value[K] | Empty>
+      }
+      : never
+    : never
+  : never
+
+export type WritableDeepRecord<
+  T extends AnyWritableSignal
+> = AccessorValue<T> extends infer V
+  ? [V] extends [GenericRecordValue]
+    ? [RequiredMergeUnion<PickNonEmptyValue<V>>, PickEmptyValue<V>] extends [infer Value, infer Empty]
+      ? T & {
+        [K in keyof Value as `$${string & K}`]-?: PickNonEmptyValue<Value[K]> extends PickObjectValue<Value[K]>
+          ? Value[K] | Empty extends infer C
+            ? [C] extends [GenericRecordValue]
+              ? WritableDeepRecord<WritableSignal<C>>
+              : never
+            : never
+          : WritableSignal<Value[K] | Empty>
+      }
+      : never
+    : never
+  : never
 
 const flatHandler = /* @__PURE__ */ createProxyHandler(child => child)
 

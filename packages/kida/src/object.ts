@@ -41,17 +41,6 @@ export function atKey<T extends AnyCollection>(
 }
 
 /**
- * Get value by key from the object signal.
- * @param $object - The object signal.
- * @param key - The key to get.
- * @returns The value.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function getKey<T extends AnyCollection>($object: Accessor<T>, key: keyof T) {
-  return $object()[key]
-}
-
-/**
  * Set value by key to the object signal.
  * @param $object - The object signal.
  * @param key - The key to set.
@@ -81,15 +70,4 @@ export function deleteKey<T extends AnyCollection>($object: WritableSignal<T>, k
   })
 
   return result as T[keyof T]
-}
-
-/**
- * Check if the object signal has the key.
- * @param $object - The object signal.
- * @param key - The key to check.
- * @returns Whether the object signal has the key.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function has<T extends AnyCollection>($object: Accessor<T>, key: keyof T) {
-  return key in $object()
 }

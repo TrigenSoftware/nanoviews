@@ -1,4 +1,4 @@
-export type RateLimiter = <T extends unknown[]>(fn: (...args: T) => void) => (...args: T) => void
+export * from './internals/types.js'
 
 export type KeysOf<U> = U extends unknown
   ? keyof U

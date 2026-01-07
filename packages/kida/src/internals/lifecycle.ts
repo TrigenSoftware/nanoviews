@@ -5,7 +5,8 @@ import {
   type AccessorValue,
   type Mountable,
   onMounted,
-  effect
+  effect,
+  untracked
 } from 'agera'
 
 function onStartStop(
@@ -102,6 +103,6 @@ export function start($signal: AnyAccessor) {
 export function exec<T extends AnyAccessor>($signal: T): AccessorValue<T> {
   start($signal)()
 
-  return $signal()
+  return untracked($signal)
 }
 
