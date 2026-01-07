@@ -20,14 +20,8 @@ export type {
   NewValue
 } from './internals/types.js'
 export {
-  $$get,
-  $$set,
-  $$source,
-  $$signal
-} from './internals/symbols.js'
-export {
   untracked,
-  unmounted
+  noMount
 } from './internals/index.js'
 export * from './signal.js'
 export * from './modes.js'

@@ -1,5 +1,4 @@
 import type {
-  MountedListener,
   MountedCallback,
   Subscriber,
   Dependency,
@@ -11,34 +10,29 @@ import type {
   ReadableSignal
 } from './types.js'
 import {
-  $$flags,
-  $$deps,
-  $$dep,
-  $$nextDep,
-  $$nextSub,
-  $$mounted,
-  $$subsCount,
-  $$signal
-} from './symbols.js'
-import {
   EffectScopeSubscriberFlag,
   EffectSubscriberFlag,
   LazyEffectSubscriberFlag
 } from './flags.js'
+
+interface MountedListener {
+  mounted: MountedCallback
+  nextSub: MountedListener | undefined
+}
 
 let mountedListeners: MountedListener | undefined
 let mountedListenersTail: MountedListener | undefined
 
 function queueMounted(onMounted: MountedCallback): void {
   const listener: MountedListener = {
-    [$$mounted]: onMounted,
-    [$$nextSub]: undefined
+    mounted: onMounted,
+    nextSub: undefined
   }
 
   if (mountedListenersTail === undefined) {
     mountedListeners = listener
   } else {
-    mountedListenersTail[$$nextSub] = listener
+    mountedListenersTail.nextSub = listener
   }
 
   mountedListenersTail = listener
@@ -49,7 +43,7 @@ export function notifyMounted(
 ): void {
   if (
     mountedListeners !== undefined
-    && (activeSub === undefined || (activeSub[$$flags] & EffectScopeSubscriberFlag) && !(activeSub[$$flags] & LazyEffectSubscriberFlag))
+    && (activeSub === undefined || (activeSub.flags & EffectScopeSubscriberFlag) && !(activeSub.flags & LazyEffectSubscriberFlag))
   ) {
     let listener = mountedListeners
 
@@ -57,35 +51,35 @@ export function notifyMounted(
     mountedListenersTail = undefined
 
     do {
-      listener[$$mounted](true)
-      listener = listener[$$nextSub]!
+      listener.mounted(true)
+      listener = listener.nextSub!
     } while (listener !== undefined)
   }
 }
 
 /* @__NO_SIDE_EFFECTS__ */
 export function isActiveSubscriber(sub: Subscriber | ComputedSignalInstance): boolean {
-  return (sub[$$flags] & EffectSubscriberFlag) > 0 || $$subsCount in sub && sub[$$subsCount] > 0
+  return (sub.flags & EffectSubscriberFlag) > 0 || 'subsCount' in sub && sub.subsCount > 0
 }
 
 export function incrementEffectCount(dep: Dependency | SignalInstance | ComputedSignalInstance): void {
-  if ($$subsCount in dep) {
-    dep[$$subsCount]++
+  if ('subsCount' in dep) {
+    dep.subsCount++
 
-    if ($$deps in dep && dep[$$deps] !== undefined) {
-      propagateActivation(dep[$$deps])
+    if ('deps' in dep && dep.deps !== undefined) {
+      propagateActivation(dep.deps)
     }
 
-    if (dep[$$subsCount] === 1 && $$mounted in dep) {
-      queueMounted(dep[$$mounted]!)
+    if (dep.subsCount === 1 && 'mounted' in dep) {
+      queueMounted(dep.mounted!)
     }
   }
 }
 
 function propagateActivation(link: Link): void {
   do {
-    incrementEffectCount(link[$$dep])
-    link = link[$$nextDep]!
+    incrementEffectCount(link.dep)
+    link = link.nextDep!
   } while (link !== undefined)
 }
 
@@ -93,23 +87,23 @@ export function decrementEffectCount(
   dep: Dependency | SignalInstance | ComputedSignalInstance,
   skipPropagation?: boolean
 ): void {
-  if ($$subsCount in dep && dep[$$subsCount] > 0) {
-    dep[$$subsCount]--
+  if ('subsCount' in dep && dep.subsCount > 0) {
+    dep.subsCount--
 
-    if (!skipPropagation && $$deps in dep && dep[$$deps] !== undefined) {
-      propagateDeactivation(dep[$$deps])
+    if (!skipPropagation && 'deps' in dep && dep.deps !== undefined) {
+      propagateDeactivation(dep.deps)
     }
 
-    if (dep[$$subsCount] === 0 && $$mounted in dep) {
-      dep[$$mounted]!(false)
+    if (dep.subsCount === 0 && 'mounted' in dep) {
+      dep.mounted!(false)
     }
   }
 }
 
 function propagateDeactivation(link: Link): void {
   do {
-    decrementEffectCount(link[$$dep])
-    link = link[$$nextDep]!
+    decrementEffectCount(link.dep)
+    link = link.nextDep!
   } while (link !== undefined)
 }
 
@@ -121,18 +115,18 @@ export function markMountableUsed() {
 }
 
 // eslint-disable-next-line import/no-mutable-exports
-export let activeSkipMount: SignalInstance | undefined
+export let activeNoMount: SignalInstance | undefined
 
-export function pushSkipMount(signal: SignalInstance | undefined) {
-  const prevSkipMount = activeSkipMount
+export function pushNoMount(signal: SignalInstance | undefined) {
+  const prevNoMount = activeNoMount
 
-  activeSkipMount = signal
+  activeNoMount = signal
 
-  return prevSkipMount
+  return prevNoMount
 }
 
-export function popSkipMount(prevSkipMount: SignalInstance | undefined) {
-  activeSkipMount = prevSkipMount
+export function popNoMount(prevNoMount: SignalInstance | undefined) {
+  activeNoMount = prevNoMount
 }
 
 /**
@@ -140,7 +134,7 @@ export function popSkipMount(prevSkipMount: SignalInstance | undefined) {
  * @param $signal - The signal to get the value from.
  * @returns The value of the signal.
  */
-export function unmounted<T>($signal: ReadableSignal<T>): T
+export function noMount<T>($signal: ReadableSignal<T>): T
 
 /**
  * Call a function without signal mount trigger.
@@ -148,14 +142,14 @@ export function unmounted<T>($signal: ReadableSignal<T>): T
  * @param fn - The function to call.
  * @returns The result of the function.
  */
-export function unmounted<T>($signal: AnySignal, fn: () => T): T
+export function noMount<T>($signal: AnySignal, fn: () => T): T
 
-export function unmounted($signal: AnySignal, fn: () => unknown = $signal) {
-  const prevSkipMount = pushSkipMount($signal[$$signal])
+export function noMount($signal: AnySignal, fn: () => unknown = $signal) {
+  const prevSkipMount = pushNoMount($signal.signal)
 
   try {
     return fn()
   } finally {
-    popSkipMount(prevSkipMount)
+    popNoMount(prevSkipMount)
   }
 }

@@ -8,14 +8,6 @@ import {
   type Destroy,
   type Accessor,
   type ReadableSignal,
-  $$subs,
-  $$subsTail,
-  $$flags,
-  $$deps,
-  $$depsTail,
-  $$effect,
-  $$destroy,
-  $$skipMount,
   EffectSubscriberFlag,
   EffectScopeSubscriberFlag,
   LazyEffectSubscriberFlag,
@@ -28,10 +20,10 @@ import {
   maybeDestroyEffect,
   activeSub,
   notifyMounted,
-  activeSkipMount,
+  activeNoMount,
   isMountableUsed,
   untracked,
-  unmounted
+  noMount
 } from './internals/index.js'
 
 function effectStop(this: Subscriber | Effect): void {
@@ -41,12 +33,12 @@ function effectStop(this: Subscriber | Effect): void {
 }
 
 function lazyEffectsRun(this: EffectScope): Destroy {
-  this[$$flags] &= ~LazyEffectSubscriberFlag
+  this.flags &= ~LazyEffectSubscriberFlag
 
   notifyMounted(activeSub)
 
-  if (this[$$deps] !== undefined) {
-    runLazyEffects(this[$$deps])
+  if (this.deps !== undefined) {
+    runLazyEffects(this.deps)
   }
 
   return effectStop.bind(this)
@@ -60,24 +52,24 @@ function lazyEffectsRun(this: EffectScope): Destroy {
  */
 export function effect(fn: EffectCallback, ignoreLazy = false): Destroy {
   const e: Effect = {
-    [$$effect]: fn,
-    [$$subs]: undefined,
-    [$$subsTail]: undefined,
-    [$$deps]: undefined,
-    [$$depsTail]: undefined,
-    [$$flags]: EffectSubscriberFlag,
-    [$$destroy]: undefined
+    effect: fn,
+    subs: undefined,
+    subsTail: undefined,
+    deps: undefined,
+    depsTail: undefined,
+    flags: EffectSubscriberFlag,
+    destroy: undefined
   }
 
-  if (isMountableUsed && activeSkipMount !== undefined) {
-    e[$$skipMount] = activeSkipMount
+  if (isMountableUsed && activeNoMount !== undefined) {
+    e.noMount = activeNoMount
   }
 
   if (activeSub !== undefined) {
     link(e, activeSub)
 
-    if (!ignoreLazy && activeSub[$$flags] & LazyEffectSubscriberFlag) {
-      e[$$flags] |= LazyEffectSubscriberFlag
+    if (!ignoreLazy && activeSub.flags & LazyEffectSubscriberFlag) {
+      e.flags |= LazyEffectSubscriberFlag
       return effectStop.bind(e)
     }
   }
@@ -89,11 +81,11 @@ export function effect(fn: EffectCallback, ignoreLazy = false): Destroy {
 
 function createEffectScopeInstance(): EffectScope {
   return {
-    [$$subs]: undefined,
-    [$$subsTail]: undefined,
-    [$$deps]: undefined,
-    [$$depsTail]: undefined,
-    [$$flags]: EffectSubscriberFlag | EffectScopeSubscriberFlag
+    subs: undefined,
+    subsTail: undefined,
+    deps: undefined,
+    depsTail: undefined,
+    flags: EffectSubscriberFlag | EffectScopeSubscriberFlag
   }
 }
 
@@ -106,8 +98,8 @@ function runEffectScopeInstance(
     link(e, activeSub)
   }
 
-  if (lazy || activeSub !== undefined && activeSub[$$flags] & LazyEffectSubscriberFlag) {
-    e[$$flags] |= LazyEffectSubscriberFlag
+  if (lazy || activeSub !== undefined && activeSub.flags & LazyEffectSubscriberFlag) {
+    e.flags |= LazyEffectSubscriberFlag
   }
 
   runEffectScope(e, fn)
@@ -227,6 +219,6 @@ export function observe<T>(
   fn: ObserverCallback<T>,
   ignoreLazy?: boolean
 ) {
-  return singleEffect(() => unmounted($accessor), fn, true, ignoreLazy)
+  return singleEffect(() => noMount($accessor), fn, true, ignoreLazy)
 }
 

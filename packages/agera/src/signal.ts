@@ -9,19 +9,6 @@ import {
   type Morph,
   type Mountable,
   type NewValue,
-  $$subs,
-  $$subsTail,
-  $$flags,
-  $$deps,
-  $$depsTail,
-  $$compute,
-  $$value,
-  $$source,
-  $$get,
-  $$set,
-  $$mounted,
-  $$signal,
-  $$subsCount,
   ComputedSubscriberFlag,
   DirtySubscriberFlag,
   PendingComputedSubscriberFlag,
@@ -32,7 +19,7 @@ import {
   propagate,
   processEffectNotifications,
   activeSub,
-  unmounted
+  noMount
 } from './internals/index.js'
 import { listen } from './effect.js'
 import { isFunction } from './utils.js'
@@ -47,9 +34,9 @@ export function onMounted(
   $signal: Mountable<AnySignal>,
   listener: (mounted: boolean) => void
 ) {
-  const $mounted = ($signal[$$signal][$$mounted] ||= signal(false)) as ReadableSignal<boolean>
+  const $mounted = ($signal.signal.mounted ||= signal(false)) as ReadableSignal<boolean>
 
-  return unmounted($signal, () => listen($mounted, listener, true))
+  return noMount($signal, () => listen($mounted, listener, true))
 }
 
 let batchDepth = 0
@@ -78,7 +65,7 @@ function createSignal(
 ) {
   const $signal = constructor.bind(ctx) as AnySignal
 
-  $signal[$$signal] = instance
+  $signal.signal = instance
 
   return $signal
 }
@@ -98,21 +85,21 @@ export function signal<T>(value: T): WritableSignal<T>
 /* @__NO_SIDE_EFFECTS__ */
 export function signal<T>(value?: T): WritableSignal<T | undefined> {
   return createSignal(signalGetterSetter, {
-    [$$value]: value,
-    [$$subs]: undefined,
-    [$$subsTail]: undefined,
-    [$$flags]: WritableSignalFlag,
-    [$$subsCount]: 0
+    value,
+    subs: undefined,
+    subsTail: undefined,
+    flags: WritableSignalFlag,
+    subsCount: 0
   }) as WritableSignal<T | undefined>
 }
 
 function signalGetterSetter<T>(this: SignalInstance<T>, ...value: [NewValue<T>]): T | void {
   if (value.length) {
     const newValue = value[0]
-    const prevValue = this[$$value]
+    const prevValue = this.value
 
-    if (prevValue !== (this[$$value] = isFunction(newValue) ? newValue(prevValue) : newValue)) {
-      const subs = this[$$subs]
+    if (prevValue !== (this.value = isFunction(newValue) ? newValue(prevValue) : newValue)) {
+      const subs = this.subs
 
       if (subs !== undefined) {
         propagate(subs)
@@ -123,11 +110,11 @@ function signalGetterSetter<T>(this: SignalInstance<T>, ...value: [NewValue<T>])
       }
     }
   } else {
-    if (activeSub !== undefined && !(activeSub[$$flags] & EffectScopeSubscriberFlag)) {
+    if (activeSub !== undefined && !(activeSub.flags & EffectScopeSubscriberFlag)) {
       link(this, activeSub)
     }
 
-    return this[$$value]
+    return this.value
   }
 }
 
@@ -139,29 +126,29 @@ function signalGetterSetter<T>(this: SignalInstance<T>, ...value: [NewValue<T>])
 /* @__NO_SIDE_EFFECTS__ */
 export function computed<T>(compute: Compute<T>): ReadableSignal<T> {
   return createSignal(computedGetter, {
-    [$$compute]: compute as Compute<unknown>,
-    [$$value]: undefined,
-    [$$subs]: undefined,
-    [$$subsTail]: undefined,
-    [$$deps]: undefined,
-    [$$depsTail]: undefined,
-    [$$flags]: ComputedSubscriberFlag | DirtySubscriberFlag,
-    [$$subsCount]: 0
+    compute: compute as Compute<unknown>,
+    value: undefined,
+    subs: undefined,
+    subsTail: undefined,
+    deps: undefined,
+    depsTail: undefined,
+    flags: ComputedSubscriberFlag | DirtySubscriberFlag,
+    subsCount: 0
   }) as ReadableSignal<T>
 }
 
 function computedGetter<T>(this: ComputedSignalInstance<T>): T {
-  const flags = this[$$flags]
+  const flags = this.flags
 
   if (flags & (DirtySubscriberFlag | PendingComputedSubscriberFlag)) {
     processComputedUpdate(this, flags)
   }
 
-  if (activeSub !== undefined && !(activeSub[$$flags] & EffectScopeSubscriberFlag)) {
+  if (activeSub !== undefined && !(activeSub.flags & EffectScopeSubscriberFlag)) {
     link(this, activeSub)
   }
 
-  return this[$$value]
+  return this.value
 }
 
 export function morph<T, C extends Partial<Morph<T>>>(
@@ -179,18 +166,18 @@ export function morph<T, C extends Partial<Morph<T>>>(
   $signal: ReadableSignal<T> | WritableSignal<T>,
   context: C
 ) {
-  return createSignal(morphGetterSetter, $signal[$$signal], {
-    [$$source]: $signal,
-    [$$set]: $signal,
-    [$$get]: $signal,
+  return createSignal(morphGetterSetter, $signal.signal, {
+    source: $signal,
+    set: $signal,
+    get: $signal,
     ...context
   } as Morph)
 }
 
 function morphGetterSetter<T>(this: Morph<T>, ...value: [T]): T | void {
   if (value.length) {
-    this[$$set](value[0])
+    this.set(value[0])
   } else {
-    return this[$$get]()
+    return this.get()
   }
 }

@@ -1,8 +1,7 @@
 import {
   type AnyReadableSignal,
   type AnyAccessor,
-  type AnyFn,
-  $$signal
+  type AnyFn
 } from './internals/index.js'
 
 /**
@@ -11,7 +10,7 @@ import {
  * @returns Whether the value is an signal.
  */
 export function isSignal<T extends AnyReadableSignal = AnyReadableSignal>(value: unknown): value is T {
-  return typeof value === 'function' && $$signal in value
+  return typeof value === 'function' && 'signal' in value
 }
 
 /**

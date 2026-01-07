@@ -1,11 +1,6 @@
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
-import {
-  DEV,
-  inlineSymbols
-} from '../../scripts/index.js'
-import * as symbols from './src/internals/symbols.ts'
-import * as symbolsMin from './src/internals/symbols.min.ts'
+import { DEV } from '../../scripts/index.js'
 
 export default defineConfig({
   build: {
@@ -20,10 +15,6 @@ export default defineConfig({
     minify: !DEV && 'esbuild',
     emptyOutDir: false
   },
-  plugins: [
-    // inline symbols values to optimize bundle size
-    inlineSymbols(symbols, symbolsMin)
-  ],
   test: {
     exclude: [...configDefaults.exclude, './package'],
     coverage: {

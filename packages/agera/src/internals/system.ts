@@ -8,23 +8,6 @@ import type {
   EffectScope
 } from './types.js'
 import {
-  $$subs,
-  $$subsTail,
-  $$flags,
-  $$deps,
-  $$depsTail,
-  $$dep,
-  $$nextDep,
-  $$prevSub,
-  $$nextSub,
-  $$destroy,
-  $$sub,
-  $$value,
-  $$compute,
-  $$effect,
-  $$skipMount
-} from './symbols.js'
-import {
   DirtySubscriberFlag,
   TrackingSubscriberFlag,
   NotifiedSubscriberFlag,
@@ -44,8 +27,8 @@ import {
   decrementEffectCount,
   notifyMounted,
   isMountableUsed,
-  pushSkipMount,
-  popSkipMount
+  pushNoMount,
+  popNoMount
 } from './lifecycle.js'
 
 /**
@@ -66,39 +49,39 @@ export function linkNewDep(
   depsTail: Link | undefined
 ): Link {
   const newLink: Link = {
-    [$$dep]: dep,
-    [$$sub]: sub,
-    [$$nextDep]: nextDep,
-    [$$prevSub]: undefined,
-    [$$nextSub]: undefined
+    dep,
+    sub,
+    nextDep,
+    prevSub: undefined,
+    nextSub: undefined
   }
 
   if (depsTail === undefined) {
-    sub[$$deps] = newLink
+    sub.deps = newLink
   } else {
-    depsTail[$$nextDep] = newLink
+    depsTail.nextDep = newLink
   }
 
-  if (dep[$$subs] === undefined) {
-    dep[$$subs] = newLink
+  if (dep.subs === undefined) {
+    dep.subs = newLink
   } else {
-    const oldTail = dep[$$subsTail]!
+    const oldTail = dep.subsTail!
 
-    newLink[$$prevSub] = oldTail
-    oldTail[$$nextSub] = newLink
+    newLink.prevSub = oldTail
+    oldTail.nextSub = newLink
   }
 
-  sub[$$depsTail] = newLink
-  dep[$$subsTail] = newLink
+  sub.depsTail = newLink
+  dep.subsTail = newLink
 
-  const isDepMountable = isMountableUsed && dep[$$flags] & MountableSignalFlag
+  const isDepMountable = isMountableUsed && dep.flags & MountableSignalFlag
 
   // Mark computed signals as mountable if any of their dependencies are mountable
-  if (isDepMountable && sub[$$flags] & ComputedSubscriberFlag) {
-    sub[$$flags] |= MountableSignalFlag
+  if (isDepMountable && sub.flags & ComputedSubscriberFlag) {
+    sub.flags |= MountableSignalFlag
   }
 
-  if (isDepMountable && isActiveSubscriber(sub) && sub[$$skipMount] !== dep) {
+  if (isDepMountable && isActiveSubscriber(sub) && sub.noMount !== dep) {
     incrementEffectCount(dep)
   }
 
@@ -108,17 +91,17 @@ export function linkNewDep(
 /**
  * Verifies whether the given link is valid for the specified subscriber.
  *
- * It iterates through the subscriber's link list (from sub[$$deps] to sub[$$depsTail])
+ * It iterates through the subscriber's link list (from sub.deps to sub.depsTail)
  * to determine if the provided link object is part of that chain.
  * @param checkLink - The link object to validate.
  * @param sub - The subscriber whose link list is being checked.
  * @returns `true` if the link is found in the subscriber's list; otherwise `false`.
  */
 export function isValidLink(checkLink: Link, sub: Subscriber): boolean {
-  const depsTail = sub[$$depsTail]
+  const depsTail = sub.depsTail
 
   if (depsTail !== undefined) {
-    let link = sub[$$deps]!
+    let link = sub.deps!
 
     do {
       if (link === checkLink) {
@@ -129,7 +112,7 @@ export function isValidLink(checkLink: Link, sub: Subscriber): boolean {
         break
       }
 
-      link = link[$$nextDep]!
+      link = link.nextDep!
     } while (link !== undefined)
   }
 
@@ -143,26 +126,26 @@ export function isValidLink(checkLink: Link, sub: Subscriber): boolean {
  * @returns The newly created link object if the two are not already linked; otherwise `undefined`.
  */
 export function link(dep: Dependency, sub: Subscriber): Link | undefined {
-  const currentDep = sub[$$depsTail]
+  const currentDep = sub.depsTail
 
-  if (currentDep !== undefined && currentDep[$$dep] === dep) {
+  if (currentDep !== undefined && currentDep.dep === dep) {
     return
   }
 
   const nextDep = currentDep !== undefined
-    ? currentDep[$$nextDep]
-    : sub[$$deps]
+    ? currentDep.nextDep
+    : sub.deps
 
-  if (nextDep !== undefined && nextDep[$$dep] === dep) {
-    sub[$$depsTail] = nextDep
+  if (nextDep !== undefined && nextDep.dep === dep) {
+    sub.depsTail = nextDep
     return
   }
 
-  const depLastSub = dep[$$subsTail]
+  const depLastSub = dep.subsTail
 
   if (
     depLastSub !== undefined
-    && depLastSub[$$sub] === sub
+    && depLastSub.sub === sub
     && isValidLink(depLastSub, sub)
   ) {
     return
@@ -184,11 +167,11 @@ export function updateComputed<T>(computed: ComputedSignalInstance<T>): boolean 
   startTracking(computed)
 
   try {
-    const oldValue = computed[$$value]
-    const newValue = computed[$$compute](oldValue)
+    const oldValue = computed.value
+    const newValue = computed.compute(oldValue)
 
     if (oldValue !== newValue) {
-      computed[$$value] = newValue
+      computed.value = newValue
       return true
     }
 
@@ -208,15 +191,15 @@ export function updateComputed<T>(computed: ComputedSignalInstance<T>): boolean 
  */
 export function shallowPropagate(link: Link): void {
   do {
-    const sub = link[$$sub]
-    const subFlags = sub[$$flags]
+    const sub = link.sub
+    const subFlags = sub.flags
 
     if ((subFlags & (PendingComputedSubscriberFlag | DirtySubscriberFlag)) === PendingComputedSubscriberFlag) {
-      sub[$$flags] = subFlags | DirtySubscriberFlag | NotifiedSubscriberFlag
+      sub.flags = subFlags | DirtySubscriberFlag | NotifiedSubscriberFlag
 
       if ((subFlags & (EffectSubscriberFlag | NotifiedSubscriberFlag)) === EffectSubscriberFlag) {
         if (queuedEffectsTail !== undefined) {
-          queuedEffectsTail[$$depsTail]![$$nextDep] = sub[$$deps]
+          queuedEffectsTail.depsTail!.nextDep = sub.deps
         } else {
           queuedEffects = sub
         }
@@ -225,7 +208,7 @@ export function shallowPropagate(link: Link): void {
       }
     }
 
-    link = link[$$nextSub]!
+    link = link.nextSub!
   } while (link !== undefined)
 }
 
@@ -243,33 +226,33 @@ export function propagate(link: Link): void {
   let stack = 0
 
   top: do {
-    const sub = link[$$sub]
-    const subFlags = sub[$$flags]
+    const sub = link.sub
+    const subFlags = sub.flags
 
     if (
       (
         !(subFlags & (TrackingSubscriberFlag | RecursedSubscriberFlag | PropagatedSubscriberFlag))
-        && (sub[$$flags] = subFlags | targetFlag | NotifiedSubscriberFlag, true)
+        && (sub.flags = subFlags | targetFlag | NotifiedSubscriberFlag, true)
       )
       || (
         (subFlags & RecursedSubscriberFlag)
         && !(subFlags & TrackingSubscriberFlag)
-        && (sub[$$flags] = (subFlags & ~RecursedSubscriberFlag) | targetFlag | NotifiedSubscriberFlag, true)
+        && (sub.flags = (subFlags & ~RecursedSubscriberFlag) | targetFlag | NotifiedSubscriberFlag, true)
       )
       || (
         !(subFlags & PropagatedSubscriberFlag)
         && isValidLink(link, sub)
         && (
-          sub[$$flags] = subFlags | RecursedSubscriberFlag | targetFlag | NotifiedSubscriberFlag,
-          (sub as Dependency)[$$subs] !== undefined
+          sub.flags = subFlags | RecursedSubscriberFlag | targetFlag | NotifiedSubscriberFlag,
+          (sub as Dependency).subs !== undefined
         )
       )
     ) {
-      const subSubs = (sub as Dependency)[$$subs]
+      const subSubs = (sub as Dependency).subs
 
       if (subSubs !== undefined) {
-        if (subSubs[$$nextSub] !== undefined) {
-          subSubs[$$prevSub] = subs
+        if (subSubs.nextSub !== undefined) {
+          subSubs.prevSub = subs
           link = subs = subSubs
           targetFlag = PendingComputedSubscriberFlag
           ++stack
@@ -285,7 +268,7 @@ export function propagate(link: Link): void {
 
       if (subFlags & EffectSubscriberFlag) {
         if (queuedEffectsTail !== undefined) {
-          queuedEffectsTail[$$depsTail]![$$nextDep] = sub[$$deps]
+          queuedEffectsTail.depsTail!.nextDep = sub.deps
         } else {
           queuedEffects = sub
         }
@@ -293,11 +276,11 @@ export function propagate(link: Link): void {
         queuedEffectsTail = sub
       }
     } else if (!(subFlags & (TrackingSubscriberFlag | targetFlag))) {
-      sub[$$flags] = subFlags | targetFlag | NotifiedSubscriberFlag
+      sub.flags = subFlags | targetFlag | NotifiedSubscriberFlag
 
       if ((subFlags & (EffectSubscriberFlag | NotifiedSubscriberFlag)) === EffectSubscriberFlag) {
         if (queuedEffectsTail !== undefined) {
-          queuedEffectsTail[$$depsTail]![$$nextDep] = sub[$$deps]
+          queuedEffectsTail.depsTail!.nextDep = sub.deps
         } else {
           queuedEffects = sub
         }
@@ -309,10 +292,10 @@ export function propagate(link: Link): void {
       && (subFlags & PropagatedSubscriberFlag)
       && isValidLink(link, sub)
     ) {
-      sub[$$flags] = subFlags | targetFlag
+      sub.flags = subFlags | targetFlag
     }
 
-    if ((link = subs[$$nextSub]!) !== undefined) {
+    if ((link = subs.nextSub!) !== undefined) {
       subs = link
       targetFlag = stack
         ? PendingComputedSubscriberFlag
@@ -323,13 +306,13 @@ export function propagate(link: Link): void {
     while (stack) {
       --stack
 
-      const dep = subs[$$dep]
-      const depSubs = dep[$$subs]!
+      const dep = subs.dep
+      const depSubs = dep.subs!
 
-      subs = depSubs[$$prevSub]!
-      depSubs[$$prevSub] = undefined
+      subs = depSubs.prevSub!
+      depSubs.prevSub = undefined
 
-      if ((link = subs[$$nextSub]!) !== undefined) {
+      if ((link = subs.nextSub!) !== undefined) {
         subs = link
         targetFlag = stack
           ? PendingComputedSubscriberFlag
@@ -358,78 +341,78 @@ export function checkDirty(link: Link): boolean {
   top: do {
     dirty = false
 
-    const dep = link[$$dep]
+    const dep = link.dep
 
-    if ($$flags in dep) {
-      const depFlags = dep[$$flags]
+    if ('flags' in dep) {
+      const depFlags = dep.flags
 
       if ((depFlags & (ComputedSubscriberFlag | DirtySubscriberFlag)) === (ComputedSubscriberFlag | DirtySubscriberFlag)) {
         if (updateComputed(dep as ComputedSignalInstance)) {
-          const subs = dep[$$subs]!
+          const subs = dep.subs!
 
-          if (subs[$$nextSub] !== undefined) {
+          if (subs.nextSub !== undefined) {
             shallowPropagate(subs)
           }
 
           dirty = true
         }
       } else if ((depFlags & (ComputedSubscriberFlag | PendingComputedSubscriberFlag)) === (ComputedSubscriberFlag | PendingComputedSubscriberFlag)) {
-        const depSubs = dep[$$subs]!
+        const depSubs = dep.subs!
 
-        if (depSubs[$$nextSub] !== undefined) {
-          depSubs[$$prevSub] = link
+        if (depSubs.nextSub !== undefined) {
+          depSubs.prevSub = link
         }
 
-        link = (dep as ComputedSignalInstance)[$$deps]!
+        link = (dep as ComputedSignalInstance).deps!
         ++stack
         continue
       }
     }
 
-    if (!dirty && link[$$nextDep] !== undefined) {
-      link = link[$$nextDep]
+    if (!dirty && link.nextDep !== undefined) {
+      link = link.nextDep
       continue
     }
 
     if (stack) {
-      let sub = link[$$sub] as ComputedSignalInstance
+      let sub = link.sub as ComputedSignalInstance
 
       do {
         --stack
 
-        const subSubs = sub[$$subs]!
+        const subSubs = sub.subs!
 
         if (dirty) {
           if (updateComputed(sub)) {
-            if ((link = subSubs[$$prevSub]!) !== undefined) {
-              subSubs[$$prevSub] = undefined
+            if ((link = subSubs.prevSub!) !== undefined) {
+              subSubs.prevSub = undefined
               shallowPropagate(subSubs)
-              sub = link[$$sub] as ComputedSignalInstance
+              sub = link.sub as ComputedSignalInstance
             } else {
-              sub = subSubs[$$sub] as ComputedSignalInstance
+              sub = subSubs.sub as ComputedSignalInstance
             }
 
             continue
           }
         } else {
-          sub[$$flags] &= ~PendingComputedSubscriberFlag
+          sub.flags &= ~PendingComputedSubscriberFlag
         }
 
-        if ((link = subSubs[$$prevSub]!) !== undefined) {
-          subSubs[$$prevSub] = undefined
+        if ((link = subSubs.prevSub!) !== undefined) {
+          subSubs.prevSub = undefined
 
-          if (link[$$nextDep] !== undefined) {
-            link = link[$$nextDep]
+          if (link.nextDep !== undefined) {
+            link = link.nextDep
             continue top
           }
 
-          sub = link[$$sub] as ComputedSignalInstance
+          sub = link.sub as ComputedSignalInstance
         } else {
-          if ((link = subSubs[$$nextDep]!) !== undefined) {
+          if ((link = subSubs.nextDep!) !== undefined) {
             continue top
           }
 
-          sub = subSubs[$$sub] as ComputedSignalInstance
+          sub = subSubs.sub as ComputedSignalInstance
         }
 
         dirty = false
@@ -450,12 +433,12 @@ export function checkDirty(link: Link): boolean {
  * @returns `true` if the subscriber is marked as Dirty; otherwise `false`.
  */
 export function updateDirtyFlag(sub: Subscriber, flags: number): boolean {
-  if (checkDirty(sub[$$deps]!)) {
-    sub[$$flags] = flags | DirtySubscriberFlag
+  if (checkDirty(sub.deps!)) {
+    sub.flags = flags | DirtySubscriberFlag
     return true
   }
 
-  sub[$$flags] = flags & ~PendingComputedSubscriberFlag
+  sub.flags = flags & ~PendingComputedSubscriberFlag
 
   return false
 }
@@ -473,11 +456,11 @@ export function processComputedUpdate<T>(computed: ComputedSignalInstance<T>, fl
   if (
     flags & DirtySubscriberFlag
     || (
-      checkDirty(computed[$$deps]!) || (computed[$$flags] = flags & ~PendingComputedSubscriberFlag, false)
+      checkDirty(computed.deps!) || (computed.flags = flags & ~PendingComputedSubscriberFlag, false)
     )
   ) {
     if (updateComputed(computed)) {
-      const subs = computed[$$subs]
+      const subs = computed.subs
 
       if (subs !== undefined) {
         shallowPropagate(subs)
@@ -498,22 +481,22 @@ export function processComputedUpdate<T>(computed: ComputedSignalInstance<T>, fl
  */
 export function processPendingInnerEffects(sub: Subscriber, flags: number): void {
   if (flags & PendingEffectSubscriberFlag) {
-    sub[$$flags] = flags & ~PendingEffectSubscriberFlag
+    sub.flags = flags & ~PendingEffectSubscriberFlag
 
-    let link = sub[$$deps]!
+    let link = sub.deps!
 
     do {
-      const dep = link[$$dep]
+      const dep = link.dep
 
       if (
-        $$flags in dep
-        && dep[$$flags] & EffectSubscriberFlag
-        && dep[$$flags] & PropagatedSubscriberFlag
+        'flags' in dep
+        && dep.flags & EffectSubscriberFlag
+        && dep.flags & PropagatedSubscriberFlag
       ) {
         notifyEffect(dep as Effect | EffectScope)
       }
 
-      link = link[$$nextDep]!
+      link = link.nextDep!
     } while (link !== undefined)
   }
 }
@@ -526,20 +509,20 @@ export function runEffect(e: Effect, warmup?: true): void {
   startTracking(e)
 
   if (isMountableUsed) {
-    prevSkipMount = pushSkipMount(e[$$skipMount])
+    prevSkipMount = pushNoMount(e.noMount)
   }
 
   try {
-    if (e[$$destroy] !== undefined) {
-      untracked(e[$$destroy])
+    if (e.destroy !== undefined) {
+      untracked(e.destroy)
     }
 
-    e[$$destroy] = e[$$effect](warmup)
+    e.destroy = e.effect(warmup)
   } finally {
     activeSub = prevSub
 
     if (isMountableUsed) {
-      popSkipMount(prevSkipMount)
+      popNoMount(prevSkipMount)
     }
 
     endTracking(e)
@@ -559,7 +542,7 @@ export function runEffectScope(e: EffectScope, fn: () => void): void {
 }
 
 export function notifyEffect(e: Effect | EffectScope) {
-  if (e[$$flags] & EffectScopeSubscriberFlag) {
+  if (e.flags & EffectScopeSubscriberFlag) {
     return notifyEffectScope(e as EffectScope)
   }
 
@@ -567,7 +550,7 @@ export function notifyEffect(e: Effect | EffectScope) {
 }
 
 export function notifyEffectSub(e: Effect): boolean {
-  const flags = e[$$flags]
+  const flags = e.flags
 
   if (
     flags & DirtySubscriberFlag
@@ -575,17 +558,17 @@ export function notifyEffectSub(e: Effect): boolean {
   ) {
     runEffect(e)
   } else {
-    processPendingInnerEffects(e, e[$$flags])
+    processPendingInnerEffects(e, e.flags)
   }
 
   return true
 }
 
 export function notifyEffectScope(e: EffectScope): boolean {
-  const flags = e[$$flags]
+  const flags = e.flags
 
   if (flags & PendingEffectSubscriberFlag) {
-    processPendingInnerEffects(e, e[$$flags])
+    processPendingInnerEffects(e, e.flags)
     return true
   }
 
@@ -602,20 +585,20 @@ export function notifyEffectScope(e: EffectScope): boolean {
 export function processEffectNotifications(): void {
   while (queuedEffects !== undefined) {
     const effect = queuedEffects
-    const depsTail = effect[$$depsTail]
+    const depsTail = effect.depsTail
     // effect can be destroyed previously while notifying
-    const queuedNext = depsTail?.[$$nextDep]
+    const queuedNext = depsTail?.nextDep
 
     if (queuedNext !== undefined) {
-      depsTail![$$nextDep] = undefined
-      queuedEffects = queuedNext[$$sub]
+      depsTail!.nextDep = undefined
+      queuedEffects = queuedNext.sub
     } else {
       queuedEffects = undefined
       queuedEffectsTail = undefined
     }
 
     if (!notifyEffect(effect as EffectScope | Effect)) {
-      effect[$$flags] &= ~NotifiedSubscriberFlag
+      effect.flags &= ~NotifiedSubscriberFlag
     }
   }
 }
@@ -638,9 +621,9 @@ export function untracked<T>(fn: () => T): T {
 }
 
 export function maybeDestroyEffect(dep: Dependency | Subscriber): void {
-  if ($$destroy in dep && dep[$$destroy] !== undefined) {
-    untracked((dep as Effect)[$$destroy]!)
-    dep[$$destroy] = undefined
+  if ('destroy' in dep && dep.destroy !== undefined) {
+    untracked((dep as Effect).destroy!)
+    dep.destroy = undefined
   }
 }
 
@@ -652,51 +635,51 @@ export function maybeDestroyEffect(dep: Dependency | Subscriber): void {
  * @param link - The head of a linked chain to be cleared.
  */
 export function clearTracking(link: Link): void {
-  const shouldDecrement = isMountableUsed && isActiveSubscriber(link[$$sub])
+  const shouldDecrement = isMountableUsed && isActiveSubscriber(link.sub)
 
   do {
-    const dep = link[$$dep] as Dependency | Dependency & Subscriber | SignalInstance
-    const sub = link[$$sub] as Subscriber
-    const nextDep = link[$$nextDep]
-    const nextSub = link[$$nextSub]
-    const prevSub = link[$$prevSub]
+    const dep = link.dep as Dependency | Dependency & Subscriber | SignalInstance
+    const sub = link.sub as Subscriber
+    const nextDep = link.nextDep
+    const nextSub = link.nextSub
+    const prevSub = link.prevSub
 
     if (nextSub !== undefined) {
-      nextSub[$$prevSub] = prevSub
+      nextSub.prevSub = prevSub
     } else {
-      dep[$$subsTail] = prevSub
+      dep.subsTail = prevSub
     }
 
     if (prevSub !== undefined) {
-      prevSub[$$nextSub] = nextSub
+      prevSub.nextSub = nextSub
     } else {
-      dep[$$subs] = nextSub
+      dep.subs = nextSub
 
       if (nextSub === undefined) {
         maybeDestroyEffect(dep)
       }
     }
 
-    const shouldClearSubs = dep[$$subs] === undefined && $$deps in dep
+    const shouldClearSubs = dep.subs === undefined && 'deps' in dep
 
-    if (shouldDecrement && dep[$$flags] & MountableSignalFlag && sub[$$skipMount] !== dep) {
+    if (shouldDecrement && dep.flags & MountableSignalFlag && sub.noMount !== dep) {
       decrementEffectCount(dep, shouldClearSubs)
     }
 
     if (shouldClearSubs) {
-      const depFlags = dep[$$flags]
+      const depFlags = dep.flags
 
       if (!(depFlags & DirtySubscriberFlag)) {
-        dep[$$flags] = depFlags | DirtySubscriberFlag
+        dep.flags = depFlags | DirtySubscriberFlag
       }
 
-      const depDeps = dep[$$deps]
+      const depDeps = dep.deps
 
       if (depDeps !== undefined) {
         link = depDeps
-        dep[$$depsTail]![$$nextDep] = nextDep
-        dep[$$deps] = undefined
-        dep[$$depsTail] = undefined
+        dep.depsTail!.nextDep = nextDep
+        dep.deps = undefined
+        dep.depsTail = undefined
         continue
       }
     }
@@ -713,8 +696,8 @@ export function clearTracking(link: Link): void {
  * @param sub - The subscriber to start tracking.
  */
 export function startTracking(sub: Subscriber): void {
-  sub[$$depsTail] = undefined
-  sub[$$flags] = (sub[$$flags] & ~(NotifiedSubscriberFlag | RecursedSubscriberFlag | PropagatedSubscriberFlag)) | TrackingSubscriberFlag
+  sub.depsTail = undefined
+  sub.flags = (sub.flags & ~(NotifiedSubscriberFlag | RecursedSubscriberFlag | PropagatedSubscriberFlag)) | TrackingSubscriberFlag
 }
 
 /**
@@ -725,21 +708,21 @@ export function startTracking(sub: Subscriber): void {
  * @param sub - The subscriber whose tracking is ending.
  */
 export function endTracking(sub: Subscriber): void {
-  const depsTail = sub[$$depsTail]
+  const depsTail = sub.depsTail
 
   if (depsTail !== undefined) {
-    const nextDep = depsTail[$$nextDep]
+    const nextDep = depsTail.nextDep
 
     if (nextDep !== undefined) {
       clearTracking(nextDep)
-      depsTail[$$nextDep] = undefined
+      depsTail.nextDep = undefined
     }
-  } else if (sub[$$deps] !== undefined) {
-    clearTracking(sub[$$deps])
-    sub[$$deps] = undefined
+  } else if (sub.deps !== undefined) {
+    clearTracking(sub.deps)
+    sub.deps = undefined
   }
 
-  sub[$$flags] &= ~TrackingSubscriberFlag
+  sub.flags &= ~TrackingSubscriberFlag
 
   notifyMounted(activeSub)
 }
@@ -749,15 +732,15 @@ export function endTracking(sub: Subscriber): void {
  */
 export function runLazyEffects(link: Link): void {
   do {
-    const dep = link[$$dep] as Effect | EffectScope
-    const nextDep = link[$$nextDep]
+    const dep = link.dep as Effect | EffectScope
+    const nextDep = link.nextDep
 
-    if (dep[$$flags] & LazyEffectSubscriberFlag) {
-      dep[$$flags] &= ~LazyEffectSubscriberFlag
+    if (dep.flags & LazyEffectSubscriberFlag) {
+      dep.flags &= ~LazyEffectSubscriberFlag
 
-      if (dep[$$flags] & EffectScopeSubscriberFlag) {
-        if (dep[$$deps] !== undefined) {
-          runLazyEffects(dep[$$deps])
+      if (dep.flags & EffectScopeSubscriberFlag) {
+        if (dep.deps !== undefined) {
+          runLazyEffects(dep.deps)
         }
       } else {
         runEffect(dep as Effect, true)

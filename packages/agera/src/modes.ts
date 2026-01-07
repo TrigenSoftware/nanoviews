@@ -7,8 +7,6 @@ import {
   type AnyReadableSignal,
   type AnyAccessor,
   type AccessorValue,
-  $$flags,
-  $$signal,
   WritableSignalFlag,
   MountableSignalFlag,
   markMountableUsed
@@ -16,11 +14,11 @@ import {
 
 /* @__NO_SIDE_EFFECTS__ */
 export function isMountable<T extends Mountable<AnySignal> = Mountable<AnySignal>>(value: AnyAccessor): value is T {
-  return ((value as AnyWritableSignal)[$$signal]?.[$$flags] & MountableSignalFlag) > 0
+  return ((value as AnyWritableSignal).signal?.flags & MountableSignalFlag) > 0
 }
 
 export function unsafeMarkMountable($signal: AnySignal) {
-  $signal[$$signal][$$flags] |= MountableSignalFlag
+  $signal.signal.flags |= MountableSignalFlag
 }
 
 /**
@@ -38,11 +36,11 @@ export function mountable<T extends AnySignal>($signal: T): Mountable<T> {
 
 /* @__NO_SIDE_EFFECTS__ */
 export function isWritable<T extends AnyWritableSignal = AnyWritableSignal>(value: AnyAccessor): value is T {
-  return ((value as AnyWritableSignal)[$$signal]?.[$$flags] & WritableSignalFlag) > 0
+  return ((value as AnyWritableSignal).signal?.flags & WritableSignalFlag) > 0
 }
 
 export function unsafeMarkWritable($signal: AnySignal) {
-  $signal[$$signal][$$flags] |= WritableSignalFlag
+  $signal.signal.flags |= WritableSignalFlag
 }
 
 /**
@@ -53,7 +51,7 @@ export function unsafeMarkWritable($signal: AnySignal) {
 /* @__NO_SIDE_EFFECTS__ */
 export function readonly<T extends AnyAccessor>($signal: T) {
   if (isWritable($signal)) {
-    ($signal as AnyReadableSignal)[$$signal][$$flags] &= ~WritableSignalFlag
+    ($signal as AnyReadableSignal).signal.flags &= ~WritableSignalFlag
   }
 
   return $signal as T extends Mountable<AnyWritableSignal>
