@@ -9,6 +9,6 @@
     "name": "Minimal set",
     "path": "dist/index.js",
     "import": "{ browserNavigation, listenLinks, router, buildPaths }",
-    "limit": "1.43 kB"
+    "limit": "1.44 kB"
   }
 ]

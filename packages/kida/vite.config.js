@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
-import { DEV } from '../../scripts/index.js'
 
 export default defineConfig({
   build: {
@@ -15,7 +14,7 @@ export default defineConfig({
       external: ['agera']
     },
     sourcemap: true,
-    minify: !DEV && 'esbuild',
+    minify: false,
     emptyOutDir: false
   },
   test: {

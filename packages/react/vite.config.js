@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
-import { DEV } from '../../scripts/index.js'
 
 export default defineConfig({
   plugins: [react()],
@@ -21,7 +20,7 @@ export default defineConfig({
       ]
     },
     sourcemap: true,
-    minify: !DEV && 'esbuild',
+    minify: false,
     emptyOutDir: false
   },
   test: {
