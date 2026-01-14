@@ -9,7 +9,8 @@ import {
   signal,
   effect,
   isSignal,
-  morph
+  morph,
+  trigger
 } from './index.js'
 
 describe('agera', () => {
@@ -22,6 +23,33 @@ describe('agera', () => {
 
       $num(num => num + 5)
       expect($num()).toBe(6)
+    })
+
+    it('should notify recursed effect by external update', () => {
+      const log: string[] = []
+      const $data = signal()
+      const $computed = computed(() => {
+        log.push('compute')
+        return $data()
+      })
+      const stop = effect(() => {
+        log.push('effect')
+        $computed()
+        $data('test')
+      })
+
+      log.push('revalidate')
+      $data('TEST')
+
+      expect(log).toEqual([
+        'effect',
+        'compute',
+        'revalidate',
+        'compute',
+        'effect'
+      ])
+
+      stop()
     })
 
     describe('computed', () => {
@@ -37,6 +65,34 @@ describe('agera', () => {
         src(3) // c1 -> dirty, c2 -> toCheckDirty
 
         expect(c3()).toBe(1)
+      })
+
+      it('should propagate updated source value through chained computations', () => {
+        const src = signal(0)
+        const a = computed(() => src())
+        const b = computed(() => a() % 2)
+        const c = computed(() => src())
+        const d = computed(() => b() + c())
+
+        expect(d()).toBe(0)
+        src(2)
+        expect(d()).toBe(2)
+      })
+
+      it('should not update if the signal value is reverted', () => {
+        let times = 0
+        const src = signal(0)
+        const c1 = computed(() => {
+          times++
+          return src()
+        })
+
+        c1()
+        expect(times).toBe(1)
+        src(1)
+        src(0)
+        c1()
+        expect(times).toBe(1)
       })
     })
 
@@ -416,6 +472,65 @@ describe('agera', () => {
           a(2)
           expect(c()).toBe(2)
         })
+      })
+    })
+
+    describe('trigger', () => {
+      it('should not throw when triggering with no dependencies', () => {
+        trigger()
+      })
+
+      it('should trigger updates for dependent computed signals', () => {
+        const arr = signal<number[]>([])
+        const length = computed(() => arr().length)
+
+        expect(length()).toBe(0)
+        arr().push(1)
+        trigger(arr)
+        expect(length()).toBe(1)
+      })
+
+      it('should trigger updates for the second source signal', () => {
+        const src1 = signal<number[]>([])
+        const src2 = signal<number[]>([])
+        const length = computed(() => src2().length)
+
+        expect(length()).toBe(0)
+        src2().push(1)
+        trigger(src1, src2)
+        expect(length()).toBe(1)
+      })
+
+      it('should trigger effect once', () => {
+        const src1 = signal<number[]>([])
+        const src2 = signal<number[]>([])
+        let triggers = 0
+
+        effect(() => {
+          triggers++
+          src1()
+          src2()
+        })
+
+        expect(triggers).toBe(1)
+        trigger(src1, src2)
+        expect(triggers).toBe(2)
+      })
+
+      it('should not notify the trigger function sub', () => {
+        const src1 = signal<number[]>([])
+        const src2 = computed(() => src1())
+        let triggers = 0
+
+        effect(() => {
+          triggers++
+          src1()
+          src2()
+        })
+
+        expect(triggers).toBe(1)
+        trigger(src1, src2)
+        expect(triggers).toBe(2)
       })
     })
   })

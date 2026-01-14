@@ -1,28 +1,26 @@
-
+import type {
+  AnySignal,
+  Morph,
+  Mountable,
+  NewValue,
+  ReadableSignal,
+  SignalNode,
+  WritableSignal
+} from './internals/types.js'
 import {
-  type ComputedSignalInstance,
-  type SignalInstance,
-  type AnySignal,
-  type ReadableSignal,
-  type WritableSignal,
-  type Compute,
-  type Morph,
-  type Mountable,
-  type NewValue,
-  ComputedSubscriberFlag,
-  DirtySubscriberFlag,
-  PendingComputedSubscriberFlag,
-  EffectScopeSubscriberFlag,
-  WritableSignalFlag,
-  link,
-  processComputedUpdate,
-  propagate,
-  processEffectNotifications,
-  activeSub,
-  noMount
-} from './internals/index.js'
+  signal,
+  computed,
+  batch,
+  createSignal
+} from './internals/system.js'
+import { noMount } from './internals/lifecycle.js'
 import { listen } from './effect.js'
-import { isFunction } from './utils.js'
+
+export {
+  signal,
+  computed,
+  batch
+}
 
 /**
  * Listen for mount and unmount events on a mountable signal.
@@ -34,121 +32,9 @@ export function onMounted(
   $signal: Mountable<AnySignal>,
   listener: (mounted: boolean) => void
 ) {
-  const $mounted = ($signal.signal.mounted ||= signal(false)) as ReadableSignal<boolean>
+  const $mounted = $signal.node.mounted ||= signal(false)
 
-  return noMount($signal, () => listen($mounted, listener, true))
-}
-
-let batchDepth = 0
-
-/**
- * Execute a function within a batch of signal updates.
- * @param fn - The function to execute.
- * @returns The result of the function.
- */
-export function batch<T>(fn: () => T): T {
-  ++batchDepth
-
-  try {
-    return fn()
-  } finally {
-    if (!--batchDepth) {
-      processEffectNotifications()
-    }
-  }
-}
-
-function createSignal(
-  constructor: (value?: unknown) => unknown,
-  instance: SignalInstance | ComputedSignalInstance,
-  ctx: SignalInstance | ComputedSignalInstance | Morph = instance
-) {
-  const $signal = constructor.bind(ctx) as AnySignal
-
-  $signal.signal = instance
-
-  return $signal
-}
-
-/**
- * Create a signal with atomic value.
- * @returns A signal.
- */
-export function signal<T>(): WritableSignal<T | undefined>
-/**
- * Create a signal with initial atomic value
- * @param value - Initial value of the signal.
- * @returns A signal.
- */
-export function signal<T>(value: T): WritableSignal<T>
-
-/* @__NO_SIDE_EFFECTS__ */
-export function signal<T>(value?: T): WritableSignal<T | undefined> {
-  return createSignal(signalGetterSetter, {
-    value,
-    subs: undefined,
-    subsTail: undefined,
-    flags: WritableSignalFlag,
-    subsCount: 0
-  }) as WritableSignal<T | undefined>
-}
-
-function signalGetterSetter<T>(this: SignalInstance<T>, ...value: [NewValue<T>]): T | void {
-  if (value.length) {
-    const newValue = value[0]
-    const prevValue = this.value
-
-    if (prevValue !== (this.value = isFunction(newValue) ? newValue(prevValue) : newValue)) {
-      const subs = this.subs
-
-      if (subs !== undefined) {
-        propagate(subs)
-
-        if (!batchDepth) {
-          processEffectNotifications()
-        }
-      }
-    }
-  } else {
-    if (activeSub !== undefined && !(activeSub.flags & EffectScopeSubscriberFlag)) {
-      link(this, activeSub)
-    }
-
-    return this.value
-  }
-}
-
-/**
- * Create a signal that reactivly computes its value from other signals.
- * @param compute - The function to compute the value.
- * @returns A signal.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function computed<T>(compute: Compute<T>): ReadableSignal<T> {
-  return createSignal(computedGetter, {
-    compute: compute as Compute<unknown>,
-    value: undefined,
-    subs: undefined,
-    subsTail: undefined,
-    deps: undefined,
-    depsTail: undefined,
-    flags: ComputedSubscriberFlag | DirtySubscriberFlag,
-    subsCount: 0
-  }) as ReadableSignal<T>
-}
-
-function computedGetter<T>(this: ComputedSignalInstance<T>): T {
-  const flags = this.flags
-
-  if (flags & (DirtySubscriberFlag | PendingComputedSubscriberFlag)) {
-    processComputedUpdate(this, flags)
-  }
-
-  if (activeSub !== undefined && !(activeSub.flags & EffectScopeSubscriberFlag)) {
-    link(this, activeSub)
-  }
-
-  return this.value
+  return noMount($signal, () => listen($mounted, listener))
 }
 
 export function morph<T, C extends Partial<Morph<T>>>(
@@ -166,7 +52,7 @@ export function morph<T, C extends Partial<Morph<T>>>(
   $signal: ReadableSignal<T> | WritableSignal<T>,
   context: C
 ) {
-  return createSignal(morphGetterSetter, $signal.signal, {
+  return createSignal(morphOper, $signal.node as SignalNode, {
     source: $signal,
     set: $signal,
     get: $signal,
@@ -174,7 +60,7 @@ export function morph<T, C extends Partial<Morph<T>>>(
   } as Morph)
 }
 
-function morphGetterSetter<T>(this: Morph<T>, ...value: [T]): T | void {
+function morphOper<T>(this: Morph<T>, ...value: [NewValue<T>]): T | void {
   if (value.length) {
     this.set(value[0])
   } else {

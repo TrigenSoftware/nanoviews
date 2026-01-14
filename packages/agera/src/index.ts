@@ -3,7 +3,6 @@ export type {
   Destroy,
   MaybeDestroy,
   EffectCallback,
-  MountedCallback,
   Compute,
   Accessor,
   ReadableSignal,
@@ -21,10 +20,10 @@ export type {
 } from './internals/types.js'
 export {
   untracked,
-  noMount
-} from './internals/index.js'
+  trigger
+} from './internals/system.js'
+export { noMount } from './internals/lifecycle.js'
 export * from './signal.js'
 export * from './modes.js'
 export * from './effect.js'
 export * from './utils.js'
-

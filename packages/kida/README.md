@@ -166,15 +166,17 @@ const stop = effectScope(() => {
 stop() // stop all effects
 ```
 
-Also there is a possibility to create a lazy scope.
+### `deferScope`
+
+Also there is a possibility to create a defer scope.
 
 ```ts
-import { signal, effectScope, effect } from 'kida'
+import { signal, deferScope, effectScope, effect } from 'agera'
 
 const $a = signal(0)
 const $b = signal(0)
 // All scopes will run immediately, but effects run is delayed
-const start = effectScope(() => {
+const start = deferScope(() => {
   effect(() => {
     console.log('A:', $a())
   })

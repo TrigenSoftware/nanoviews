@@ -7,8 +7,8 @@ import {
 import {
   computed,
   signal,
-  effect,
   onMounted,
+  effect,
   mountable,
   isMountable,
   readonly,
@@ -421,7 +421,7 @@ describe('agera', () => {
           $d()
         })
 
-        expect($a.signal.subsCount).toBe(2)
+        expect($a.node.subsCount).toBe(2)
         expect(aListener.mock.calls).toEqual([[true]])
         expect(bListener.mock.calls).toEqual([[true]])
         expect(cListener.mock.calls).toEqual([[true]])
@@ -429,7 +429,7 @@ describe('agera', () => {
 
         stop()
 
-        expect($a.signal.subsCount).toBe(0)
+        expect($a.node.subsCount).toBe(0)
         expect(aListener.mock.calls).toEqual([[true], [false]])
         expect(bListener.mock.calls).toEqual([[true], [false]])
         expect(cListener.mock.calls).toEqual([[true], [false]])
@@ -452,19 +452,19 @@ describe('agera', () => {
           $b()
         })
 
-        expect($a.signal.subsCount).toBe(2)
+        expect($a.node.subsCount).toBe(2)
         expect(aListener.mock.calls).toEqual([[true]])
         expect(bListener.mock.calls).toEqual([[true]])
 
         stop1()
 
-        expect($a.signal.subsCount).toBe(1)
+        expect($a.node.subsCount).toBe(1)
         expect(aListener.mock.calls).toEqual([[true]])
         expect(bListener.mock.calls).toEqual([[true]])
 
         stop2()
 
-        expect($a.signal.subsCount).toBe(0)
+        expect($a.node.subsCount).toBe(0)
         expect(aListener.mock.calls).toEqual([[true], [false]])
         expect(bListener.mock.calls).toEqual([[true], [false]])
       })
@@ -492,7 +492,7 @@ describe('agera', () => {
         const stop = onMounted($value, callback)
 
         expect(events).toEqual([])
-        expect($value.signal.subsCount).toBe(0)
+        expect($value.node.subsCount).toBe(0)
 
         const stopEffect = effect(() => {
           events.push(`effect ${$value()}`)
@@ -503,7 +503,7 @@ describe('agera', () => {
           'onMounted callback true',
           'mount effect 0'
         ])
-        expect($value.signal.subsCount).toBe(1)
+        expect($value.node.subsCount).toBe(1)
         events.length = 0
 
         $value(2)
@@ -513,7 +513,7 @@ describe('agera', () => {
           'mount effect destroy',
           'mount effect 2'
         ])
-        expect($value.signal.subsCount).toBe(1)
+        expect($value.node.subsCount).toBe(1)
         events.length = 0
 
         const stopEffect2 = effect(() => {
@@ -521,24 +521,24 @@ describe('agera', () => {
         })
 
         expect(events).toEqual(['effect 2 2'])
-        expect($value.signal.subsCount).toBe(2)
+        expect($value.node.subsCount).toBe(2)
         events.length = 0
 
         stopEffect()
         expect(events).toEqual([])
-        expect($value.signal.subsCount).toBe(1)
+        expect($value.node.subsCount).toBe(1)
 
         stopEffect2()
         expect(events).toEqual([
           'mount effect destroy',
           'onMounted callback false'
         ])
-        expect($value.signal.subsCount).toBe(0)
+        expect($value.node.subsCount).toBe(0)
         events.length = 0
 
         stop()
         expect(events).toEqual([])
-        expect($value.signal.subsCount).toBe(0)
+        expect($value.node.subsCount).toBe(0)
       })
     })
   })

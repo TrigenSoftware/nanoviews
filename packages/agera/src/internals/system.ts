@@ -1,25 +1,32 @@
+import { isFunction } from '../utils.js'
 import type {
-  Dependency,
+  ReactiveNode,
+  SignalNode,
+  ComputedNode,
+  EffectNode,
   Link,
-  Subscriber,
-  SignalInstance,
-  ComputedSignalInstance,
-  Effect,
-  EffectScope
+  Stack,
+  AnySignal,
+  WritableSignal,
+  ReadableSignal,
+  EffectCallback,
+  Destroy,
+  Compute,
+  NewValue,
+  Morph
 } from './types.js'
 import {
-  DirtySubscriberFlag,
-  TrackingSubscriberFlag,
-  NotifiedSubscriberFlag,
-  RecursedSubscriberFlag,
-  PropagatedSubscriberFlag,
-  EffectScopeSubscriberFlag,
-  LazyEffectSubscriberFlag,
-  PendingComputedSubscriberFlag,
-  EffectSubscriberFlag,
-  PendingEffectSubscriberFlag,
-  ComputedSubscriberFlag,
-  MountableSignalFlag
+  NoneFlag,
+  MutableFlag,
+  WatchingFlag,
+  RecursedCheckFlag,
+  RecursedFlag,
+  DirtyFlag,
+  PendingFlag,
+  ScopeFlag,
+  WritableFlag,
+  MountableFlag,
+  LazyFlag
 } from './flags.js'
 import {
   incrementEffectCount,
@@ -28,295 +35,245 @@ import {
   notifyMounted,
   isMountableUsed,
   pushNoMount,
-  popNoMount
+  popNoMount,
+  activeNoMount
 } from './lifecycle.js'
 
+let cycle = 0
+let batchDepth = 0
+let notifyIndex = 0
+let queuedLength = 0
+let activeSub: ReactiveNode | undefined
+const queued: (EffectNode | undefined)[] = []
+
 /**
- * Creates and attaches a new link between the given dependency and subscriber.
- *
- * Reuses a link object from the linkPool if available. The newly formed link
- * is added to both the dependency's linked list and the subscriber's linked list.
- * @param dep - The dependency to link.
- * @param sub - The subscriber to be attached to this dependency.
- * @param nextDep - The next link in the subscriber's chain.
- * @param depsTail - The current tail link in the subscriber's chain.
- * @returns The newly created link object.
+ * Run a function without tracking dependencies.
+ * @param fn
+ * @returns The result of the function.
  */
-export function linkNewDep(
-  dep: Dependency | SignalInstance | ComputedSignalInstance,
-  sub: Subscriber | ComputedSignalInstance,
-  nextDep: Link | undefined,
-  depsTail: Link | undefined
-): Link {
-  const newLink: Link = {
-    dep,
-    sub,
-    nextDep,
-    prevSub: undefined,
-    nextSub: undefined
+export function untracked<T>(fn: () => T): T {
+  const prevSub = pushActiveSub(undefined)
+
+  try {
+    return fn()
+  } finally {
+    popActiveSub(prevSub)
+  }
+}
+
+function destroyEffect(dep: ReactiveNode) {
+  const effect = dep as EffectNode
+
+  if (effect.destroy !== undefined) {
+    untracked(effect.destroy)
+    effect.destroy = undefined
+  }
+}
+
+function update(node: SignalNode | ComputedNode): boolean {
+  if (node.depsTail !== undefined) {
+    return updateComputed(node as ComputedNode)
   }
 
-  if (depsTail === undefined) {
+  return updateSignal(node as SignalNode)
+}
+
+function notify(effect: EffectNode) {
+  let insertIndex = queuedLength
+  let firstInsertedIndex = insertIndex
+
+  do {
+    queued[insertIndex++] = effect
+    effect.flags &= ~WatchingFlag
+    effect = effect.subs?.sub as EffectNode
+
+    if (effect === undefined || !(effect.flags & WatchingFlag)) {
+      break
+    }
+  } while (true)
+
+  queuedLength = insertIndex
+
+  while (firstInsertedIndex < --insertIndex) {
+    const left = queued[firstInsertedIndex]
+
+    queued[firstInsertedIndex++] = queued[insertIndex]
+    queued[insertIndex] = left
+  }
+}
+
+function unwatched(node: ReactiveNode) {
+  if (!(node.flags & MutableFlag)) {
+    effectScopeOper.call(node)
+  } else if (node.depsTail !== undefined) {
+    node.depsTail = undefined
+    node.flags = MutableFlag | DirtyFlag
+    purgeDeps(node)
+  }
+}
+
+function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
+  const prevDep = sub.depsTail
+
+  if (prevDep !== undefined && prevDep.dep === dep) {
+    return
+  }
+
+  const nextDep = prevDep !== undefined ? prevDep.nextDep : sub.deps
+
+  if (nextDep !== undefined && nextDep.dep === dep) {
+    nextDep.version = version
+    sub.depsTail = nextDep
+    return
+  }
+
+  const prevSub = dep.subsTail
+
+  if (prevSub !== undefined && prevSub.version === version && prevSub.sub === sub) {
+    return
+  }
+
+  const newLink =
+    sub.depsTail =
+      dep.subsTail =
+        {
+          version,
+          dep,
+          sub,
+          prevDep,
+          nextDep,
+          prevSub,
+          nextSub: undefined
+        }
+
+  if (nextDep !== undefined) {
+    nextDep.prevDep = newLink
+  }
+
+  if (prevDep !== undefined) {
+    prevDep.nextDep = newLink
+  } else {
     sub.deps = newLink
-  } else {
-    depsTail.nextDep = newLink
   }
 
-  if (dep.subs === undefined) {
+  if (prevSub !== undefined) {
+    prevSub.nextSub = newLink
+  } else {
     dep.subs = newLink
-  } else {
-    const oldTail = dep.subsTail!
-
-    newLink.prevSub = oldTail
-    oldTail.nextSub = newLink
   }
 
-  sub.depsTail = newLink
-  dep.subsTail = newLink
-
-  const isDepMountable = isMountableUsed && dep.flags & MountableSignalFlag
+  const isDepMountable = isMountableUsed && dep.modes & MountableFlag
 
   // Mark computed signals as mountable if any of their dependencies are mountable
-  if (isDepMountable && sub.flags & ComputedSubscriberFlag) {
-    sub.flags |= MountableSignalFlag
+  if (isDepMountable && 'compute' in sub) {
+    sub.modes |= MountableFlag
   }
 
   if (isDepMountable && isActiveSubscriber(sub) && sub.noMount !== dep) {
     incrementEffectCount(dep)
   }
-
-  return newLink
 }
 
-/**
- * Verifies whether the given link is valid for the specified subscriber.
- *
- * It iterates through the subscriber's link list (from sub.deps to sub.depsTail)
- * to determine if the provided link object is part of that chain.
- * @param checkLink - The link object to validate.
- * @param sub - The subscriber whose link list is being checked.
- * @returns `true` if the link is found in the subscriber's list; otherwise `false`.
- */
-export function isValidLink(checkLink: Link, sub: Subscriber): boolean {
-  const depsTail = sub.depsTail
+function unlink(link: Link, sub = link.sub): Link | undefined {
+  const dep = link.dep
+  const prevDep = link.prevDep
+  const nextDep = link.nextDep
+  const nextSub = link.nextSub
+  const prevSub = link.prevSub
 
-  if (depsTail !== undefined) {
-    let link = sub.deps!
-
-    do {
-      if (link === checkLink) {
-        return true
-      }
-
-      if (link === depsTail) {
-        break
-      }
-
-      link = link.nextDep!
-    } while (link !== undefined)
+  if (nextDep !== undefined) {
+    nextDep.prevDep = prevDep
+  } else {
+    sub.depsTail = prevDep
   }
 
-  return false
+  if (prevDep !== undefined) {
+    prevDep.nextDep = nextDep
+  } else {
+    sub.deps = nextDep
+  }
+
+  if (nextSub !== undefined) {
+    nextSub.prevSub = prevSub
+  } else {
+    dep.subsTail = prevSub
+  }
+
+  let unwatch = false
+
+  if (prevSub !== undefined) {
+    prevSub.nextSub = nextSub
+  } else if ((dep.subs = nextSub) === undefined) {
+    destroyEffect(dep)
+    unwatch = true
+  }
+
+  if (isMountableUsed && dep.modes & MountableFlag && sub.noMount !== dep) {
+    decrementEffectCount(dep, unwatch)
+  }
+
+  if (unwatch) {
+    unwatched(dep)
+  }
+
+  return nextDep
 }
 
-/**
- * Links a given dependency and subscriber if they are not already linked.
- * @param dep - The dependency to be linked.
- * @param sub - The subscriber that depends on this dependency.
- * @returns The newly created link object if the two are not already linked; otherwise `undefined`.
- */
-export function link(dep: Dependency, sub: Subscriber): Link | undefined {
-  const currentDep = sub.depsTail
-
-  if (currentDep !== undefined && currentDep.dep === dep) {
-    return
-  }
-
-  const nextDep = currentDep !== undefined
-    ? currentDep.nextDep
-    : sub.deps
-
-  if (nextDep !== undefined && nextDep.dep === dep) {
-    sub.depsTail = nextDep
-    return
-  }
-
-  const depLastSub = dep.subsTail
-
-  if (
-    depLastSub !== undefined
-    && depLastSub.sub === sub
-    && isValidLink(depLastSub, sub)
-  ) {
-    return
-  }
-
-  return linkNewDep(dep, sub, nextDep, currentDep)
-}
-
-// eslint-disable-next-line import/no-mutable-exports
-export let activeSub: Subscriber | EffectScope | undefined
-
-let queuedEffects: Subscriber | undefined
-let queuedEffectsTail: Subscriber | undefined
-
-export function updateComputed<T>(computed: ComputedSignalInstance<T>): boolean {
-  const prevSub = activeSub
-
-  activeSub = computed
-  startTracking(computed)
-
-  try {
-    const oldValue = computed.value
-    const newValue = computed.compute(oldValue)
-
-    if (oldValue !== newValue) {
-      computed.value = newValue
-      return true
-    }
-
-    return false
-  } finally {
-    activeSub = prevSub
-    endTracking(computed)
-  }
-}
-
-/**
- * Quickly propagates PendingComputed status to Dirty for each subscriber in the chain.
- *
- * If the subscriber is also marked as an effect, it is added to the queuedEffects list
- * for later processing.
- * @param link - The head of the linked list to process.
- */
-export function shallowPropagate(link: Link): void {
-  do {
-    const sub = link.sub
-    const subFlags = sub.flags
-
-    if ((subFlags & (PendingComputedSubscriberFlag | DirtySubscriberFlag)) === PendingComputedSubscriberFlag) {
-      sub.flags = subFlags | DirtySubscriberFlag | NotifiedSubscriberFlag
-
-      if ((subFlags & (EffectSubscriberFlag | NotifiedSubscriberFlag)) === EffectSubscriberFlag) {
-        if (queuedEffectsTail !== undefined) {
-          queuedEffectsTail.depsTail!.nextDep = sub.deps
-        } else {
-          queuedEffects = sub
-        }
-
-        queuedEffectsTail = sub
-      }
-    }
-
-    link = link.nextSub!
-  } while (link !== undefined)
-}
-
-/**
- * Traverses and marks subscribers starting from the provided link.
- *
- * It sets flags (e.g., Dirty, PendingComputed, PendingEffect) on each subscriber
- * to indicate which ones require re-computation or effect processing.
- * This function should be called after a signal's value changes.
- * @param link - The starting link from which propagation begins.
- */
-export function propagate(link: Link): void {
-  let targetFlag = DirtySubscriberFlag
-  let subs = link
-  let stack = 0
+function propagate(link: Link): void {
+  let next = link.nextSub
+  let stack: Stack<Link | undefined> | undefined
 
   top: do {
     const sub = link.sub
-    const subFlags = sub.flags
+    let flags = sub.flags
 
-    if (
-      (
-        !(subFlags & (TrackingSubscriberFlag | RecursedSubscriberFlag | PropagatedSubscriberFlag))
-        && (sub.flags = subFlags | targetFlag | NotifiedSubscriberFlag, true)
-      )
-      || (
-        (subFlags & RecursedSubscriberFlag)
-        && !(subFlags & TrackingSubscriberFlag)
-        && (sub.flags = (subFlags & ~RecursedSubscriberFlag) | targetFlag | NotifiedSubscriberFlag, true)
-      )
-      || (
-        !(subFlags & PropagatedSubscriberFlag)
-        && isValidLink(link, sub)
-        && (
-          sub.flags = subFlags | RecursedSubscriberFlag | targetFlag | NotifiedSubscriberFlag,
-          (sub as Dependency).subs !== undefined
-        )
-      )
-    ) {
-      const subSubs = (sub as Dependency).subs
+    if (!(flags & (RecursedCheckFlag | RecursedFlag | DirtyFlag | PendingFlag))) {
+      sub.flags = flags | PendingFlag
+    } else if (!(flags & (RecursedCheckFlag | RecursedFlag))) {
+      // flags = NoneFlag
+      flags &= MutableFlag
+    } else if (!(flags & RecursedCheckFlag)) {
+      sub.flags = (flags & ~RecursedFlag) | PendingFlag
+    } else if (!(flags & (DirtyFlag | PendingFlag)) && isValidLink(link, sub)) {
+      sub.flags = flags | (RecursedFlag | PendingFlag)
+      flags &= MutableFlag
+    } else {
+      flags = NoneFlag
+    }
+
+    if (flags & WatchingFlag) {
+      notify(sub as EffectNode)
+    }
+
+    if (flags & MutableFlag) {
+      const subSubs = sub.subs
 
       if (subSubs !== undefined) {
-        if (subSubs.nextSub !== undefined) {
-          subSubs.prevSub = subs
-          link = subs = subSubs
-          targetFlag = PendingComputedSubscriberFlag
-          ++stack
-        } else {
-          link = subSubs
-          targetFlag = subFlags & EffectSubscriberFlag
-            ? PendingEffectSubscriberFlag
-            : PendingComputedSubscriberFlag
+        const nextSub = (link = subSubs).nextSub
+
+        if (nextSub !== undefined) {
+          stack = {
+            value: next,
+            prev: stack
+          }
+          next = nextSub
         }
 
         continue
       }
-
-      if (subFlags & EffectSubscriberFlag) {
-        if (queuedEffectsTail !== undefined) {
-          queuedEffectsTail.depsTail!.nextDep = sub.deps
-        } else {
-          queuedEffects = sub
-        }
-
-        queuedEffectsTail = sub
-      }
-    } else if (!(subFlags & (TrackingSubscriberFlag | targetFlag))) {
-      sub.flags = subFlags | targetFlag | NotifiedSubscriberFlag
-
-      if ((subFlags & (EffectSubscriberFlag | NotifiedSubscriberFlag)) === EffectSubscriberFlag) {
-        if (queuedEffectsTail !== undefined) {
-          queuedEffectsTail.depsTail!.nextDep = sub.deps
-        } else {
-          queuedEffects = sub
-        }
-
-        queuedEffectsTail = sub
-      }
-    } else if (
-      !(subFlags & targetFlag)
-      && (subFlags & PropagatedSubscriberFlag)
-      && isValidLink(link, sub)
-    ) {
-      sub.flags = subFlags | targetFlag
     }
 
-    if ((link = subs.nextSub!) !== undefined) {
-      subs = link
-      targetFlag = stack
-        ? PendingComputedSubscriberFlag
-        : DirtySubscriberFlag
+    if ((link = next!) !== undefined) {
+      next = link.nextSub
       continue
     }
 
-    while (stack) {
-      --stack
+    while (stack !== undefined) {
+      link = stack.value!
+      stack = stack.prev
 
-      const dep = subs.dep
-      const depSubs = dep.subs!
-
-      subs = depSubs.prevSub!
-      depSubs.prevSub = undefined
-
-      if ((link = subs.nextSub!) !== undefined) {
-        subs = link
-        targetFlag = stack
-          ? PendingComputedSubscriberFlag
-          : DirtySubscriberFlag
+      if (link !== undefined) {
+        next = link.nextSub
         continue top
       }
     }
@@ -325,428 +282,539 @@ export function propagate(link: Link): void {
   } while (true)
 }
 
-/**
- * Recursively checks and updates all computed subscribers marked as pending.
- *
- * It traverses the linked structure using a stack mechanism. For each computed
- * subscriber in a pending state, updateComputed is called and shallowPropagate
- * is triggered if a value changes. Returns whether any updates occurred.
- * @param link - The starting link representing a sequence of pending computeds.
- * @returns `true` if a computed was updated, otherwise `false`.
- */
-export function checkDirty(link: Link): boolean {
-  let stack = 0
-  let dirty: boolean
+function checkDirty(link: Link, sub: ReactiveNode): boolean {
+  let stack: Stack<Link> | undefined
+  let checkDepth = 0
+  let dirty = false
 
   top: do {
-    dirty = false
-
     const dep = link.dep
+    const flags = dep.flags
 
-    if ('flags' in dep) {
-      const depFlags = dep.flags
+    if (sub.flags & DirtyFlag) {
+      dirty = true
+    } else if ((flags & (MutableFlag | DirtyFlag)) === (MutableFlag | DirtyFlag)) {
+      if (update(dep as SignalNode | ComputedNode)) {
+        const subs = dep.subs!
 
-      if ((depFlags & (ComputedSubscriberFlag | DirtySubscriberFlag)) === (ComputedSubscriberFlag | DirtySubscriberFlag)) {
-        if (updateComputed(dep as ComputedSignalInstance)) {
-          const subs = dep.subs!
-
-          if (subs.nextSub !== undefined) {
-            shallowPropagate(subs)
-          }
-
-          dirty = true
-        }
-      } else if ((depFlags & (ComputedSubscriberFlag | PendingComputedSubscriberFlag)) === (ComputedSubscriberFlag | PendingComputedSubscriberFlag)) {
-        const depSubs = dep.subs!
-
-        if (depSubs.nextSub !== undefined) {
-          depSubs.prevSub = link
+        if (subs.nextSub !== undefined) {
+          shallowPropagate(subs)
         }
 
-        link = (dep as ComputedSignalInstance).deps!
-        ++stack
+        dirty = true
+      }
+    } else if ((flags & (MutableFlag | PendingFlag)) === (MutableFlag | PendingFlag)) {
+      if (link.nextSub !== undefined || link.prevSub !== undefined) {
+        stack = {
+          value: link,
+          prev: stack
+        }
+      }
+
+      link = dep.deps!
+      sub = dep
+      ++checkDepth
+      continue
+    }
+
+    if (!dirty) {
+      const nextDep = link.nextDep
+
+      if (nextDep !== undefined) {
+        link = nextDep
         continue
       }
     }
 
-    if (!dirty && link.nextDep !== undefined) {
-      link = link.nextDep
-      continue
-    }
+    while (checkDepth--) {
+      const firstSub = sub.subs!
+      const hasMultipleSubs = firstSub.nextSub !== undefined
 
-    if (stack) {
-      let sub = link.sub as ComputedSignalInstance
+      if (hasMultipleSubs) {
+        link = stack!.value
+        stack = stack!.prev
+      } else {
+        link = firstSub
+      }
 
-      do {
-        --stack
-
-        const subSubs = sub.subs!
-
-        if (dirty) {
-          if (updateComputed(sub)) {
-            if ((link = subSubs.prevSub!) !== undefined) {
-              subSubs.prevSub = undefined
-              shallowPropagate(subSubs)
-              sub = link.sub as ComputedSignalInstance
-            } else {
-              sub = subSubs.sub as ComputedSignalInstance
-            }
-
-            continue
-          }
-        } else {
-          sub.flags &= ~PendingComputedSubscriberFlag
-        }
-
-        if ((link = subSubs.prevSub!) !== undefined) {
-          subSubs.prevSub = undefined
-
-          if (link.nextDep !== undefined) {
-            link = link.nextDep
-            continue top
+      if (dirty) {
+        if (update(sub as SignalNode | ComputedNode)) {
+          if (hasMultipleSubs) {
+            shallowPropagate(firstSub)
           }
 
-          sub = link.sub as ComputedSignalInstance
-        } else {
-          if ((link = subSubs.nextDep!) !== undefined) {
-            continue top
-          }
-
-          sub = subSubs.sub as ComputedSignalInstance
+          sub = link.sub
+          continue
         }
 
         dirty = false
-      } while (stack)
+      } else {
+        sub.flags &= ~PendingFlag
+      }
+
+      sub = link.sub
+
+      const nextDep = link.nextDep
+
+      if (nextDep !== undefined) {
+        link = nextDep
+        continue top
+      }
     }
 
     return dirty
   } while (true)
 }
 
-/**
- * Updates the dirty flag for the given subscriber based on its dependencies.
- *
- * If the subscriber has any pending computeds, this function sets the Dirty flag
- * and returns `true`. Otherwise, it clears the PendingComputed flag and returns `false`.
- * @param sub - The subscriber to update.
- * @param flags - The current flag set for this subscriber.
- * @returns `true` if the subscriber is marked as Dirty; otherwise `false`.
- */
-export function updateDirtyFlag(sub: Subscriber, flags: number): boolean {
-  if (checkDirty(sub.deps!)) {
-    sub.flags = flags | DirtySubscriberFlag
-    return true
-  }
+function shallowPropagate(link: Link): void {
+  do {
+    const sub = link.sub
+    const flags = sub.flags
 
-  sub.flags = flags & ~PendingComputedSubscriberFlag
+    if ((flags & (PendingFlag | DirtyFlag)) === PendingFlag) {
+      sub.flags = flags | DirtyFlag
+
+      if ((flags & (WatchingFlag | RecursedCheckFlag)) === WatchingFlag) {
+        notify(sub as EffectNode)
+      }
+    }
+  } while ((link = link.nextSub!) !== undefined)
+}
+
+function isValidLink(checkLink: Link, sub: ReactiveNode): boolean {
+  let link = sub.depsTail
+
+  while (link !== undefined) {
+    if (link === checkLink) {
+      return true
+    }
+
+    link = link.prevDep
+  }
 
   return false
 }
 
+export function pushActiveSub(sub?: ReactiveNode) {
+  const prevSub = activeSub
+
+  activeSub = sub
+  return prevSub
+}
+
+export function popActiveSub(prevSub?: ReactiveNode) {
+  activeSub = prevSub
+}
+
+export function batch<T>(fn: () => T): T {
+  ++batchDepth
+
+  try {
+    return fn()
+  } finally {
+    if (!--batchDepth) {
+      flush()
+    }
+  }
+}
+
+export function createSignal(
+  constructor: (value?: unknown) => unknown,
+  node: ComputedNode | SignalNode,
+  ctx: ComputedNode | SignalNode | Morph = node
+) {
+  const $signal = constructor.bind(ctx) as AnySignal
+
+  $signal.node = node
+
+  return $signal
+}
+
 /**
- * Updates the computed subscriber if necessary before its value is accessed.
- *
- * If the subscriber is marked Dirty or PendingComputed, this function runs
- * the provided updateComputed logic and triggers a shallowPropagate for any
- * downstream subscribers if an actual update occurs.
- * @param computed - The computed subscriber to update.
- * @param flags - The current flag set for this subscriber.
+ * Create a signal with atomic value.
+ * @returns A signal.
  */
-export function processComputedUpdate<T>(computed: ComputedSignalInstance<T>, flags: number): void {
+export function signal<T>(): WritableSignal<T | undefined>
+/**
+ * Create a signal with initial atomic value
+ * @param value - Initial value of the signal.
+ * @returns A signal.
+ */
+export function signal<T>(value: T): WritableSignal<T>
+
+/* @__NO_SIDE_EFFECTS__ */
+export function signal<T>(value?: T): WritableSignal<T | undefined> {
+  return createSignal(signalOper, {
+    value,
+    pendingValue: value,
+    subs: undefined,
+    subsTail: undefined,
+    flags: MutableFlag,
+    modes: WritableFlag,
+    subsCount: 0
+  }) as WritableSignal<T | undefined>
+}
+
+/**
+ * Create a signal that reactivly computes its value from other signals.
+ * @param compute - The function to compute the value.
+ * @returns A signal.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function computed<T>(compute: Compute<T>): ReadableSignal<T> {
+  return createSignal(computedOper, {
+    value: undefined,
+    subs: undefined,
+    subsTail: undefined,
+    deps: undefined,
+    depsTail: undefined,
+    flags: NoneFlag,
+    modes: NoneFlag,
+    compute,
+    subsCount: 0
+  }) as ReadableSignal<T>
+}
+
+/**
+ * Run effect function and re-run it on dependency change.
+ * @param fn - The effect function to run.
+ * @param noDefer - Ignore effect deferring.
+ * @returns A function to stop the effect.
+ */
+export function effect(fn: EffectCallback, noDefer = false): Destroy {
+  const e: EffectNode = {
+    fn,
+    destroy: undefined,
+    subs: undefined,
+    subsTail: undefined,
+    deps: undefined,
+    depsTail: undefined,
+    flags: WatchingFlag | RecursedCheckFlag,
+    modes: NoneFlag
+  }
+
+  if (isMountableUsed && activeNoMount !== undefined) {
+    e.noMount = activeNoMount
+  }
+
+  if (activeSub !== undefined) {
+    link(e, activeSub, 0)
+
+    if (!noDefer && activeSub.modes & LazyFlag) {
+      e.modes |= LazyFlag
+      return effectOper.bind(e)
+    }
+  }
+
+  runEffect(e, true)
+
+  return effectOper.bind(e)
+}
+
+/**
+ * Run effect scope function to group effects.
+ * @param fn - The effect scope function to run.
+ * @returns A function to stop child effects.
+ */
+export function effectScope(fn: () => void): Destroy {
+  const e: ReactiveNode = {
+    deps: undefined,
+    depsTail: undefined,
+    subs: undefined,
+    subsTail: undefined,
+    flags: NoneFlag,
+    modes: ScopeFlag
+  }
+  const prevSub = pushActiveSub(e)
+
+  if (prevSub !== undefined) {
+    link(e, prevSub, 0)
+
+    if (prevSub.modes & LazyFlag) {
+      e.modes |= LazyFlag
+    }
+  }
+
+  try {
+    fn()
+  } finally {
+    popActiveSub(prevSub)
+  }
+
+  return effectScopeOper.bind(e)
+}
+
+/**
+ * Defer scope creation to delay its effects execution.
+ * @param fn - The deferred scope function to run.
+ * @returns A function to start effects.
+ */
+export function deferScope(fn: () => void): () => Destroy {
+  const e: ReactiveNode = {
+    deps: undefined,
+    depsTail: undefined,
+    subs: undefined,
+    subsTail: undefined,
+    flags: NoneFlag,
+    modes: ScopeFlag | LazyFlag
+  }
+  const prevSub = pushActiveSub(e)
+
+  try {
+    fn()
+  } finally {
+    popActiveSub(prevSub)
+  }
+
+  return deferScopeOper.bind(e)
+}
+
+/**
+ * Manually trigger signals update propagation.
+ * @param signals - The signals to trigger.
+ */
+export function trigger(...signals: AnySignal[]) {
+  for (let i = 0, dep, subs; i < signals.length; i++) {
+    dep = signals[i].node
+    subs = dep.subs
+
+    if (subs !== undefined) {
+      propagate(subs)
+      shallowPropagate(subs)
+    }
+  }
+
+  if (!batchDepth) {
+    flush()
+  }
+}
+
+function updateComputed(c: ComputedNode): boolean {
+  ++cycle
+  c.depsTail = undefined
+  c.flags = MutableFlag | RecursedCheckFlag
+
+  const prevSub = pushActiveSub(c)
+
+  try {
+    const oldValue = c.value
+
+    return oldValue !== (c.value = c.compute(oldValue))
+  } finally {
+    popActiveSub(prevSub)
+    c.flags &= ~RecursedCheckFlag
+    purgeDeps(c)
+    notifyMounted(activeSub)
+  }
+}
+
+function updateSignal(s: SignalNode): boolean {
+  s.flags = MutableFlag
+  return s.value !== (s.value = s.pendingValue)
+}
+
+function runEffect(e: EffectNode, warmup?: true): void {
+  const prevSub = pushActiveSub(e)
+  const prevNoMount = pushNoMount(e.noMount)
+
+  try {
+    destroyEffect(e)
+    e.destroy = e.fn(warmup) || undefined
+  } finally {
+    popNoMount(prevNoMount)
+    popActiveSub(prevSub)
+    e.flags &= ~RecursedCheckFlag
+
+    if (warmup === undefined) {
+      purgeDeps(e)
+    }
+
+    notifyMounted(activeSub)
+  }
+}
+
+function run(e: EffectNode): void {
+  const flags = e.flags
+
   if (
-    flags & DirtySubscriberFlag
+    flags & DirtyFlag
     || (
-      checkDirty(computed.deps!) || (computed.flags = flags & ~PendingComputedSubscriberFlag, false)
+      flags & PendingFlag
+      && checkDirty(e.deps!, e)
     )
   ) {
-    if (updateComputed(computed)) {
-      const subs = computed.subs
+    ++cycle
+    e.depsTail = undefined
+    e.flags = WatchingFlag | RecursedCheckFlag
+
+    runEffect(e)
+  } else {
+    e.flags = WatchingFlag
+  }
+}
+
+function flush(): void {
+  try {
+    while (notifyIndex < queuedLength) {
+      const effect = queued[notifyIndex]!
+
+      queued[notifyIndex++] = undefined
+      run(effect)
+    }
+  } finally {
+    while (notifyIndex < queuedLength) {
+      const effect = queued[notifyIndex]!
+
+      queued[notifyIndex++] = undefined
+      effect.flags |= WatchingFlag | RecursedFlag
+    }
+
+    notifyIndex = 0
+    queuedLength = 0
+  }
+}
+
+function computedOper<T>(this: ComputedNode<T>): T {
+  const flags = this.flags
+
+  if (
+    flags & DirtyFlag
+    || (
+      flags & PendingFlag
+      && (
+        checkDirty(this.deps!, this)
+        || (this.flags = flags & ~PendingFlag, false)
+      )
+    )
+  ) {
+    if (updateComputed(this)) {
+      const subs = this.subs
 
       if (subs !== undefined) {
         shallowPropagate(subs)
       }
     }
+  } else if (!flags) {
+    this.flags = MutableFlag | RecursedCheckFlag
+
+    const prevSub = pushActiveSub(this)
+
+    try {
+      this.value = this.compute()
+    } finally {
+      popActiveSub(prevSub)
+      this.flags &= ~RecursedCheckFlag
+    }
   }
+
+  const sub = activeSub
+
+  if (sub !== undefined) {
+    link(this, sub, cycle)
+  }
+
+  return this.value!
 }
 
-/**
- * Ensures all pending internal effects for the given subscriber are processed.
- *
- * This should be called after an effect decides not to re-run itself but may still
- * have dependencies flagged with PendingEffect. If the subscriber is flagged with
- * PendingEffect, this function clears that flag and invokes `notifyEffect` on any
- * related dependencies marked as Effect and Propagated, processing pending effects.
- * @param sub - The subscriber which may have pending effects.
- * @param flags - The current flags on the subscriber to check.
- */
-export function processPendingInnerEffects(sub: Subscriber, flags: number): void {
-  if (flags & PendingEffectSubscriberFlag) {
-    sub.flags = flags & ~PendingEffectSubscriberFlag
+function signalOper<T>(this: SignalNode<T>, ...value: [NewValue<T>]): T | void {
+  if (value.length) {
+    const newValue = value[0]
+    const prevValue = this.pendingValue
 
-    let link = sub.deps!
+    if (prevValue !== (this.pendingValue = isFunction(newValue) ? newValue(prevValue) : newValue)) {
+      this.flags = MutableFlag | DirtyFlag
 
-    do {
-      const dep = link.dep
+      const subs = this.subs
 
-      if (
-        'flags' in dep
-        && dep.flags & EffectSubscriberFlag
-        && dep.flags & PropagatedSubscriberFlag
-      ) {
-        notifyEffect(dep as Effect | EffectScope)
+      if (subs !== undefined) {
+        propagate(subs)
+
+        if (!batchDepth) {
+          flush()
+        }
       }
-
-      link = link.nextDep!
-    } while (link !== undefined)
-  }
-}
-
-export function runEffect(e: Effect, warmup?: true): void {
-  const prevSub = activeSub
-  let prevSkipMount
-
-  activeSub = e
-  startTracking(e)
-
-  if (isMountableUsed) {
-    prevSkipMount = pushNoMount(e.noMount)
-  }
-
-  try {
-    if (e.destroy !== undefined) {
-      untracked(e.destroy)
     }
-
-    e.destroy = e.effect(warmup)
-  } finally {
-    activeSub = prevSub
-
-    if (isMountableUsed) {
-      popNoMount(prevSkipMount)
-    }
-
-    endTracking(e)
-  }
-}
-
-export function runEffectScope(e: EffectScope, fn: () => void): void {
-  const prevSub = activeSub
-
-  activeSub = e
-
-  try {
-    fn()
-  } finally {
-    activeSub = prevSub
-  }
-}
-
-export function notifyEffect(e: Effect | EffectScope) {
-  if (e.flags & EffectScopeSubscriberFlag) {
-    return notifyEffectScope(e as EffectScope)
-  }
-
-  return notifyEffectSub(e as Effect)
-}
-
-export function notifyEffectSub(e: Effect): boolean {
-  const flags = e.flags
-
-  if (
-    flags & DirtySubscriberFlag
-    || (flags & PendingComputedSubscriberFlag && updateDirtyFlag(e, flags))
-  ) {
-    runEffect(e)
   } else {
-    processPendingInnerEffects(e, e.flags)
-  }
+    if (this.flags & DirtyFlag) {
+      if (updateSignal(this)) {
+        const subs = this.subs
 
-  return true
-}
-
-export function notifyEffectScope(e: EffectScope): boolean {
-  const flags = e.flags
-
-  if (flags & PendingEffectSubscriberFlag) {
-    processPendingInnerEffects(e, e.flags)
-    return true
-  }
-
-  return false
-}
-
-/**
- * Processes queued effect notifications after a batch operation finishes.
- *
- * Iterates through all queued effects, calling notifyEffect on each.
- * If an effect remains partially handled, its flags are updated, and future
- * notifications may be triggered until fully handled.
- */
-export function processEffectNotifications(): void {
-  while (queuedEffects !== undefined) {
-    const effect = queuedEffects
-    const depsTail = effect.depsTail
-    // effect can be destroyed previously while notifying
-    const queuedNext = depsTail?.nextDep
-
-    if (queuedNext !== undefined) {
-      depsTail!.nextDep = undefined
-      queuedEffects = queuedNext.sub
-    } else {
-      queuedEffects = undefined
-      queuedEffectsTail = undefined
+        if (subs !== undefined) {
+          shallowPropagate(subs)
+        }
+      }
     }
 
-    if (!notifyEffect(effect as EffectScope | Effect)) {
-      effect.flags &= ~NotifiedSubscriberFlag
+    let sub = activeSub
+
+    while (sub !== undefined) {
+      if (sub.flags & (MutableFlag | WatchingFlag)) {
+        link(this, sub, cycle)
+        break
+      }
+
+      sub = sub.subs?.sub
     }
+
+    return this.value
   }
 }
 
-/**
- * Run a function without tracking dependencies.
- * @param fn
- * @returns The result of the function.
- */
-export function untracked<T>(fn: () => T): T {
-  const prevSub = activeSub
+function effectOper(this: EffectNode): void {
+  destroyEffect(this)
+  effectScopeOper.call(this)
+}
 
-  activeSub = undefined
+function effectScopeOper(this: ReactiveNode): void {
+  this.depsTail = undefined
+  this.flags = NoneFlag
+  purgeDeps(this)
 
-  try {
-    return fn()
-  } finally {
-    activeSub = prevSub
+  const sub = this.subs
+
+  if (sub !== undefined) {
+    unlink(sub)
   }
 }
 
-export function maybeDestroyEffect(dep: Dependency | Subscriber): void {
-  if ('destroy' in dep && dep.destroy !== undefined) {
-    untracked((dep as Effect).destroy!)
-    dep.destroy = undefined
-  }
-}
-
-/**
- * Clears dependency-subscription relationships starting at the given link.
- *
- * Detaches the link from both the dependency and subscriber, then continues
- * to the next link in the chain. The link objects are returned to linkPool for reuse.
- * @param link - The head of a linked chain to be cleared.
- */
-export function clearTracking(link: Link): void {
-  const shouldDecrement = isMountableUsed && isActiveSubscriber(link.sub)
-
+function runDeferredEffects(link: Link): void {
   do {
-    const dep = link.dep as Dependency | Dependency & Subscriber | SignalInstance
-    const sub = link.sub as Subscriber
-    const nextDep = link.nextDep
-    const nextSub = link.nextSub
-    const prevSub = link.prevSub
-
-    if (nextSub !== undefined) {
-      nextSub.prevSub = prevSub
-    } else {
-      dep.subsTail = prevSub
-    }
-
-    if (prevSub !== undefined) {
-      prevSub.nextSub = nextSub
-    } else {
-      dep.subs = nextSub
-
-      if (nextSub === undefined) {
-        maybeDestroyEffect(dep)
-      }
-    }
-
-    const shouldClearSubs = dep.subs === undefined && 'deps' in dep
-
-    if (shouldDecrement && dep.flags & MountableSignalFlag && sub.noMount !== dep) {
-      decrementEffectCount(dep, shouldClearSubs)
-    }
-
-    if (shouldClearSubs) {
-      const depFlags = dep.flags
-
-      if (!(depFlags & DirtySubscriberFlag)) {
-        dep.flags = depFlags | DirtySubscriberFlag
-      }
-
-      const depDeps = dep.deps
-
-      if (depDeps !== undefined) {
-        link = depDeps
-        dep.depsTail!.nextDep = nextDep
-        dep.deps = undefined
-        dep.depsTail = undefined
-        continue
-      }
-    }
-
-    link = nextDep!
-  } while (link !== undefined)
-}
-
-/**
- * Prepares the given subscriber to track new dependencies.
- *
- * It resets the subscriber's internal pointers (e.g., depsTail) and
- * sets its flags to indicate it is now tracking dependency links.
- * @param sub - The subscriber to start tracking.
- */
-export function startTracking(sub: Subscriber): void {
-  sub.depsTail = undefined
-  sub.flags = (sub.flags & ~(NotifiedSubscriberFlag | RecursedSubscriberFlag | PropagatedSubscriberFlag)) | TrackingSubscriberFlag
-}
-
-/**
- * Concludes tracking of dependencies for the specified subscriber.
- *
- * It clears or unlinks any tracked dependency information, then
- * updates the subscriber's flags to indicate tracking is complete.
- * @param sub - The subscriber whose tracking is ending.
- */
-export function endTracking(sub: Subscriber): void {
-  const depsTail = sub.depsTail
-
-  if (depsTail !== undefined) {
-    const nextDep = depsTail.nextDep
-
-    if (nextDep !== undefined) {
-      clearTracking(nextDep)
-      depsTail.nextDep = undefined
-    }
-  } else if (sub.deps !== undefined) {
-    clearTracking(sub.deps)
-    sub.deps = undefined
-  }
-
-  sub.flags &= ~TrackingSubscriberFlag
-
-  notifyMounted(activeSub)
-}
-
-/**
- * @param link - The head of a linked chain to be propagated.
- */
-export function runLazyEffects(link: Link): void {
-  do {
-    const dep = link.dep as Effect | EffectScope
+    const dep = link.dep
     const nextDep = link.nextDep
 
-    if (dep.flags & LazyEffectSubscriberFlag) {
-      dep.flags &= ~LazyEffectSubscriberFlag
+    if (dep.modes & LazyFlag) {
+      dep.modes &= ~LazyFlag
 
-      if (dep.flags & EffectScopeSubscriberFlag) {
+      if (dep.modes & ScopeFlag) {
         if (dep.deps !== undefined) {
-          runLazyEffects(dep.deps)
+          runDeferredEffects(dep.deps)
         }
       } else {
-        runEffect(dep as Effect, true)
+        runEffect(dep as EffectNode, true)
       }
     }
 
     link = nextDep!
   } while (link !== undefined)
+}
+
+function deferScopeOper(this: ReactiveNode): Destroy {
+  this.modes &= ~LazyFlag
+
+  notifyMounted(activeSub)
+
+  if (this.deps !== undefined) {
+    runDeferredEffects(this.deps)
+  }
+
+  return effectScopeOper.bind(this)
+}
+
+function purgeDeps(sub: ReactiveNode) {
+  const depsTail = sub.depsTail
+  let dep = depsTail !== undefined ? depsTail.nextDep : sub.deps
+
+  while (dep !== undefined) {
+    dep = unlink(dep, sub)
+  }
 }

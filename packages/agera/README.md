@@ -142,15 +142,17 @@ const stop = effectScope(() => {
 stop() // stop all effects
 ```
 
-Also there is a possibility to create a lazy scope.
+### `deferScope`
+
+Also there is a possibility to create a defer scope.
 
 ```ts
-import { signal, effectScope, effect } from 'agera'
+import { signal, deferScope, effectScope, effect } from 'agera'
 
 const $a = signal(0)
 const $b = signal(0)
 // All scopes will run immediately, but effects run is delayed
-const start = effectScope(() => {
+const start = deferScope(() => {
   effect(() => {
     console.log('A:', $a())
   })
@@ -318,18 +320,18 @@ $b(2)
 `morph` methods allows to create signals that can change their getter and setter on the fly.
 
 ```ts
-import { signal, morph, $$get, $$set, $$source } from 'agera'
+import { signal, morph } from 'agera'
 
 const $string = signal('')
 // Debounce signal updates
 const $debouncedString = morph($string, {
-  [$$set]: debounce($string, 300)
+  set: debounce($string, 300)
 })
 // Lazy initialization
 const $lazyString = morph($string, {
-  [$$get]() {
-    this[$$set]('Lazy string')
-    this[$$get] = this[$$source]
+  get() {
+    this.set('Lazy string')
+    this.get = this.source
     return 'Lazy string'
   }
 })

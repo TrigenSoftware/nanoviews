@@ -1,25 +1,23 @@
-export const ComputedSubscriberFlag = 1 << 0
+// ReactiveFlags
+export const NoneFlag = 0
 
-export const EffectSubscriberFlag = 1 << 1
+export const MutableFlag = 1 << 0
 
-export const EffectScopeSubscriberFlag = 1 << 2
+export const WatchingFlag = 1 << 1
 
-export const LazyEffectSubscriberFlag = 1 << 3
+export const RecursedCheckFlag = 1 << 2
 
-export const TrackingSubscriberFlag = 1 << 4
+export const RecursedFlag = 1 << 3
 
-export const NotifiedSubscriberFlag = 1 << 5
+export const DirtyFlag = 1 << 4
 
-export const RecursedSubscriberFlag = 1 << 6
+export const PendingFlag = 1 << 5
 
-export const DirtySubscriberFlag = 1 << 7
+// ModeFlags
+export const ScopeFlag = 1 << 0
 
-export const PendingComputedSubscriberFlag = 1 << 8
+export const LazyFlag = 1 << 1
 
-export const PendingEffectSubscriberFlag = 1 << 9
+export const WritableFlag = 1 << 2
 
-export const WritableSignalFlag = 1 << 10
-
-export const MountableSignalFlag = 1 << 11
-
-export const PropagatedSubscriberFlag = DirtySubscriberFlag | PendingComputedSubscriberFlag | PendingEffectSubscriberFlag
+export const MountableFlag = 1 << 3

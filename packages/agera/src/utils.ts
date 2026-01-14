@@ -1,17 +1,8 @@
-import {
-  type AnyReadableSignal,
-  type AnyAccessor,
-  type AnyFn
-} from './internals/index.js'
-
-/**
- * Check if the value is an signal.
- * @param value
- * @returns Whether the value is an signal.
- */
-export function isSignal<T extends AnyReadableSignal = AnyReadableSignal>(value: unknown): value is T {
-  return typeof value === 'function' && 'signal' in value
-}
+import type {
+  AnyReadableSignal,
+  AnyAccessor,
+  AnyFn
+} from './internals/types.js'
 
 /**
  * Check if value is function
@@ -28,3 +19,12 @@ export function isFunction(value: unknown): value is AnyFn {
  * @returns True if value is accessor
  */
 export const isAccessor = isFunction as <T extends AnyAccessor = AnyAccessor>(value: unknown) => value is T
+
+/**
+ * Check if the value is an signal.
+ * @param value
+ * @returns Whether the value is an signal.
+ */
+export function isSignal<T extends AnyReadableSignal = AnyReadableSignal>(value: unknown): value is T {
+  return isFunction(value) && 'node' in value
+}

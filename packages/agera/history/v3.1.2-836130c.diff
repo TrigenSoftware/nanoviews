@@ -1,0 +1,896 @@
+--- alien-signals/flags.ts	2026-01-13 20:25:01.835566730 +0000
++++ src/internals/flags.ts	2026-01-12 15:48:44.111675101 +0000
+@@ -1,9 +1,23 @@
+-export const enum ReactiveFlags {
+-  None = 0,
+-  Mutable = 1,
+-  Watching = 2,
+-  RecursedCheck = 4,
+-  Recursed = 8,
+-  Dirty = 16,
+-  Pending = 32
+-}
++// ReactiveFlags
++export const NoneFlag = 0
++
++export const MutableFlag = 1 << 0
++
++export const WatchingFlag = 1 << 1
++
++export const RecursedCheckFlag = 1 << 2
++
++export const RecursedFlag = 1 << 3
++
++export const DirtyFlag = 1 << 4
++
++export const PendingFlag = 1 << 5
++
++// ModeFlags
++export const ScopeFlag = 1 << 0
++
++export const LazyFlag = 1 << 1
++
++export const WritableFlag = 1 << 2
++
++export const MountableFlag = 1 << 3
+--- alien-signals/system.ts	2026-01-13 20:25:17.790565794 +0000
++++ src/internals/system.ts	2026-01-13 20:12:14.980611716 +0000
+@@ -1,12 +1,74 @@
++import { isFunction } from '../utils.js'
+ import type {
+   ReactiveNode,
++  SignalNode,
++  ComputedNode,
++  EffectNode,
+   Link,
+   Stack,
+-  EffectNode,
+-  ComputedNode,
+-  SignalNode
++  AnySignal,
++  WritableSignal,
++  ReadableSignal,
++  EffectCallback,
++  Destroy,
++  Compute,
++  NewValue,
++  Morph
+ } from './types.js'
+-import { ReactiveFlags } from './flags.js'
++import {
++  NoneFlag,
++  MutableFlag,
++  WatchingFlag,
++  RecursedCheckFlag,
++  RecursedFlag,
++  DirtyFlag,
++  PendingFlag,
++  ScopeFlag,
++  WritableFlag,
++  MountableFlag,
++  LazyFlag
++} from './flags.js'
++import {
++  incrementEffectCount,
++  isActiveSubscriber,
++  decrementEffectCount,
++  notifyMounted,
++  isMountableUsed,
++  pushNoMount,
++  popNoMount,
++  activeNoMount
++} from './lifecycle.js'
++
++let cycle = 0
++let batchDepth = 0
++let notifyIndex = 0
++let queuedLength = 0
++let activeSub: ReactiveNode | undefined
++const queued: (EffectNode | undefined)[] = []
++
++/**
++ * Run a function without tracking dependencies.
++ * @param fn
++ * @returns The result of the function.
++ */
++export function untracked<T>(fn: () => T): T {
++  const prevSub = pushActiveSub(undefined)
++
++  try {
++    return fn()
++  } finally {
++    popActiveSub(prevSub)
++  }
++}
++
++function destroyEffect(dep: ReactiveNode) {
++  const effect = dep as EffectNode
++
++  if (effect.destroy !== undefined) {
++    untracked(effect.destroy)
++    effect.destroy = undefined
++  }
++}
+
+ function update(node: SignalNode | ComputedNode): boolean {
+   if (node.depsTail !== undefined) {
+@@ -16,16 +78,16 @@
+   return updateSignal(node as SignalNode)
+ }
+
+-function notify(effect: EffectNode): void {
++function notify(effect: EffectNode) {
+   let insertIndex = queuedLength
+   let firstInsertedIndex = insertIndex
+
+   do {
+     queued[insertIndex++] = effect
+-    effect.flags &= ~ReactiveFlags.Watching
++    effect.flags &= ~WatchingFlag
+     effect = effect.subs?.sub as EffectNode
+
+-    if (effect === undefined || !(effect.flags & ReactiveFlags.Watching)) {
++    if (effect === undefined || !(effect.flags & WatchingFlag)) {
+       break
+     }
+   } while (true)
+@@ -40,12 +102,12 @@
+   }
+ }
+
+-function unwatched(node: ReactiveNode): void {
+-  if (!(node.flags & ReactiveFlags.Mutable)) {
++function unwatched(node: ReactiveNode) {
++  if (!(node.flags & MutableFlag)) {
+     effectScopeOper.call(node)
+   } else if (node.depsTail !== undefined) {
+     node.depsTail = undefined
+-    node.flags = ReactiveFlags.Mutable | ReactiveFlags.Dirty
++    node.flags = MutableFlag | DirtyFlag
+     purgeDeps(node)
+   }
+ }
+@@ -99,6 +161,17 @@
+   } else {
+     dep.subs = newLink
+   }
++
++  const isDepMountable = isMountableUsed && dep.modes & MountableFlag
++
++  // Mark computed signals as mountable if any of their dependencies are mountable
++  if (isDepMountable && 'compute' in sub) {
++    sub.modes |= MountableFlag
++  }
++
++  if (isDepMountable && isActiveSubscriber(sub) && sub.noMount !== dep) {
++    incrementEffectCount(dep)
++  }
+ }
+
+ function unlink(link: Link, sub = link.sub): Link | undefined {
+@@ -126,9 +199,20 @@
+     dep.subsTail = prevSub
+   }
+
++  let unwatch = false
++
+   if (prevSub !== undefined) {
+     prevSub.nextSub = nextSub
+   } else if ((dep.subs = nextSub) === undefined) {
++    destroyEffect(dep)
++    unwatch = true
++  }
++
++  if (isMountableUsed && dep.modes & MountableFlag && sub.noMount !== dep) {
++    decrementEffectCount(dep, unwatch)
++  }
++
++  if (unwatch) {
+     unwatched(dep)
+   }
+
+@@ -143,24 +227,24 @@
+     const sub = link.sub
+     let flags = sub.flags
+
+-    if (!(flags & (ReactiveFlags.RecursedCheck | ReactiveFlags.Recursed | ReactiveFlags.Dirty | ReactiveFlags.Pending))) {
+-      sub.flags = flags | ReactiveFlags.Pending
+-    } else if (!(flags & (ReactiveFlags.RecursedCheck | ReactiveFlags.Recursed))) {
+-      flags = ReactiveFlags.None
+-    } else if (!(flags & ReactiveFlags.RecursedCheck)) {
+-      sub.flags = (flags & ~ReactiveFlags.Recursed) | ReactiveFlags.Pending
+-    } else if (!(flags & (ReactiveFlags.Dirty | ReactiveFlags.Pending)) && isValidLink(link, sub)) {
+-      sub.flags = flags | (ReactiveFlags.Recursed | ReactiveFlags.Pending)
+-      flags &= ReactiveFlags.Mutable
++    if (!(flags & (RecursedCheckFlag | RecursedFlag | DirtyFlag | PendingFlag))) {
++      sub.flags = flags | PendingFlag
++    } else if (!(flags & (RecursedCheckFlag | RecursedFlag))) {
++      // flags = NoneFlag
++      flags &= MutableFlag
++    } else if (!(flags & RecursedCheckFlag)) {
++      sub.flags = (flags & ~RecursedFlag) | PendingFlag
++    } else if (!(flags & (DirtyFlag | PendingFlag)) && isValidLink(link, sub)) {
++      sub.flags = flags | (RecursedFlag | PendingFlag)
++      flags &= MutableFlag
+     } else {
+-      flags = ReactiveFlags.None
++      flags = NoneFlag
+     }
+
+-    if (flags & ReactiveFlags.Watching) {
++    if (flags & WatchingFlag) {
+       notify(sub as EffectNode)
+     }
+
+-    if (flags & ReactiveFlags.Mutable) {
++    if (flags & MutableFlag) {
+       const subSubs = sub.subs
+
+       if (subSubs !== undefined) {
+@@ -206,9 +290,9 @@
+     const dep = link.dep
+     const flags = dep.flags
+
+-    if (sub.flags & ReactiveFlags.Dirty) {
++    if (sub.flags & DirtyFlag) {
+       dirty = true
+-    } else if ((flags & (ReactiveFlags.Mutable | ReactiveFlags.Dirty)) === (ReactiveFlags.Mutable | ReactiveFlags.Dirty)) {
++    } else if ((flags & (MutableFlag | DirtyFlag)) === (MutableFlag | DirtyFlag)) {
+       if (update(dep as SignalNode | ComputedNode)) {
+         const subs = dep.subs!
+
+@@ -218,7 +302,7 @@
+
+         dirty = true
+       }
+-    } else if ((flags & (ReactiveFlags.Mutable | ReactiveFlags.Pending)) === (ReactiveFlags.Mutable | ReactiveFlags.Pending)) {
++    } else if ((flags & (MutableFlag | PendingFlag)) === (MutableFlag | PendingFlag)) {
+       if (link.nextSub !== undefined || link.prevSub !== undefined) {
+         stack = {
+           value: link,
+@@ -264,7 +348,7 @@
+
+         dirty = false
+       } else {
+-        sub.flags &= ~ReactiveFlags.Pending
++        sub.flags &= ~PendingFlag
+       }
+
+       sub = link.sub
+@@ -286,10 +370,10 @@
+     const sub = link.sub
+     const flags = sub.flags
+
+-    if ((flags & (ReactiveFlags.Pending | ReactiveFlags.Dirty)) === ReactiveFlags.Pending) {
+-      sub.flags = flags | ReactiveFlags.Dirty
++    if ((flags & (PendingFlag | DirtyFlag)) === PendingFlag) {
++      sub.flags = flags | DirtyFlag
+
+-      if ((flags & (ReactiveFlags.Watching | ReactiveFlags.RecursedCheck)) === ReactiveFlags.Watching) {
++      if ((flags & (WatchingFlag | RecursedCheckFlag)) === WatchingFlag) {
+         notify(sub as EffectNode)
+       }
+     }
+@@ -310,219 +394,256 @@
+   return false
+ }
+
+-let cycle = 0
+-let batchDepth = 0
+-let notifyIndex = 0
+-let queuedLength = 0
+-let activeSub: ReactiveNode | undefined
+-const queued: (EffectNode | undefined)[] = []
+-
+-export function getActiveSub(): ReactiveNode | undefined {
+-  return activeSub
+-}
+-
+-export function setActiveSub(sub?: ReactiveNode) {
++export function pushActiveSub(sub?: ReactiveNode) {
+   const prevSub = activeSub
+
+   activeSub = sub
+   return prevSub
+ }
+
+-export function getBatchDepth(): number {
+-  return batchDepth
++export function popActiveSub(prevSub?: ReactiveNode) {
++  activeSub = prevSub
+ }
+
+-export function startBatch() {
++export function batch<T>(fn: () => T): T {
+   ++batchDepth
+-}
+
+-export function endBatch() {
+-  if (!--batchDepth) {
+-    flush()
++  try {
++    return fn()
++  } finally {
++    if (!--batchDepth) {
++      flush()
++    }
+   }
+ }
+
+-export function isSignal(fn: () => void): boolean {
+-  return fn.name === `bound ${signalOper.name}`
+-}
+-
+-export function isComputed(fn: () => void): boolean {
+-  return fn.name === `bound ${computedOper.name}`
+-}
+-
+-export function isEffect(fn: () => void): boolean {
+-  return fn.name === `bound ${effectOper.name}`
+-}
+-
+-export function isEffectScope(fn: () => void): boolean {
+-  return fn.name === `bound ${effectScopeOper.name}`
+-}
+-
+-export function signal<T>(): {
+-  (): T | undefined
+-  (value: T | undefined): void
+-}
+-export function signal<T>(initialValue: T): {
+-  (): T
+-  (value: T): void
+-}
+-
+-export function signal<T>(initialValue?: T): {
+-  (): T | undefined
+-  (value: T | undefined): void
+-} {
+-  return signalOper.bind({
+-    currentValue: initialValue,
+-    pendingValue: initialValue,
++export function createSignal(
++  constructor: (value?: unknown) => unknown,
++  node: ComputedNode | SignalNode,
++  ctx: ComputedNode | SignalNode | Morph = node
++) {
++  const $signal = constructor.bind(ctx) as AnySignal
++
++  $signal.node = node
++
++  return $signal
++}
++
++/**
++ * Create a signal with atomic value.
++ * @returns A signal.
++ */
++export function signal<T>(): WritableSignal<T | undefined>
++/**
++ * Create a signal with initial atomic value
++ * @param value - Initial value of the signal.
++ * @returns A signal.
++ */
++export function signal<T>(value: T): WritableSignal<T>
++
++/* @__NO_SIDE_EFFECTS__ */
++export function signal<T>(value?: T): WritableSignal<T | undefined> {
++  return createSignal(signalOper, {
++    value,
++    pendingValue: value,
+     subs: undefined,
+     subsTail: undefined,
+-    flags: ReactiveFlags.Mutable
+-  }) as () => T | undefined
++    flags: MutableFlag,
++    modes: WritableFlag,
++    subsCount: 0
++  }) as WritableSignal<T | undefined>
+ }
+
+-export function computed<T>(getter: (previousValue?: T) => T): () => T {
+-  return computedOper.bind({
++/**
++ * Create a signal that reactivly computes its value from other signals.
++ * @param compute - The function to compute the value.
++ * @returns A signal.
++ */
++/* @__NO_SIDE_EFFECTS__ */
++export function computed<T>(compute: Compute<T>): ReadableSignal<T> {
++  return createSignal(computedOper, {
+     value: undefined,
+     subs: undefined,
+     subsTail: undefined,
+     deps: undefined,
+     depsTail: undefined,
+-    flags: ReactiveFlags.None,
+-    getter: getter as (previousValue?: unknown) => unknown
+-  }) as () => T
++    flags: NoneFlag,
++    modes: NoneFlag,
++    compute,
++    subsCount: 0
++  }) as ReadableSignal<T>
+ }
+
+-export function effect(fn: () => void): () => void {
++/**
++ * Run effect function and re-run it on dependency change.
++ * @param fn - The effect function to run.
++ * @param noDefer - Ignore effect deferring.
++ * @returns A function to stop the effect.
++ */
++export function effect(fn: EffectCallback, noDefer = false): Destroy {
+   const e: EffectNode = {
+     fn,
++    destroy: undefined,
+     subs: undefined,
+     subsTail: undefined,
+     deps: undefined,
+     depsTail: undefined,
+-    flags: ReactiveFlags.Watching | ReactiveFlags.RecursedCheck
++    flags: WatchingFlag | RecursedCheckFlag,
++    modes: NoneFlag
+   }
+-  const prevSub = setActiveSub(e)
+
+-  if (prevSub !== undefined) {
+-    link(e, prevSub, 0)
++  if (isMountableUsed && activeNoMount !== undefined) {
++    e.noMount = activeNoMount
+   }
+
+-  try {
+-    e.fn()
+-  } finally {
+-    activeSub = prevSub
+-    e.flags &= ~ReactiveFlags.RecursedCheck
++  if (activeSub !== undefined) {
++    link(e, activeSub, 0)
++
++    if (!noDefer && activeSub.modes & LazyFlag) {
++      e.modes |= LazyFlag
++      return effectOper.bind(e)
++    }
+   }
+
++  runEffect(e, true)
++
+   return effectOper.bind(e)
+ }
+
+-export function effectScope(fn: () => void): () => void {
++/**
++ * Run effect scope function to group effects.
++ * @param fn - The effect scope function to run.
++ * @returns A function to stop child effects.
++ */
++export function effectScope(fn: () => void): Destroy {
+   const e: ReactiveNode = {
+     deps: undefined,
+     depsTail: undefined,
+     subs: undefined,
+     subsTail: undefined,
+-    flags: ReactiveFlags.None
++    flags: NoneFlag,
++    modes: ScopeFlag
+   }
+-  const prevSub = setActiveSub(e)
++  const prevSub = pushActiveSub(e)
+
+   if (prevSub !== undefined) {
+     link(e, prevSub, 0)
++
++    if (prevSub.modes & LazyFlag) {
++      e.modes |= LazyFlag
++    }
+   }
+
+   try {
+     fn()
+   } finally {
+-    activeSub = prevSub
++    popActiveSub(prevSub)
+   }
+
+   return effectScopeOper.bind(e)
+ }
+
+-export function trigger(fn: () => void) {
+-  const sub: ReactiveNode = {
++export function deferScope(fn: () => void): () => Destroy {
++  const e: ReactiveNode = {
+     deps: undefined,
+     depsTail: undefined,
+-    flags: ReactiveFlags.Watching
++    subs: undefined,
++    subsTail: undefined,
++    flags: NoneFlag,
++    modes: ScopeFlag | LazyFlag
+   }
+-  const prevSub = setActiveSub(sub)
++  const prevSub = pushActiveSub(e)
+
+   try {
+     fn()
+   } finally {
+-    activeSub = prevSub
+-
+-    let link = sub.deps
+-
+-    while (link !== undefined) {
+-      const dep = link.dep
++    popActiveSub(prevSub)
++  }
+
+-      link = unlink(link, sub)
++  return deferScopeOper.bind(e)
++}
+
+-      const subs = dep.subs
++/**
++ * Manually trigger signals update propagation.
++ * @param signals - The signals to trigger.
++ */
++export function trigger(...signals: AnySignal[]) {
++  for (let i = 0, dep, subs; i < signals.length; i++) {
++    dep = signals[i].node
++    subs = dep.subs
+
+-      if (subs !== undefined) {
+-        sub.flags = ReactiveFlags.None
+-        propagate(subs)
+-        shallowPropagate(subs)
+-      }
++    if (subs !== undefined) {
++      propagate(subs)
++      shallowPropagate(subs)
+     }
++  }
+
+-    if (!batchDepth) {
+-      flush()
+-    }
++  if (!batchDepth) {
++    flush()
+   }
+ }
+
+ function updateComputed(c: ComputedNode): boolean {
+   ++cycle
+   c.depsTail = undefined
+-  c.flags = ReactiveFlags.Mutable | ReactiveFlags.RecursedCheck
++  c.flags = MutableFlag | RecursedCheckFlag
+
+-  const prevSub = setActiveSub(c)
++  const prevSub = pushActiveSub(c)
+
+   try {
+     const oldValue = c.value
+
+-    return oldValue !== (c.value = c.getter(oldValue))
++    return oldValue !== (c.value = c.compute(oldValue))
+   } finally {
+-    activeSub = prevSub
+-    c.flags &= ~ReactiveFlags.RecursedCheck
++    popActiveSub(prevSub)
++    c.flags &= ~RecursedCheckFlag
+     purgeDeps(c)
++    notifyMounted(activeSub)
+   }
+ }
+
+ function updateSignal(s: SignalNode): boolean {
+-  s.flags = ReactiveFlags.Mutable
+-  return s.currentValue !== (s.currentValue = s.pendingValue)
++  s.flags = MutableFlag
++  return s.value !== (s.value = s.pendingValue)
++}
++
++function runEffect(e: EffectNode, warmup?: true): void {
++  const prevSub = pushActiveSub(e)
++  const prevNoMount = pushNoMount(e.noMount)
++
++  try {
++    destroyEffect(e)
++    e.destroy = e.fn(warmup) || undefined
++  } finally {
++    popNoMount(prevNoMount)
++    popActiveSub(prevSub)
++    e.flags &= ~RecursedCheckFlag
++
++    if (warmup === undefined) {
++      purgeDeps(e)
++    }
++
++    notifyMounted(activeSub)
++  }
+ }
+
+ function run(e: EffectNode): void {
+   const flags = e.flags
+
+   if (
+-    flags & ReactiveFlags.Dirty
+-		|| (
+-		  flags & ReactiveFlags.Pending
+-			&& checkDirty(e.deps!, e)
+-		)
++    flags & DirtyFlag
++    || (
++      flags & PendingFlag
++      && checkDirty(e.deps!, e)
++    )
+   ) {
+     ++cycle
+     e.depsTail = undefined
+-    e.flags = ReactiveFlags.Watching | ReactiveFlags.RecursedCheck
+-
+-    const prevSub = setActiveSub(e)
++    e.flags = WatchingFlag | RecursedCheckFlag
+
+-    try {
+-      e.fn()
+-    } finally {
+-      activeSub = prevSub
+-      e.flags &= ~ReactiveFlags.RecursedCheck
+-      purgeDeps(e)
+-    }
++    runEffect(e)
+   } else {
+-    e.flags = ReactiveFlags.Watching
++    e.flags = WatchingFlag
+   }
+ }
+
+@@ -539,7 +660,7 @@
+       const effect = queued[notifyIndex]!
+
+       queued[notifyIndex++] = undefined
+-      effect.flags |= ReactiveFlags.Watching | ReactiveFlags.Recursed
++      effect.flags |= WatchingFlag | RecursedFlag
+     }
+
+     notifyIndex = 0
+@@ -551,14 +672,14 @@
+   const flags = this.flags
+
+   if (
+-    flags & ReactiveFlags.Dirty
+-		|| (
+-		  flags & ReactiveFlags.Pending
+-			&& (
+-			  checkDirty(this.deps!, this)
+-				|| (this.flags = flags & ~ReactiveFlags.Pending, false)
+-			)
+-		)
++    flags & DirtyFlag
++    || (
++      flags & PendingFlag
++      && (
++        checkDirty(this.deps!, this)
++        || (this.flags = flags & ~PendingFlag, false)
++      )
++    )
+   ) {
+     if (updateComputed(this)) {
+       const subs = this.subs
+@@ -568,15 +689,15 @@
+       }
+     }
+   } else if (!flags) {
+-    this.flags = ReactiveFlags.Mutable | ReactiveFlags.RecursedCheck
++    this.flags = MutableFlag | RecursedCheckFlag
+
+-    const prevSub = setActiveSub(this)
++    const prevSub = pushActiveSub(this)
+
+     try {
+-      this.value = this.getter()
++      this.value = this.compute()
+     } finally {
+-      activeSub = prevSub
+-      this.flags &= ~ReactiveFlags.RecursedCheck
++      popActiveSub(prevSub)
++      this.flags &= ~RecursedCheckFlag
+     }
+   }
+
+@@ -589,10 +710,13 @@
+   return this.value!
+ }
+
+-function signalOper<T>(this: SignalNode<T>, ...value: [T]): T | void {
++function signalOper<T>(this: SignalNode<T>, ...value: [NewValue<T>]): T | void {
+   if (value.length) {
+-    if (this.pendingValue !== (this.pendingValue = value[0])) {
+-      this.flags = ReactiveFlags.Mutable | ReactiveFlags.Dirty
++    const newValue = value[0]
++    const prevValue = this.pendingValue
++
++    if (prevValue !== (this.pendingValue = isFunction(newValue) ? newValue(prevValue) : newValue)) {
++      this.flags = MutableFlag | DirtyFlag
+
+       const subs = this.subs
+
+@@ -605,7 +729,7 @@
+       }
+     }
+   } else {
+-    if (this.flags & ReactiveFlags.Dirty) {
++    if (this.flags & DirtyFlag) {
+       if (updateSignal(this)) {
+         const subs = this.subs
+
+@@ -618,7 +742,7 @@
+     let sub = activeSub
+
+     while (sub !== undefined) {
+-      if (sub.flags & (ReactiveFlags.Mutable | ReactiveFlags.Watching)) {
++      if (sub.flags & (MutableFlag | WatchingFlag)) {
+         link(this, sub, cycle)
+         break
+       }
+@@ -626,17 +750,18 @@
+       sub = sub.subs?.sub
+     }
+
+-    return this.currentValue
++    return this.value
+   }
+ }
+
+ function effectOper(this: EffectNode): void {
++  destroyEffect(this)
+   effectScopeOper.call(this)
+ }
+
+ function effectScopeOper(this: ReactiveNode): void {
+   this.depsTail = undefined
+-  this.flags = ReactiveFlags.None
++  this.flags = NoneFlag
+   purgeDeps(this)
+
+   const sub = this.subs
+@@ -646,6 +771,39 @@
+   }
+ }
+
++export function runDeferredEffects(link: Link): void {
++  do {
++    const dep = link.dep
++    const nextDep = link.nextDep
++
++    if (dep.modes & LazyFlag) {
++      dep.modes &= ~LazyFlag
++
++      if (dep.modes & ScopeFlag) {
++        if (dep.deps !== undefined) {
++          runDeferredEffects(dep.deps)
++        }
++      } else {
++        runEffect(dep as EffectNode, true)
++      }
++    }
++
++    link = nextDep!
++  } while (link !== undefined)
++}
++
++function deferScopeOper(this: ReactiveNode): Destroy {
++  this.modes &= ~LazyFlag
++
++  notifyMounted(activeSub)
++
++  if (this.deps !== undefined) {
++    runDeferredEffects(this.deps)
++  }
++
++  return effectScopeOper.bind(this)
++}
++
+ function purgeDeps(sub: ReactiveNode) {
+   const depsTail = sub.depsTail
+   let dep = depsTail !== undefined ? depsTail.nextDep : sub.deps
+--- alien-signals/types.ts	2026-01-13 20:25:22.390565524 +0000
++++ src/internals/types.ts	2026-01-13 20:11:57.292612754 +0000
+@@ -1,11 +1,75 @@
+-import type { ReactiveFlags } from './flags.js'
++export type AnyFn = (...args: any) => any
++
++export type DefineVirtualFlags<F extends string, V = unknown> = {
++  [K in F as `~${K}`]?: V
++}
++
++export type EnableVirtualFlags<T, F extends string> = Omit<T, `~${F}`> & DefineVirtualFlags<F, true>
++
++export type Destroy = () => void
++
++export type MaybeDestroy = Destroy | void
++
++export type EffectCallback = (warmup?: true) => MaybeDestroy
++
++export type ObserverCallback<T> = (value: T) => void
++
++export type MountedCallback = (mounted: boolean) => void
++
++export type Compute<T> = (prevValue?: T) => T
++
++export type Accessor<T> = () => T
++
++export type NewValue<T> = T | ((prevValue: T) => T)
++
++export interface ReadableNode extends ReactiveNode, DefineVirtualFlags<'writable' | 'mountable'> {
++  subsCount: number
++  mounted?: MountedCallback
++}
++
++export interface WritableNode extends EnableVirtualFlags<ReadableNode, 'writable'> {}
++
++export interface ReadableSignal<T> extends Accessor<T> {
++  node: ReadableNode
++}
++
++export interface Morph<T = unknown> {
++  source: WritableSignal<T>
++  get(): T
++  set(value: NewValue<T>): void
++}
++
++export interface WritableSignal<T> extends ReadableSignal<T> {
++  (value: NewValue<T>): void
++  node: WritableNode
++}
++
++export type AnyAccessor = Accessor<any>
++
++export type AnyReadableSignal = ReadableSignal<any>
++
++export type AnyWritableSignal = WritableSignal<any>
++
++export type AnySignal = AnyReadableSignal | AnyWritableSignal
++
++export type AnyAccessorOrSignal = AnyAccessor | AnySignal
++
++export type AccessorValue<T> = T extends Accessor<infer U> ? U : never
++
++export type MaybeAccessorValue<T> = T extends Accessor<infer U> ? U : T
++
++export type Mountable<S extends AnySignal> = S & {
++  node: EnableVirtualFlags<S['node'], 'mountable'>
++}
+
+ export interface ReactiveNode {
+   deps?: Link
+   depsTail?: Link
+   subs?: Link
+   subsTail?: Link
+-  flags: ReactiveFlags
++  flags: number
++  modes: number
++  noMount?: ReactiveNode
+ }
+
+ export interface Link {
+@@ -24,15 +88,16 @@
+ }
+
+ export interface EffectNode extends ReactiveNode {
+-  fn(): void
++  fn: EffectCallback
++  destroy: MaybeDestroy
+ }
+
+-export interface ComputedNode<T = any> extends ReactiveNode {
++export interface ComputedNode<T = any> extends ReadableNode {
+   value: T | undefined
+-  getter(previousValue?: T): T
++  compute: Compute<T>
+ }
+
+-export interface SignalNode<T = any> extends ReactiveNode {
+-  currentValue: T
++export interface SignalNode<T = any> extends WritableNode {
++  value: T
+   pendingValue: T
+ }

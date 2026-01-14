@@ -1,24 +1,25 @@
-
+import type {
+  AnySignal,
+  ReadableSignal,
+  Mountable,
+  AnyWritableSignal,
+  AnyReadableSignal,
+  AnyAccessor,
+  AccessorValue
+} from './internals/types.js'
 import {
-  type AnySignal,
-  type ReadableSignal,
-  type Mountable,
-  type AnyWritableSignal,
-  type AnyReadableSignal,
-  type AnyAccessor,
-  type AccessorValue,
-  WritableSignalFlag,
-  MountableSignalFlag,
-  markMountableUsed
-} from './internals/index.js'
+  MountableFlag,
+  WritableFlag
+} from './internals/flags.js'
+import { markMountableUsed } from './internals/lifecycle.js'
 
 /* @__NO_SIDE_EFFECTS__ */
 export function isMountable<T extends Mountable<AnySignal> = Mountable<AnySignal>>(value: AnyAccessor): value is T {
-  return ((value as AnyWritableSignal).signal?.flags & MountableSignalFlag) > 0
+  return ((value as AnyWritableSignal).node?.modes & MountableFlag) > 0
 }
 
 export function unsafeMarkMountable($signal: AnySignal) {
-  $signal.signal.flags |= MountableSignalFlag
+  $signal.node.modes |= MountableFlag
 }
 
 /**
@@ -36,11 +37,11 @@ export function mountable<T extends AnySignal>($signal: T): Mountable<T> {
 
 /* @__NO_SIDE_EFFECTS__ */
 export function isWritable<T extends AnyWritableSignal = AnyWritableSignal>(value: AnyAccessor): value is T {
-  return ((value as AnyWritableSignal).signal?.flags & WritableSignalFlag) > 0
+  return ((value as AnyWritableSignal).node?.modes & WritableFlag) > 0
 }
 
 export function unsafeMarkWritable($signal: AnySignal) {
-  $signal.signal.flags |= WritableSignalFlag
+  $signal.node.modes |= WritableFlag
 }
 
 /**
@@ -51,7 +52,7 @@ export function unsafeMarkWritable($signal: AnySignal) {
 /* @__NO_SIDE_EFFECTS__ */
 export function readonly<T extends AnyAccessor>($signal: T) {
   if (isWritable($signal)) {
-    ($signal as AnyReadableSignal).signal.flags &= ~WritableSignalFlag
+    ($signal as AnyReadableSignal).node.modes &= ~WritableFlag
   }
 
   return $signal as T extends Mountable<AnyWritableSignal>
