@@ -10,6 +10,8 @@
 
 ## Nanoviews
 
+- fix TruthyValueOrSignal type, return signal if signal, not accessor
+
 - wrap into untracked needed parts
 - for loop array or empty check for else
 - rework return slot$ to look like element/component? fn.prop is faster than {f,p}
@@ -37,6 +39,8 @@ for_($items)(
 - store injection effectScope to stop effects after context stop? - UPD: wtf is this? i dont remember what it mean. Wrap serialize in effectScope? Or wrap inject ? bad practice, maybe just for safety into serialize
 
 ## 🔥🔥🔥 Query 🔥🔥🔥
+
+- map data / default data
 
 - hydration provider / etc?
 - serialize -> dehydrate / hydrate?

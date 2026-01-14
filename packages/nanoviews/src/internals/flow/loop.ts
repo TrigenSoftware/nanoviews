@@ -13,7 +13,7 @@ import type {
   EmptyValue
 } from '../types/index.js'
 import {
-  createEffectScopeWithContext,
+  createDeferScopeWithContext,
   effectScopeSwapper
 } from '../effects.js'
 import { isEmpty } from '../utils.js'
@@ -258,7 +258,7 @@ export function loop(
 ): Child {
   const start = createTextNode()
   const end = createTextNode()
-  const effectScope = createEffectScopeWithContext()
+  const deferScope = createDeferScopeWithContext()
   const fragment = document.createDocumentFragment()
   const blocksMap: LookupMap = new Map()
   const itemsList: LoopItemsList = {
@@ -279,7 +279,7 @@ export function loop(
     if (itemsCount && prevItemsCount) {
       // [...m] -> [...n]
       // swap
-      return effectScope(() => {
+      return deferScope(() => {
         batch(() => reconcile(
           itemsList,
           blocksMap,
@@ -289,7 +289,7 @@ export function loop(
           end,
           items
         ))
-      }, true)()
+      })()
     }
 
     const shouldRender = itemsCount || !isPlaceholder
@@ -306,7 +306,7 @@ export function loop(
     if (itemsCount) {
       // [] -> [...n]
       isPlaceholder = false
-      runEffects = effectScope(() => {
+      runEffects = deferScope(() => {
         reconcile(
           itemsList,
           blocksMap,
@@ -316,13 +316,12 @@ export function loop(
           end,
           items
         )
-      }, true)
+      })
     } else if (!isPlaceholder) {
       // ([...n] | []) -> []
       isPlaceholder = true
-      runEffects = effectScope(
-        () => insertChildBeforeAnchor(else_?.(), end),
-        true
+      runEffects = deferScope(
+        () => insertChildBeforeAnchor(else_?.(), end)
       )
     }
 

@@ -6,7 +6,7 @@ import {
 } from 'kida'
 import type { Child } from '../types/index.js'
 import {
-  createEffectScopeWithContext,
+  createDeferScopeWithContext,
   effectScopeSwapper
 } from '../effects.js'
 import { createTextNode } from '../elements/text.js'
@@ -21,7 +21,7 @@ export function reactiveDecide<T>(
 ) {
   const start = createTextNode()
   const end = createTextNode()
-  const effectScope = createEffectScopeWithContext()
+  const deferScope = createDeferScopeWithContext()
   const fragment = document.createDocumentFragment()
 
   fragment.append(start, end)
@@ -35,9 +35,8 @@ export function reactiveDecide<T>(
       removeBetween(start, end)
     }
 
-    const runEffects = effectScope(
-      () => insertChildBeforeAnchor(decider(condition), end),
-      true
+    const runEffects = deferScope(
+      () => insertChildBeforeAnchor(decider(condition), end)
     )
 
     // Rerender on condition change in effect

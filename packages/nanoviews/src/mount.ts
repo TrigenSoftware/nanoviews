@@ -1,4 +1,4 @@
-import { effectScope } from 'kida'
+import { deferScope } from 'kida'
 import {
   type Child,
   type MaybeDestroy,
@@ -18,7 +18,7 @@ export function mount(app: () => Child, target: ParentNode) {
   target.__mp = true
 
   let unmount: MaybeDestroy
-  const start = effectScope(() => unmount = mountChild(target, app()), true)
+  const start = deferScope(() => unmount = mountChild(target, app()))
   const destroy = start()
 
   return () => {

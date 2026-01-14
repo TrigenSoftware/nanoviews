@@ -5,7 +5,7 @@ import {
   isAccessor,
   effect,
   subscribe as sub,
-  createEffectScope,
+  deferScope,
   getContext,
   run,
   untracked
@@ -30,10 +30,8 @@ export function subscribe<T>(
   }
 }
 
-export function createEffectScopeWithContext(context = getContext()) {
-  const effectScope = createEffectScope()
-
-  return ((fn, lazy) => effectScope(() => run(context, fn), lazy)) as ReturnType<typeof createEffectScope>
+export function createDeferScopeWithContext(context = getContext()) {
+  return (fn => deferScope(() => run(context, fn))) as typeof deferScope
 }
 
 export function effectScopeSwapper<T>(
