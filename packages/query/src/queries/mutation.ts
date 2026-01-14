@@ -3,7 +3,6 @@ import {
   action,
   batch,
   computed,
-  mountable,
   readonly,
   signal
 } from '@nano_kit/store'
@@ -69,7 +68,7 @@ export function mutation<
     loadingDedupe
   } = clientCtx
   const $result = signal<R | null>(null)
-  const $data = mountable(computed(() => mapComputedData($result())))
+  const $data = computed(() => mapComputedData($result()))
   const $error = signal<string | null>(null)
   const $loading = signal(false)
   let prevRequestCtx: RequestContext<R> | undefined

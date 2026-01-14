@@ -1,4 +1,5 @@
 import {
+  type Mountable,
   type ReadableSignal,
   effect,
   effectScope,
@@ -36,7 +37,7 @@ export function query<
   fn: (...args: [...P, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
-  $data: ReadableSignal<R | null>,
+  $data: Mountable<ReadableSignal<R | null>>,
   $error: ReadableSignal<string | null>,
   $loading: ReadableSignal<boolean>,
   $key: ReadableSignal<CacheKey<P, R>>
@@ -59,7 +60,7 @@ export function query<
   fn: (...args: P) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
-  $data: ReadableSignal<R | null>,
+  $data: Mountable<ReadableSignal<R | null>>,
   $error: ReadableSignal<string | null>,
   $loading: ReadableSignal<boolean>,
   $key: ReadableSignal<CacheKey<P, R>>

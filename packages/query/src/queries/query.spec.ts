@@ -102,6 +102,28 @@ describe('query', () => {
         off()
       })
 
+      it('should revalidate query', async () => {
+        const { query, revalidate } = client(tasks(tasksRunner(tasksPool)))
+        const $id = signal(1)
+        const fetcher = vi.fn(getPost)
+        const [$data] = query(PostKey, [$id], fetcher)
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks(tasksPool)
+
+        expect(fetcher).toHaveBeenCalledTimes(1)
+
+        revalidate(PostKey($id()))
+
+        await waitTasks(tasksPool)
+
+        expect(fetcher).toHaveBeenCalledTimes(2)
+
+        off()
+      })
+
       it('should handle errors', async () => {
         const { query } = client(tasks(tasksRunner(tasksPool)))
         const $postId = signal(1)

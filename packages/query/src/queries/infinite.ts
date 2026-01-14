@@ -1,4 +1,5 @@
 import {
+  type Mountable,
   type ReadableSignal,
   action,
   effect,
@@ -47,7 +48,7 @@ export function infinite<
   settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
 ): readonly [
   fetchNext: () => Promise<readonly [InfinitePages<R, C> | undefined, unknown] | undefined>,
-  $data: ReadableSignal<InfinitePages<R, C> | null>,
+  $data: Mountable<ReadableSignal<InfinitePages<R, C> | null>>,
   $error: ReadableSignal<string | null>,
   $loading: ReadableSignal<boolean>,
   $key: ReadableSignal<CacheKey<P, InfinitePages<R, C>>>
@@ -74,7 +75,7 @@ export function infinite<
   settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
 ): readonly [
   fetchNext: () => Promise<readonly [InfinitePages<R, C> | undefined, unknown] | undefined>,
-  $data: ReadableSignal<InfinitePages<R, C> | null>,
+  $data: Mountable<ReadableSignal<InfinitePages<R, C> | null>>,
   $error: ReadableSignal<string | null>,
   $loading: ReadableSignal<boolean>,
   $key: ReadableSignal<CacheKey<P, InfinitePages<R, C>>>

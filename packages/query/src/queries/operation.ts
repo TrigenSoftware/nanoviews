@@ -1,4 +1,5 @@
 import {
+  type Mountable,
   type ReadableSignal,
   effectScope,
   onStart
@@ -39,7 +40,7 @@ export function operation<
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
   fetch: (...extraParams: E) => Promise<readonly [R | undefined, unknown] | undefined>,
-  $data: ReadableSignal<R | null>,
+  $data: Mountable<ReadableSignal<R | null>>,
   $error: ReadableSignal<string | null>,
   $loading: ReadableSignal<boolean>,
   $key: ReadableSignal<CacheKey<P, R>>
@@ -64,7 +65,7 @@ export function operation<
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
   fetch: (...extraParams: E) => Promise<readonly [R | undefined, unknown] | undefined>,
-  $data: ReadableSignal<R | null>,
+  $data: Mountable<ReadableSignal<R | null>>,
   $error: ReadableSignal<string | null>,
   $loading: ReadableSignal<boolean>,
   $key: ReadableSignal<CacheKey<P, R>>
@@ -88,7 +89,7 @@ export function operation<
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
   fetch: () => Promise<readonly [R | undefined, unknown] | undefined>,
-  $data: ReadableSignal<R | null>,
+  $data: Mountable<ReadableSignal<R | null>>,
   $error: ReadableSignal<string | null>,
   $loading: ReadableSignal<boolean>,
   $key: ReadableSignal<CacheKey<P, R>>
