@@ -57,7 +57,11 @@ export function child<
   key: K | Accessor<K>,
   setValue?: (parentValue: P, key: K, value: V) => P
 ) {
-  const getter = computed(() => $parent()[$get(key)])
+  const getter = computed(() => {
+    const parent = $parent()
+
+    return parent && parent[$get(key)]
+  })
 
   if (!isWritable($parent)) {
     return getter
