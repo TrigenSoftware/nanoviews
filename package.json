@@ -42,7 +42,7 @@
     "@trigen/eslint-config": "^8.1.2",
     "@trigen/scripts": "^8.0.4",
     "@types/node": "^24.0.14",
-    "clean-publish": "^5.0.0",
+    "clean-publish": "^6.0.0",
     "commitizen": "^4.2.4",
     "del-cli": "^6.0.0",
     "eslint": "^9.31.0",
