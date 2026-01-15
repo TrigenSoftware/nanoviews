@@ -6,7 +6,7 @@ import {
 import type { City } from '../services/types.js'
 import * as Cities from '../services/cities.js'
 import * as Location from '../services/location.js'
-import { channel } from './channel.js'
+import { createFetcherStore } from './query.js'
 
 function debounce<T extends unknown[]>(fn: (...args: [...T]) => void, ms: number) {
   let timer: ReturnType<typeof setTimeout>
@@ -35,23 +35,32 @@ onMount($locationSearch, () => {
   }, INPUT_DEBOUNCE))
 })
 
-export const $citySuggestions = atom([] as City[])
+export const $locationSearchDebounced = atom('')
 
-onMount($citySuggestions, () => $locationSearch.subscribe(debounce(fetchCitySuggestions, INPUT_DEBOUNCE)))
+onMount($locationSearchDebounced, () => $locationSearch.subscribe(debounce((value) => {
+  $locationSearchDebounced.set(value)
+}, INPUT_DEBOUNCE)))
+
+export const $citySuggestionsStore = createFetcherStore<City[]>(
+  ['citySuggestions/', $locationSearchDebounced],
+  {
+    async fetcher() {
+      const query = $locationSearchDebounced.get()
+
+      if (!query.trim()) {
+        return []
+      }
+
+      return await Cities.fetchCities(query)
+    }
+  }
+)
+
+export const $citySuggestions = computed($citySuggestionsStore, store => store.data ?? [])
 
 export const $currentLocation = computed($citySuggestions, citySuggestions => citySuggestions[0])
 
-const citySuggestionsTask = channel()
-
-function fetchCitySuggestions(query: string) {
-  return citySuggestionsTask(async (signal) => {
-    if (query.trim()) {
-      $citySuggestions.set(await Cities.fetchCities(query, signal))
-    } else {
-      $citySuggestions.set([])
-    }
-  })
-}
+export const $currentLocationKey = computed($currentLocation, city => (city ? `${city.lat},${city.lon}` : null))
 
 async function fetchCurrentCity() {
   const city = await Location.fetchCurrentCity()

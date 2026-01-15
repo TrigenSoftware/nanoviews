@@ -1,43 +1,39 @@
-import {
-  onMount,
-  atom
-} from 'nanostores'
-import type {
-  City,
-  Weather
-} from '../services/types.js'
+import { computed } from 'nanostores'
+import type { Weather } from '../services/types.js'
 import * as WeatherService from '../services/weather.js'
-import { $currentLocation } from './location.js'
-import { channel } from './channel.js'
+import { $currentLocation, $currentLocationKey } from './location.js'
+import { createFetcherStore } from './query.js'
 
-export const $currentWeather = atom<Weather | null>(null)
+export const $currentWeatherStore = createFetcherStore<Weather | null>(
+  ['currentWeather/', $currentLocationKey],
+  {
+    async fetcher() {
+      const city = $currentLocation.get()
 
-onMount($currentWeather, () => $currentLocation.subscribe((fetchWeather)))
+      if (!city) {
+        return null
+      }
 
-export const $weatherForecast = atom([] as Weather[])
-
-onMount($weatherForecast, () => $currentLocation.subscribe((fetchWeatherForecast)))
-
-const weatherTask = channel()
-
-function fetchWeather(city: City | undefined) {
-  return weatherTask(async (signal) => {
-    if (city) {
-      $currentWeather.set(await WeatherService.fetchWeather(city, signal))
-    } else {
-      $currentWeather.set(null)
+      return await WeatherService.fetchWeather(city)
     }
-  })
-}
+  }
+)
 
-const weatherForecastTask = channel()
+export const $currentWeather = computed($currentWeatherStore, store => store.data ?? null)
 
-function fetchWeatherForecast(city: City | undefined) {
-  return weatherForecastTask(async (signal) => {
-    if (city) {
-      $weatherForecast.set(await WeatherService.fetchWeatherForecast(city, signal))
-    } else {
-      $weatherForecast.set([])
+export const $weatherForecastStore = createFetcherStore<Weather[]>(
+  ['weatherForecast/', $currentLocationKey],
+  {
+    async fetcher() {
+      const city = $currentLocation.get()
+
+      if (!city) {
+        return []
+      }
+
+      return await WeatherService.fetchWeatherForecast(city)
     }
-  })
-}
+  }
+)
+
+export const $weatherForecast = computed($weatherForecastStore, store => store.data ?? [])

@@ -1,61 +1,56 @@
 import {
-  channel,
-  onMountEffect,
+  computed,
   record,
-  signal,
-  $TasksSet,
-  inject,
-  mountable
-} from 'nanoviews/store'
+  inject
+} from '@nano_kit/store'
+import { queryKey } from '@nano_kit/query'
 import type {
   City,
   Weather
 } from '../services/types.js'
 import * as WeatherService from '../services/weather.js'
-import { CurrentLocationStore } from './location.js'
+import { QueryClient$ } from './query.js'
+import { CitySuggestions$ } from './location.js'
 
-export function CurrentWeatherStore() {
-  const $currentLocation = inject(CurrentLocationStore)
-  const $currentWeather = mountable(record(signal<Weather | null>(null)))
-  const tasks = inject($TasksSet)
-  const [weatherTask] = channel(tasks)
-
-  function fetchWeather(city: City | undefined) {
-    return weatherTask(async (signal) => {
-      if (city) {
-        $currentWeather(await WeatherService.fetchWeather(city, signal))
-      } else {
-        $currentWeather(null)
+export function CurrentWeather$() {
+  const { query } = inject(QueryClient$)
+  const { $currentLocation } = inject(CitySuggestions$)
+  const [$weatherData] = query<[city: City | undefined], Weather | null>(
+    queryKey('currentWeather'),
+    [$currentLocation],
+    async (city) => {
+      if (!city) {
+        return null
       }
-    })
+
+      return await WeatherService.fetchWeather(city)
+    }
+  )
+  const $weather = record($weatherData)
+
+  return {
+    $weather
   }
-
-  onMountEffect($currentWeather, () => {
-    fetchWeather($currentLocation())
-  })
-
-  return $currentWeather
 }
 
-export function WeatherForecastStore() {
-  const $currentLocation = inject(CurrentLocationStore)
-  const $weatherForecast = mountable(signal<Weather[]>([]))
-  const tasks = inject($TasksSet)
-  const [weatherForecastTask] = channel(tasks)
-
-  function fetchWeatherForecast(city: City | undefined) {
-    return weatherForecastTask(async (signal) => {
-      if (city) {
-        $weatherForecast(await WeatherService.fetchWeatherForecast(city, signal))
-      } else {
-        $weatherForecast([])
+export function WeatherForecast$() {
+  const { query } = inject(QueryClient$)
+  const { $currentLocation } = inject(CitySuggestions$)
+  const [$forecastData] = query<[city: City | undefined], Weather[]>(
+    queryKey('weatherForecast'),
+    [$currentLocation],
+    async (city) => {
+      if (!city) {
+        return []
       }
-    })
+
+      return await WeatherService.fetchWeatherForecast(city)
+    }
+  )
+  const $forecast = computed(() => $forecastData() || [])
+
+  return {
+    $forecast
   }
-
-  onMountEffect($weatherForecast, () => {
-    fetchWeatherForecast($currentLocation())
-  })
-
-  return $weatherForecast
 }
+

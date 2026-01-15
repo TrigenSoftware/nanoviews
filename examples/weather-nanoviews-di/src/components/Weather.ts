@@ -1,5 +1,5 @@
 import {
-  if$,
+  if_,
   div,
   h3,
   img,
@@ -7,38 +7,38 @@ import {
   br,
   inject
 } from 'nanoviews'
-import { CurrentWeatherStore } from '../stores/weather.js'
+import { CurrentWeather$ } from '../stores/weather.js'
 import styles from './Weather.module.css'
 
 export function Weather() {
-  const $currentWeather = inject(CurrentWeatherStore)
+  const { $weather } = inject(CurrentWeather$)
 
-  return if$($currentWeather)(
+  return if_($weather)(
     () => div({
       class: styles.root
     })(
       h3({
         class: styles.currentTemp
       })(
-        $currentWeather.$tempText
+        $weather.$tempText
       ),
       img({
         class: styles.image,
-        src: $currentWeather.$icon,
-        alt: $currentWeather.$description
+        src: $weather.$icon,
+        alt: $weather.$description
       }),
       p({
         class: styles.feelsLike
       })(
-        'Feels like ', $currentWeather.$feelsLikeText
+        'Feels like ', $weather.$feelsLikeText
       ),
       p({
         class: styles.description
       })(
-        $currentWeather.$description,
+        $weather.$description,
         br(),
         'Humidity: ',
-        $currentWeather.$humidity,
+        $weather.$humidity,
         '%'
       )
     )

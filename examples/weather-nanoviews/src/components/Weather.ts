@@ -1,5 +1,5 @@
 import {
-  if$,
+  if_,
   div,
   h3,
   img,
@@ -10,7 +10,7 @@ import { $currentWeather } from '../stores/weather.js'
 import styles from './Weather.module.css'
 
 export function Weather() {
-  return if$($currentWeather)(
+  return if_($currentWeather)(
     () => div({
       class: styles.root
     })(

@@ -1,82 +1,75 @@
 import {
-  signal,
   paced,
   debounce,
   external,
-  atIndex,
-  onMountEffect,
   onMount,
-  channel,
-  $TasksSet,
-  inject,
+  effect,
   untracked,
-  mountable
-} from 'nanoviews/store'
+  mountable,
+  computed,
+  Destroy,
+  atIndex,
+  inject
+} from '@nano_kit/store'
+import { queryKey } from '@nano_kit/query'
 import type { City } from '../services/types.js'
 import * as Cities from '../services/cities.js'
 import * as Location from '../services/location.js'
+import { QueryClient$ } from './query.js'
 
 const INPUT_DEBOUNCE = 300
 
-export function LocationSearchStore() {
-  const $locationSearch = mountable(external<string>(($locationSearch) => {
-    $locationSearch(localStorage.getItem('locationSearch') || '')
+export function LocationSearch$() {
+  const { query } = inject(QueryClient$)
+  const $searchQuery = mountable(external<string>(($locationSearchQuery) => {
+    $locationSearchQuery(localStorage.getItem('locationSearch') || '')
 
     return (nextValue) => {
-      $locationSearch(nextValue)
-      localStorage.setItem('locationSearch', untracked($locationSearch))
+      $locationSearchQuery(nextValue)
+      localStorage.setItem('locationSearch', untracked($locationSearchQuery))
     }
   }))
+  const $searchQueryPaced = paced($searchQuery, debounce(INPUT_DEBOUNCE))
+  const [$geolocation] = query<[], City | null>(queryKey('geolocation'), [], () => Location.fetchCurrentCity())
 
-  async function fetchCurrentCity() {
-    const city = await Location.fetchCurrentCity()
+  onMount($searchQuery, () => {
+    let stop: Destroy | undefined
 
-    if (!$locationSearch() && city) {
-      $locationSearch(city.label)
+    if (!$searchQuery()) {
+      stop = effect(() => {
+        const geolocation = $geolocation()
+
+        if (geolocation && !untracked($searchQuery)) {
+          $searchQuery(geolocation.label)
+          stop!()
+        }
+      })
     }
-  }
 
-  onMount($locationSearch, () => {
-    if (!$locationSearch()) {
-      fetchCurrentCity()
-    }
+    return stop
   })
 
-  return $locationSearch
-}
-
-export function LocationSearchPacedStore() {
-  const $locationSearch = inject(LocationSearchStore)
-
-  return paced($locationSearch, debounce(INPUT_DEBOUNCE))
-}
-
-export function CitySuggestionsStore() {
-  const $locationSearch = inject(LocationSearchStore)
-  const $citySuggestions = mountable(signal<City[]>([]))
-  const tasks = inject($TasksSet)
-  const [citySuggestionsTask] = channel(tasks)
-
-  function fetchCitySuggestions(query: string) {
-    return citySuggestionsTask(async (signal) => {
-      if (query.trim()) {
-        $citySuggestions(await Cities.fetchCities(query, signal))
-      } else {
-        $citySuggestions([])
-      }
-    })
+  return {
+    $searchQuery,
+    $searchQueryPaced
   }
-
-  onMountEffect($citySuggestions, () => {
-    fetchCitySuggestions($locationSearch())
-  })
-
-  return $citySuggestions
 }
 
-export function CurrentLocationStore() {
-  const $citySuggestions = inject(CitySuggestionsStore)
-  const $currentLocation = atIndex($citySuggestions, 0)
+export function CitySuggestions$() {
+  const { query } = inject(QueryClient$)
+  const { $searchQuery } = inject(LocationSearch$)
+  const [$suggestionsData] = query<[query: string], City[]>(queryKey('citySuggestions'), [$searchQuery], async (queryValue) => {
+    if (!queryValue.trim()) {
+      return []
+    }
 
-  return $currentLocation
+    return await Cities.fetchCities(queryValue)
+  })
+  const $suggestions = computed(() => $suggestionsData() || [])
+  const $currentLocation = atIndex($suggestions, 0)
+
+  return {
+    $suggestions,
+    $currentLocation
+  }
 }

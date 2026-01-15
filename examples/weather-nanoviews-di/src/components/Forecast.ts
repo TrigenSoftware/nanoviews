@@ -10,21 +10,22 @@ import {
   h2,
   select,
   option,
-  selected$,
   ul,
-  for$,
-  if$,
+  $$selected,
+  for_,
+  if_,
+  trackBy,
   inject
 } from 'nanoviews'
-import { WeatherForecastStore } from '../stores/weather.js'
+import { WeatherForecast$ } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.js'
 import styles from './Forecast.module.css'
 
 export function Forecast() {
-  const $weatherForecast = inject(WeatherForecastStore)
+  const { $forecast } = inject(WeatherForecast$)
   const $mode = signal('hourly')
   const $forecastToShow = computed(() => {
-    const forecast = $weatherForecast()
+    const forecast = $forecast()
     const mode = $mode()
 
     return forecast.filter(
@@ -32,7 +33,7 @@ export function Forecast() {
     )
   })
 
-  return if$(length($weatherForecast))(
+  return if_(length($forecastToShow))(
     () => section()(
       header({
         class: styles.header
@@ -44,7 +45,7 @@ export function Forecast() {
         ),
         select({
           class: styles.mode,
-          [selected$]: $mode
+          [$$selected]: $mode
         })(
           option({
             value: 'hourly'
@@ -61,7 +62,7 @@ export function Forecast() {
       ul({
         class: styles.list
       })(
-        for$($forecastToShow)(
+        for_($forecastToShow, trackBy('dateText'))(
           $weather => ForecastWeather({
             weather: $weather,
             mode: $mode

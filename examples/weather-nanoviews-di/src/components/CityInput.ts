@@ -3,21 +3,21 @@ import {
   div,
   label,
   input,
-  value$,
   datalist,
-  for$,
   option,
+  $$value,
+  for_,
   inject
 } from 'nanoviews'
 import {
-  LocationSearchPacedStore,
-  CitySuggestionsStore
+  LocationSearch$,
+  CitySuggestions$
 } from '../stores/location.js'
 import styles from './CityInput.module.css'
 
 export function CityInput() {
-  const $locationSearch = inject(LocationSearchPacedStore)
-  const $citySuggestions = inject(CitySuggestionsStore)
+  const { $searchQueryPaced } = inject(LocationSearch$)
+  const { $suggestions } = inject(CitySuggestions$)
 
   return div({
     class: styles.root
@@ -34,12 +34,12 @@ export function CityInput() {
       type: 'text',
       list: 'cities',
       name: 'city',
-      [value$]: $locationSearch
+      [$$value]: $searchQueryPaced
     }),
     datalist({
       id: 'cities'
     })(
-      for$($citySuggestions)(
+      for_($suggestions)(
         $city => option({
           value: record($city).$label
         })
