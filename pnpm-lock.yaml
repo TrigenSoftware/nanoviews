@@ -85,7 +85,7 @@ importers:
         version: 11.2.0(size-limit@11.2.0)
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1))
       size-limit:
         specifier: ^11.1.2
         version: 11.2.0
@@ -100,7 +100,7 @@ importers:
         version: 7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+        version: 3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1)
     publishDirectory: package
 
   packages/benchmarks:
@@ -129,7 +129,7 @@ importers:
         version: 11.2.0(size-limit@11.2.0)
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1))
       size-limit:
         specifier: ^11.1.2
         version: 11.2.0
@@ -144,7 +144,7 @@ importers:
         version: 7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+        version: 3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1)
     publishDirectory: package
 
   packages/nanoviews:
@@ -182,13 +182,13 @@ importers:
         version: 14.6.1(@testing-library/dom@10.4.0)
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1))
       csstype:
         specifier: ^3.1.3
         version: 3.1.3
       happy-dom:
-        specifier: ^18.0.0
-        version: 18.0.1
+        specifier: ^20.0.0
+        version: 20.3.1
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -212,7 +212,7 @@ importers:
         version: 7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+        version: 3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1)
     publishDirectory: package
 
   packages/query:
@@ -225,7 +225,7 @@ importers:
         version: 11.2.0(size-limit@11.2.0)
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1))
       fake-indexeddb:
         specifier: ^6.2.5
         version: 6.2.5
@@ -240,7 +240,7 @@ importers:
         version: 7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+        version: 3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1)
     publishDirectory: package
 
   packages/react:
@@ -268,10 +268,10 @@ importers:
         version: 4.6.0(vite@7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1))
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1))
       happy-dom:
-        specifier: ^18.0.0
-        version: 18.0.1
+        specifier: ^20.0.0
+        version: 20.3.1
       react:
         specifier: ^19.0.0
         version: 19.1.0
@@ -289,7 +289,7 @@ importers:
         version: 7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+        version: 3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1)
     publishDirectory: package
 
   packages/react-router:
@@ -323,10 +323,10 @@ importers:
         version: 4.6.0(vite@7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1))
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1))
       happy-dom:
-        specifier: ^18.0.0
-        version: 18.0.1
+        specifier: ^20.0.0
+        version: 20.3.1
       react:
         specifier: ^19.0.0
         version: 19.1.0
@@ -344,7 +344,7 @@ importers:
         version: 7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+        version: 3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1)
     publishDirectory: package
 
   packages/router:
@@ -363,10 +363,10 @@ importers:
         version: 6.6.3
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1))
       happy-dom:
-        specifier: ^18.0.0
-        version: 18.0.1
+        specifier: ^20.0.0
+        version: 20.3.1
       size-limit:
         specifier: ^11.1.6
         version: 11.2.0
@@ -378,7 +378,7 @@ importers:
         version: 7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+        version: 3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1)
     publishDirectory: package
 
   packages/store:
@@ -392,7 +392,7 @@ importers:
         version: 11.2.0(size-limit@11.2.0)
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1))
+        version: 3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1))
       size-limit:
         specifier: ^11.1.2
         version: 11.2.0
@@ -407,7 +407,7 @@ importers:
         version: 7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+        version: 3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1)
     publishDirectory: package
 
   packages/storybook:
@@ -463,7 +463,7 @@ importers:
         version: 7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+        version: 3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1)
     publishDirectory: package
 
 packages:
@@ -2530,6 +2530,9 @@ packages:
   '@types/whatwg-mimetype@3.0.2':
     resolution: {integrity: sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA==}
 
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
+
   '@types/yargs-parser@21.0.3':
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
 
@@ -3949,8 +3952,8 @@ packages:
     engines: {node: '>=0.4.7'}
     hasBin: true
 
-  happy-dom@18.0.1:
-    resolution: {integrity: sha512-qn+rKOW7KWpVTtgIUi6RVmTBZJSe2k0Db0vh1f7CWrWclkkc7/Q+FrOfkZIb2eiErLyqu5AXEzE7XthO9JVxRA==}
+  happy-dom@20.3.1:
+    resolution: {integrity: sha512-tLvsizNno05Hij0PoB0QN/S8xf0YU2AGvO11/JlJDw5McA/gzyn0Ni1RwbTI1/zteUbOekJH0t6q8HFvjbxsGg==}
     engines: {node: '>=20.0.0'}
 
   has-bigints@1.1.0:
@@ -6070,6 +6073,18 @@ packages:
 
   ws@8.18.1:
     resolution: {integrity: sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.19.0:
+    resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -8552,6 +8567,10 @@ snapshots:
 
   '@types/whatwg-mimetype@3.0.2': {}
 
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 24.0.14
+
   '@types/yargs-parser@21.0.3': {}
 
   '@types/yargs@17.0.33':
@@ -8665,7 +8684,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1))':
+  '@vitest/coverage-v8@3.2.4(vitest@3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 1.0.2
@@ -8680,7 +8699,7 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)
+      vitest: 3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -10372,11 +10391,16 @@ snapshots:
     optionalDependencies:
       uglify-js: 3.19.3
 
-  happy-dom@18.0.1:
+  happy-dom@20.3.1:
     dependencies:
       '@types/node': 20.19.8
       '@types/whatwg-mimetype': 3.0.2
+      '@types/ws': 8.18.1
       whatwg-mimetype: 3.0.0
+      ws: 8.19.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   has-bigints@1.1.0: {}
 
@@ -12374,7 +12398,7 @@ snapshots:
       jiti: 2.4.2
       terser: 5.43.1
 
-  vitest@3.2.4(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1):
+  vitest@3.2.4(@types/node@24.0.14)(happy-dom@20.3.1)(jiti@2.4.2)(terser@5.43.1):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
@@ -12401,7 +12425,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.0.14
-      happy-dom: 18.0.1
+      happy-dom: 20.3.1
     transitivePeerDependencies:
       - jiti
       - less
@@ -12538,6 +12562,8 @@ snapshots:
       async-limiter: 1.0.1
 
   ws@8.18.1: {}
+
+  ws@8.19.0: {}
 
   xtend@4.0.2: {}
 
