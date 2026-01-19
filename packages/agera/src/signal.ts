@@ -34,7 +34,7 @@ export function onMounted(
 ) {
   const $mounted = $signal.node.mounted ||= signal(false)
 
-  return noMount($signal, () => listen($mounted, listener))
+  return noMount($signal, () => listen($mounted, listener, true))
 }
 
 export function morph<T, C extends Partial<Morph<T>>>(
