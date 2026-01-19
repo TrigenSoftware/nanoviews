@@ -5,6 +5,10 @@ import {
   expect
 } from 'vitest'
 import {
+  deferScope,
+  effect
+} from 'agera'
+import {
   InjectionContext,
   getContext,
   run,
@@ -186,6 +190,39 @@ describe('kida', () => {
         expect(B).toHaveBeenCalledTimes(1)
         expect(context.has(A)).toBe(true)
         expect(context.has(B)).toBe(true)
+      })
+
+      it('should ignore defer scope', () => {
+        const context = new InjectionContext()
+        const destroy = vi.fn()
+        const fn = vi.fn(() => destroy)
+        const Factory$ = vi.fn(() => {
+          effect(fn)
+
+          return 42
+        })
+        let value
+        const start = deferScope(() => {
+          value = inject(Factory$, context)
+          value = inject(Factory$, context)
+        })
+
+        expect(value).toBe(42)
+        expect(Factory$).toHaveBeenCalledTimes(1)
+        expect(fn).toHaveBeenCalledTimes(1)
+        expect(destroy).not.toHaveBeenCalled()
+
+        const stop = start()
+
+        expect(Factory$).toHaveBeenCalledTimes(1)
+        expect(fn).toHaveBeenCalledTimes(1)
+        expect(destroy).not.toHaveBeenCalled()
+
+        stop()
+
+        expect(Factory$).toHaveBeenCalledTimes(1)
+        expect(fn).toHaveBeenCalledTimes(1)
+        expect(destroy).not.toHaveBeenCalled()
       })
     })
   })

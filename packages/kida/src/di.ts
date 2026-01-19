@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import type { AnyFn } from 'agera'
+import {
+  type AnyFn,
+  untracked
+} from 'agera'
 
 export type InjectionFactory<T = unknown> = () => T
 
@@ -66,16 +69,12 @@ export function run<T extends AnyFn>(
   fn: T,
   ...args: Parameters<T>
 ): ReturnType<T> {
-  if (context === currentContext) {
-    return fn(...args as unknown[])
-  }
-
   const parentContext = currentContext
 
   currentContext = context
 
   try {
-    return fn(...args as unknown[])
+    return untracked(() => fn(...args as unknown[]))
   } finally {
     currentContext = parentContext
   }
