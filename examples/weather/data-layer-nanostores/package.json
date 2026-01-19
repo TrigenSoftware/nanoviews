@@ -1,0 +1,18 @@
+{
+  "name": "weather-data-layer-nanostores",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./services/*": "./src/services/*.js",
+    "./stores/*": "./src/stores/*.js"
+  },
+  "dependencies": {
+    "@nanostores/query": "^0.3.4",
+    "nanostores": "^0.11.3"
+  },
+  "devDependencies": {
+    "typescript": "~5.7.2",
+    "vite": "^6.0.5"
+  }
+}

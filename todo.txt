@@ -1,9 +1,9 @@
 - migrate examples
-  - rick-and-morty-react
-  - wearher-nanoviews - nano_kit store + query
-  - wearher-nanoviews-di - nano_kit store + query
-  - weather-solid - nanostores query
-  - weather-svelte - nanostores query
+  + rick-and-morty-react
+  + wearher-nanoviews - nano_kit store + query
+  + wearher-nanoviews-di - nano_kit store + query
+  + weather-solid - nanostores query
+  + weather-svelte - nanostores query
   - add new example CV APP
 - docs website
 - first spa only beta release of nano_kit
@@ -39,6 +39,25 @@ for_($items)(
 - store injection effectScope to stop effects after context stop? - UPD: wtf is this? i dont remember what it mean. Wrap serialize in effectScope? Or wrap inject ? bad practice, maybe just for safety into serialize
 
 ## 🔥🔥🔥 Query 🔥🔥🔥
+
+```
+query<[city: City | undefined], Weather | null>(...)
+->
+query<(city: City | undefined) => Weather | null>(...)
+
+queryKey<[postId: number], Post | null>('post')
+->
+queryKey<(postId: number) => Post | null>('post')
+
+operationKey<[], [prompt: string], Post>('postGeneration')
+->
+operationKey<() => Post, [prompt: string]>('postGeneration')
+or
+operationKey<() => Post, (prompt: string) => void>('postGeneration')
+or
+operationKey<[], (prompt: string) => Post>('postGeneration')
+operationKey<[postId: number], (prompt: string) => Post>('postGeneration')
+```
 
 - map data / default data
 

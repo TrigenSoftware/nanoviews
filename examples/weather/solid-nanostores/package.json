@@ -1,0 +1,23 @@
+{
+  "name": "weather-svelte",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@nanostores/query": "^0.3.4",
+    "@nanostores/solid": "^0.5.0",
+    "data-layer": "workspace:../data-layer-nanostores",
+    "nanostores": "^0.11.3",
+    "solid-js": "^1.9.3"
+  },
+  "devDependencies": {
+    "typescript": "~5.7.2",
+    "vite": "^6.0.5",
+    "vite-plugin-solid": "^2.11.0"
+  }
+}

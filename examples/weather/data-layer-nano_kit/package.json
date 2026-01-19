@@ -1,0 +1,14 @@
+{
+  "name": "weather-data-layer-nano_kit",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./services/*": "./src/services/*.js",
+    "./stores/*": "./src/stores/*.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "vite": "^6.0.5"
+  }
+}

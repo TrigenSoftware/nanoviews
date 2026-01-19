@@ -665,8 +665,8 @@ Nanoviews and Kida are small libraries and designed to be tree-shakable. So apps
 
 | Example | Nanoviews | SolidJS | Svelte |
 | ------- | --------- | ------- | ------ |
-| Vite Demo | 7.66 kB / gzip: 3.22 kB<br>[source code](../../examples/vite-demo-nanoviews/) | 8.93 kB / gzip: 3.73 kB<br>[source code](../../examples/vite-demo-solid/) | 12.73 kB / gzip: 5.54 kB<br>[source code](../../examples/vite-demo-svelte/) |
-| Weather | + Kida<br>17.27 kB / gzip: 6.96 kB<br>[source code](../../examples/weather-nanoviews/) | + nanostores + @nanostores/solid<br>25.23 kB / gzip: 9.80 kB<br>[source code](../../examples/weather-solid/) | + nanostores<br>26.80 kB / gzip: 10.84 kB<br>[source code](../../examples/weather-svelte/) |
+| Vite Demo | 7.78 kB / gzip: 3.14 kB<br>[source code](../../examples/vite-demo/nanoviews/) | 8.93 kB / gzip: 3.73 kB<br>[source code](../../examples/vite-demo/solid/) | 23.77 kB / gzip: 9.61 kB<br>[source code](../../examples/vite-demo/svelte/) |
+| Weather | + nano_kit<br>22.68 kB / gzip: 8.72 kB<br>[source code](../../examples/weather/nanoviews-nano_kit/) | + nanostores<br>30.18 kB / gzip: 11.97 kB<br>[source code](../../examples/weather/solid-nanostores/) | + nanostores<br>45.73 kB / gzip: 18.01 kB<br>[source code](../../examples/weather/svelte-nanostores/) |
 
 ### Performance
 
