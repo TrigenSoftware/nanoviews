@@ -74,9 +74,6 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
-      vite-plugin-filter-replace:
-        specifier: ^0.1.14
-        version: 0.1.14
 
   packages/agera:
     devDependencies:
@@ -5899,9 +5896,6 @@ packages:
     resolution: {integrity: sha512-EbKSKh+bh1E1IFxeO0pg1n4dvoOTt0UDiXMd/qn++r98+jPO1xtJilvXldeuQ8giIB5IkpjCgMleHMNEsGH6pg==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
-
-  vite-plugin-filter-replace@0.1.14:
-    resolution: {integrity: sha512-3onEAYgjJQTCJN+/f8+1vOUH3X/tRmXsfxmgH3QtpReGKi+xtP1jMpAEnYsNqw9mI2shZmxFm3LS+n52XczwYQ==}
 
   vite@7.0.4:
     resolution: {integrity: sha512-SkaSguuS7nnmV7mfJ8l81JGBFV7Gvzp8IzgE8A8t23+AxuNX61Q5H1Tpz5efduSN7NHC8nQXD3sKQKZAu5mNEA==}
@@ -12355,10 +12349,6 @@ snapshots:
       - terser
       - tsx
       - yaml
-
-  vite-plugin-filter-replace@0.1.14:
-    dependencies:
-      magic-string: 0.30.21
 
   vite@7.0.4(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1):
     dependencies:
