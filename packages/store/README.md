@@ -523,7 +523,7 @@ console.log($savedString()) // runs initializer function
 
 ### Paced
 
-`paced` method creates a signal where updates are rate-limited.
+`paced` method creates a proxy signal that updates the original signal using the provided rate limiter.
 
 ```ts
 import { signal, paced, effect, debounce } from '@nano_kit/store'

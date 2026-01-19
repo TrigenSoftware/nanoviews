@@ -8,7 +8,9 @@ import {
 } from 'vitest'
 import {
   effect,
-  signal
+  signal,
+  mountable,
+  STORE_UNMOUNT_DELAY
 } from 'kida'
 import { debounce } from './utils.js'
 import { paced } from './paced.js'
@@ -24,26 +26,88 @@ describe('store', () => {
     })
 
     it('should pace signal update', () => {
-      const $paced = paced(signal(0), debounce(300))
-      const listener = vi.fn()
-      const off = effect(() => {
-        listener($paced())
+      const $source = signal(0)
+      const $paced = paced($source, debounce(300))
+      const sourceListener = vi.fn()
+      const pacedListener = vi.fn()
+      const offSource = effect(() => {
+        sourceListener($source())
+      })
+      const offPaced = effect(() => {
+        pacedListener($paced())
       })
 
+      expect($source()).toBe(0)
       expect($paced()).toBe(0)
-      expect(listener).toHaveBeenCalledTimes(1)
+      expect(sourceListener).toHaveBeenCalledTimes(1)
+      expect(pacedListener).toHaveBeenCalledTimes(1)
 
       $paced(1)
+
+      expect($source()).toBe(0)
+      expect($paced()).toBe(1)
+      expect(sourceListener).toHaveBeenCalledTimes(1)
+      expect(pacedListener).toHaveBeenCalledTimes(2)
+
       vi.advanceTimersByTime(100)
+
+      expect($source()).toBe(0)
+      expect($paced()).toBe(1)
+      expect(sourceListener).toHaveBeenCalledTimes(1)
+      expect(pacedListener).toHaveBeenCalledTimes(2)
+
       $paced(2)
+
+      expect($source()).toBe(0)
+      expect($paced()).toBe(2)
+      expect(sourceListener).toHaveBeenCalledTimes(1)
+      expect(pacedListener).toHaveBeenCalledTimes(3)
+
       vi.advanceTimersByTime(100)
+
+      expect($source()).toBe(0)
+      expect($paced()).toBe(2)
+      expect(sourceListener).toHaveBeenCalledTimes(1)
+      expect(pacedListener).toHaveBeenCalledTimes(3)
+
       $paced(3)
+
+      expect($source()).toBe(0)
+      expect($paced()).toBe(3)
+      expect(sourceListener).toHaveBeenCalledTimes(1)
+      expect(pacedListener).toHaveBeenCalledTimes(4)
+
       vi.advanceTimersByTime(300)
 
+      expect($source()).toBe(3)
       expect($paced()).toBe(3)
-      expect(listener).toHaveBeenCalledTimes(2)
+      expect(sourceListener).toHaveBeenCalledTimes(2)
+      expect(pacedListener).toHaveBeenCalledTimes(4)
 
-      off()
+      offSource()
+      offPaced()
+    })
+
+    it('should mount source signal on proxy mount', () => {
+      const $source = mountable(signal(0))
+      const $paced = mountable(paced($source, debounce(300)))
+
+      expect($source.node.subsCount).toBe(0)
+      expect($paced.node.subsCount).toBe(0)
+
+      const stop3 = effect(() => {
+        $paced()
+      })
+
+      expect($source.node.subsCount).toBe(1)
+      expect($paced.node.subsCount).toBe(1)
+
+      stop3()
+
+      vi.advanceTimersByTime(STORE_UNMOUNT_DELAY)
+
+      expect($source.node.subsCount).toBe(0)
+      expect($paced.node.subsCount).toBe(0)
     })
   })
 })
