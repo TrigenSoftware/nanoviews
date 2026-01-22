@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    /* Path Mapping */
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    /* Type Checking */
+    "strict": true,
+    "strictBindCallApply": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    /* Modules */
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    /* Emit */
+    "noEmit": true,
+    /* Interop Constraints */
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    /* Language and Environment */
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
+    "target": "ESNext",
+    "jsx": "preserve",
+    "allowJs": true,
+    /* Completeness */
+    "skipLibCheck": true
+  },
+  "include": [
+    "src",
+    "scripts",
+    "*.js"
+  ]
+}

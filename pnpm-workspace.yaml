@@ -4,3 +4,8 @@ autoInstallPeers: false
 onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks
+catalog:
+  react: "^19.2.0"
+  react-dom: "^19.2.0"
+  "@types/react": "^19.2.4"
+  "@types/react-dom": "^19.2.3"

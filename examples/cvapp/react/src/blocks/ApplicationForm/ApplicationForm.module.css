@@ -1,0 +1,15 @@
+.root {
+  grid-template-columns: repeat(2, minmax(0, 2fr));
+
+  & > :is(:first-child, :nth-child(n + 4)) {
+    grid-column: 1 / -1;
+  }
+}
+
+.textarea {
+  min-height: 240px;
+}
+
+.titlePlaceholder {
+  color: var(--colorGray600);
+}
