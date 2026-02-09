@@ -80,5 +80,5 @@ export function observe<T>(
   fn: ObserverCallback<T>,
   noDefer?: boolean
 ) {
-  return singleEffect(() => noMount($accessor), fn, true, noDefer)
+  return noMount($accessor, () => singleEffect($accessor, fn, true, noDefer))
 }

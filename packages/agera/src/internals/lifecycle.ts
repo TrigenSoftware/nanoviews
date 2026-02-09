@@ -4,7 +4,6 @@ import type {
   ReactiveNode,
   Link,
   AnySignal,
-  ReadableSignal,
   ReadableNode
 } from './types.js'
 import {
@@ -125,21 +124,12 @@ export function popNoMount(prevNoMount: ReactiveNode | undefined) {
 }
 
 /**
- * Get the valie of a signal without mount trigger.
- * @param $signal - The signal to get the value from.
- * @returns The value of the signal.
- */
-export function noMount<T>($signal: ReadableSignal<T>): T
-
-/**
- * Call a function without signal mount trigger.
+ * Call a function where subscribers created inside will ignore mount of the specified signal.
  * @param $signal - The signal to ignore mount for.
  * @param fn - The function to call.
  * @returns The result of the function.
  */
-export function noMount<T>($signal: AnySignal, fn: () => T): T
-
-export function noMount($signal: AnySignal, fn: () => unknown = $signal) {
+export function noMount<T>($signal: AnySignal, fn: () => T): T {
   const prevSkipMount = pushNoMount($signal.node)
 
   try {

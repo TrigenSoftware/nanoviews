@@ -13,7 +13,8 @@ import {
   signal,
   mountable,
   onMounted,
-  deferScope
+  deferScope,
+  observe
 } from './index.js'
 
 describe('agera', () => {
@@ -1294,6 +1295,23 @@ describe('agera', () => {
       destroyItemEffect!()
       loopDestroy!()
       itemsDestroy()
+    })
+  })
+
+  describe('observe', () => {
+    it('should not trigger signal mount', () => {
+      const $num = mountable(signal(0))
+      const observeCallback = vi.fn()
+      const stop = observe($num, observeCallback)
+
+      expect($num.node.subsCount).toBe(0)
+
+      $num(1)
+
+      expect(observeCallback).toHaveBeenCalledWith(1)
+      expect($num.node.subsCount).toBe(0)
+
+      stop()
     })
   })
 
