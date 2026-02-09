@@ -1,4 +1,3 @@
-
 import { onMount } from '@nano_kit/store'
 import {
   browserNavigation,

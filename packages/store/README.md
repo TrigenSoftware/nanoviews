@@ -28,7 +28,7 @@
 A small state management library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and based on [Kida](../kida).
 
 - **Small**. Around 2 kB for basic methods (minified and brotlied). Zero dependencies.
-- **~5x faster** than Nano Stores.
+- **Faster** than other similar libraries.
 - Designed for best **Tree-Shaking**: only the code you use is included in your bundle.
 - **TypeScript**-first.
 

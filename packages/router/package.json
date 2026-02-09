@@ -2,7 +2,7 @@
   "name": "@nano_kit/router",
   "type": "module",
   "version": "1.0.0-alpha.4",
-  "description": "A small and powerful router for Kida state manager.",
+  "description": "A small and powerful router.",
   "author": "dangreen",
   "license": "MIT",
   "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida-router#readme",
