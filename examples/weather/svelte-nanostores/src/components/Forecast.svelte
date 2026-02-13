@@ -1,7 +1,7 @@
 <script lang="ts">
   import {
     $weatherForecast as weatherForecast
-  } from 'data-layer/stores/weather'
+  } from '../stores/weather.js'
   import ForecastWeather from './ForecastWeather.svelte'
 
   let mode: 'hourly' | 'daily' = $state('hourly')

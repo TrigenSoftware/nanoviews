@@ -2,6 +2,7 @@
   "name": "weather-svelte",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "pnpm@10.11.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +12,6 @@
   },
   "dependencies": {
     "@nanostores/query": "^0.3.4",
-    "data-layer": "workspace:../data-layer-nanostores",
     "nanostores": "^0.11.3"
   },
   "devDependencies": {

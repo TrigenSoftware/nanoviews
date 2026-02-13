@@ -1,6 +1,6 @@
 import { useStore } from '@nanostores/solid'
 import { Show } from 'solid-js'
-import { $currentWeather } from 'data-layer/stores/weather'
+import { $currentWeather } from '../stores/weather.js'
 import styles from './Weather.module.css'
 
 export function Weather() {

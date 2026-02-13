@@ -1,6 +1,3 @@
-- docs website
-- first spa only beta release of nano_kit
-
 ## Nanoviews
 
 - fix TruthyValueOrSignal type, return signal if signal, not accessor
@@ -24,6 +21,14 @@ for_($items)(
 )
 
 ## Kida/Agera
+
+- rollback trigger to alien-signals state
+
+trigger(() => {
+  $tags().push('hot')
+})
+- mark store as hydrated?
+- ram benchmarks
 
 - immutability helpers? / make work with $data facet more comfortable
 - injectable class?
@@ -67,6 +72,7 @@ operationKey<[postId: number], (prompt: string) => Post>('postGeneration')
 - loadable+react.lazy like util
 - ~loadable and~ lazy preload on client after ssr - how?
 - onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
+- wildcard -> splash? shorter and easer to type
 
 # React Router
 

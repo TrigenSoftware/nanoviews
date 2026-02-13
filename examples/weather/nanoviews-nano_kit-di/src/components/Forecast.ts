@@ -17,7 +17,7 @@ import {
   trackBy,
   inject
 } from 'nanoviews'
-import { WeatherForecast$ } from 'data-layer/stores/weather'
+import { WeatherForecast$ } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.js'
 import styles from './Forecast.module.css'
 

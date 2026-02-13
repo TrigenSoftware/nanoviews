@@ -7,7 +7,7 @@ import {
   br,
   inject
 } from 'nanoviews'
-import { CurrentWeather$ } from 'data-layer/stores/weather'
+import { CurrentWeather$ } from '../stores/weather.js'
 import styles from './Weather.module.css'
 
 export function Weather() {

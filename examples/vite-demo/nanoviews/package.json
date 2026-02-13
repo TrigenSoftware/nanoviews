@@ -2,11 +2,15 @@
   "name": "vite-demo-nanoviews",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "pnpm@10.11.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
+  },
+  "dependencies": {
+    "nanoviews": "*"
   },
   "devDependencies": {
     "typescript": "^5.2.2",

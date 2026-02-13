@@ -1,0 +1,128 @@
+---
+title: SSR
+description: "Learn how to use @nano_kit/store for server-side rendering (SSR)"
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+<Aside type='caution'>SSR functionality is currently in **Alpha** stage. It is not fully implemented and the API may change in future releases.</Aside>
+
+Server-Side Rendering (SSR) with stores requires isolating state per request and serializing data for client hydration. The dependency injection system ensures that each request gets its own signal instances, preventing state leakage between users.
+
+## Marking Signals for Serialization
+
+Use `serializable` to mark signals that should be included in the serialized output. This assigns a unique key to each signal for identification during hydration.
+
+```ts
+import { signal, serializable, mountable } from '@nano_kit/store'
+
+function User$() {
+  const $userId = serializable('userId', signal(null))
+  const $user = serializable('user', signal(null))
+
+  return { $userId, $user }
+}
+```
+
+When `serializable` is called during SSR on the server, it registers the signal in an internal map with its key. On the client, if hydration data exists for that key, the signal is immediately initialized with the hydrated value instead of the default.
+
+## Working with Tasks
+
+SSR requires waiting for all async operations to complete before serializing. Use `TasksRunner$` to create a task runner that automatically tracks async operations in `TasksPool$`.
+
+```ts
+import { inject, signal, mountable, onMountEffect, action, TasksRunner$ } from '@nano_kit/store'
+
+function User$() {
+  const task = inject(TasksRunner$)
+  const $userId = serializable('userId', signal(null))
+  const $user = serializable('user', mountable(signal(null)))
+
+  const fetchUser = action((id) => task(async () => {
+    if (typeof id !== 'number') {
+      $user(null)
+      return
+    }
+
+    const response = await fetch(`/user/${id}`)
+    const user = await response.json()
+
+    $user(user)
+  }))
+
+  onMountEffect($user, () => {
+    fetchUser($userId())
+  })
+
+  return { $userId, $user }
+}
+```
+
+The `task` function wraps async operations and adds them to the task pool. The `serialize` function waits for all tasks in the pool to complete before extracting signal values.
+
+## Server-Side Serialization
+
+On the server, use `serialize` to execute your store logic, wait for all async tasks to complete, and extract serialized signal values.
+
+```ts
+import { serialize, inject } from '@nano_kit/store'
+
+/* Server-side handler */
+const serialized = await serialize(() => {
+  const { $userId, $user } = inject(User$)
+
+  /* Set initial data */
+  $userId(1)
+
+  /* Return signals to trigger mount and start async operations */
+  return [$user]
+})
+
+/* serialized = { userId: 1, user: { name: 'John', email: '...' } } */
+```
+
+The `serialize` function:
+1. Creates an injection context with a task pool
+2. Runs your store factories within that context
+3. Starts effects to trigger `onMount` callbacks (which start async tasks)
+4. Waits for all tasks in `TasksPool$` to complete
+5. Extracts values from all signals marked with `serializable`
+6. Returns a plain object with serialized values
+
+## Client-Side Hydration
+
+On the client, provide the serialized data using `Serialized$` injection token. When stores initialize, they'll use these values instead of defaults.
+
+```tsx
+import { Serialized$, provide } from '@nano_kit/store'
+import { InjectionContextProvider, useInject, useSignal } from '@nano_kit/react'
+
+/* Data from server */
+const serialized = {
+  userId: 1,
+  user: {
+    name: 'John'
+  }
+}
+
+/* Component that provides the injection context with serialized data */
+function App() {
+  return (
+    <InjectionContextProvider context={[provide(Serialized$, serialized)]}>
+      <UserProfile />
+    </InjectionContextProvider>
+  )
+}
+
+/* Component that uses the User$ store with hydrated data */
+function UserProfile() {
+  const { $user } = useInject(User$)
+  const user = useSignal($user)
+
+  /* ... */
+}
+```
+
+When `serializable` is called with the `Serialized$` data available in context, it checks if hydration data exists for the signal's key and immediately sets the signal's value. This allows the client to start with the same state that was computed on the server, avoiding flashes of loading states or mismatched content.

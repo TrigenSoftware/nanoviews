@@ -3,7 +3,7 @@ import { useSignal } from '@nano_kit/react'
 import {
   $locationSearchQueryPaced,
   $citySuggestions
-} from 'data-layer/stores/location'
+} from '../stores/location.js'
 import styles from './CityInput.module.css'
 
 export function CityInput() {

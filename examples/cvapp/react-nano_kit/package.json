@@ -1,0 +1,46 @@
+{
+  "name": "cvapp",
+  "type": "module",
+  "author": "Dan Onoshko <danon0404@gmail.com>",
+  "license": "ISC",
+  "scripts": {
+    "clear": "del ./dist",
+    "dev": "vite",
+    "build:sprite": "node ./scripts/svg-sprite.js",
+    "build": "run tsc [ vite build ]",
+    "preview": "vite preview",
+    "lint:styles": "stylelint 'src/**/*.css'",
+    "lint:scripts": "eslint --flag v10_config_lookup_from_file",
+    "lint": "run -p lint:styles lint:scripts",
+    "format:styles": "stylelint 'src/**/*.css' --fix",
+    "format:scripts": "eslint --fix --flag v10_config_lookup_from_file",
+    "format": "run -p format:styles format:scripts",
+    "test:types": "tsc",
+    "test": "run -p lint test:types"
+  },
+  "dependencies": {
+    "@nano_kit/query": "*",
+    "@nano_kit/react": "*",
+    "@nano_kit/react-router": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*",
+    "clsx": "^2.1.1",
+    "modern-normalize": "^3.0.1",
+    "nanoid": "^5.1.6"
+  },
+  "devDependencies": {
+    "@trigen/scripts": "^8.0.4",
+    "@trigen/stylelint-config": "^8.0.0",
+    "@types/react": "^19.2.4",
+    "@types/react-dom": "^19.2.3",
+    "@types/svg-sprite": "^0.0.39",
+    "@vitejs/plugin-react-swc": "^4.2.2",
+    "postcss-custom-media": "^11.0.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "stylelint": "^16.25.0",
+    "svg-sprite": "^2.0.4",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.2"
+  }
+}

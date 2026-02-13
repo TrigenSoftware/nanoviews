@@ -1,0 +1,108 @@
+---
+title: Getting Started
+description: "@nano_kit/router is a small and powerful router for @nano_kit/store."
+sidebar:
+  order: 1
+---
+
+import { Image } from 'astro:assets'
+import { Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components'
+import logoLight from '../../../assets/ring-system_black.svg'
+import logoDark from '../../../assets/ring-system_white.svg'
+
+<Image src={logoLight} alt='Four-pointed ring system star logo' width={128} height={128} class='dark:sl-hidden nk-brand-logo' />
+<Image src={logoDark} alt='Four-pointed ring system star logo' width={128} height={128} class='light:sl-hidden nk-brand-logo' />
+
+`@nano_kit/router` is a small and powerful router for [@nano_kit/store](/store) state manager.
+
+- **Small**. Around 2 kB (minified & brotlied). Zero dependencies except [@nano_kit/store](/store).
+- **Type-safe**. Full TypeScript support with type inference for routes and parameters.
+- **Signal-based**. Built on top of [@nano_kit/store](/store)'s reactive signals for automatic UI updates.
+- **Flexible**. Supports nested layouts, parameterized routes, optional parameters, wildcards, and query parameters.
+- **SSR-ready**. Works seamlessly with server-side rendering.
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/router' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/router' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/router' />
+  </TabItem>
+</Tabs>
+
+## Quick Start
+
+Here is a minimal example demonstrating navigation, routing, and reactive page rendering:
+
+```js
+import { effect } from '@nano_kit/store'
+import { browserNavigation, router, page, layout, notFound } from '@nano_kit/router'
+
+/* Define your routes */
+const routes = {
+  home: '/',
+  user: '/users/:id',
+  userPosts: '/users/:id/posts',
+  admin: '/admin/*'
+}
+
+/* Setup navigation with browser history */
+const [$location, navigation] = browserNavigation(routes)
+
+/* Define page components */
+const HomePage = () => 'Welcome Home!'
+const UserPage = () => `User ID: ${$location().params.id}`
+const UserPostsPage = () => `Posts for User: ${$location().params.id}`
+const AdminLayout = ($page) => `Admin Layout: ${$page()}`
+const AdminPage = () => `Admin Page: ${$location().params.wildcard || 'dashboard'}`
+const NotFoundPage = () => 'Page Not Found'
+
+/* Create router with pages and layouts */
+const [$page] = router($location, [
+  page('home', HomePage),
+  page('user', UserPage),
+  page('posts', UserPostsPage),
+  layout(AdminLayout, [
+    page('admin', AdminPage)
+  ]),
+  notFound(NotFoundPage)
+], composeLayoutFunction)
+
+/* React to route changes (mounting $page triggers router) */
+const unsub = effect(() => {
+  const PageComponent = $page()
+
+  console.log('Current page:', PageComponent())
+  // Render PageComponent in your app
+})
+// Current page: Welcome Home!
+
+/* Navigate programmatically */
+navigation.push('/users/123')
+// Current page: User ID: 123
+
+navigation.push('/admin/settings/profile')
+// Current page: Admin Layout: Admin Page: settings/profile
+
+navigation.back()
+// Current page: User ID: 123
+
+/* Cleanup */
+unsub()
+```
+
+## Next Steps
+
+Now that you have the basics, explore more advanced features:
+
+{/* - [Core Concepts](./core-concepts.md) – Learn about @nano_kit/router in depth.
+- [SSR](./ssr.md) – Server-side rendering with @nano_kit/router.
+- [Testing](./testing.md) – Testing your routes and navigation.
+- [@nano_kit/react-router](../../packages/react-router/README.md) – React integration for @nano_kit/router. */}

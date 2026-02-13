@@ -1,0 +1,44 @@
+---
+title: Nano Kit
+description: Nano Kit is an ecosystem of lightweight, modular, and performant libraries for building modern web applications, built around a push-pull based reactivity system.
+head:
+  - tag: title
+    content: Nano Kit
+template: splash
+editUrl: false
+hero:
+  tagline: Nano Kit is an ecosystem of lightweight, modular, and performant libraries for building modern web applications, built around a push-pull based reactivity system.
+  image:
+    dark: ../../assets/universe_pearl.svg
+    light: ../../assets/universe_pearl.svg
+  actions:
+    - text: Get Started
+      link: ./getting-started
+      icon: right-arrow
+    - text: Examples
+      link: ./examples
+      icon: right-arrow
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components'
+
+## Features
+
+<CardGrid stagger>
+  <Card title='Lightweight Core' icon='seti:maven'>
+    Modular, tree-shakeable architecture. Zero external dependencies for the core.
+  </Card>
+  <Card title='High Performance' icon='rocket'>
+    Powered by a fast push-pull reactivity system for fine-grained state updates.
+  </Card>
+  <Card title='Batteries Included' icon='add-document'>
+    Complete ecosystem with Router, Query, Dependency Injection, and SSR support.
+  </Card>
+  <Card title='TypeScript First' icon='seti:tsconfig'>
+    Built for type safety with deep type inference across the entire stack.
+  </Card>
+  <Card title='Framework Agnostic' icon='seti:javascript'>
+    Designed to work with any UI framework. Logic is separated from the view layer.
+  </Card>
+</CardGrid>

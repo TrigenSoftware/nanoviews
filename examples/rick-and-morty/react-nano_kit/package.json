@@ -2,6 +2,7 @@
   "name": "rick-and-morty-react-nano_kit",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "pnpm@10.11.0",
   "type": "module",
   "imports": {
     "#src/*": "./src/*"
@@ -12,11 +13,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@nano_kit/query": "*",
+    "@nano_kit/react": "*",
+    "@nano_kit/react-router": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*",
     "clsx": "^2.1.1",
     "rickmortyapi": "^2.3.0"
   },
   "devDependencies": {
+    "@types/react": "^19.2.4",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.3.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "typescript": "~5.7.2",
     "vite": "^6.0.5"
   }

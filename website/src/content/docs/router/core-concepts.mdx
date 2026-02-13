@@ -1,0 +1,373 @@
+---
+title: Core Concepts
+description: "Learn the core concepts of @nano_kit/router."
+sidebar:
+  order: 2
+---
+
+## Navigation
+
+Navigation is the core of the router that manages the current location, route matching, and provides methods to navigate between pages. It creates a reactive signal that tracks the current URL and matched route, automatically updating when the location changes.
+
+### Browser Navigation
+
+`browserNavigation` creates a navigation instance that works with the browser's History API. It synchronizes with the browser's address bar and back/forward buttons.
+
+```ts
+import { effect } from '@nano_kit/store'
+import { browserNavigation } from '@nano_kit/router'
+
+/* Define your routes */
+const routes = {
+  home: '/',
+  user: '/users/:id',
+  post: '/posts/:id/:slug?',
+  files: '/files/*'
+} as const
+
+/* Create navigation instance */
+const [$location, navigation] = browserNavigation(routes)
+
+/* Location signal contains matched route and parameters */
+effect(() => {
+  const location = $location()
+
+  console.log('Route:', location.route)   // 'home', 'user', etc.
+  console.log('Params:', location.params) // { id: '123' }
+  console.log('Path:', location.pathname) // '/users/123'
+  console.log('Search:', location.search) // '?page=2'
+  console.log('Hash:', location.hash)     // '#section'
+  console.log('Action:', location.action) // 'push', 'replace', or 'pop'
+})
+
+/* Navigate using browser history */
+navigation.push('/users/123')    // Adds new history entry
+navigation.replace('/users/456') // Replaces current entry
+navigation.back()                // Go back
+navigation.forward()             // Go forward
+console.log(navigation.length)   // History length
+```
+
+Navigation actions are also available as constants for reuse:
+
+- **`PushHistoryAction`** (`'push'`) — new entry added to history
+- **`ReplaceHistoryAction`** (`'replace'`) — current entry replaced
+- **`PopHistoryAction`** (`'pop'`) — navigation via back/forward buttons
+
+The `$location` signal is a record signal with individual properties that can be accessed separately:
+
+```ts
+const [$location, navigation] = browserNavigation(routes)
+
+/* Access individual properties */
+const {
+  $route,
+  $params,
+  $pathname,
+  $search,
+  $hash,
+  $action
+} = $location
+```
+
+### Virtual Navigation
+
+`virtualNavigation` creates a navigation instance that doesn't interact with the browser. It maintains its own history stack in memory. This is useful for testing or server-side rendering.
+
+```ts
+import { virtualNavigation } from '@nano_kit/router'
+
+const routes = {
+  home: '/',
+  user: '/users/:id'
+} as const
+
+/* Start with initial path */
+const [$location, navigation] = virtualNavigation('/users/123', routes)
+
+console.log($location().pathname) // '/users/123'
+console.log($location().route)    // 'user'
+console.log($location().params)   // { id: '123' }
+
+/* Navigate works the same way */
+navigation.push('/users/456')
+console.log($location().params)   // { id: '456' }
+
+navigation.back()
+console.log($location().params)   // { id: '123' }
+```
+
+### Route Parameters
+
+`routeParam` creates a computed signal for extracting a specific parameter from the current route. It automatically updates when the location changes.
+
+```ts
+import { effect } from '@nano_kit/store'
+import { browserNavigation, routeParam } from '@nano_kit/router'
+
+const [$location, navigation] = browserNavigation({
+  user: '/users/:id',
+  post: '/posts/:id/:slug?'
+})
+
+/* Extract 'id' parameter */
+const $userId = routeParam($location, 'id')
+
+effect(() => {
+  console.log('User ID:', $userId())
+})
+
+navigation.push('/users/123')
+// User ID: 123
+
+navigation.push('/users/456')
+// User ID: 456
+```
+
+You can provide a parser function to transform the parameter value:
+
+```ts
+/* Parse as number */
+const $userId = routeParam($location, 'id', Number)
+
+navigation.push('/users/123')
+console.log($userId()) // 123 (number)
+
+/* Custom parsing */
+const $slug = routeParam($location, 'slug', value => value ? value.split('-') : [])
+
+navigation.push('/posts/42/hello-world')
+console.log($slug()) // ['hello', 'world']
+```
+
+### Query Parameters
+
+#### searchParams
+
+`searchParams` creates a computed signal that provides access to URL query parameters as a `URLSearchParams` instance. It updates automatically when the search string changes.
+
+```ts
+import { effect } from '@nano_kit/store'
+import { browserNavigation, searchParams } from '@nano_kit/router'
+
+const [$location, navigation] = browserNavigation()
+const $searchParams = searchParams($location)
+
+effect(() => {
+  const params = $searchParams()
+
+  console.log('Page:', params.get('page'))
+  console.log('Sort:', params.get('sort'))
+  console.log('All params:', params.toString())
+})
+
+navigation.push('/?page=1&sort=name')
+// Page: 1
+// Sort: name
+// All params: page=1&sort=name
+
+navigation.replace('/?page=2&sort=date')
+// Page: 2
+// Sort: date
+// All params: page=2&sort=date
+```
+
+#### searchParam
+
+`searchParam` creates a computed signal for a specific query parameter. This is more efficient than using `searchParams` when you only need one parameter.
+
+```ts
+import { effect } from '@nano_kit/store'
+import { browserNavigation, searchParams, searchParam } from '@nano_kit/router'
+
+const [$location, navigation] = browserNavigation()
+const $searchParams = searchParams($location)
+
+/* Extract specific parameter */
+const $page = searchParam($searchParams, 'page')
+
+effect(() => {
+  console.log('Page:', $page())
+})
+
+navigation.push('/?page=1')
+// Page: 1
+
+navigation.push('/?page=2')
+// Page: 2
+
+navigation.push('/')
+// Page: null
+```
+
+You can provide a parser function to transform the parameter value:
+
+```ts
+/* Parse as number with default value */
+const $page = searchParam($searchParams, 'page', value => value ? parseInt(value, 10) : 1)
+
+navigation.push('/?page=5')
+console.log($page())    // 5 (number)
+
+navigation.push('/')
+console.log($page())    // 1 (default)
+
+/* Parse as boolean */
+const $enabled = searchParam($searchParams, 'enabled', value => value === 'true')
+
+navigation.push('/?enabled=true')
+console.log($enabled()) // true (boolean)
+```
+
+## Router
+
+The `router` maps routes to components or values, creating a reactive system that updates when the location changes with nested layouts support.
+
+```ts
+import { effect } from '@nano_kit/store'
+import { browserNavigation, router, page, layout, notFound } from '@nano_kit/router'
+
+/* Setup navigation with browser history */
+const [$location, navigation] = browserNavigation({
+  home: '/',
+  user: '/users/:id',
+  userPosts: '/users/:id/posts',
+  admin: '/admin/*'
+})
+
+/* Define page components */
+const HomePage = () => 'Welcome Home!'
+const UserPage = () => `User ID: ${$location().params.id}`
+const UserPostsPage = () => `Posts for User: ${$location().params.id}`
+const AdminLayout = ($page) => `Admin Layout: ${$page()}`
+const AdminPage = () => `Admin Page: ${$location().params.wildcard || 'dashboard'}`
+const NotFoundPage = () => 'Page Not Found'
+
+/* Create router with pages and layouts */
+const [$page] = router($location, [
+  page('home', HomePage),
+  page('user', UserPage),
+  page('posts', UserPostsPage),
+  layout(AdminLayout, [
+    page('admin', AdminPage)
+  ]),
+  notFound(NotFoundPage)
+], composeLayoutFunction)
+
+/* React to route changes (mounting $page triggers router) */
+effect(() => {
+  const PageComponent = $page()
+
+  console.log('Current page:', PageComponent())
+  // Render PageComponent in your app
+})
+// Current page: Welcome Home!
+
+/* Navigate programmatically */
+navigation.push('/users/123')
+// Current page: User ID: 123
+
+navigation.push('/admin/settings/profile')
+// Current page: Admin Layout: Admin Page: settings/profile
+
+navigation.back()
+// Current page: User ID: 123
+```
+
+- **`page`** defines a route match that returns a component when the route matches.
+- **`layout`** wraps multiple pages with a common layout component, creating a nested structure. Layouts can be nested within other layouts for complex hierarchies.
+- **`notFound`** defines a fallback component for routes that don't match any defined page. It works like `page` but matches when no other route matches.
+
+### Compose Function
+
+The `compose` function is **framework-specific** and determines how layouts wrap nested content. It receives:
+
+- **`$nested`** — signal containing the nested component
+- **`layout`** — the layout component
+
+Here is simple implementation for an example above:
+
+```ts
+function compose($nested, layout) {
+  return () => layout($nested)
+}
+```
+
+Here is a simple implementation for React:
+
+```tsx
+import { useSignal } from '@nano_kit/react'
+
+function composeLayoutFunction($nested, Layout) {
+  return function Composed() {
+    const Nested = usSignal($nested)
+
+    return (
+      <Layout>
+        <Nested />
+      </Layout>
+    )
+  }
+}
+```
+
+`@nano_kit/react-router` has a built-in compose function that works with React components, so you can use it directly without implementing your own.
+
+If you're building an adapter for another framework, you'll need to implement your own compose function that works with your framework's component system.
+
+## Links
+
+Working with links involves two main utilities: generating URLs from route definitions and handling link clicks for SPA navigation.
+
+### buildPaths
+
+`buildPaths` generates path functions from route definitions, making it type-safe to create URLs.
+
+```ts
+import { buildPaths } from '@nano_kit/router'
+
+const routes = {
+  home: '/',
+  about: '/about',
+  user: '/users/:id',
+  post: '/posts/:id/:slug?',
+  files: '/files/*'
+} as const
+
+const paths = buildPaths(routes)
+
+/* Static routes return strings */
+paths.home  // '/'
+paths.about // '/about'
+
+/* Routes with parameters return functions */
+paths.user({ id: '123' })                     // '/users/123'
+paths.post({ id: '42', slug: 'hello-world' }) // '/posts/42/hello-world'
+paths.post({ id: '42' })                      // '/posts/42' (optional slug omitted)
+
+/* Wildcard routes */
+paths.files({ wildcard: 'docs/readme.md' })  // '/files/docs/readme.md'
+```
+
+**Parameter encoding:** Values are automatically URL-encoded:
+
+```ts
+paths.user({ id: 'hello world' })            // '/users/hello%20world'
+paths.files({ wildcard: 'a/b c/d+e.pdf' })   // '/files/a%2Fb%20c%2Fd%2Be.pdf'
+```
+
+### listenLinks
+
+`listenLinks` enables SPA navigation by intercepting clicks on links and using the router's navigation instead of full page reloads.
+
+```ts
+import { onMount } from '@nano_kit/store'
+import { browserNavigation, listenLinks } from '@nano_kit/router'
+
+const [$location, navigation] = browserNavigation()
+
+/* Start listening to link clicks when location is mounted */
+onMount($location, () => listenLinks(navigation))
+
+/* Now all internal <a> links use router navigation */
+```

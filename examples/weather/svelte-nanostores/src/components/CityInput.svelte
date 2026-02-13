@@ -2,7 +2,7 @@
   import {
     $locationSearch as locationSearch,
     $citySuggestions as citySuggestions
-  } from 'data-layer/stores/location'
+  } from '../stores/location.js'
 </script>
 
 <div class="root">

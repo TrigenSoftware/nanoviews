@@ -3,7 +3,7 @@ import { For } from 'solid-js'
 import {
   $locationSearch,
   $citySuggestions
-} from 'data-layer/stores/location'
+} from '../stores/location.js'
 import styles from './CityInput.module.css'
 
 export function CityInput() {

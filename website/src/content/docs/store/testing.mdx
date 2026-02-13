@@ -1,0 +1,129 @@
+---
+title: Testing
+description: "Learn how to test stores in @nano_kit/store"
+sidebar:
+  order: 5
+---
+
+Testing stores requires understanding lifecycle behavior, waiting for async operations, and mocking dependencies through dependency injection.
+
+## Debounced Unmounting
+
+Unmounting in `onMount` is debounced to handle rapid mount/unmount cycles during component re-renders. The delay between unmount and mount events is defined in `STORE_UNMOUNT_DELAY` (1000ms). Mount events fire immediately without delay.
+
+```ts
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { STORE_UNMOUNT_DELAY, mountable, signal, onMount, start } from '@nano_kit/store'
+
+beforeEach(() => {
+  vi.useFakeTimers()
+})
+
+afterEach(() => {
+  vi.restoreAllTimers()
+})
+
+it('should cleanup after unmount delay', () => {
+  const $data = mountable(signal(0))
+  const cleanup = vi.fn()
+
+  onMount($data, () => cleanup)
+
+  const stop = start($data())
+
+  expect(cleanup).toBeCalledTimes(0)
+
+  stop()
+
+  /* Cleanup not called immediately */
+  expect(cleanup).toBeCalledTimes(0)
+
+  /* Advance timers to trigger unmount */
+  vi.advanceTimersByTime(STORE_UNMOUNT_DELAY)
+
+  expect(cleanup).toBeCalledTimes(1)
+})
+```
+
+## Triggering Mount Events
+
+Use `start` to create an effect that keeps a signal alive, triggering its mount event. This is useful for testing mountable stores.
+
+```ts
+import { expect, vi } from 'vitest'
+import { start, mountable, signal, onMount } from '@nano_kit/store'
+
+const $data = mountable(signal(0))
+const mounted = vi.fn()
+
+onMount($data, mounted)
+
+/* Start keeps $data mounted */
+const stop = start($data)
+
+expect(mounted).toBeCalledTimes(1)
+
+/* Cleanup triggers unmount after debounce delay */
+stop()
+```
+
+For one-time execution without keeping the signal alive, use `exec`:
+
+```ts
+import { expect, vi } from 'vitest'
+import { exec, mountable, signal, onMount } from '@nano_kit/store'
+
+const $data = mountable(signal(0))
+const mounted = vi.fn()
+
+onMount($data, mounted)
+
+/* Triggers mount, then immediately unmounts */
+exec($data)
+
+expect(mounted).toBeCalledTimes(1)
+```
+
+## Waiting for Async Operations
+
+Tasks are useful not only for SSR but also in tests to wait for async operations inside effects. Use tasks pool with `waitTasks` to ensure all async work completes before assertions.
+
+```ts
+import { type TasksPool, waitTasks, tasksRunner } from '@nano_kit/store'
+import { client, tasks } from '@nano_kit/query'
+
+const tasksPool: TasksPool = new Set()
+const { query } = client(tasks(tasksRunner(tasksPool)))
+
+/* ... trigger async operations ... */
+
+/* Wait for all tasks to complete */
+await waitTasks(tasksPool)
+```
+
+The `waitTasks` function waits for all tasks in the pool to complete, including tasks that spawn new tasks. For simpler cases, use `waitCurrentTasks` to wait only for currently running tasks.
+
+## Mocking Dependencies
+
+Use the DI mechanism to mock dependencies in tests. Create a custom `InjectionContext` with `provide` to inject test doubles.
+
+```ts
+import { InjectionContext, provide, inject } from '@nano_kit/store'
+import { virtualNavigation } from '@nano_kit/router'
+import { Location$, Navigation$ } from './router'
+import { Episodes$ } from './episodes'
+
+/* Create virtual navigation for testing */
+const [$location, navigation] = virtualNavigation('/episodes/1', {
+  episodes: '/episodes/:id'
+})
+
+/* Inject mocked dependencies */
+const context = new InjectionContext([
+  provide(Location$, $location),
+  provide(Navigation$, navigation)
+])
+
+/* Inject store with mocked context */
+const { $episodes } = inject(Episodes$, context)
+```

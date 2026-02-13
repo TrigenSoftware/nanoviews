@@ -1,0 +1,586 @@
+---
+title: Advanced
+description: "Explore advanced features of @nano_kit/store."
+sidebar:
+  order: 3
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+## Advanced Effects
+
+Beyond the basic `effect`, the library provides advanced tools for managing effects lifecycle and subscribing to changes in different ways.
+
+### Effect Scope
+
+`effectScope` creates a scope for multiple effects, allowing you to stop them all at once. This is useful when you need to manage multiple subscriptions together and dispose of them as a group.
+
+```ts
+import { signal, effect, effectScope } from '@nano_kit/store'
+
+const $firstName = signal('John')
+const $lastName = signal('Doe')
+const $age = signal(30)
+
+const stop = effectScope(() => {
+  effect(() => {
+    console.log('Name:', `${$firstName()} ${$lastName()}`)
+  })
+
+  effect(() => {
+    console.log('Age:', $age())
+  })
+})
+
+/* All effects in the scope are stopped */
+stop()
+```
+
+### onMountEffect and onMountEffectScope
+
+`onMountEffect` runs an effect only when a mountable signal becomes active. This combines lifecycle management with reactive effects.
+
+```ts
+import { signal, mountable, onMountEffect } from '@nano_kit/store'
+
+const $user = mountable(signal(null))
+const $userId = signal(1)
+
+/* Effect runs only when $user is mounted */
+onMountEffect($user, () => {
+  console.log('Fetching user:', $userId())
+  /* Effect re-runs when $userId changes */
+})
+```
+
+`onMountEffectScope` runs an entire effect scope on mount:
+
+```ts
+import { signal, mountable, onMountEffectScope, effect } from '@nano_kit/store'
+
+const $data = mountable(signal(null))
+const $status = signal('idle')
+
+onMountEffectScope($data, () => {
+  effect(() => console.log('Data changed:', $data()))
+  effect(() => console.log('Status:', $status()))
+})
+```
+
+### Subscribe, Listen, and Observe
+
+These functions provide different ways to react to signal changes:
+
+**`subscribe`** - Calls the callback immediately and on every change. Triggers mount if the accessor is mountable.
+
+```ts
+import { subscribe } from '@nano_kit/store'
+
+const stop = subscribe($count, (value) => {
+  console.log('Current value:', value)
+})
+/* Called immediately with current value, then on every change */
+```
+
+**`listen`** - Calls the callback only on changes, skipping the initial call. Triggers mount.
+
+```ts
+import { listen } from '@nano_kit/store'
+
+const stop = listen($count, (value) => {
+  console.log('Changed to:', value)
+})
+/* Called only when $count changes, not immediately */
+```
+
+**`observe`** - Calls the callback only on changes, without triggering mount. Useful for passive observation.
+
+```ts
+import { observe } from '@nano_kit/store'
+
+const $data = mountable(signal(0))
+
+const stop = observe($data, (value) => {
+  console.log('Observed:', value)
+})
+/* $data remains unmounted until something else mounts it */
+```
+
+## Complex Data Types
+
+When working with objects and arrays, the library provides tools to create reactive child signals for individual properties or elements. This enables fine-grained reactivity while keeping your code organized.
+
+### Record
+
+`record` wraps an object signal and exposes its properties as individual signals. Each property becomes accessible through a `$`-prefixed accessor.
+
+```ts
+import { signal, record } from '@nano_kit/store'
+
+const $user = signal({ name: 'Dan', age: 30 })
+const $userRecord = record($user)
+
+/* Access properties as signals */
+console.log($userRecord.$name()) /* Dan */
+console.log($userRecord.$age()) /* 30 */
+
+/* Update individual properties */
+$userRecord.$name('Alice')
+console.log($user()) /* { name: 'Alice', age: 30 } */
+```
+
+`record` can also wrap plain objects:
+
+```ts
+const $user = record({ name: 'Dan', age: 30 })
+
+$user.$name('Bob')
+```
+
+<Aside type='tip'>Child signals are cached in the parent signal, so calling `record()` multiple times on the same signal is safe and efficient.</Aside>
+
+### Deep Record
+
+`deepRecord` recursively wraps nested objects, providing signals for properties at any depth.
+
+```ts
+import { deepRecord } from '@nano_kit/store'
+
+const $user = deepRecord({
+  name: 'Dan',
+  address: {
+    city: 'Batumi',
+    country: 'Georgia'
+  }
+})
+
+/* Access nested properties */
+console.log($user.$address.$city()) /* Batumi */
+
+/* Update nested properties */
+$user.$address.$city('Tbilisi')
+```
+
+### List Operations
+
+For arrays, use `atIndex` to create a signal for a specific element. The index can be static or dynamic.
+
+```ts
+import { signal, atIndex } from '@nano_kit/store'
+
+const $users = signal(['Dan', 'John', 'Alice'])
+const $firstUser = atIndex($users, 0)
+
+console.log($firstUser()) /* Dan */
+
+/* Update through child signal */
+$firstUser('Bob')
+console.log($users()) /* ['Bob', 'John', 'Alice'] */
+```
+
+Dynamic indexes:
+
+```ts
+const $index = signal(1)
+const $user = atIndex($users, $index)
+
+console.log($user()) /* John */
+
+$index(2)
+console.log($user()) /* Alice */
+```
+
+Finding elements by predicate with `atFoundIndex`:
+
+```ts
+import { signal, atFoundIndex } from '@nano_kit/store'
+
+const $users = signal([
+  { id: 1, name: 'Dan' },
+  { id: 2, name: 'John' },
+  { id: 3, name: 'Alice' }
+])
+
+/* Select user with id 2 */
+const $targetUser = atFoundIndex($users, (user) => user.id === 2)
+
+console.log($targetUser()) /* { id: 2, name: 'John' } */
+```
+
+Additional list helpers:
+
+- `push($list, ...values)` - add elements to the end
+- `pop($list)` - remove and return the last element
+- `shift($list)` - remove and return the first element
+- `unshift($list, ...values)` - add elements to the start
+- `setIndex($list, index, value)` - update element at index
+- `deleteIndex($list, index)` - remove element at index
+
+### Object Operations
+
+`atKey` creates a signal for a specific key in an object. Works with both static and dynamic keys.
+
+```ts
+import { signal, atKey } from '@nano_kit/store'
+
+const $userMap = signal({
+  2: 'Dan',
+  4: 'John',
+  6: 'Alice'
+})
+
+const $user4 = atKey($userMap, 4)
+console.log($user4()) /* John */
+
+$user4('Bob')
+console.log($userMap()) /* { 2: 'Dan', 4: 'Bob', 6: 'Alice' } */
+```
+
+Dynamic keys:
+
+```ts
+const $userId = signal(4)
+const $user = atKey($userMap, $userId)
+
+$userId(6)
+console.log($user()) /* Alice */
+```
+
+Additional object helpers:
+
+- `setKey($object, key, value)` - set a property value
+- `deleteKey($object, key)` - remove a property
+
+### Signals Map
+
+`SignalsMap` is a reactive `Map` where each entry's value is a signal.
+
+```ts
+import { type SignalsMap, $getMapKey, setMapKey, deleteMapKey, clearMap } from '@nano_kit/store'
+
+const userMap: SignalsMap<number, User> = new Map()
+
+/* Set entry */
+setMapKey(userMap, 1, { name: 'Dan', age: 30 })
+
+/* Get entry reactively */
+effect(() => {
+  console.log('User:', $getMapKey(userMap, 1))
+})
+
+/* Delete entry */
+deleteMapKey(userMap, 1)
+
+/* Clear all */
+clearMap(userMap)
+```
+
+## Functional Operators
+
+Functional operators (fops) are pure functions that create accessors from other accessors or values. Unlike `computed`, they don't memoize results — they recalculate on every access. For memoization, wrap them in `computed`.
+
+These operators accept either static values or accessors, making them flexible for building derived state without immediate caching.
+
+### Logical Operations
+
+```ts
+import { signal, or, and, not, some, every } from '@nano_kit/store'
+
+const $isAdmin = signal(false)
+const $isModerator = signal(true)
+
+/* OR: returns first truthy value */
+const $hasPermissions = or($isAdmin, $isModerator)
+
+/* AND: returns last value if all truthy */
+const $canEdit = and($isAdmin, $hasPermissions)
+
+/* NOT: logical negation */
+const $isGuest = not($hasPermissions)
+
+/* SOME: first truthy from multiple values */
+const $primaryRole = some($isAdmin, $isModerator, 'guest')
+
+/* EVERY: last value if all truthy, otherwise first falsy */
+const $allChecks = every($isAdmin, $isModerator, $hasPermissions)
+```
+
+### Comparison Operations
+
+```ts
+import { signal, is, isNot, gt, gte, lt, lte } from '@nano_kit/store'
+
+const $age = signal(25)
+const $limit = signal(18)
+
+/* Strict equality */
+const $isAdult = gte($age, 18)
+
+/* Strict inequality */
+const $notEqual = isNot($age, $limit)
+
+/* Comparisons */
+const $olderThanLimit = gt($age, $limit)
+const $atLeastLimit = gte($age, $limit)
+const $youngerThanLimit = lt($age, $limit)
+const $atMostLimit = lte($age, $limit)
+```
+
+### Conditional Operations
+
+```ts
+import { signal, when } from '@nano_kit/store'
+
+const $isLoggedIn = signal(true)
+const $username = signal('Alice')
+
+/* Ternary: condition ? then : otherwise */
+const $greeting = when(
+  $isLoggedIn,
+  () => `Hello, ${$username()}`,
+  'Please log in'
+)
+
+console.log($greeting()) /* "Hello, Alice" */
+```
+
+### Memoization
+
+Since fops don't cache results, wrap them in `computed` for expensive operations:
+
+```ts
+import { signal, computed, and, gt } from '@nano_kit/store'
+
+const $age = signal(25)
+const $hasLicense = signal(true)
+
+/* Without memoization - recalculates on every access */
+const $canDrive = and(gt($age, 18), $hasLicense)
+
+/* With memoization - caches until dependencies change */
+const $canDriveCached = computed($canDrive)
+```
+
+## Utilities
+
+The library provides a set of utility functions for common tasks like rate limiting, value extraction, type checking, and working with signal properties.
+
+### Rate Limiting
+
+**`paced`** creates a proxy signal that updates the original signal using a rate limiter. This allows you to control how frequently a signal propagates updates while keeping immediate local updates. The proxy signal updates instantly, but the original signal updates only after the rate limiter allows it.
+
+```ts
+import { signal, paced, effect, debounce } from '@nano_kit/store'
+
+const $search = signal('')
+const $searchPaced = paced($search, debounce(300))
+
+effect(() => {
+  console.log('Search:', $search())
+})
+
+/* $searchPaced updates immediately, $search updates after 300ms */
+$searchPaced('a')
+$searchPaced('ab')
+$searchPaced('abc')
+/* Only logs "abc" after debounce completes */
+```
+
+**`debounce`** and **`throttle`** are rate limiters that work with `paced`:
+
+**`debounce`** delays updates until after a specified time has passed since the last change. Useful for expensive operations like search queries or API calls.
+
+```ts
+import { signal, paced, debounce } from '@nano_kit/store'
+
+const $input = signal('')
+const $debouncedInput = paced($input, debounce(300))
+
+/* Only the last value within 300ms window propagates to $input */
+```
+
+**`throttle`** limits updates to once per time interval. First update executes immediately, subsequent updates are queued until the interval elapses.
+
+```ts
+import { signal, paced, throttle } from '@nano_kit/store'
+
+const $scrollY = signal(0)
+const $throttledScroll = paced($scrollY, throttle(100))
+
+/* Updates $scrollY at most once per 100ms */
+```
+
+You can also use `debounce` and `throttle` standalone to wrap regular functions:
+
+```ts
+import { debounce, throttle } from '@nano_kit/store'
+
+const performSearch = debounce(300)((query: string) => {
+  console.log('Searching for:', query)
+})
+
+const handleScroll = throttle(100)(() => {
+  console.log('Scroll position:', window.scrollY)
+})
+```
+
+### Previous Value
+
+**`previous`** creates a computed that tracks the previous value of a signal. Returns `undefined` for the first read.
+
+```ts
+import { signal, previous, effect } from '@nano_kit/store'
+
+const $count = signal(1)
+const $prevCount = previous($count)
+
+effect(() => {
+  console.log(`Changed from ${$prevCount()} to ${$count()}`)
+})
+
+$count(2) /* Changed from 1 to 2 */
+$count(3) /* Changed from 2 to 3 */
+```
+
+### Computed Properties
+
+**`length`** creates a computed for the `length` property of arrays or strings.
+
+```ts
+import { signal, length, effect } from '@nano_kit/store'
+
+const $items = signal(['a', 'b', 'c'])
+const $itemCount = length($items)
+
+console.log('Count:', $itemCount()) /* Count: 3 */
+```
+
+**`boolean`** converts a signal's value to a boolean.
+
+```ts
+import { signal, boolean } from '@nano_kit/store'
+
+const $user = signal(null)
+const $hasUser = boolean($user)
+
+console.log($hasUser()) /* false */
+$user({ name: 'Dan' })
+console.log($hasUser()) /* true */
+```
+
+**`concat`** concatenates multiple values or accessors into a string.
+
+```ts
+import { signal, concat, effect } from '@nano_kit/store'
+
+const $firstName = signal('John')
+const $lastName = signal('Doe')
+const $fullName = concat($firstName, ' ', $lastName)
+
+effect(() => {
+  console.log($fullName())
+})
+
+$firstName('Jane') /* Jane Doe */
+```
+
+### Type Checking
+
+**`isFunction`** checks if a value is a function.
+
+```ts
+import { isFunction } from '@nano_kit/store'
+
+isFunction(() => {}) /* true */
+isFunction(42) /* false */
+```
+
+**`isAccessor`** checks if a value is an accessor (function).
+
+```ts
+import { isAccessor } from '@nano_kit/store'
+
+const $value = () => 42
+
+isAccessor($value) /* true */
+isAccessor(42) /* false */
+```
+
+**`isSignal`** checks if a value is a signal.
+
+```ts
+import { signal, computed, isSignal } from '@nano_kit/store'
+
+const $count = signal(0)
+const $doubled = computed(() => $count() * 2)
+const $accessor = () => 42
+
+isSignal($count) /* true */
+isSignal($doubled) /* true */
+isSignal($accessor) /* false */
+```
+
+### Value Extraction
+
+**`$get`** extracts a value from either a plain value or an accessor.
+
+```ts
+import { signal, $get } from '@nano_kit/store'
+
+const $count = signal(5)
+
+$get($count) /* 5 */
+$get(10) /* 10 */
+$get(() => 15) /* 15 */
+```
+
+**`toSignal`** converts a value, accessor, or signal into a writable signal.
+
+```ts
+import { signal, computed, toSignal } from '@nano_kit/store'
+
+const $a = toSignal(42) /* Creates signal(42) */
+const $b = toSignal(signal(10)) /* Returns input signal */
+const $c = toSignal(computed(() => 5)) /* Returns input computed */
+const $d = toSignal(() => 20) /* Creates computed(() => 20) */
+```
+
+**`toAccessor`** converts a value into an accessor, or returns the accessor if already a function.
+
+```ts
+import { signal, computed, toAccessor } from '@nano_kit/store'
+
+const $a = toAccessor(42) /* Сreates () => 42 */
+const $b = toAccessor(signal(10)) /* Returns input signal */
+const $c = toAccessor(computed(() => 5)) /* Returns input computed */
+const $d = toAccessor(() => 20) /* Returns input accessor */
+```
+
+**`toAccessorOrSignal`** converts a value into a signal, or returns the accessor/signal if already a function.
+
+```ts
+import { signal, computed, toAccessorOrSignal } from '@nano_kit/store'
+
+const $a = toAccessorOrSignal(42) /* Creates signal(42) */
+const $b = toAccessorOrSignal(signal(10)) /* Returns input signal */
+const $c = toAccessorOrSignal(computed(() => 5)) /* Returns input computed */
+const $d = toAccessorOrSignal(() => 20) /* Returns input accessor */
+```
+
+### Cleanup Composition
+
+**`composeDestroys`** combines multiple cleanup functions into a single function.
+
+```ts
+import { effect, composeDestroys } from '@nano_kit/store'
+
+const cleanup1 = () => console.log('Cleanup 1')
+const cleanup2 = () => console.log('Cleanup 2')
+
+const stop = effect(() => {
+  /* ... */
+  return composeDestroys(cleanup1, cleanup2)
+})
+
+stop() /* Logs: Cleanup 1, Cleanup 2 */
+```

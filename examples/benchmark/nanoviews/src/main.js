@@ -1,4 +1,3 @@
-
 import { mount } from 'nanoviews'
 import { App } from './app'
 
