@@ -1,11 +1,22 @@
 packages:
-  - 'packages/*'
+  - packages/*
+  - website
+  - examples/*/*
 autoInstallPeers: false
-onlyBuiltDependencies:
-  - esbuild
-  - simple-git-hooks
 catalog:
-  react: "^19.2.0"
-  react-dom: "^19.2.0"
-  "@types/react": "^19.2.4"
-  "@types/react-dom": "^19.2.3"
+  react: ^19.2.0
+  react-dom: ^19.2.0
+  '@types/react': ^19.2.4
+  '@types/react-dom': ^19.2.3
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild
+  - sharp
+  - simple-git-hooks
+overrides:
+  '@nano_kit/query@*': workspace:^
+  '@nano_kit/react@*': workspace:^
+  '@nano_kit/react-router@*': workspace:^
+  '@nano_kit/router@*': workspace:^
+  '@nano_kit/store@*': workspace:^
+  'nanoviews@*': workspace:^

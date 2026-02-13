@@ -1,0 +1,88 @@
+---
+title: Getting Started
+description: "@nano_kit/query is a lightweight and powerful remote data manager built on top of @nano_kit/store."
+sidebar:
+  order: 1
+---
+
+import { Image } from 'astro:assets'
+import { Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components'
+import logoLight from '../../../assets/pulsar_black.svg'
+import logoDark from '../../../assets/pulsar_white.svg'
+
+<Image src={logoLight} alt='Four-pointed pulsar star logo' width={128} height={128} class='dark:sl-hidden nk-brand-logo' />
+<Image src={logoDark} alt='Four-pointed pulsar star logo' width={128} height={128} class='light:sl-hidden nk-brand-logo' />
+
+`@nano_kit/query` is a small and powerful remote data manager for [@nano_kit/store](/store) state manager.
+
+- **Small**. Minimal footprint with tree-shakable architecture.
+- **Type-safe**. Full TypeScript support with type inference for queries and mutations.
+- **Signal-based**. Built on top of [@nano_kit/store](/store)'s reactive signals for automatic UI updates.
+- **Flexible**. Supports queries, infinite queries, mutations, and operations with cache management.
+- **Extensible**. Customizable with settings and extensions.
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/query' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/query' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/query' />
+  </TabItem>
+</Tabs>
+
+## Quick Start
+
+Here is a minimal example demonstrating reactive data fetching with automatic cache management:
+
+```ts
+import { signal, effect } from '@nano_kit/store'
+import { queryKey, client } from '@nano_kit/query'
+
+/* Define a cache key for your data */
+const PostKey = queryKey<[postId: number], Post | null>('post')
+
+/* Create a signal with the post ID to fetch */
+const $postId = signal(1)
+
+/* Create a query client */
+const { query } = client()
+
+/* Create a reactive query */
+const [$post, $postError, $postLoading] = query(PostKey, [$postId], postId => fetch(`/api/posts/${postId}`).then(r => r.json()))
+
+/* React to data changes (mounting $post triggers data fetching) */
+const unsub = effect(() => {
+  if ($postLoading()) {
+    console.log('Loading...')
+  } else if ($postError()) {
+    console.log('Error:', $postError())
+  } else {
+    console.log('Post:', $post())
+  }
+})
+// Loading...
+// Post: { id: 1, title: 'First Post', ... }
+
+/* Update triggers automatic refetch */
+$postId(2)
+// Loading...
+// Post: { id: 2, title: 'Second Post', ... }
+
+/* Cleanup: removes listener and stops data fetching */
+unsub()
+```
+
+## Next Steps
+
+Now that you have the basics, explore more advanced features:
+
+{/* - [Concepts](./concepts.md) – Learn about @nano_kit/query in depth.
+- [API Reference](./api.md) – Detailed API documentation.
+- [@nano_kit/store](../store/getting-started.md) – Learn about the underlying state manager. */}

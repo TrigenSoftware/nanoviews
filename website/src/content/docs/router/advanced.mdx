@@ -1,0 +1,282 @@
+---
+title: Advanced
+description: "Explore advanced features of @nano_kit/router."
+sidebar:
+  order: 3
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+## Code Splitting
+
+Router provides built-in support for code splitting and lazy loading of pages using the `loadable` function.
+
+### `loadable`
+
+Defines a lazy-loaded component or page that is fetched only when needed. It accepts a module loader function (returning a promise) and an optional fallback view to display while loading.
+
+The loaded module must export a `default` component/view and optionally a `storesToPreload` function for data prefetching.
+
+```ts
+import { router, loadable, page } from '@nano_kit/router'
+
+/* Fallback component */
+const Loader = () => 'Loading...'
+
+export const [$page, storesToPreload] = router($location, [
+  page('home', loadable(() => import('./pages/Home.js'), Loader)),
+  page('user', loadable(() => import('./pages/User.js'), Loader))
+])
+```
+
+### `loadPage`
+
+Forces the loading of a specific page's code by its route name. This is useful for preloading the next likely page (e.g., on link hover).
+
+```ts
+import { loadPage } from '@nano_kit/router'
+import { routes } from './routes.js'
+
+/* Preload user page code */
+await loadPage(routes, 'user')
+```
+
+### `loadPages`
+
+Loads the code for all defined pages in the route tree. This is commonly used in Server-Side Rendering (SSR) to ensure all async components are resolved before rendering the application.
+
+```ts
+import { loadPages } from '@nano_kit/router'
+import { routes } from './routes.js'
+
+/* Preload all pages */
+await loadPages(routes)
+```
+
+## Dependency Injection
+
+The router leverages `@nano_kit/store`'s Dependency Injection (DI) system to provide flexible navigation and routing capabilities. This is particularly useful for testing components in isolation or switching between browser and in-memory navigation environments (like SSR).
+
+### `browserNavigation$`
+
+Creates injection factories for browser-based navigation. It binds the router to the actual browser History API. Use this for the client-side application.
+
+```ts
+import { inject } from '@nano_kit/store'
+import { browserNavigation$ } from '@nano_kit/router'
+
+/* 1. Create injection tokens */
+export const [Location$, Navigation$] = browserNavigation$(routes)
+
+/* 2. Inject location or navigation in your components/stores */
+const $location = inject(Location$)
+const navigation = inject(Navigation$)
+```
+
+### `virtualNavigation$`
+
+Creates injection factories for in-memory navigation. This is essential for:
+
+- **Testing**: Simulating navigation without a real browser window.
+- **SSR**: Handling requests on the server where `window` is not available.
+- **Non-DOM**: Environments like React Native.
+
+```ts
+import { virtualNavigation$ } from '@nano_kit/router'
+
+/* Initialize virtual navigation starting at '/home' */
+const [Location$, Navigation$] = virtualNavigation$('/home', routes)
+```
+
+### `router$`
+
+Creates injection factories for the router logic itself. It connects a `Location$` source to your page definitions and provides the current matching page and data preloading function.
+
+```ts
+import { router$ } from '@nano_kit/router'
+/* Location$ can come from browserNavigation$ or virtualNavigation$ */
+import { Location$ } from './router.js'
+
+/* Create page and preload injection tokens */
+export const [Page$, StoresPreload$] = router$(Location$, [
+  page('home', HomePage),
+  page('user', UserPage)
+])
+
+/* Get the current page component/view */
+const $page = inject(Page$)
+```
+
+## Scroll Management
+
+Since scroll restoration and behavior can vary significantly between applications, the library provides a set of "Do It Yourself" (DIY) utilities instead of a one-size-fits-all solution. You can combine these tools to implement the exact scrolling behavior your app needs.
+
+### `resetScroll`
+
+Resets the window scroll position to the top `(0, 0)`. Useful when navigating to a new page to ensure the user starts at the top.
+
+```ts
+import { onMountEffect } from '@nano_kit/store'
+import { resetScroll } from '@nano_kit/router'
+
+const { $route } = $location
+
+/* Reset scroll whenever the route changes */
+onMountEffect($route, () => {
+  $route()
+  resetScroll()
+})
+```
+
+### `scrollToAnchor`
+
+Scrolls the window to a specific element identified by a URL hash (e.g., `#section`). It handles looking up the element by ID or name and scrolling it into view.
+
+```ts
+import { onMountEffect } from '@nano_kit/store'
+import { scrollToAnchor } from '@nano_kit/router'
+
+/* Scroll to element with id="features" smoothly */
+scrollToAnchor('#features', { behavior: 'smooth' })
+
+const { $hash } = $location
+
+/* Or automatically handle hash from location */
+onMountEffect($hash, () => {
+  const hash = $hash()
+
+  if (hash) {
+    scrollToAnchor(hash)
+  }
+})
+```
+
+### `ScrollRestorator`
+
+A utility class that saves and restores scroll positions using `sessionStorage`. It helps maintain the user's scroll position when navigating back and forth within the history.
+
+```ts
+import { ScrollRestorator } from '@nano_kit/router'
+
+/* 1. Create instance (optional prefix) */
+const scrollRestorator = new ScrollRestorator('my-app-scroll-')
+
+/* 2. Save scroll position before leaving the current view */
+/*    (e.g., in a cleanup function or before navigation) */
+scrollRestorator.save($location())
+
+/* 3. Restore scroll position when returning to a view */
+const restored = scrollRestorator.restore($location())
+
+if (!restored) {
+  /* If no position was saved, default to top */
+  resetScroll()
+}
+```
+
+## Transitions
+
+<Aside type='caution'>This is a raw API that exposes the internal transition mechanism. It might change in future versions or be replaced by higher-level abstractions. Use it with caution.</Aside>
+
+The `transition` method on the `navigation` object allows you to intercept and control the navigation process. This is powerful for implementing global behaviors like scroll restoration, page transitions, or navigation guards (confirmation dialogs).
+
+By default, it simply executes the transition. You can override it to add custom logic.
+
+```ts
+import { browserNavigation } from '@nano_kit/router'
+
+const [$location, navigation] = browserNavigation(routes)
+
+/* Example 1: Scroll Restoration */
+navigation.transition = (proceed, nextLocation, prevLocation) => {
+  /* Save scroll position for the page we are leaving */
+  scrollRestorator.save(prevLocation)
+
+  /* Proceed with the navigation */
+  proceed(nextLocation)
+
+  /* Restore scroll position for the new page */
+  scrollRestorator.restore(nextLocation)
+}
+
+/* Example 2: Navigation Guard / Confirmation */
+navigation.transition = (proceed, nextLocation, prevLocation) => {
+  const isDirty = formIsDirty()
+
+  if (!isDirty || confirm('Are you sure you want to leave? Unsaved changes will be lost.')) {
+    proceed(nextLocation)
+  }
+}
+```
+
+The arguments are:
+
+1. `proceed`: A function that must be called to complete the navigation. Pass `nextLocation` to it.
+2. `nextLocation`: The target location object (or `null` if unknown).
+3. `prevLocation`: The current location object before navigation.
+
+## Utils
+
+### `basePath`
+
+The `basePath` helper allows you to prefix all routes with a common base path. This is useful when your application is hosted in a subdirectory (e.g., GitHub Pages) or behind a specific path.
+
+```ts
+import { basePath } from '@nano_kit/router'
+
+/* All routes will be prefixed with /admin */
+const routes = basePath('/admin', {
+  dashboard: '/',
+  users: '/users'
+})
+
+/* Resulting patterns: */
+/* dashboard -> /admin/ */
+/* users     -> /admin/users */
+```
+
+### `updateHref`
+
+A utility to update parts of a URL string (pathname, search, or hash) while preserving the rest. It accepts a current href and an update object or string.
+
+```ts
+import { updateHref } from '@nano_kit/router'
+
+const current = '/users?sort=name#top'
+
+/* Update query params */
+const next = updateHref(current, { search: '?sort=date' })
+// /users?sort=date#top
+
+/* Update path */
+const moved = updateHref(current, { pathname: '/admins' })
+// /admins?sort=name#top
+```
+
+### `removeTrailingSlash`
+
+Removes the trailing slash from a path string, ensuring consistent path handling.
+
+```ts
+import { removeTrailingSlash } from '@nano_kit/router'
+
+removeTrailingSlash('/path/') // '/path'
+removeTrailingSlash('/path')  // '/path'
+```
+
+### `onLinkClick`
+
+A helper function to handle click events on anchor tags (`<a>`) in a Single Page Application (SPA) way. It intercepts the click, prevents the default browser navigation, and instead calls `navigation.push()` or `navigation.replace()`.
+
+Use this if you need to build a custom `Link` component for your framework.
+
+```tsx
+import { onLinkClick } from '@nano_kit/router'
+import { navigation } from './router.js'
+
+const handleClick = onLinkClick.bind(navigation)
+
+function CustomLink({ href, children }) {
+  return <a href={href} onClick={handleClick}>{children}</a>
+}
+```

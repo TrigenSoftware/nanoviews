@@ -1,0 +1,81 @@
+---
+title: Getting Started
+description: "@nano_kit/store is a lightweight state management library inspired by Nano Stores and built around a push-pull based reactivity system."
+sidebar:
+  order: 1
+---
+
+import { Image } from 'astro:assets'
+import { Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components'
+import logoLight from '../../../assets/star_black.svg'
+import logoDark from '../../../assets/star_white.svg'
+
+<Image src={logoLight} alt='Four-pointed star logo' width={128} height={128} class='dark:sl-hidden nk-brand-logo' />
+<Image src={logoDark} alt='Four-pointed star logo' width={128} height={128} class='light:sl-hidden nk-brand-logo' />
+
+`@nano_kit/store` is a lightweight state management library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and built around [a push-pull based reactivity system](https://github.com/stackblitz/alien-signals).
+
+- **Tiny**. ~2 kB (minified & brotlied). Zero dependencies.
+- **Fast**. Optimized for performance using the push-pull algorithm.
+- **Tree-Shakeable**. Only the methods you import end up in your bundle.
+- **TypeScript**. First-class type support out of the box.
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store' />
+  </TabItem>
+</Tabs>
+
+## Quick Start
+
+Here is a minimal example demonstrating signals, computed values, and effects in action:
+
+```ts
+import { signal, onMount, computed, effect } from '@nano_kit/store'
+
+/* Create independent atomic stores */
+const $count = signal(1)
+
+/* Mountable: Run logic only when store has listeners */
+onMount($count, () => {
+  console.log('Mounted: Store is active')
+  /* e.g., open websocket, start timer, etc. */
+
+  return () => {
+    console.log('Unmounted: Store is idle')
+    /* e.g., close websocket, stop timer */
+  }
+})
+
+/* Derive state (computed values are lazy & cached) */
+const $double = computed(() => $count() * 2)
+
+/* React to changes (triggers onMount) */
+const unsub = effect(() => {
+  console.log(`Count: ${$count()}, Double: ${$double()}`)
+})
+
+/* Update triggers granular propagation */
+$count(2)
+
+/* Cleanup: removes listener and triggers onMount destructor */
+unsub()
+```
+
+## Next Steps
+
+Now that you have the basics, explore the core concepts or connect to your framework:
+
+{/* - [Concepts](./concepts.md) – Learn about @nano_kit/store in depth.
+- [Integrations](../integrations/overview.md) – Use @nano_kit/store with popular frameworks.
+- [API Reference](./api.md) – Detailed API documentation. */}

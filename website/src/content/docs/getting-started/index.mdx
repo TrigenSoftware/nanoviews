@@ -1,0 +1,168 @@
+---
+title: Introduction
+description: An introduction to the Nano Kit ecosystem, exploring its unified architecture, high performance, and lightweight footprint.
+next:
+  label: Store
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Nano Kit is an ecosystem of lightweight, modular, and performant libraries for building modern web applications, built around [a push-pull based reactivity system](https://github.com/stackblitz/alien-signals). Each library is designed to be small and tree-shakeable, while still offering rich DX and useful features.
+
+```ts
+import { signal, onMount, computed, effect } from '@nano_kit/store'
+
+/* Create independent atomic stores */
+const $count = signal(1)
+
+/* Mountable: Run logic only when store has listeners */
+onMount($count, () => {
+  console.log('Mounted: Store is active')
+  /* e.g., open websocket, start timer, etc. */
+
+  return () => {
+    console.log('Unmounted: Store is idle')
+    /* e.g., close websocket, stop timer */
+  }
+})
+
+/* Derive state (computed values are lazy & cached) */
+const $double = computed(() => $count() * 2)
+
+/* React to changes (triggers onMount) */
+const unsub = effect(() => {
+  console.log(`Count: ${$count()}, Double: ${$double()}`)
+})
+
+/* Update triggers granular propagation */
+$count(2)
+
+/* Cleanup: removes listener and triggers onMount destructor */
+unsub()
+```
+
+## Packages
+
+### Core Ecosystem
+
+| Package | Description |
+|---------|-------------|
+| [@nano_kit/store](/store) | Signals-based state management library. |
+| [@nano_kit/query](/query) | Data fetching and caching library, built on @nano_kit/store. |
+| [@nano_kit/router](/router) | Routing library, built on @nano_kit/store. |
+
+### Framework Adapters
+
+| Adapter | Description |
+|---------|-------------|
+| [@nano_kit/react](/integrations/react) | React bindings for @nano_kit/store. |
+| [@nano_kit/react-router](/integrations/react-router) | React bindings for @nano_kit/router. |
+
+<Aside>Nano Kit is currently in **alpha**. More adapters are coming later.</Aside>
+
+## Motivation
+
+Nano Kit is built on the philosophy of Nano Stores and extends its core ideas:
+
+- **Atomicity:** Use independent, atomic stores for granular updates.
+- **Mountable stores:** Initialize resources only when the store is in use (on first listener) and clean up automatically.
+- **Shift logic out of components:** Move business logic to the store level.
+- **Minimal footprint:** Maintain a tiny core size that is fully tree-shakeable.
+
+However, Nano Stores has some limitations:
+
+- Performance overhead
+- Suboptimal Developer Experience (DX)
+- Issues with SSR support
+
+Nano Kit aims to fix these issues while keeping the same principles.
+
+## Unified Architecture
+
+Adopting an ecosystem-first architecture provides a much smoother experience for developers than a stack of independent libraries. Because every part of the ecosystem is built on the same foundation, you get a consistent "feel" across the entire library. This shared core allows the tools to reuse internal logic, which drastically reduces your final bundle size.
+
+Compare this to a standard setup like React Router + Redux + React Query. While these are great tools, they are effectively strangers to each other. They each have their own way of doing things and their own internal weight, often leading to duplicated code. Consequently, developers are forced to manually synchronize state and data between these independent tools inside the UI components, often resulting in bloated "glue code".
+
+Nano Kit takes a different approach. Because the router, data fetching, and state manager are engineered to work together from day one, they integrate deeply at the store level. This removes the need for messy "glue code" in your components and keeps your application logic clean, unified, and efficient. It makes the store layer portable and independent, allowing you to easily swap the UI layer.
+
+```ts
+import { browserNavigation, searchParams, searchParam } from '@nano_kit/router'
+import { client, queryKey } from '@nano_kit/query'
+import { effect } from '@nano_kit/store'
+import { useSignal } from '@nano_kit/react'
+
+/* Router */
+const [$location, navigation] = browserNavigation({ /* routes */ })
+const $searchParams = searchParams($location)
+const $page = searchParam($searchParams, 'page', v => (v ? Number(v) : 1))
+
+/* Query */
+const { query } = client()
+const [
+  $episodes,
+  $episodesError,
+  $episodesLoading
+] = query(queryKey('episodes'), [$page], async (page) => {
+  /* Fetcher automatically receives the current page */
+  return fetch(`/api/episodes?page=${page}`).then(r => r.json())
+})
+
+/* Logic is fully decoupled from UI components */
+effect(() => {
+  console.log('Current page:', $page())
+  console.log('Episodes:', $episodes())
+})
+
+/* UI components remain pure and logic-free. Example (React): */
+function MyComponent() {
+  const page = useSignal($page)
+  const episodes = useSignal($episodes)
+
+  /* ... */
+}
+
+/* Changing the URL updates $page signal and automatically triggers re-fetch */
+navigation.push('/episodes?page=2')
+```
+
+## Performance
+
+To achieve high performance, Nano Kit uses the push-pull algorithm from [alien-signals](https://github.com/stackblitz/alien-signals) as the core of its reactivity system. A dedicated fork named ["Agera"](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/agera) was created to support additional required features.
+
+The [benchmark results below](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/benchmarks/effect.js) show how `@nano_kit/store` (Agera) compares to other popular state management libraries.
+
+| Library | Latency avg (ns) | Latency med (ns) | Throughput avg (ops/s) | Throughput med (ops/s) | Samples |
+|---------|------------------|------------------|------------------------|------------------------|---------|
+| alien-signals | 318.57<br/>± 0.34% | 300.00<br/>± 0.00 | 3262408<br/>± 0.01% | 3333333<br/>± 0 | 3138998 |
+| **@nano_kit/store** | **338.98<br/>± 0.26%** | **330.00<br/>± 0.00** | **2986876<br/>± 0.01%** | **3030303<br/>± 0** | **2950008** |
+| svelte/store | 445.39<br/>± 0.25% | 410.00<br/>± 0.00 | 2329147<br/>± 0.02% | 2439024<br/>± 0 | 2245219 |
+| rxjs | 549.11<br/>± 3.36% | 470.00<br/>± 20.00 | 2071142<br/>± 0.02% | 2127660<br/>± 86843 | 1821114 |
+| nanostores | 1127.1<br/>± 1.75% | 1000.0<br/>± 19.00 | 966136<br/>± 0.02% | 1000000<br/>± 18646 | 887286 |
+| mobx | 4285.9<br/>± 3.67% | 3470.0<br/>± 50.00 | 281427<br/>± 0.04% | 288184<br/>± 4094 | 233326 |
+| valtio | 5401.6<br/>± 8.52% | 3910.0<br/>± 160.00 | 240525<br/>± 0.07% | 255754<br/>± 10912 | 185132 |
+| jotai | 10859<br/>± 7.97% | 7620.0<br/>± 160.00 | 128036<br/>± 0.06% | 131234<br/>± 2815 | 92089 |
+| effector | 31122<br/>± 13.37% | 18700<br/>± 1110.0 | 53314<br/>± 0.16% | 53476<br/>± 3123 | 32132 |
+
+*Benchmark was run on AMD Ryzen 5 PRO 3400G with Node.js v22.4.1*
+
+## Bundle Sizes
+
+### Weather 🌤️
+
+Comparison of bundle sizes for various implementations of the [weather example](https://github.com/TrigenSoftware/nanoviews/tree/main/examples/weather) bundled with Vite:
+
+| Stack | Raw Size | Gzipped Size |
+|-------|----------|--------------|
+| React<br/>+ nanostores + @nanostores/query + @nanostores/react | 206.99 kB | 65.94 kB |
+| React<br/>+ **@nano_kit/store + @nano_kit/query + @nano_kit/react** | 210.45 kB | 66.61 kB |
+| React<br/>+ **@nano_kit/store + @nano_kit/query + @nano_kit/react + DI** | 211.60 kB | 66.95 kB |
+| React<br/>+ @tanstack/react-query | 233.11 kB | 72.51 kB |
+
+### Rick and Morty 🛸
+
+Comparison of bundle sizes for various implementations of the [rick-and-morty example](https://github.com/TrigenSoftware/nanoviews/tree/main/examples/rick-and-morty) bundled with Vite:
+
+| Stack | Raw Size | Gzipped Size |
+|-------|----------|--------------|
+| React<br/>+ **@nano_kit/store + @nano_kit/query + @nano_kit/router<br/>+ @nano_kit/react + @nano_kit/react-router** | 234.87 kB | 76.66 kB |
+| React<br/>+ @tanstack/react-query + @tanstack/react-router | 333.78 kB | 107.28 kB |

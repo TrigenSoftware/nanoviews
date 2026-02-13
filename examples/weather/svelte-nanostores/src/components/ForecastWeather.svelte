@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Weather } from 'data-layer/services/types'
+  import type { Weather } from '../services/types.js'
 
   interface Props {
     weather: Readonly<Weather>

@@ -1,0 +1,498 @@
+---
+title: Core Concepts
+description: "Learn the core concepts of @nano_kit/query."
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+## Client
+
+The client is the main entry point for `@nano_kit/query`. It creates a centralized store for managing queries, cache, and data mutations.
+
+Use the `client()` function to create a query client. It returns an object with methods for working with queries and cache:
+
+```ts
+import { client } from '@nano_kit/query'
+
+const {
+  query,      /* Create reactive queries */
+  invalidate, /* Invalidate cache entries */
+  revalidate, /* Revalidate cache entries */
+  $data,      /* Get/set cached data */
+  $error,     /* Get cached error */
+  $loading    /* Get cached loading state */
+} = client()
+```
+
+### Settings and Extensions
+
+The client accepts settings and extensions that modify its behavior:
+
+- **Client Settings** — apply globally to all queries and mutations, but can be overridden per query
+- **Client Extensions** — add new methods to the client object
+
+```ts
+import { client, cacheTime, dedupeTime, mutations } from '@nano_kit/query'
+
+const {
+  query,
+  mutation, /* Added by mutations() extension */
+  $data
+} = client(
+  cacheTime(300000), /* Setting: cache for 5 minutes */
+  dedupeTime(8000),  /* Setting: dedupe window of 8 seconds */
+  mutations()        /* Extension: adds mutation method */
+)
+```
+
+## Query
+
+A query is a reactive data fetcher that automatically loads data when mounted and refetches when parameters change. It manages loading states, errors, and caching automatically.
+
+Use the `query()` method from the client to create a query:
+
+```ts
+import { signal, effect } from '@nano_kit/store'
+import { queryKey, client } from '@nano_kit/query'
+
+const PostKey = queryKey<[id: number], Post | null>('post')
+const $postId = signal(1)
+const { query } = client()
+
+const [$post, $error, $loading] = query(PostKey, [$postId], (id) => fetch(`/api/posts/${id}`).then(r => r.json()))
+```
+
+The `query()` function accepts:
+
+1. **Cache key builder** — identifies the data in cache
+2. **Parameter signals** — reactive parameters that trigger refetch when changed
+3. **Fetcher function** — async function that fetches the data
+4. **Settings** (optional) — query-specific settings
+
+It returns a tuple with:
+
+- `$data` — signal with fetched data (or `null`)
+- `$error` — signal with error message (or `null`)
+- `$loading` — signal indicating loading state
+- `$key` — signal with current cache key
+
+### Automatic Fetching and Reactivity
+
+Queries fetch data automatically when mounted (when they have listeners) and refetch when parameters change:
+
+```ts
+const $postId = signal(1)
+const [$post, $error, $loading] = query(PostKey, [$postId], fetchPost)
+
+/* Query starts fetching when mounted */
+const off = effect(() => {
+  if ($loading()) {
+    console.log('Loading...')
+  } else if ($error()) {
+    console.log('Error:', $error())
+  } else {
+    console.log('Post:', $post())
+  }
+})
+// Loading...
+// Post: { id: 1, title: 'Hello' }
+
+/* Change parameter to trigger refetch */
+$postId(2)
+// Loading...
+// Post: { id: 2, title: 'World' }
+
+/* Query stops when unmounted */
+off()
+```
+
+Multiple parameters work the same way:
+
+```ts
+const $userId = signal(1)
+const $postId = signal(10)
+
+const [$post] = query(PostKey, [$userId, $postId], (userId, postId) => fetchUserPost(userId, postId))
+
+/* Change any parameter to trigger refetch */
+$userId(2)  // Refetches with new userId
+$postId(20) // Refetches with new postId
+```
+
+### Cache Behavior
+
+Queries automatically cache data based on cache keys. When you refetch with the same parameters, the previous cached data is shown while new data loads:
+
+```ts
+const $postId = signal(1)
+const [$post, , $loading] = query(PostKey, [$postId], fetchPost)
+
+effect(() => {
+  console.log('Post:', $post(), 'Loading:', $loading())
+})
+// Post: null Loading: true
+// Post: { id: 1, title: 'First' } Loading: false
+
+$postId(2)
+// Post: null Loading: true <- Cache miss, null shown
+// Post: { id: 2, title: 'Second' } Loading: false
+
+$postId(1)
+// Post: { id: 1, title: 'First' } Loading: true <- Cache hit, data shown
+// Post: { id: 1, title: 'First' } Loading: false
+```
+
+Cache can be controlled with `invalidate()` and `revalidate()` methods (detailed in [Cache Keys](#cache-keys) section).
+
+### Query Settings
+
+You can pass settings as the fourth argument to override client defaults:
+
+```ts
+import { cacheTime, dedupeTime } from '@nano_kit/query'
+
+const [$post] = query(PostKey, [$postId], fetchPost, [
+  cacheTime(60000), /* Cache for 1 minute */
+  dedupeTime(5000)  /* Dedupe window of 5 seconds */
+])
+```
+
+## Basic Settings
+
+Settings control the behavior of queries and mutations. They can be applied globally at the client level or per individual query/mutation.
+
+### `cacheTime`
+
+Specifies how long (in milliseconds) data remains in the cache before being marked as stale.
+
+Default: `Infinity` (data never expires).
+
+```ts
+import { client, cacheTime } from '@nano_kit/query'
+
+/* Global setting */
+const { query } = client(
+  cacheTime(300000) /* 5 minutes */
+)
+
+/* Per-query override */
+const [$post] = query(PostKey, [$postId], fetchPost, [
+  cacheTime(60000) /* 1 minute for this query */
+])
+```
+
+After the cache time expires, data is marked as stale but remains in cache.
+
+### `dedupeTime`
+
+Sets a time window (in milliseconds) for deduplicating identical requests. If multiple requests with the same cache key are made within this window, only one request is sent and the result is shared.
+
+Default: `4000` (4 seconds).
+
+```ts
+import { client, dedupeTime } from '@nano_kit/query'
+
+/* Global setting */
+const { query } = client(
+  dedupeTime(8000) /* 8 seconds */
+)
+
+/* Per-query override */
+const [$post] = query(PostKey, [$postId], fetchPost, [
+  dedupeTime(10000) /* 10 seconds for this query */
+])
+```
+
+This prevents unnecessary duplicate requests when multiple components or effects subscribe to the same data simultaneously.
+
+## Cache Keys
+
+Cache keys are identifiers used by `@nano_kit/query` to manage cached data. They serve as unique addresses for storing, retrieving, and invalidating query results.
+
+### Why Cache Keys?
+
+Cache keys enable:
+
+- **Data identification** — uniquely identify different pieces of data in the cache
+- **Automatic refetching** — when parameters change, the query refetches with new key
+- **Cache manipulation** — directly read, update, or invalidate cached data
+- **Type safety** — TypeScript infers parameter and return types from the key
+
+### Creating Cache Keys
+
+Use `queryKey()` to create a cache key builder:
+
+```ts
+import { queryKey } from '@nano_kit/query'
+
+/* Simple key without parameters */
+const UsersKey = queryKey<[], User[]>('users')
+
+/* Key with single parameter */
+const UserKey = queryKey<[id: number], User>('user')
+
+/* Key with multiple parameters */
+const PostKey = queryKey<[userId: number, postId: number], Post>('post')
+```
+
+The first type parameter defines the parameters array, the second defines the type of data stored in cache.
+
+### Building Cache Keys
+
+Call the key builder with parameters to create a concrete cache key:
+
+```ts
+const UserKey = queryKey<[id: number], User>('user')
+
+/* Build key for user with ID 1 */
+const userKey = UserKey(1)
+/* Build key for user with ID 2 */
+const userKey2 = UserKey(2)
+```
+
+### Filtering Parameters
+
+Sometimes you want to ignore certain parameters for caching. Use the filter function:
+
+```ts
+import { queryKey } from '@nano_kit/query'
+
+/* Only cache by query string, ignore page number */
+const SearchKey = queryKey<[query: string, page: number], SearchResult>(
+  'search',
+  ([query]) => [query]  /* Only use query for cache key */
+)
+
+/* Both create the same cache key */
+SearchKey('react', 1)
+SearchKey('react', 2)
+```
+
+This allows different page requests to share the same cache entry.
+
+### Using Cache Keys with Client Methods
+
+#### Reading and Writing Data
+
+Use `$data()` to read or write cached data:
+
+```ts
+import { client, queryKey } from '@nano_kit/query'
+
+const PostKey = queryKey<[id: number], Post>('post')
+const { $data } = client()
+
+/* Read data from cache */
+const post = $data(PostKey(1))
+/* null if not cached, or Post object */
+
+/* Write data to cache */
+$data(PostKey(1), { id: 1, title: 'New Post' })
+
+/* Update with function */
+$data(PostKey(1), post => post && ({ ...post, views: post.views + 1 }))
+
+/* Update all posts in shard */
+$data(PostKey, null)  /* Clear all posts */
+```
+
+#### Revalidating Cache
+
+Use `revalidate()` to mark cache entries as stale, triggering active queries to refetch:
+
+```ts
+import { client, queryKey } from '@nano_kit/query'
+
+const PostKey = queryKey<[id: number], Post>('post')
+const { query, revalidate } = client()
+
+const $postId = signal(1)
+const [$post] = query(PostKey, [$postId], (id) => fetchPost(id))
+
+/* Mark specific post to refresh */
+revalidate(PostKey(1))
+/* Active query will refetch post 1 */
+
+/* Mark all posts to refresh */
+revalidate(PostKey)
+/* All active post queries will refetch */
+```
+
+**What happens**: Revalidation doesn't remove data from cache, it just marks it as stale. Active queries (those with listeners) will automatically refetch.
+
+#### Invalidating Cache
+
+Use `invalidate()` to remove cache entries completely:
+
+```ts
+import { client, queryKey } from '@nano_kit/query'
+
+const PostKey = queryKey<[id: number], Post>('post')
+const { query, invalidate } = client()
+
+const $postId = signal(1)
+const [$post] = query(PostKey, [$postId], (id) => fetchPost(id))
+
+/* Remove specific post from cache */
+invalidate(PostKey(1))
+/* Data is removed, active query will refetch */
+
+/* Remove all posts from cache */
+invalidate(PostKey)
+/* All post data is removed, all active queries will refetch */
+```
+
+**What happens**: Invalidation removes data from cache. Data signal immediately returns `null`, and active queries refetch.
+
+### Revalidate vs Invalidate
+
+| Action | Data Removal | Immediate Effect | Use Case |
+|--------|--------------|------------------|----------|
+| revalidate | No | Active queries refetch | Soft refresh, data might still be valid |
+| invalidate | Yes | Data becomes `null`, then refetch | Hard refresh, ensure fresh data |
+
+Example:
+
+```ts
+const { query, revalidate, invalidate, $data } = client()
+const [$post] = query(PostKey, [signal(1)], fetchPost)
+
+effect(() => console.log('Post:', $post()))
+// Post: null
+// Loading...
+// Post: { id: 1, title: 'Hello' }
+
+revalidate(PostKey(1))
+// Post: { id: 1, title: 'Hello' }  <- data still visible
+// Loading...
+// Post: { id: 1, title: 'Hello' }
+
+invalidate(PostKey(1))
+// Post: null  <- data removed immediately
+// Loading...
+// Post: { id: 1, title: 'Hello' }
+```
+
+## Mutation
+
+A mutation is a method for performing data modifications. Unlike queries, mutations are executed on demand and do not automatically refetch when parameters change.
+
+To use mutations, add the `mutations()` extension to the client:
+
+```ts
+import { client, mutations } from '@nano_kit/query'
+
+const { mutation } = client(
+  mutations()
+)
+```
+
+Then create a mutation using the `mutation()` method:
+
+```ts
+const [updatePost, $result, $error, $loading] = mutation<[params: UpdatePostParams], Post>(
+  (params) => PostsService.update(params)
+)
+```
+
+The `mutation()` function accepts:
+
+1. **Mutator function** — async function that performs the modification
+2. **Settings** (optional) — mutation-specific settings
+
+It returns a tuple with:
+
+- `mutate` — function to execute the mutation
+- `$data` — signal with mutation result (or `null`)
+- `$error` — signal with error message (or `null`)
+- `$loading` — signal indicating loading state
+
+### Executing Mutations
+
+Call the mutate function with parameters to execute the mutation:
+
+```ts
+const [updatePost, $result, $error, $loading] = mutation<[params: UpdatePostParams], Post>(
+  (params) => PostsService.update(params)
+)
+
+/* Execute mutation */
+const [result, error] = await updatePost({
+  title: 'New Title'
+})
+
+if (error) {
+  console.error('Update failed:', error)
+} else {
+  console.log('Updated:', result)
+}
+```
+
+### Cache Invalidation
+
+After a successful mutation, you typically want to refresh related queries. Use `revalidate()` in the success callback:
+
+```ts
+import { client, mutations, queryKey, onSuccess } from '@nano_kit/query'
+
+const PostKey = queryKey<[id: number], Post>('post')
+const { mutation, revalidate } = client(mutations())
+
+const $postId = signal(1)
+
+const [updatePost] = mutation<[params: UpdatePostParams], Post>(
+  (params, ctx) => {
+    onSuccess(ctx, () => {
+      /* Refresh post query after update */
+      revalidate(PostKey($postId()))
+    })
+
+    return PostsService.update($postId(), params)
+  }
+)
+```
+
+<Aside>Learn more about request context and lifecycle hooks on the [Advanced](/query/advanced) page.</Aside>
+
+### Optimistic Updates
+
+For better user experience, update the cache immediately before the mutation completes. Revert changes if the mutation fails:
+
+```ts
+import { client, mutations, queryKey, onError } from '@nano_kit/query'
+
+const PostKey = queryKey<[id: number], Post>('post')
+const { mutation, $data } = client(mutations())
+
+const $postId = signal(1)
+
+const [updatePost] = mutation<[params: UpdatePostParams], Post>(
+  (params, ctx) => {
+    const postId = $postId()
+    const postKey = PostKey(postId)
+    const currentPost = $data(postKey)
+
+    if (currentPost) {
+      /* Optimistically update cache */
+      $data(postKey, {
+        ...currentPost,
+        ...params
+      })
+
+      /* Revert on error */
+      onError(ctx, () => {
+        $data(postKey, currentPost)
+      })
+    }
+
+    return PostsService.update(postId, params)
+  }
+)
+
+/* User sees update immediately */
+updatePost({ title: 'New Title' })
+```
+
+<Aside>Learn more about request context and lifecycle hooks on the [Advanced](/query/advanced) page.</Aside>

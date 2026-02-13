@@ -2,6 +2,7 @@
   "name": "weather-react-nano_kit-di",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "pnpm@10.11.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,10 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "data-layer": "workspace:../data-layer-nano_kit-di"
+    "@nano_kit/query": "*",
+    "@nano_kit/react": "*",
+    "@nano_kit/store": "*"
   },
   "devDependencies": {
+    "@types/react": "^19.2.4",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.3.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "typescript": "^5.2.2",
     "vite": "^5.2.7"
   }

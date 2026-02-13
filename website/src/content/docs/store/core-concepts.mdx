@@ -1,0 +1,390 @@
+---
+title: Core Concepts
+description: "Learn the core concepts of @nano_kit/store."
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+## Signals and Effects
+
+Signals are atomic state containers that notify subscribers about changes. Effects are functions that track these signals and re-execute when values update.
+
+### Basic Usage
+
+Use `signal` to define a reactive state and `effect` to observe its changes. An effect runs immediately when created and re-runs whenever accessed signals change. To read a signal's value, call it as a function. To update it, pass a new value or a callback function.
+
+```ts
+import { signal, effect } from '@nano_kit/store'
+
+const $count = signal(0)
+
+const stop = effect(() => {
+  /* Automatically tracks $count because it's called synchronously */
+  console.log('Count is:', $count())
+})
+
+/* Update with value. Output: Count is: 1 */
+$count(1)
+/* Update with function. Output: Count is: 2 */
+$count(prev => prev + 1)
+
+/* Stop the effect */
+stop()
+```
+
+### Effect Cleanup
+
+Effects can return a cleanup function. This function is executed before the effect re-runs (due to dependency changes) and when the effect is manually stopped. This is useful for clearing timers, event listeners, or other side effects.
+
+```ts
+const $timeout = signal(1000)
+
+effect(() => {
+  const timer = setInterval(() => {
+    console.log('Tick')
+  }, $timeout())
+
+  /* Cleanup function */
+  return () => {
+    clearInterval(timer)
+    console.log('Timer cleared')
+  }
+})
+```
+
+### Granularity
+
+It is crucial to keep your state granular. **Do not** store unrelated domains (like users and posts) in a single monolithic signal. If you do, updating a post might trigger calculations for users, leading to poor performance.
+
+```ts
+/* ❌ Bad: Monolithic store mixes unrelated domains */
+const $appState = signal({
+  users: [{ id: 1, name: 'John' }],
+  posts: [{ id: 101, title: 'Hello World' }]
+})
+
+/* ✅ Good: Separate signals for independent domains */
+const $users = signal([{ id: 1, name: 'John' }])
+const $posts = signal([{ id: 101, title: 'Hello World' }])
+```
+
+<Aside>Storing a cohesive entity (like a single `user` object with `name` and `email`) or collection in one signal is fine.</Aside>
+
+### Batching Updates
+
+When you need to update multiple signals synchronously, use `batch` to prevent intermediate side effects. This ensures that dependent effects run only once after all updates are applied, rather than running for each individual change.
+
+```ts
+import { signal, effect, batch } from '@nano_kit/store'
+
+const $firstName = signal('John')
+const $lastName = signal('Doe')
+
+effect(() => {
+  console.log(`Full name: ${$firstName()} ${$lastName()}`)
+})
+
+/* ...later */
+batch(() => {
+  /* Updates are applied atomically */
+  $firstName('Jane')
+  $lastName('Smith')
+})
+/* Output: "Full name: Jane Smith" (runs only once) */
+```
+
+### Manual Trigger
+
+Signals typically check for value equality to decide if they should update. If you mutate an object or array in place (keeping the same reference), the signal won't automatically detect the change. You can use `trigger` to force an update.
+
+```ts
+import { signal, effect, trigger } from '@nano_kit/store'
+
+const $tags = signal(['news', 'tech'])
+
+effect(() => {
+  console.log('Tags:', $tags().join(', '))
+})
+
+/* Mutate the array in place (reference remains the same) */
+$tags().push('release')
+
+/* Force the signal to notify subscribers */
+trigger($tags)
+```
+
+## Actions
+
+Wrapping a function with `action` ensures that any signal read inside it is automatically untracked. This allows you to structure business logic that can be safely called from any effect without causing infinite loops or unwanted side effects.
+
+```ts
+import { signal, effect, action } from '@nano_kit/store'
+
+const $count = signal(0)
+const $logs = signal<string[]>([])
+
+// Define an action
+const printCount = action(() => {
+  /* Reading $count here will NOT cause the caller to track it */
+  const val = $count()
+
+  $logs(logs => [...logs, `Count is ${val}`])
+})
+
+effect(() => {
+  /* This effect runs once. */
+  /* It calls printCount, which reads $count. */
+  /* Because printCount is an action, this effect DOES NOT track $count. */
+  printCount()
+})
+```
+
+### Using `untracked`
+
+Normally, reading a signal inside an effect tracks it. If you want to read the current value without subscribing to future updates, use `untracked`.
+
+```ts
+import { signal, effect, untracked } from '@nano_kit/store'
+
+const $a = signal(1)
+const $b = signal(10)
+
+effect(() => {
+  /* Tracks $a. Re-runs when $a changes */
+  console.log('A changed:', $a())
+
+  /* Reads $b but does NOT track it */
+  console.log('Current B:', untracked($b))
+})
+```
+
+## Accessors and Computeds
+
+An **accessor** is simply a function that returns a value (`() => T`). It doesn't need to be a special object. Because effects track any signal accessed during their execution, you can create derived state just by defining a function that reads signals.
+
+```ts
+import { signal, effect } from '@nano_kit/store'
+
+const $a = signal(1)
+const $b = signal(2)
+
+/* A simple accessor */
+const $sum = () => $a() + $b()
+
+effect(() => {
+  /* Automatically tracks $a and $b */
+  console.log('Sum is', $sum())
+})
+
+/* Output: Sum is 4 */
+$a(2)
+```
+
+### Using `computed`
+
+If you need to memoize the result of a calculation, use `computed`. A computed signal caches its value and only recalculates when its dependencies change. This is useful for expensive calculations or when you want to ensure downstream effects run only when the *result* changes, not just the dependencies.
+
+```ts
+import { signal, effect, computed } from '@nano_kit/store'
+
+const $users = signal(['Alice', 'Bob', 'Charlie'])
+const $filter = signal('a')
+
+/* Re-runs only when $users or $filter change */
+const $filteredUsers = computed(() => {
+  const filter = $filter().toLowerCase()
+
+  return $users().filter(
+    user => user.toLowerCase().includes(filter)
+  )
+})
+
+effect(() => {
+  console.log('Filtered:', $filteredUsers().join(', '))
+})
+```
+
+`computed` also receives the previous value as its first argument, which can be useful for accumulation or comparing changes.
+
+```ts
+const $count = signal(1)
+
+/* Accumulate sum of all values $count has ever had */
+const $total = computed((sum = 0) => sum + $count())
+```
+
+## Mountable Stores
+
+Wrap a signal (or computed) with `mountable` to control its lifecycle using the `onMount` hook. This allows you to execute side effects—like subscribing to external data sources or fetching data—when the signal becomes active, and clean up resources when it's no longer in use. This pattern moves business logic from components to stores, making it framework-agnostic and easier to test.
+
+The `onMount` callback runs when an effect starts tracking the signal and can return a cleanup function that runs when the signal is no longer used.
+
+```ts
+import { signal, mountable, onMount, effect } from '@nano_kit/store'
+
+const $temperature = mountable(signal(20))
+
+onMount($temperature, () => {
+  const interval = setInterval(() => {
+    $temperature(prev => prev + Math.random() - 0.5)
+  }, 1000)
+
+  return () => clearInterval(interval)
+})
+
+/* Start effect to listen to temperature changes */
+const stop = effect(() => {
+  console.log('Current temperature:', $temperature())
+})
+/* $temperature is now mounted */f
+
+stop()
+/* $temperature is now unmounted */
+```
+
+### Debounced Unmounting
+
+Unmounting is debounced to avoid rapid mount/unmount cycles during component re-renders. The delay is defined in `STORE_UNMOUNT_DELAY` (1000ms). Mount events fire immediately.
+
+```ts
+const stop1 = effect(() => $data())
+
+stop1()
+/* Unmount scheduled */
+
+const stop2 = effect(() => $data())
+/* Remount before delay expires - cleanup NOT called */
+
+stop2()
+/* After STORE_UNMOUNT_DELAY, cleanup runs */
+```
+
+<Aside type='tip'>When testing, use `STORE_UNMOUNT_DELAY` or fake timers to control unmount timing.</Aside>
+
+## Dependency Injection
+
+The dependency injection system enables modular architecture and makes testing easier by allowing dependencies to be easily replaced with mocks. It also plays a critical role in SSR scenarios by isolating state between requests.
+
+Use factory functions with `inject` to retrieve dependencies. For example, in React, use `InjectionContextProvider` to create a context and `useInject` to access dependencies.
+
+```tsx
+import { inject, signal, mountable, onMountEffect, action, effect, TasksRunner$ } from '@nano_kit/store'
+import { InjectionContextProvider, useInject, useSignal } from '@nano_kit/react'
+
+/* Factory function that defines a user store */
+function User$() {
+  const task = inject(TasksRunner$)
+  const $userId = signal(null)
+  const $user = mountable(signal(null))
+  const fetchUser = action((id) => task(async () => {
+    if (typeof id !== 'number') {
+      $user(null)
+      return
+    }
+
+    const response = await fetch(`/user/${id}`)
+    const user = await response.json()
+
+    $user(user)
+  }))
+
+  onMountEffect($user, () => {
+    fetchUser($userId())
+  })
+
+  return { $userId, $user }
+}
+
+/* Component that provides the injection context */
+function App() {
+  return (
+    <InjectionContextProvider>
+      <UserProfile />
+    </InjectionContextProvider>
+  )
+}
+
+/* Component that uses the User$ store */
+function UserProfile() {
+  const { $user } = useInject(User$)
+  const user = useSignal($user)
+
+  /* ... */
+}
+```
+
+### Providing Custom Values
+
+Use `provide` to override dependencies with custom values. This is useful for testing or when you want to inject a different value / implementation.
+
+```ts
+import { provide } from '@nano_kit/store'
+import { InjectionContextProvider, useInject } from '@nano_kit/react'
+
+function Theme$() {
+  return 'light'
+}
+
+function App() {
+  return (
+    <InjectionContextProvider context={[provide(Theme$, 'dark')]}>
+      <TopBar />
+    </InjectionContextProvider>
+  )
+}
+```
+
+## Naming Convention
+
+The library follows consistent naming conventions to distinguish between different types of reactive entities. Highly recommended to follow these conventions in your own code to maintain consistency, improve readability and make reactive dependencies immediately recognizable:
+
+### Reactive Values
+
+Any entity prefixed with `$` subscribes effects to changes when called. This includes signals, computeds, accessors, and utility functions that work with signals.
+
+```ts
+import { signal, computed, $get } from '@nano_kit/store'
+
+const $count = signal(0)
+const $doubled = computed(() => $count() * 2)
+const $sum = () => $count() + $doubled()
+/* Utility that tracks signals */
+const value = $get($count)
+```
+
+### DI Factories
+
+Factory functions that start with an uppercase letter and end with `$` are dependency injection factories.
+
+```ts
+import { TasksRunner$, inject } from '@nano_kit/store'
+
+function User$() {
+  const task = inject(TasksRunner$)
+  /* ... */
+}
+```
+
+### DI Utilities
+
+Functions that start with a lowercase letter and end with `$` accept or return DI factories. These typically mirror the signature of their non-DI counterparts.
+
+```ts
+import { browserNavigation, browserNavigation$ } from '@nano_kit/router'
+import { useInject } from '@nano_kit/react'
+
+/* Regular function - returns tuple directly */
+const [$location, navigation] = browserNavigation()
+
+/* DI version - returns factories */
+const [Location$, Navigation$] = browserNavigation$()
+
+/* Usage with DI */
+function MyComponent() {
+  const $location = useInject(Location$)
+  const navigation = useInject(Navigation$)
+  /* ... */
+}
+```

@@ -1,0 +1,59 @@
+---
+title: Testing
+description: "Learn how to test queries in @nano_kit/query"
+sidebar:
+  order: 5
+next:
+  label: Router
+---
+
+Since `@nano_kit/query` is built on top of `@nano_kit/store`, all testing principles and best practices for stores apply here as well.
+
+Please refer to the [Store Testing](/store/testing) documentation for general guidelines on:
+
+- Mocking dependencies (Dependency Injection).
+- Testing lifecycle events (`onMount`).
+- Managing timers and unmount delays.
+
+## Waiting for Queries
+
+Tests often need to wait for asynchronous data fetching to resolve. The `tasks` extension provides a reliable way to await all pending operations in your query client, ensuring your assertions run only after data is loaded.
+
+```ts
+import { describe, it, expect, vi } from 'vitest'
+import { tasksRunner, waitTasks, start } from '@nano_kit/store'
+import { client, tasks, queryKey } from '@nano_kit/query'
+
+const TestKey = queryKey('test')
+
+it('should fetch and update state', async () => {
+  /* 1. Create a pool to track active tasks */
+  const tasksPool = new Set()
+
+  /* 2. Configure client with tasks extension */
+  const { query } = client(
+    tasks(tasksRunner(tasksPool))
+  )
+
+  /* Mock fetcher */
+  const fetcher = vi.fn().mockResolvedValue('success')
+
+  /* 3. Start the query */
+  const [$data, $error, $loading] = query(TestKey, [], fetcher)
+
+  /* Mount the signal to trigger the fetch */
+  const stop = start($data)
+
+  expect($loading()).toBe(true)
+
+  /* 4. Wait for all fetch tasks to complete */
+  await waitTasks(tasksPool)
+
+  /* 5. Assert final state */
+  expect($loading()).toBe(false)
+  expect($data()).toBe('success')
+
+  stop()
+})
+```
+

@@ -16,7 +16,7 @@ import {
   if_,
   trackBy
 } from 'nanoviews'
-import { $weatherForecast } from 'data-layer/stores/weather'
+import { $weatherForecast } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.js'
 import styles from './Forecast.module.css'
 

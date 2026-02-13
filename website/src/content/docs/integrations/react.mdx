@@ -1,0 +1,113 @@
+---
+title: React
+description: "Integrate @nano_kit/store with React using @nano_kit/react."
+sidebar:
+  order: 2
+---
+
+import { Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components'
+
+The `@nano_kit/react` package provides seamless integration between `@nano_kit/store` signals, dependency injection and React components.
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/react' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/react' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/react' />
+  </TabItem>
+</Tabs>
+
+## Signals
+
+### `useSignal`
+
+The `useSignal` hook subscribes a React component to a store signal. The component will re-render automatically whenever the signal's value changes.
+
+```tsx
+import { signal } from '@nano_kit/store'
+import { useSignal } from '@nano_kit/react'
+
+const $count = signal(0)
+
+export function Counter() {
+  const count = useSignal($count)
+
+  return (
+    <button onClick={() => $count(count + 1)}>
+      Count: {count}
+    </button>
+  )
+}
+```
+
+## Dependency Injection
+
+### `InjectionContextProvider`
+
+To use the Dependency Injection system within React, wrap your application (or part of it) in `InjectionContextProvider`. This component initializes an `InjectionContext` and makes it available to child components via the React Context API.
+
+You can provide an existing context instance or an array of providers/values.
+
+```tsx
+import { provide } from '@nano_kit/store'
+import { InjectionContextProvider } from '@nano_kit/react'
+import { Theme$ } from './tokens'
+import { App } from './App'
+
+function Root() {
+  return (
+    <InjectionContextProvider
+      context={[
+        provide(Theme$, 'dark')
+      ]}
+    >
+      <App />
+    </InjectionContextProvider>
+  )
+}
+```
+
+### `useInject`
+
+The `useInject` hook retrieves a dependency from the current injection context. It throws an error if the context is missing, ensuring your dependencies are always resolved.
+
+```tsx
+import { useInject } from '@nano_kit/react'
+import { Theme$ } from './tokens'
+
+export function ThemedButton() {
+  const theme = useInject(Theme$)
+
+  return <button className={`btn-${theme}`}>Click me</button>
+}
+```
+
+### `hook`
+
+The `hook` helper enables you to create custom hooks for your dependencies. This promotes cleaner component code by encapsulating the injection logic (and the dependency token itself).
+
+```tsx
+import { hook } from '@nano_kit/react'
+
+/* Define token */
+function Theme$(): 'light' | 'dark' {
+  return 'light'
+}
+
+/* Create custom hook */
+const useTheme = hook(Theme$)
+
+export function ThemedButton() {
+  const theme = useTheme() // Type-safe 'light' | 'dark'
+
+  return <button className={`btn-${theme}`}>Click me</button>
+}
+```

@@ -3,7 +3,7 @@ import {
   Match,
   splitProps
 } from 'solid-js'
-import type { Weather } from 'data-layer/services/types'
+import type { Weather } from '../services/types.js'
 import styles from './ForecastWeather.module.css'
 
 interface Props {

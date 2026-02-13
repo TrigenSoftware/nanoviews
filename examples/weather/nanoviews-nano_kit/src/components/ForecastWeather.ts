@@ -10,7 +10,7 @@ import {
   h3,
   p
 } from 'nanoviews'
-import type { Weather } from 'data-layer/services/types'
+import type { Weather } from '../services/types.js'
 import styles from './ForecastWeather.module.css'
 
 export interface Props {

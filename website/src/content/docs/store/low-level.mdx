@@ -1,0 +1,287 @@
+---
+title: Low-Level API
+description: "Learn about the low-level API of @nano_kit/store"
+sidebar:
+  order: 6
+next:
+  label: Query
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+<Aside type='caution'>These APIs are intended for library developers building extensions or integrations for Nano Kit. They provide fine-grained control over signal behavior and lifecycle.</Aside>
+
+Low-level APIs give you direct control over signal reactivity, mounting behavior, and internal structure. Use them when building custom utilities, framework integrations, or advanced reactive patterns.
+
+## Lifecycle Hooks
+
+**`onStart`** listens for when a mountable signal becomes active (first subscriber). Unlike `onMount`, which has debounced unmounting, `onStart` fires immediately without any delays.
+
+```ts
+import { signal, mountable, onStart, effect } from '@nano_kit/store'
+
+const $data = mountable(signal(0))
+
+onStart($data, () => {
+  console.log('Signal mounted') /* Fires immediately */
+
+  return () => {
+    console.log('Cleanup on unmount') /* Fires immediately on unmount */
+  }
+})
+```
+
+**`onStop`** listens for when a mountable signal becomes inactive (last subscriber removed). Unlike `onMount`, which has debounced unmounting, `onStop` fires immediately without any delays.
+
+```ts
+import { signal, mountable, onStop } from '@nano_kit/store'
+
+const $data = mountable(signal(0))
+
+onStop($data, () => {
+  console.log('Signal unmounted')
+})
+```
+
+**`onMounted`** provides a boolean signal tracking mount state. Unlike `onMount`, which has debounced unmounting, `onMounted` fires immediately without any delays.
+
+```ts
+import { signal, mountable, onMounted, effect } from '@nano_kit/store'
+
+const $data = mountable(signal(0))
+
+onMounted($data, (mounted) => {
+  console.log('Mounted:', mounted)
+})
+
+const stop = effect(() => $data())
+/* Logs: Mounted: true */
+
+stop()
+/* Logs: Mounted: false */
+```
+
+## Preventing Mount Propagation
+
+**`noMount`** prevents subscribers created inside the function from triggering mount events on the specified signal. This is useful when you need to create effects that observe a mountable signal without activating its lifecycle.
+
+```ts
+import { signal, mountable, onMount, noMount, effect } from '@nano_kit/store'
+
+const $data = mountable(signal(0))
+
+onMount($data, () => {
+  console.log('Mounted')
+})
+
+/* Create effect that won't trigger $data mount */
+const stop = noMount($data, () => effect(() => {
+  console.log('Value:', $data())
+  /* $data is observed but not mounted */
+}))
+```
+
+## Signal Morphing
+
+**`morph`** creates a new signal that wraps an existing one with custom get/set behavior. The key feature is that you can dynamically change these behaviors on the fly by modifying `this.get` and `this.set` within the methods themselves.
+
+```ts
+import { signal, morph } from '@nano_kit/store'
+
+const $source = signal(0)
+const $doubled = morph($source, {
+  get() {
+    return this.source() * 2
+  },
+  set(value) {
+    this.source(value / 2)
+  }
+})
+
+$doubled(10)
+console.log($source()) /* 5 */
+console.log($doubled()) /* 10 */
+
+/* You can change behavior on the fly */
+const $dynamic = morph($source, {
+  get() {
+    /* Dynamically change get behavior */
+    if (this.source() > 10) {
+      this.get = () => this.source() * 3
+    }
+
+    return this.source()
+  }
+})
+```
+
+## External Signals
+
+**`external`** creates a signal controlled by an external source. The factory function is called lazily on first read or write, allowing you to set up subscriptions to external data sources (WebSocket, DOM events, etc.) only when needed.
+
+```ts
+import { signal, mountable, onMount, external, untracked } from '@nano_kit/store'
+
+/* Create signal synced with localStorage */
+const $theme = external(($theme) => {
+  const sync = () => $theme(localStorage.getItem('theme') || 'light')
+
+  /* Initialize value */
+  sync()
+
+  /* Set up lifecycle */
+  onMount(mountable($theme), () => {
+    const handler = (event: StorageEvent) => {
+      if (event.key === 'theme') {
+        sync()
+      }
+    }
+
+    /* Update on mount */
+    sync()
+
+    /* Sync changes from other tabs */
+    window.addEventListener('storage', handler)
+
+    return () => window.removeEventListener('storage', handler)
+  })
+
+  /* Return custom setter that syncs to localStorage */
+  return (value) => {
+    $theme(value)
+
+    localStorage.setItem('theme', untracked($theme))
+  }
+})
+
+/* Factory runs only on first access */
+console.log($theme()) /* 'light' */
+
+/* Custom setter is used */
+$theme('dark') /* Updates localStorage and signal */
+```
+
+## Child Signals
+
+**`child`** creates a signal for a property of an object signal. For writable parent signals, returns a writable child. For readonly signals, returns a computed.
+
+```ts
+import { signal, child, assignKey } from '@nano_kit/store'
+
+const $user = signal({ name: 'Dan', age: 30 })
+
+/* Create writable child signal */
+const $name = child($user, 'name', assignKey)
+
+console.log($name()) /* Dan */
+$name('Alice')
+console.log($user()) /* { name: 'Alice', age: 30 } */
+```
+
+With dynamic keys:
+
+```ts
+import { signal, child } from '@nano_kit/store'
+
+const $obj = signal({ a: 1, b: 2 })
+const $key = signal('a')
+const $value = child($obj, $key, assignKey)
+
+console.log($value()) /* 1 */
+$key('b')
+console.log($value()) /* 2 */
+```
+
+## Readonly Signals
+
+**`readonly`** marks a signal as read-only by removing the writable flag from its type and internal modes. This is important for public APIs where you want to expose state without allowing external modification.
+
+```ts
+import { signal, readonly } from '@nano_kit/store'
+
+const $internalCount = signal(0)
+const $count = readonly($internalCount)
+
+/* Type error: cannot write to readonly signal */
+// $count(1)
+
+/* But you can still read */
+console.log($count()) /* 0 */
+```
+
+When used with `child`, readonly signals create computed children instead of writable ones:
+
+```ts
+import { signal, readonly, child } from '@nano_kit/store'
+
+const $user = signal({ name: 'Dan', age: 30 })
+const $readonlyUser = readonly($user)
+
+/* Creates a readonly computed, not a writable child */
+const $name = child($readonlyUser, 'name')
+
+/* Type error: cannot write */
+// $name('Alice')
+```
+
+## Type Checking
+
+**`isMountable`** checks if a signal is mountable.
+
+```ts
+import { signal, mountable, isMountable } from '@nano_kit/store'
+
+const $regular = signal(0)
+const $mount = mountable(signal(0))
+
+isMountable($regular) /* false */
+isMountable($mount) /* true */
+```
+
+**`isWritable`** checks if a signal is writable.
+
+```ts
+import { signal, computed, readonly, isWritable } from '@nano_kit/store'
+
+const $signal = signal(0)
+const $computed = computed(() => 0)
+const $readonly = readonly($signal)
+
+isWritable($signal) /* true */
+isWritable($computed) /* false */
+isWritable($readonly) /* false */
+```
+
+## Deferred Scopes
+
+**`deferScope`** defers effect creation until explicitly started. This allows you to prepare a scope of effects without running them immediately, giving you control over when the reactive logic begins execution.
+
+```ts
+import { deferScope, effect, signal } from '@nano_kit/store'
+
+const $count = signal(0)
+
+/* Create deferred scope - effects not started yet */
+const start = deferScope(() => {
+  effect(() => {
+    console.log('Count:', $count())
+  })
+
+  effect(() => {
+    console.log('Double:', $count() * 2)
+  })
+})
+
+/* Effects won't run until start() is called */
+$count(5)
+
+/* Now start all effects in the scope */
+const stop = start()
+/* Logs: Count: 5, Double: 10 */
+
+$count(10)
+/* Logs: Count: 10, Double: 20 */
+
+stop()
+/* All effects stopped */
+```

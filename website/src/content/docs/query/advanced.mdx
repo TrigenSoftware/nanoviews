@@ -1,0 +1,518 @@
+---
+title: Advanced
+description: "Explore advanced features of @nano_kit/query."
+sidebar:
+  order: 3
+---
+
+## Advanced Settings
+
+### `dedupe`
+
+Controls request deduplication behavior. There are two deduplication strategies:
+
+- **By loading state** — prevents new requests if one is already in progress
+- **By time window** — prevents requests within the dedupe time window (queries only, not mutations)
+
+Default: both enabled.
+
+```ts
+import { client, dedupe } from '@nano_kit/query'
+
+/* Disable time-based deduplication, keep loading state deduplication */
+const { query } = client(
+  dedupe(true, false)
+)
+
+/* Disable all deduplication for a specific query */
+const [$post] = query(PostKey, [$postId], fetchPost, [
+  dedupe(false)
+])
+```
+
+For mutations, only loading state deduplication is available:
+
+```ts
+const [updatePost] = mutation(updatePostFn, [
+  dedupe(false) /* Allow concurrent mutation calls */
+])
+```
+
+**When to use**: Disable deduplication when you need to allow multiple simultaneous requests for the same data, such as polling or real-time updates.
+
+### `disabled`
+
+Disables request execution based on a signal value. When the signal returns `true`, requests are not made.
+
+```ts
+import { signal, computed } from '@nano_kit/store'
+import { client, disabled } from '@nano_kit/query'
+
+const $isAuthenticated = signal(false)
+const $userId = signal(null)
+
+const { query } = client()
+
+/* Disable query when user is not authenticated */
+const [$user] = query(UserKey, [$userId], fetchUser, [
+  disabled(computed(() => !$isAuthenticated()))
+])
+```
+
+**When to use**: Use this to conditionally enable queries based on application state, such as authentication status or availability of required parameters.
+
+### `mapError`
+
+Customizes how errors are converted to strings for storage in cache signals. By default, errors is `error.message` value.
+
+```ts
+import { client, mapError } from '@nano_kit/query'
+
+/* Global error mapping */
+const { query } = client(
+  mapError((err) => {
+    if (err instanceof NetworkError) {
+      return `Network error: ${err.code}`
+    }
+
+    return `Error: ${err.message}`
+  })
+)
+
+/* Per-query error mapping */
+const [$post] = query(PostKey, [$postId], fetchPost, [
+  mapError((err) => {
+    if (err.status === 404) {
+      return 'Post not found'
+    }
+
+    return 'Failed to load post'
+  })
+])
+```
+
+**When to use**: Use this for custom error formatting, localization, or when you need to extract specific error information from custom error types.
+
+### `onEveryError`
+
+Registers a global error handler called for every query or mutation error. The callback receives the error and a `stopped` boolean indicating if error propagation was stopped.
+
+```ts
+import { client, onEveryError } from '@nano_kit/query'
+
+const { query } = client(
+  onEveryError((error, stopped) => {
+    if (!stopped) {
+      /* Log to error tracking service */
+      errorTracker.log(error)
+
+      /* Show user notification */
+      showErrorToast(String(error))
+    }
+  })
+)
+```
+
+You can prevent the global handler from running using `stopErrorPropagation` in request context:
+
+```ts
+import { onError, stopErrorPropagation } from '@nano_kit/query'
+
+const [$post] = query(PostKey, [$postId], (id, ctx) => {
+  /* Stop error conditionally */
+  onError(ctx, (error) => {
+    if (error.message.includes('404')) {
+      /* Handle 404 silently */
+      stopErrorPropagation(ctx)
+    }
+  })
+  /* Or stop all errors */
+  stopErrorPropagation(ctx)
+
+  return fetchPost(id)
+})
+```
+
+**When to use**: Use this for centralized error handling, logging, or displaying user notifications. Combine with `stopErrorPropagation` to handle specific errors locally without triggering global handlers.
+
+## Request Context
+
+Query and mutation fetcher functions receive request context as last parameter. It provides methods to manage request lifecycle:
+
+- `onSuccess(ctx, fn)` - register success callback
+- `onError(ctx, fn)` - register error callback
+- `onSettled(ctx, fn)` - register settled callback
+- `stopErrorPropagation(ctx)` - stop error propagation to global `onEveryError` handler
+
+```ts
+import { client, mutations, onSuccess, onError, onSettled, stopErrorPropagation } from '@nano_kit/query'
+
+const { mutation } = client(mutations())
+/* ... */
+const [updatePost] = mutation<[params: UpdatePostParams], Post>(
+  (params, ctx) => {
+    onSuccess(ctx, (data) => {
+      /* Data updated successfully */
+    })
+    onError(ctx, (error) => {
+      /* Handle error */
+    })
+    onSettled(ctx, (data, error) => {
+      /* Always executed */
+    })
+    /* Mark error as stopped to prevent global error handling */
+    /* Can be invoked in onError callback as well */
+    stopErrorPropagation(ctx)
+
+    return PostsService.update(postId, params)
+  }
+)
+```
+
+Also query's context can be used as a cache key for advanced scenarios:
+
+```ts
+import { client, queryKey } from '@nano_kit/query'
+
+const TagsKey = queryKey<[postId: number], Tag[] | null>('tags')
+const $postId = signal(1)
+const {
+  query,
+  $data
+} = client()
+const [$tags, $tagsError, $tags] = query(TagsKey, [$postId], async (postId, ctx) => {
+  /* Use ctx as current query key to accumulate data in the cache */
+  const prevTags = $data(ctx) || []
+  const newTags = await PostsService.fetchTags(postId)
+
+  return [...new Set(prevTags.concat(newTags))]
+})
+```
+
+## Operations
+
+Operations are a special type of reactive primitive that combines features of queries and mutations. They are essentially "manual queries" — they don't fetch automatically on mount or parameter changes, but they maintain state in the cache like queries.
+
+Use `operation()` from the client with the `operations()` extension. Like queries, you need to define an `operationKey`:
+
+```ts
+import { client, operations, operationKey } from '@nano_kit/query'
+
+/* Define operation key */
+const GenerateKey = operationKey<[], [prompt: string], GeneratedPost>('generate')
+
+const { operation } = client(
+  operations()
+)
+
+/* Create operation */
+const [generate, $result, $error, $loading] = operation(GenerateKey, [], (prompt) => PostsService.generateWithAi(prompt))
+```
+
+Operations are executed manually like mutations, but their result is stored in the cache identified by the key constructed from arguments:
+
+```ts
+/* Execute operation manually */
+const [result, error] = await generate('Write a post about React')
+```
+
+### When to use what?
+
+| Feature | Query | Mutation | Operation |
+|---------|-------|----------|-----------|
+| **Execution** | Automatic (reactive) | Manual | Manual |
+| **Caching** | Yes (all calls) | No (result only) | Yes (all calls) |
+| **Deduplication** | Yes | Loading only | Yes |
+| **Use Case** | Fetching data for UI | Modifying data on server | "Heavy" computations, on-demand fetching with cache |
+
+**Use Operations for:**
+
+- Expensive calculations that should be cached but triggered manually (e.g., AI generation, reports).
+- Lazy loading data that shouldn't be loaded immediately on mount.
+- Search actions where you want to cache results for specific search terms but trigger the search manually (e.g., on button click submit).
+
+## Infinite
+
+Infinite queries enable pagination and "Load More" patterns by maintaining an array of pages in the cache.
+
+Use `infinite()` from `infinites()` extension. It requires a `getNextCursor` function to determine the next page's cursor.
+
+```ts
+import { type InfinitePages, client, infinites, queryKey } from '@nano_kit/query'
+
+interface PostsPage {
+  posts: Post[]
+  nextCursor?: number
+}
+
+/* 1. Define key with InfinitePages<Data, Cursor> type */
+const PostsKey = queryKey<[], InfinitePages<PostsPage, number>>('posts')
+
+const { infinite } = client(infinites())
+
+/* 2. Create infinite query */
+const [fetchNext, $data, $error, $loading] = infinite(
+  PostsKey,
+  [],
+  (lastPage) => lastPage.nextCursor, /* Extract next cursor from page */
+  (cursor) => fetchPosts({ cursor }) /* Fetcher receives cursor */
+)
+```
+
+**Returns a tuple with:**
+
+- `fetchNext`: Function to load the next page.
+- `$data`: Signal with `InfinitePages` object:
+    - `pages`: Array of all loaded pages `P[]`.
+    - `next`: The next cursor value `C`.
+    - `more`: Boolean indicating if `next` cursor is present.
+- `$error`: Signal with error message (or `null`).
+- `$loading`: Signal indicating loading state.
+- `$key`: Signal with current cache key.
+
+Here is small usage example in a React component:
+
+```tsx
+import { useSignal } from '@nano_kit/react'
+
+export function PostsList() {
+  const data = useSignal($data)
+  const loading = useSignal($loading)
+
+  if (!data) {
+    return null
+  }
+
+  /* Access all items from all pages */
+  const allPosts = data.pages.flatMap(page => page.posts)
+
+  return (
+    <div>
+      {allPosts.map(post => (
+        <PostCard key={post.id} post={post} />
+      ))}
+
+      {data.more && (
+        <button onClick={fetchNext} disabled={loading}>
+          {loading ? 'Loading...' : 'Load More'}
+        </button>
+      )}
+    </div>
+  )
+}
+```
+
+## Extensions
+
+Extensions allow you to add extra functionality to the client or individual queries.
+
+### `retryOnError`
+
+Enables automatic retries when a request fails. It uses an exponential backoff strategy by default to determine the delay between attempts.
+
+```ts
+import { client, retryOnError } from '@nano_kit/query'
+
+/* Enable retries globally */
+const { query } = client(
+  retryOnError()
+)
+
+/* Enable retries for a specific query */
+const [$post] = query(PostKey, [$postId], fetchPost, [
+  retryOnError()
+])
+```
+
+By default it uses a jittered exponential backoff (starts around 2s, increases up to ~30s). You can provide a custom delay calculator:
+
+```ts
+retryOnError((count, error) => {
+  /* Linear backoff: 1s, 2s, 3s... */
+  return count * 1000
+})
+```
+
+**When to use**: Use for unstable network connections or transient server errors to improve resilience.
+
+### `abortable`
+
+Adds support for request cancellation using `AbortController`. It injects an `AbortSignal` into the request context, which you can pass to `fetch` or other async APIs.
+
+```ts
+import { client, abortable, abortSignal, abortPrevious, abort } from '@nano_kit/query'
+
+const { query } = client(
+  abortable()
+)
+
+const [$post] = query(PostKey, [$postId], async (id, ctx) => {
+  /* Abort previous running request for this query */
+  abortPrevious(ctx)
+
+  /* Pass signal to fetch */
+  return fetch(`/api/posts/${id}`, {
+    signal: abortSignal(ctx)
+  }).then(r => r.json())
+})
+```
+
+You can also manually abort a running request:
+
+```ts
+const promise = fetchPost()
+
+abort(promise)
+```
+
+**When to use**: Always recommended for data fetching to prevent race conditions and save bandwidth when the user navigates away or parameters change quickly (e.g., search-as-you-type).
+
+### `revalidateOnFocus`
+
+Automatically triggers revalidation of queries when the window gains focus (e.g., user switches back to the tab).
+
+```ts
+import { client, revalidateOnFocus } from '@nano_kit/query'
+
+const { query } = client(
+  revalidateOnFocus()
+)
+```
+
+**When to use**: Use to ensure the user sees the most up-date data when they return to your application.
+
+### `revalidateOnReconnect`
+
+Automatically triggers revalidation of queries when the browser regains network connection.
+
+```ts
+import { client, revalidateOnReconnect } from '@nano_kit/query'
+
+const { query } = client(
+  revalidateOnReconnect()
+)
+```
+
+**When to use**: Critical for mobile devices or unreliable networks to recover data synchronization automatically after an outage.
+
+### `revalidateOnInterval`
+
+Sets up polling to revalidate queries at a fixed interval.
+
+```ts
+import { client, revalidateOnInterval } from '@nano_kit/query'
+
+/* Refresh every minute */
+const { query } = client(
+  revalidateOnInterval(60 * 1000)
+)
+```
+
+**When to use**: Use for data that changes frequently on the server, such as stock prices, live scores, or status dashboards.
+
+### `indexedDbStorage`
+
+Persists the cache to IndexedDB, allowing data to survive page reloads and act as a cache for offline mode. You must specify the data lifetime in milliseconds.
+
+```ts
+import { client, indexedDbStorage } from '@nano_kit/query'
+
+const { query } = client(
+  /* Keep cache for 24 hours */
+  indexedDbStorage(24 * 60 * 60 * 1000)
+)
+```
+
+**When to use**: Use for "Offline First" applications or to improve startup performance by showing cached data immediately while fetching fresh data.
+
+### `entities`
+
+The `entities` extension allows you to map query or mutation results to entity references for better cache management and data consistency. Thus you can update entity data in one place and have it reflected across all queries that reference that entity.
+
+```ts
+import { client, mutations, entity, entities, onError } from '@nano_kit/query'
+
+const PostEntity = entity<Post>('post')
+
+const { query, mutation, $data } = client(
+  mutations()
+)
+
+/* 1. Map individual entity in query */
+const [$post] = query(PostKey, [$postId], (postId) => (
+  PostsService.fetch(postId)
+), [
+  /* Map entity to entity reference */
+  /* Also every refetch will update entity in the cache */
+  entities(PostEntity)
+])
+
+/* 2. Map list of entities in query */
+const [$posts] = query(PostsKey, [], () => (
+  PostsService.fetchPosts()
+), [
+  /* Map entities in the page to entity references */
+  /* Also every refetch will update entities in the cache */
+  entities(page => ({
+    ...page,
+    posts: page.posts.map(PostEntity)
+  }))
+])
+
+/* 3. Optimistic update via mutation */
+const [updatePost] = mutation<[params: UpdatePostParams], Post>(
+  (params, ctx) => {
+    const postId = $postId()
+    /* Get entity key by id */
+    const postEntityKey = PostEntity(postId)
+    /* Get current entity data */
+    const post = $data(postEntityKey)
+
+    if (post) {
+      /* Optimistically update entity data, will update all references */
+      $data(postEntityKey, {
+        ...post,
+        ...params
+      })
+
+      /* Revert changes on error */
+      onError(ctx, () => {
+        $data(postEntityKey, post)
+      })
+    }
+
+    return PostsService.update(postId, params)
+  }
+)
+```
+
+With this setup:
+
+1. `$post` (individual post) and `$posts` (list of posts) share the same data source for the post entities.
+2. Fetching specific post via `$post` updates the entity in `$posts` as well.
+3. `updatePost` optimistically updates the entity, instantly reflecting changes in both `$post` and `$posts`.
+
+**When to use**: Use in complex applications where the same data (e.g., a "User" or "Product") appears in multiple places/lists and needs to stay synchronized.
+
+### `tasks`
+
+Integrates with `@nano_kit/store`'s task tracking system. This is mainly used for Server-Side Rendering (SSR) to wait for all data fetches to complete before rendering the HTML.
+
+```ts
+import { tasksRunner, waitTasks } from '@nano_kit/store'
+import { client, tasks } from '@nano_kit/query'
+
+const tasksPool = new Set()
+const runTask = tasksRunner(tasksPool)
+
+const { query } = client(
+  tasks(runTask)
+)
+
+/* ... application runs ... */
+
+/* Wait for all queries to finish */
+await waitTasks(tasksPool)
+```
+
+**When to use**: Essential for SSR setups to ensure the server sends a fully populated page to the client.

@@ -1,5 +1,5 @@
 import { useSignal } from '@nano_kit/react'
-import { $currentWeather } from 'data-layer/stores/weather'
+import { $currentWeather } from '../stores/weather.js'
 import styles from './Weather.module.css'
 
 export function Weather() {

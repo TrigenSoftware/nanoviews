@@ -5,7 +5,7 @@ import {
   useCallback
 } from 'react'
 import { useStore } from '@nanostores/react'
-import { $weatherForecast } from 'data-layer/stores/weather'
+import { $weatherForecast } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.jsx'
 import styles from './Forecast.module.css'
 

@@ -1,0 +1,137 @@
+---
+title: SSR
+description: "Learn how to use @nano_kit/router for server-side rendering (SSR)"
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+<Aside type='caution'>SSR functionality is currently in **Alpha** stage. It is not fully implemented and the API may change in future releases.</Aside>
+
+Server-Side Rendering (SSR) with `@nano_kit/router` involves code splitting, data prefetching, and state serialization.
+
+## Code Splitting
+
+The router supports strict code splitting using `loadable` (see [Advanced](/router/advanced#code-splitting)).
+
+In an SSR environment, handling asynchronous chunks requires specific synchronization:
+
+* **Server**: Before rendering, `loadPages` must be called to resolve all `loadable` routes. This ensures the router knows exactly which page to render without waiting during the render phase.
+* **Client**: Before hydration, `loadPage` must be called for the current route. This ensures the initial page chunk is downloaded and parsed, allowing the framework to hydrate the existing HTML correctly.
+
+## Stores Preloading
+
+When defining a page module, you can export a `storesToPreload` function alongside the default component export. This function returns an array of stores (signals) that need to be serialized for SSR.
+
+`loadable` automatically detects `storesToPreload` from the module exports.
+
+```tsx
+import { signal, serializable } from '@nano_kit/store'
+
+/* Store that needs to be serialized */
+export const $data = serializable('homeData', signal({ text: 'Hello World' }))
+
+/* Export storesToPreload so the router can pick it up */
+export function storesToPreload() {
+  return [$data]
+}
+
+export default function Home() {
+  return <h1>{$data().text}</h1>
+}
+```
+
+## Server Entry
+
+On the server, efficient rendering involves:
+
+1. Loading all route definitions (`loadPages`).
+2. Creating a virtual navigation environment (`virtualNavigation`).
+3. Resolving the current `storesToPreload`.
+4. Creating a dependency injection context (`InjectionContext`).
+5. Waiting for async tasks and serializing state (`serialize`).
+6. Rendering the app with the serialized state injected into the HTML.
+
+```tsx
+import { renderToString } from 'react-dom/server'
+import { InjectionContext, provide, serialize } from '@nano_kit/store'
+import {
+  virtualNavigation,
+  router,
+  loadPages
+} from '@nano_kit/router'
+import { Location$, Navigation$ } from './router'
+import { App, pages, StoresToPreload$ } from './App'
+
+// Ensure all lazy pages are loaded to resolve routes
+await loadPages(pages)
+
+export async function ssr(url: string) {
+  /* Create virtual navigation */
+  const [$location, navigation] = virtualNavigation(url)
+  /* Create DI context overriding navigation tokens */
+  /* Location$, Navigation$ are tokens created in your app using browserNavigation$ */
+  const context = new InjectionContext([
+    provide(Location$, $location),
+    provide(Navigation$, navigation)
+  ])
+  /* Resolve storesToPreload from the context */
+  const storesToPreload = inject(StoresToPreload$, context)
+  /* Wait for data and serialize state */
+  const serialized = await serialize(storesToPreload, context)
+  /* Render app with serialized state injected into HTML */
+  const html = renderToString(
+    <>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.__SERIALIZED__ = ${JSON.stringify(serialized)}`
+        }}
+      />
+      <InjectionContextProvider context={context}>
+        <App />
+      </InjectionContextProvider>
+    </>
+  )
+
+  return html
+}
+```
+
+## Client Entry
+
+On the client, hydration follows a similar pattern but uses `browserNavigation`:
+
+1.  Restore state from `window.__SERIALIZED__` (`Serialized$`).
+2.  Identify the current route (`Location$`).
+3.  Preload the specific page bundle (`loadPage`).
+4.  Hydrate the root with the context.
+
+```tsx
+import { hydrateRoot } from 'react-dom/client'
+import { InjectionContext, provide, inject, Serialized$ } from '@nano_kit/store'
+import { loadPage } from '@nano_kit/router'
+import { Location$ } from './router'
+import { App, pages } from './App'
+
+async function browser() {
+  /* Create context with serialized state */
+  const context = new InjectionContext([
+    provide(Serialized$, window.__SERIALIZED__)
+  ])
+  /* Inject location to determine current route */
+  const $location = inject(Location$, context)
+
+  /* Load initial page bundle before hydration */
+  await loadPage(pages, $location().route)
+
+  hydrateRoot(
+    document.getElementById('root'),
+    <InjectionContextProvider context={context}>
+      <App />
+    </InjectionContextProvider>
+  )
+}
+
+browser()
+```

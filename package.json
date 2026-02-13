@@ -18,13 +18,14 @@
     "node": ">=16"
   },
   "scripts": {
-    "clear": "pnpm -r --parallel clear",
-    "build": "pnpm -r --parallel build",
-    "lint": "pnpm -r --parallel --if-present lint",
+    "clear": "pnpm -r --parallel --if-present clear",
+    "build": "pnpm -r --parallel --filter './packages/*' build",
+    "lint": "pnpm -r --parallel --if-present --filter './packages/*' lint",
     "test:unit": "pnpm -r --parallel --if-present test:unit",
     "test:size": "pnpm -r --parallel --if-present test:size",
     "test:types": "pnpm -r --parallel --if-present test:types",
     "test": "run -p lint test:unit test:types",
+    "docs:build": "pnpm -r --parallel --filter './website' build",
     "commit": "cz",
     "updateGitHooks": "simple-git-hooks"
   },

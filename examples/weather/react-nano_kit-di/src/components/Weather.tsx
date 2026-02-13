@@ -2,7 +2,7 @@ import {
   useInject,
   useSignal
 } from '@nano_kit/react'
-import { CurrentWeather$ } from 'data-layer/stores/weather'
+import { CurrentWeather$ } from '../stores/weather.js'
 import styles from './Weather.module.css'
 
 export function Weather() {

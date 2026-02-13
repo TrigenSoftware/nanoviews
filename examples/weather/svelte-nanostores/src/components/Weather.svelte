@@ -1,7 +1,7 @@
 <script lang="ts">
   import {
     $currentWeather as currentWeather
-  } from 'data-layer/stores/weather'
+  } from '../stores/weather.js'
 </script>
 
 {#if $currentWeather}

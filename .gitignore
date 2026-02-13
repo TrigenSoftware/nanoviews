@@ -24,6 +24,7 @@ node_modules
 dist
 package
 build
+.astro
 
 # Env files
 .env
