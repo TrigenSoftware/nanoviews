@@ -9,7 +9,7 @@ export default defineConfig({
     starlight({
       title: 'Nano Kit',
       titleDelimiter: '✧',
-      description: 'Nano Kit is an ecosystem of lightweight, modular, and performant libraries for building modern web applications, built around a push-pull based reactivity system.',
+      description: 'An ecosystem of lightweight, modular, and performant libraries for building modern web applications, built around a push-pull based reactivity system.',
       logo: {
         dark: './src/assets/universe_white.svg',
         light: './src/assets/universe_black.svg'
