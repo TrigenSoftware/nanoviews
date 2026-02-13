@@ -8,11 +8,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TrigenSoftware/nanoviews.git",
+    "url": "https://github.com/TrigenSoftware/nano_kit.git",
     "directory": "website"
   },
   "bugs": {
-    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
+    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
   },
   "scripts": {
     "clear": "del ./.astro ./dist",

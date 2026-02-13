@@ -19,15 +19,15 @@
 [size]: https://deno.bundlejs.com/badge?q=agera
 [size-url]: https://bundlejs.com/?q=agera
 
-[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=main
-[build-url]: https://github.com/TrigenSoftware/nanoviews/actions
+[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nano_kit/tests.yml?branch=main
+[build-url]: https://github.com/TrigenSoftware/nano_kit/actions
 
-[coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nanoviews.svg
-[coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nanoviews
+[coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nano_kit.svg
+[coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nano_kit
 
 A small push-pull based signal library based on [alien-signals](https://github.com/stackblitz/alien-signals) algorithm.
 
-Was created as reactivity system for [nanoviews](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/nanoviews) and [Kida](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida).
+Was created as reactivity system for [nanoviews](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/nanoviews) and [Kida](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/kida).
 
 - **Small**. Around 1.8 kB for basic methods (minified and brotlied). Zero dependencies.
 - **Super fast** as [alien-signals](https://github.com/stackblitz/alien-signals).

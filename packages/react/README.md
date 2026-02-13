@@ -19,11 +19,11 @@
 [size]: https://deno.bundlejs.com/badge?q=%40nano_kit%2Freact
 [size-url]: https://bundlejs.com/?q=%40nano_kit%2Freact
 
-[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=main
-[build-url]: https://github.com/TrigenSoftware/nanoviews/actions
+[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nano_kit/tests.yml?branch=main
+[build-url]: https://github.com/TrigenSoftware/nano_kit/actions
 
-[coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nanoviews.svg
-[coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nanoviews
+[coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nano_kit.svg
+[coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nano_kit
 
 [@nano_kit/store](../store#readme) integration for React.
 

@@ -19,13 +19,13 @@
 [size]: https://deno.bundlejs.com/badge?q=kida
 [size-url]: https://bundlejs.com/?q=kida
 
-[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=main
-[build-url]: https://github.com/TrigenSoftware/nanoviews/actions
+[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nano_kit/tests.yml?branch=main
+[build-url]: https://github.com/TrigenSoftware/nano_kit/actions
 
-[coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nanoviews.svg
-[coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nanoviews
+[coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nano_kit.svg
+[coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nano_kit
 
-A small state management library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and based on [Agera](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/agera).
+A small state management library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and based on [Agera](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/agera).
 
 - **Small**. Around 2 kB for basic methods (minified and brotlied). Zero dependencies.
 - **~5x faster** than Nano Stores.

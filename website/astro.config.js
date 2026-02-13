@@ -36,11 +36,11 @@ export default defineConfig({
         {
           label: 'GitHub',
           icon: 'github',
-          href: 'https://github.com/TrigenSoftware/nanoviews'
+          href: 'https://github.com/TrigenSoftware/nano_kit'
         }
       ],
       editLink: {
-        baseUrl: 'https://github.com/TrigenSoftware/nanoviews/edit/main/website/'
+        baseUrl: 'https://github.com/TrigenSoftware/nano_kit/edit/main/website/'
       },
       plugins: [llmsTxt(), viewTransitions()],
       sidebar: [

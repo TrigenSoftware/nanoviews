@@ -1,5 +1,5 @@
 {
-  "name": "nanoviews-monorepo",
+  "name": "nano_kit",
   "type": "module",
   "private": true,
   "version": "0.0.0",
@@ -9,10 +9,10 @@
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TrigenSoftware/nanoviews.git"
+    "url": "https://github.com/TrigenSoftware/nano_kit.git"
   },
   "bugs": {
-    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
+    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
   },
   "engines": {
     "node": ">=16"

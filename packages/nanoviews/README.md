@@ -19,11 +19,11 @@
 [size]: https://deno.bundlejs.com/badge?q=nanoviews
 [size-url]: https://bundlejs.com/?q=nanoviews
 
-[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=main
-[build-url]: https://github.com/TrigenSoftware/nanoviews/actions
+[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nano_kit/tests.yml?branch=main
+[build-url]: https://github.com/TrigenSoftware/nano_kit/actions
 
-[coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nanoviews.svg
-[coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nanoviews
+[coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nano_kit.svg
+[coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nano_kit
 
 
 A small Direct DOM library for creating user interfaces.
@@ -44,7 +44,7 @@ function App() {
     a({ href: 'https://vitejs.dev', target: '_blank' })(
       img({ src: './vite.svg', class: 'logo', alt: 'Vite logo' })
     ),
-    a({ href: 'https://github.com/TrigenSoftware/nanoviews', target: '_blank' })(
+    a({ href: 'https://github.com/TrigenSoftware/nano_kit', target: '_blank' })(
       img({ src: './nanoviews.svg', class: 'logo nanoviews', alt: 'Nanoviews logo' })
     ),
     h1()('Vite + Nanoviews'),
@@ -93,7 +93,7 @@ yarn add nanoviews
 
 ## Reactivity
 
-Nanoviews is using [Kida](https://github.com/TrigenSoftware/nanoviews/tree/main/packages/kida) under the hood for reactivity. Kida is a signal library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and was build specially for Nanoviews.
+Nanoviews is using [Kida](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/kida) under the hood for reactivity. Kida is a signal library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and was build specially for Nanoviews.
 
 ```js
 import { signal } from 'nanoviews/store' // or import { signal } from 'kida'

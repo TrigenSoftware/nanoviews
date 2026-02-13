@@ -1,4 +1,4 @@
-# nanoviews project
+# Nano Kit
 
 | Package | Version | Dependencies |
 |---------|---------|--------------|
