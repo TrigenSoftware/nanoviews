@@ -27,7 +27,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../../website/src/assets/pulsar_white.svg">
-  <img alt="Four-pointed pulsar star logo" src="../../website/src/assets/pulsar_black.svg" width="100" height="100" style="float:right">
+  <img alt="Four-pointed pulsar star logo" src="../../website/src/assets/pulsar_black.svg" width="100" height="100" align="right">
 </picture>
 
 A small and powerful remote data manager for [@nano_kit/store](../store) state manager.

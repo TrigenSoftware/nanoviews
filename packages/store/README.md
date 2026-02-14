@@ -27,7 +27,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../../website/src/assets/star_white.svg">
-  <img alt="Four-pointed star logo" src="../../website/src/assets/star_black.svg" width="100" height="100" style="float:right">
+  <img alt="Four-pointed star logo" src="../../website/src/assets/star_black.svg" width="100" height="100" align="right">
 </picture>
 
 A lightweight state management library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and built around [a push-pull based reactivity system](https://github.com/stackblitz/alien-signals).
