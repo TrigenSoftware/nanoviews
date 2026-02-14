@@ -25,104 +25,39 @@
 [coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nano_kit.svg
 [coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nano_kit
 
-[@nano_kit/store](../store#readme) integration for React.
+The `@nano_kit/react` package provides seamless integration between [@nano_kit/store](../store) signals, dependency injection and React components.
 
-```tsx
-import { signal } from '@nano_kit/store'
-import { useSignal } from '@nano_kit/react'
-
-const $user = signal<User | null>(null)
-
-export function UserProfile() {
-  const user = useSignal($user)
-
-  return <div>{user?.name}</div>
-}
-```
-
-<hr />
-<a href="#install">Install</a>
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#exports">Exports</a>
-<br />
-<hr />
-
-## Install
+## Installation
 
 ```bash
 pnpm add @nano_kit/store @nano_kit/react
 # or
-npm i @nano_kit/store @nano_kit/react
+npm install @nano_kit/store @nano_kit/react
 # or
 yarn add @nano_kit/store @nano_kit/react
 ```
 
-## Exports
+## Quick Start
 
-### useSignal
-
-`useSignal` hook returns the current value of the signal store and subscribes to changes.
+Here is a minimal example demonstrating reactive state in React:
 
 ```tsx
 import { signal } from '@nano_kit/store'
 import { useSignal } from '@nano_kit/react'
 
-const $user = signal<User | null>(null)
+const $count = signal(0)
 
-export function UserProfile() {
-  const user = useSignal($user)
+export function Counter() {
+  const count = useSignal($count)
 
-  return <div>{user?.name}</div>
-}
-```
-
-### InjectionContextProvider
-
-`InjectionContextProvider` is a component to initialize injection context and provide dependencies to the children.
-
-```tsx
-import { provide } from '@nano_kit/store'
-import { InjectionContextProvider, useInject } from '@nano_kit/react'
-
-function Theme$(): 'light' | 'dark' {
-  return 'light'
-}
-
-function App() {
   return (
-    <InjectionContextProvider context={[provide(Theme$, 'dark')]}>
-      <TopBar />
-    </InjectionContextProvider>
+    <button onClick={() => $count(count + 1)}>
+      Count: {count}
+    </button>
   )
 }
 ```
 
-### useInject
+## Documentation
 
-`useInject` hook returns the value of the dependency.
-
-```tsx
-import { useInject } from '@nano_kit/react'
-
-function TopBar() {
-  const theme = useInject(Theme$)
-
-  return <div>Current theme: {theme}</div>
-}
-```
-
-### hook
-
-`hook` function creates a hook to inject a dependency.
-
-```tsx
-import { hook } from '@nano_kit/react'
-
-const useTheme = hook(Theme$)
-
-function TopBar() {
-  const theme = useTheme()
-
-  return <div>Current theme: {theme}</div>
-}
-```
+For comprehensive guides, API reference, and integration patterns, visit the [documentation website](https://nano_kit.js.org/integrations/react).

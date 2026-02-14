@@ -25,279 +25,90 @@
 [coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nano_kit.svg
 [coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nano_kit
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../website/src/assets/ring-system_white.svg">
+  <img alt="Four-pointed ring system star logo" src="../../website/src/assets/ring-system_black.svg" width="100" height="100" style="float:right">
+</picture>
+
 A small and powerful router for [@nano_kit/store](../store) state manager.
 
-- **Small**. Around 2 kB (minified and brotlied). Zero dependencies except Kida.
+- **Small**. Around 2 kB (minified & brotlied). Zero dependencies except [@nano_kit/store](../store).
 - **Type-safe**. Full TypeScript support with type inference for routes and parameters.
-- **Signal-based**. Built on top of Kida's reactive signals for automatic UI updates.
-- **Flexible**. Supports nested layouts, parameterized routes, wildcards, and query parameters.
+- **Signal-based**. Built on top of [@nano_kit/store](../store)'s reactive signals for automatic UI updates.
+- **Flexible**. Supports nested layouts, parameterized routes, optional parameters, wildcards, and query parameters.
 - **SSR-ready**. Works seamlessly with server-side rendering.
 
-```ts
-import { browserNavigation, router, page, layout, notFound } from '@nano_kit/router'
-
-// Setup navigation
-const [$location, navigation] = browserNavigation({
-  home: '/',
-  user: '/users/:id',
-  userPosts: '/users/:id/posts',
-  admin: '/admin/*'
-})
-// Create router
-const [$page] = router($route, [
-  page('home', HomePage),
-  page('user', UserPage),
-  layout(AdminLayout, [
-    page('admin', AdminPage)
-  ]),
-  notFound(NotFoundPage)
-], composeLayoutFunction)
-
-effect(() => {
-  const PageComponent = $page()
-  // Render PageComponent in your app
-})
-```
-
-<hr />
-<a href="#install">Install</a>
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#basics">Basics</a>
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#extras">Extras</a>
-<br />
-<hr />
-
-## Install
+## Installation
 
 ```bash
 pnpm add @nano_kit/store @nano_kit/router
 # or
-npm i @nano_kit/store @nano_kit/router
+npm install @nano_kit/store @nano_kit/router
 # or
 yarn add @nano_kit/store @nano_kit/router
 ```
 
-## Basics
+## Quick Start
 
-### Navigation
+Here is a minimal example demonstrating navigation, routing, and reactive page rendering:
 
-First, you need to set up navigation. "Navigation" consists of a signal for the current location with matched route and methods to change it:
-
-```ts
-import { effect } from '@nano_kit/store'
-import { browserNavigation } from '@nano_kit/router'
-
-const [$location, navigation] = browserNavigation({
-  home: '/',
-  user: '/users/:id',
-  userPosts: '/users/:id/posts',
-  admin: '/admin/*'
-})
-
-// Listen to location changes
-effect(() => {
-  console.log('Current location:', $location())
-})
-
-// Navigate programmatically
-navigation.push('/users/123')
-$location().route // 'user'
-$location().params // { id: '123' }
-navigation.replace('/users/456')
-navigation.back()
-navigation.forward()
-```
-
-Besides browser navigation, you can also use virtual navigation for testing or SSR:
-
-```ts
-import { virtualNavigation } from '@nano_kit/router'
-
-const [$location, navigation] = virtualNavigation('/initial-path', {
-  home: '/',
-  user: '/users/:id',
-  userPosts: '/users/:id/posts',
-  admin: '/admin/*'
-})
-
-navigation.push('/new-path')
-$location().action // 'push'
-navigation.replace('/another-path')
-$location().action // 'replace'
-```
-
-To listen links clicks and navigate automatically, use the `listenLinks` effect:
-
-```ts
-import { onMount } from '@nano_kit/store'
-import { browserNavigation, listenLinks } from '@nano_kit/router'
-
-const [$location, navigation] = browserNavigation()
-
-onMount($location, () => listenLinks(navigation))
-
-// Now all <a href> clicks will be handled by the router
-```
-
-### Router
-
-To map routes to page components, use the `router` function:
-
-```ts
+```js
 import { effect } from '@nano_kit/store'
 import { browserNavigation, router, page, layout, notFound } from '@nano_kit/router'
 
-const [$location, navigation] = browserNavigation({
+/* Define your routes */
+const routes = {
   home: '/',
   user: '/users/:id',
-  login: '/login',
-  register: '/register',
+  userPosts: '/users/:id/posts',
   admin: '/admin/*'
-})
-const $page = router($route, [
-  layout(MainLayout, [
-    page('home', HomePage),
-    page('user', UserPage),
-    layout(UnauthLayout, [
-      page('login', LoginPage),
-      page('register', RegisterPage)
-    ])
-  ]),
+}
+
+/* Setup navigation with browser history */
+const [$location, navigation] = browserNavigation(routes)
+
+/* Define page components */
+const HomePage = () => 'Welcome Home!'
+const UserPage = () => `User ID: ${$location().params.id}`
+const UserPostsPage = () => `Posts for User: ${$location().params.id}`
+const AdminLayout = ($page) => `Admin Layout: ${$page()}`
+const AdminPage = () => `Admin Page: ${$location().params.wildcard || 'dashboard'}`
+const NotFoundPage = () => 'Page Not Found'
+
+/* Create router with pages and layouts */
+const [$page] = router($location, [
+  page('home', HomePage),
+  page('user', UserPage),
+  page('posts', UserPostsPage),
   layout(AdminLayout, [
     page('admin', AdminPage)
   ]),
   notFound(NotFoundPage)
 ], composeLayoutFunction)
 
-effect(() => {
+/* React to route changes (mounting $page triggers router) */
+const unsub = effect(() => {
   const PageComponent = $page()
+
+  console.log('Current page:', PageComponent())
   // Render PageComponent in your app
 })
+// Output: Current page: Welcome Home!
+
+/* Navigate programmatically */
+navigation.push('/users/123')
+// Output: Current page: User ID: 123
+
+navigation.push('/admin/settings/profile')
+// Output: Current page: Admin Layout: Admin Page: settings/profile
+
+navigation.back()
+// Output: Current page: User ID: 123
+
+/* Cleanup */
+unsub()
 ```
 
-You can compose layouts and pages using the `layout` function, allowing for nested structures. To let it work, provide a `composeLayoutFunction` that combines layout and page components. Here is a simple example for React:
+## Documentation
 
-```tsx
-import { useSignal } from '@nano_kit/react'
-
-function composeLayoutFunction($nested, Layout) {
-  return function Composed() {
-    const Nested = usSignal($nested)
-
-    return (
-      <Layout>
-        <Nested />
-      </Layout>
-    )
-  }
-}
-```
-
-Also you can define async loadable routes:
-
-```ts
-const $page = router($route, [
-  layout(loadable(() => import('./pages/Layout.js'), Loader), [
-    page('home', loadable(() => import('./pages/Home.js'), Loader)),
-    page('user', loadable(() => import('./pages/User.js'), Loader)),
-    layout(loadable(() => import('./pages/UnauthLayout.js'), Loader), [
-      page('login', loadable(() => import('./pages/Login.js'), Loader))
-      page('register', loadable(() => import('./pages/Register.js'), Loader))
-    ])
-  ]),
-  notFound(loadable(() => import('./pages/NotFound.js'), Loader))
-], composeLayoutFunction)
-```
-
-## Extras
-
-### `buildPaths`
-
-The `buildPaths` function helps to generate URLs based on route names and parameters:
-
-```ts
-import { buildPaths } from '@nano_kit/router'
-
-const paths = buildPaths({
-  home: '/',
-  user: '/users/:id',
-  post: '/posts/:id/:slug?',
-  admin: '/admin/*'
-})
-
-paths.home // '/'
-paths.user({ id: '123' }) // '/users/123'
-paths.post({ id: '456' }) // '/posts/456'
-paths.post({ id: '456', slug: 'hello-world' }) // '/posts/456/hello-world'
-paths.admin({ wildcard: 'settings/profile' }) // '/admin/settings/profile'
-```
-
-### `basePath`
-
-The `basePath` function allows you to set a base path for all routes in navigation:
-
-```ts
-import { browserNavigation, basePath } from '@nano_kit/router'
-
-const routes = basePath('/github-pages', {
-  home: '/',
-  user: '/users/:id'
-})
-const [$location, navigation] = browserNavigation(routes)
-```
-
-### `updateHref`
-
-The `updateHref` function allows you to update parts of a URL string easily:
-
-```ts
-import { updateHref } from '@nano_kit/router'
-
-updateHref('/new-path', { search: 'foo=bar' }) // '/new-path?foo=bar'
-updateHref('/auth?token=***', { pathname: '/' }) // '/?token=***'
-updateHref('/posts?page=2', { searrchParams: new URLSearchParams({ page: '3' }) }) // '/posts?page=3'
-```
-
-### `searchParams`
-
-The `searchParams` function manages URL query parameters reactively:
-
-```ts
-import { browserNavigation, searchParams } from '@nano_kit/router'
-
-const [$location, navigation] = browserNavigation()
-const $searchParams = searchParams($location)
-
-$searchParams() // URLSearchParams instance
-$searchParams().get('foo') // Get 'foo' query parameter
-```
-
-### `searchParam`
-
-The `searchParam` function creates a signal for a specific query parameter:
-
-```ts
-import { browserNavigation, searchParams, searchParam } from '@nano_kit/router'
-
-const [$location, navigation] = browserNavigation()
-const $params = searchParams($location)
-// Get 'foo' query parameter
-const $foo = searchParam($params, 'foo')
-// Get 'foo' param and parse it as number
-const $fooNumber = searchParam($params, 'foo', Number)
-```
-
-### `routeParam`
-
-The `routeParam` function creates a signal for a specific route parameter:
-
-```ts
-import { browserNavigation, routeParam } from '@nano_kit/router'
-
-const [$location, navigation] = browserNavigation({
-  user: '/users/:id'
-})
-// Get 'id' route parameter and parse it as number
-const $userId = routeParam($location, 'id', Number)
-```
+For comprehensive guides, advanced patterns, and API reference, visit the [documentation website](https://nano_kit.js.org/router).

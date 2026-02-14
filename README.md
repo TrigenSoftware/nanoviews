@@ -1,15 +1,19 @@
 # Nano Kit
 
-| Package | Version | Dependencies |
-|---------|---------|--------------|
-| [`nanoviews`](packages/nanoviews#readme) | [![NPM version][nanoviews-npm]][nanoviews-npm-url] | [![Dependencies status][nanoviews-deps]][nanoviews-deps-url] |
-| [`agera`](packages/agera#readme) | [![NPM version][agera-npm]][agera-npm-url] | [![Dependencies status][agera-deps]][agera-deps-url] |
-| [`kida`](packages/kida#readme) | [![NPM version][kida-npm]][kida-npm-url] | [![Dependencies status][kida-deps]][kida-deps-url] |
-| [`@nano_kit/store`](packages/store#readme) | [![NPM version][store-npm]][store-npm-url] | [![Dependencies status][store-deps]][store-deps-url] |
-| [`@nano_kit/react`](packages/react#readme) | [![NPM version][react-npm]][react-npm-url] | [![Dependencies status][react-deps]][react-deps-url] |
-| [`@nano_kit/router`](packages/router#readme) | [![NPM version][router-npm]][router-npm-url] | [![Dependencies status][router-deps]][router-deps-url] |
-| [`@nano_kit/react-router`](packages/react-router#readme) | [![NPM version][react-router-npm]][react-router-npm-url] | [![Dependencies status][react-router-deps]][react-router-deps-url] |
-| [`@nano_kit/query`](packages/query#readme) | [![NPM version][query-npm]][query-npm-url] | [![Dependencies status][query-deps]][query-deps-url] |
+An ecosystem of lightweight, modular, and performant libraries for building modern web applications, built around a push-pull based reactivity system.
+
+[📚 Documentation](https://nano_kit.js.org)
+
+| Package | Description | Version | Dependencies |
+|---------|-------------|---------|--------------|
+| [`nanoviews`](packages/nanoviews#readme) | Direct DOM library for creating user interfaces. | [![NPM version][nanoviews-npm]][nanoviews-npm-url] | [![Dependencies status][nanoviews-deps]][nanoviews-deps-url] |
+| [`agera`](packages/agera#readme) | Push-pull based signal library based on alien-signals algorithm. | [![NPM version][agera-npm]][agera-npm-url] | [![Dependencies status][agera-deps]][agera-deps-url] |
+| [`kida`](packages/kida#readme) | State management library inspired by Nano Stores. | [![NPM version][kida-npm]][kida-npm-url] | [![Dependencies status][kida-deps]][kida-deps-url] |
+| [`@nano_kit/store`](packages/store#readme) | Signals-based state management library. | [![NPM version][store-npm]][store-npm-url] | [![Dependencies status][store-deps]][store-deps-url] |
+| [`@nano_kit/react`](packages/react#readme) | React bindings for @nano_kit/store. | [![NPM version][react-npm]][react-npm-url] | [![Dependencies status][react-deps]][react-deps-url] |
+| [`@nano_kit/router`](packages/router#readme) | Routing library, built on @nano_kit/store. | [![NPM version][router-npm]][router-npm-url] | [![Dependencies status][router-deps]][router-deps-url] |
+| [`@nano_kit/react-router`](packages/react-router#readme) | React bindings for @nano_kit/router. | [![NPM version][react-router-npm]][react-router-npm-url] | [![Dependencies status][react-router-deps]][react-router-deps-url] |
+| [`@nano_kit/query`](packages/query#readme) | Data fetching and caching library, built on @nano_kit/store. | [![NPM version][query-npm]][query-npm-url] | [![Dependencies status][query-deps]][query-deps-url] |
 
 <!-- nanoviews -->
 

@@ -16,10 +16,13 @@
     "url": "https://github.com/TrigenSoftware/nano_kit/issues"
   },
   "keywords": [
-    "reactivity",
     "signal",
+    "reactive",
+    "reactivity",
     "push-pull",
-    "atom"
+    "state",
+    "atom",
+    "nano_kit"
   ],
   "engines": {
     "node": ">=16"

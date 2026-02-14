@@ -104,7 +104,7 @@
   }
 }
 
-.site-title, .hero h1 {
+.site-title, .hero:has(.actions) h1 {
   position: relative;
   font-family: var(--sl-font-system-mono);
   color: transparent;

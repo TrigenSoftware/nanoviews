@@ -16,9 +16,12 @@
     "url": "https://github.com/TrigenSoftware/nano_kit/issues"
   },
   "keywords": [
+    "testing",
+    "test",
+    "vitest",
     "ui",
-    "directdom",
-    "test"
+    "nanoviews",
+    "nano_kit"
   ],
   "engines": {
     "node": ">=16"

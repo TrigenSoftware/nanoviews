@@ -2,10 +2,10 @@
   "name": "@nano_kit/react",
   "type": "module",
   "version": "1.0.0-alpha.3",
-  "description": "@nano_kit/stores integration for React.",
+  "description": "Seamless integration between @nano_kit/store signals, dependency injection and React components.",
   "author": "dangreen",
   "license": "MIT",
-  "homepage": "https://github.com/TrigenSoftware/nano_kit/tree/main/packages/react#readme",
+  "homepage": "https://nano_kit.js.org/integrations/react",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",
@@ -16,12 +16,14 @@
     "url": "https://github.com/TrigenSoftware/nano_kit/issues"
   },
   "keywords": [
+    "react",
     "store",
     "state",
-    "state manager",
-    "atom",
+    "state-management",
     "signal",
-    "react"
+    "reactive",
+    "hooks",
+    "nano_kit"
   ],
   "engines": {
     "node": ">=16"

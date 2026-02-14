@@ -18,10 +18,11 @@
   "keywords": [
     "store",
     "state",
-    "state manager",
-    "atom",
+    "state-management",
     "signal",
-    "nanoviews"
+    "reactive",
+    "atom",
+    "nano_kit"
   ],
   "engines": {
     "node": ">=16"

@@ -16,11 +16,12 @@
     "url": "https://github.com/TrigenSoftware/nano_kit/issues"
   },
   "keywords": [
-    "ui",
-    "directdom",
-    "test",
     "storybook",
-    "vite"
+    "vite",
+    "framework",
+    "ui",
+    "nanoviews",
+    "nano_kit"
   ],
   "engines": {
     "node": ">=16"
