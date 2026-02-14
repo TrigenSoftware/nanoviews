@@ -15,23 +15,65 @@ export default defineConfig({
         light: './src/assets/universe_black.svg'
       },
       favicon: '/favicon.svg',
-      // head: [
-      //   {
-      //     tag: 'script',
-      //     attrs: {
-      //       'src': 'https://cloud.umami.is/script.js',
-      //       'data-website-id': '***',
-      //       'defer': true
-      //     }
-      //   },
-      //   {
-      //     tag: 'meta',
-      //     attrs: {
-      //       name: 'google-site-verification',
-      //       content: '***'
-      //     }
-      //   }
-      // ],
+      head: [
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image',
+            content: '/og-image.jpg'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image:width',
+            content: '1200'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image:height',
+            content: '630'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image:type',
+            content: 'image/jpeg'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'twitter:card',
+            content: 'summary_large_image'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'twitter:image',
+            content: '/og-image.jpg'
+          }
+        },
+        {
+          tag: 'script',
+          attrs: {
+            'src': 'https://cloud.umami.is/script.js',
+            'data-website-id': 'b40b9738-ecaf-4c4b-968d-6c9fbc91cede',
+            'defer': true
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'google-site-verification',
+            content: 'JbpBLn9A_qAr4OqSunPoFWeahyME9dMplBMUsaOK_I4'
+          }
+        }
+      ],
       social: [
         {
           label: 'GitHub',
