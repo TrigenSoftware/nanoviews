@@ -1,5 +1,6 @@
 {
   "name": "cvapp",
+  "private": true,
   "type": "module",
   "author": "Dan Onoshko <danon0404@gmail.com>",
   "license": "ISC",
