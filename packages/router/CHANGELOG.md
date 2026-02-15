@@ -7,7 +7,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* rename to [@nano](https://github.com/nano)_kit/router ([6cafa79](https://github.com/TrigenSoftware/nano_kit/commit/6cafa7973aa904ca53627d6b9d28a528be0857de))
+* rename to @nano_kit/router ([6cafa79](https://github.com/TrigenSoftware/nano_kit/commit/6cafa7973aa904ca53627d6b9d28a528be0857de))
 
 ### Performance Improvements
 

@@ -7,7 +7,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* rename to [@nano](https://github.com/nano)_kit/react-router ([eef5cc5](https://github.com/TrigenSoftware/nano_kit/commit/eef5cc529bbb762c381837f8b86a4815ba077d3c))
+* rename to @nano_kit/react-router ([eef5cc5](https://github.com/TrigenSoftware/nano_kit/commit/eef5cc529bbb762c381837f8b86a4815ba077d3c))
 
 ### Performance Improvements
 
