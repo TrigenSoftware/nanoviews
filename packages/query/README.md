@@ -14,7 +14,7 @@
 [npm-url]: https://npmjs.com/package/@nano_kit/query
 
 [deps]: https://img.shields.io/librariesio/release/npm/@nano_kit/query
-[deps-url]: https://libraries.io/npm/@nano_kit/query/tree
+[deps-url]: https://libraries.io/npm/@nano_kit/query
 
 [size]: https://deno.bundlejs.com/badge?q=@nano_kit/query
 [size-url]: https://bundlejs.com/?q=@nano_kit/query

@@ -14,7 +14,7 @@
 [npm-url]: https://npmjs.com/package/kida
 
 [deps]: https://img.shields.io/librariesio/release/npm/kida
-[deps-url]: https://libraries.io/npm/kida/tree
+[deps-url]: https://libraries.io/npm/kida
 
 [size]: https://deno.bundlejs.com/badge?q=kida
 [size-url]: https://bundlejs.com/?q=kida

@@ -14,7 +14,7 @@
 [npm-url]: https://npmjs.com/package/@nano_kit/store
 
 [deps]: https://img.shields.io/librariesio/release/npm/@nano_kit/store
-[deps-url]: https://libraries.io/npm/@nano_kit%2Fstore/tree
+[deps-url]: https://libraries.io/npm/@nano_kit%2Fstore
 
 [size]: https://deno.bundlejs.com/badge?q=@nano_kit/store
 [size-url]: https://bundlejs.com/?q=@nano_kit/store

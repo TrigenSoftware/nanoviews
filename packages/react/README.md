@@ -14,7 +14,7 @@
 [npm-url]: https://npmjs.com/package/@nano_kit/react
 
 [deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Freact
-[deps-url]: https://libraries.io/npm/%40nano_kit%2Freact/tree
+[deps-url]: https://libraries.io/npm/%40nano_kit%2Freact
 
 [size]: https://deno.bundlejs.com/badge?q=%40nano_kit%2Freact
 [size-url]: https://bundlejs.com/?q=%40nano_kit%2Freact

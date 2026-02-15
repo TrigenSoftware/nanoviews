@@ -14,7 +14,7 @@
 [npm-url]: https://npmjs.com/package/@nano_kit/react-router
 
 [deps]: https://img.shields.io/librariesio/release/npm/@nano_kit/react-router
-[deps-url]: https://libraries.io/npm/@nano_kit/react-router/tree
+[deps-url]: https://libraries.io/npm/@nano_kit/react-router
 
 [size]: https://deno.bundlejs.com/badge?q=@nano_kit/react-router
 [size-url]: https://bundlejs.com/?q=@nano_kit/react-router

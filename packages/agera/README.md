@@ -14,7 +14,7 @@
 [npm-url]: https://npmjs.com/package/agera
 
 [deps]: https://img.shields.io/librariesio/release/npm/agera
-[deps-url]: https://libraries.io/npm/agera/tree
+[deps-url]: https://libraries.io/npm/agera
 
 [size]: https://deno.bundlejs.com/badge?q=agera
 [size-url]: https://bundlejs.com/?q=agera

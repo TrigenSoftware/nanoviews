@@ -21,7 +21,7 @@ An ecosystem of lightweight, modular, and performant libraries for building mode
 [nanoviews-npm-url]: https://www.npmjs.com/package/nanoviews
 
 [nanoviews-deps]: https://img.shields.io/librariesio/release/npm/nanoviews
-[nanoviews-deps-url]: https://libraries.io/npm/nanoviews/tree
+[nanoviews-deps-url]: https://libraries.io/npm/nanoviews
 
 <!-- agera -->
 
@@ -29,7 +29,7 @@ An ecosystem of lightweight, modular, and performant libraries for building mode
 [agera-npm-url]: https://www.npmjs.com/package/agera
 
 [agera-deps]: https://img.shields.io/librariesio/release/npm/agera
-[agera-deps-url]: https://libraries.io/npm/agera/tree
+[agera-deps-url]: https://libraries.io/npm/agera
 
 <!-- kida -->
 
@@ -37,7 +37,7 @@ An ecosystem of lightweight, modular, and performant libraries for building mode
 [kida-npm-url]: https://www.npmjs.com/package/kida
 
 [kida-deps]: https://img.shields.io/librariesio/release/npm/kida
-[kida-deps-url]: https://libraries.io/npm/kida/tree
+[kida-deps-url]: https://libraries.io/npm/kida
 
 <!-- store -->
 
@@ -45,7 +45,7 @@ An ecosystem of lightweight, modular, and performant libraries for building mode
 [store-npm-url]: https://npmjs.com/package/@nano_kit/store
 
 [store-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Fstore
-[store-deps-url]: https://libraries.io/npm/%40nano_kit%2Fstore/tree
+[store-deps-url]: https://libraries.io/npm/%40nano_kit%2Fstore
 
 <!-- react -->
 
@@ -53,7 +53,7 @@ An ecosystem of lightweight, modular, and performant libraries for building mode
 [react-npm-url]: https://npmjs.com/package/@nano_kit/react
 
 [react-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Freact
-[react-deps-url]: https://libraries.io/npm/%40nano_kit%2Freact/tree
+[react-deps-url]: https://libraries.io/npm/%40nano_kit%2Freact
 
 <!-- router -->
 
@@ -61,7 +61,7 @@ An ecosystem of lightweight, modular, and performant libraries for building mode
 [router-npm-url]: https://npmjs.com/package/@nano_kit/router
 
 [router-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Frouter
-[router-deps-url]: https://libraries.io/npm/%40nano_kit%2Frouter/tree
+[router-deps-url]: https://libraries.io/npm/%40nano_kit%2Frouter
 
 <!-- react-router -->
 
@@ -69,7 +69,7 @@ An ecosystem of lightweight, modular, and performant libraries for building mode
 [react-router-npm-url]: https://npmjs.com/package/@nano_kit/react-router
 
 [react-router-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Freact-router
-[react-router-deps-url]: https://libraries.io/npm/%40nano_kit%2Freact-router/tree
+[react-router-deps-url]: https://libraries.io/npm/%40nano_kit%2Freact-router
 
 <!-- query -->
 
@@ -77,4 +77,4 @@ An ecosystem of lightweight, modular, and performant libraries for building mode
 [query-npm-url]: https://npmjs.com/package/@nano_kit/query
 
 [query-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Fquery
-[query-deps-url]: https://libraries.io/npm/%40nano_kit%2Fquery/tree
+[query-deps-url]: https://libraries.io/npm/%40nano_kit%2Fquery

@@ -14,7 +14,7 @@
 [npm-url]: https://npmjs.com/package/nanoviews
 
 [deps]: https://img.shields.io/librariesio/release/npm/nanoviews
-[deps-url]: https://libraries.io/npm/nanoviews/tree
+[deps-url]: https://libraries.io/npm/nanoviews
 
 [size]: https://deno.bundlejs.com/badge?q=nanoviews
 [size-url]: https://bundlejs.com/?q=nanoviews
