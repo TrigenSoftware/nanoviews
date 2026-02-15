@@ -571,21 +571,43 @@ export function deferScope(fn: () => void): () => Destroy {
 
 /**
  * Manually trigger signals update propagation.
- * @param signals - The signals to trigger.
+ * @param fn - Function with signal reads to trigger.
  */
-export function trigger(...signals: AnySignal[]) {
-  for (let i = 0, dep, subs; i < signals.length; i++) {
-    dep = signals[i].node
-    subs = dep.subs
-
-    if (subs !== undefined) {
-      propagate(subs)
-      shallowPropagate(subs)
-    }
+export function trigger(fn: () => void) {
+  const sub: ReactiveNode = {
+    deps: undefined,
+    depsTail: undefined,
+    subs: undefined,
+    subsTail: undefined,
+    flags: WatchingFlag,
+    modes: NoneFlag
   }
+  const prevSub = pushActiveSub(sub)
 
-  if (!batchDepth) {
-    flush()
+  try {
+    fn()
+  } finally {
+    popActiveSub(prevSub)
+
+    let link = sub.deps
+
+    while (link !== undefined) {
+      const dep = link.dep
+
+      link = unlink(link, sub)
+
+      const subs = dep.subs
+
+      if (subs !== undefined) {
+        sub.flags = NoneFlag
+        propagate(subs)
+        shallowPropagate(subs)
+      }
+    }
+
+    if (!batchDepth) {
+      flush()
+    }
   }
 }
 

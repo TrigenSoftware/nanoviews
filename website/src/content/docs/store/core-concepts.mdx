@@ -109,10 +109,16 @@ effect(() => {
 })
 
 /* Mutate the array in place (reference remains the same) */
+trigger(() => $tags().push('release'))
+// or
 $tags().push('release')
-
-/* Force the signal to notify subscribers */
 trigger($tags)
+
+/* Trigger multiple signals */
+trigger(() => {
+  $tags()
+  $users()
+})
 ```
 
 ## Actions

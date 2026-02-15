@@ -496,63 +496,70 @@
    return effectScopeOper.bind(e)
  }
 
--export function trigger(fn: () => void) {
--  const sub: ReactiveNode = {
-+export function deferScope(fn: () => void): () => Destroy {
-+  const e: ReactiveNode = {
++ /**
++  * Defer scope creation to delay its effects execution.
++  * @param fn - The deferred scope function to run.
++  * @returns A function to start effects.
++  */
++ export function deferScope(fn: () => void): () => Destroy {
++   const e: ReactiveNode = {
++     deps: undefined,
++     depsTail: undefined,
++     subs: undefined,
++     subsTail: undefined,
++     flags: NoneFlag,
++     modes: ScopeFlag | LazyFlag
++   }
++   const prevSub = pushActiveSub(e)
++
++   try {
++     fn()
++   } finally {
++     popActiveSub(prevSub)
++   }
++
++   return deferScopeOper.bind(e)
++ }
++
+ export function trigger(fn: () => void) {
+   const sub: ReactiveNode = {
      deps: undefined,
      depsTail: undefined,
--    flags: ReactiveFlags.Watching
 +    subs: undefined,
 +    subsTail: undefined,
-+    flags: NoneFlag,
-+    modes: ScopeFlag | LazyFlag
-   }
--  const prevSub = setActiveSub(sub)
-+  const prevSub = pushActiveSub(e)
+-    flags: ReactiveFlags.Watching,
++    flags: WatchingFlag,
++    modes: NoneFlag
+   };
+
+-  const prevSub = setActiveSub(sub);
++  const prevSub = pushActiveSub(sub);
 
    try {
-     fn()
+     fn();
    } finally {
--    activeSub = prevSub
--
--    let link = sub.deps
--
--    while (link !== undefined) {
--      const dep = link.dep
-+    popActiveSub(prevSub)
-+  }
+-    activeSub = prevSub;
++    popActiveSub(prevSub);
 
--      link = unlink(link, sub)
-+  return deferScopeOper.bind(e)
-+}
+     let link = sub.deps;
 
--      const subs = dep.subs
-+/**
-+ * Manually trigger signals update propagation.
-+ * @param signals - The signals to trigger.
-+ */
-+export function trigger(...signals: AnySignal[]) {
-+  for (let i = 0, dep, subs; i < signals.length; i++) {
-+    dep = signals[i].node
-+    subs = dep.subs
+     while (link !== undefined) {
+       const dep = link.dep;
+       link = unlink(link, sub);
 
--      if (subs !== undefined) {
--        sub.flags = ReactiveFlags.None
--        propagate(subs)
--        shallowPropagate(subs)
--      }
-+    if (subs !== undefined) {
-+      propagate(subs)
-+      shallowPropagate(subs)
+       const subs = dep.subs;
+
+       if (subs !== undefined) {
+-        sub.flags = ReactiveFlags.None;
++        sub.flags = NoneFlag;
+         propagate(subs);
+         shallowPropagate(subs);
+       }
      }
-+  }
 
--    if (!batchDepth) {
--      flush()
--    }
-+  if (!batchDepth) {
-+    flush()
+     if (!batchDepth) {
+       flush();
+     }
    }
  }
 

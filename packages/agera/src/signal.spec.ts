@@ -476,10 +476,6 @@ describe('agera', () => {
     })
 
     describe('trigger', () => {
-      it('should not throw when triggering with no dependencies', () => {
-        trigger()
-      })
-
       it('should trigger updates for dependent computed signals', () => {
         const arr = signal<number[]>([])
         const length = computed(() => arr().length)
@@ -488,6 +484,8 @@ describe('agera', () => {
         arr().push(1)
         trigger(arr)
         expect(length()).toBe(1)
+        trigger(() => arr().push(2))
+        expect(length()).toBe(2)
       })
 
       it('should trigger updates for the second source signal', () => {
@@ -497,7 +495,10 @@ describe('agera', () => {
 
         expect(length()).toBe(0)
         src2().push(1)
-        trigger(src1, src2)
+        trigger(() => {
+          src1()
+          src2()
+        })
         expect(length()).toBe(1)
       })
 
@@ -513,7 +514,10 @@ describe('agera', () => {
         })
 
         expect(triggers).toBe(1)
-        trigger(src1, src2)
+        trigger(() => {
+          src1()
+          src2()
+        })
         expect(triggers).toBe(2)
       })
 
@@ -529,7 +533,10 @@ describe('agera', () => {
         })
 
         expect(triggers).toBe(1)
-        trigger(src1, src2)
+        trigger(() => {
+          src1()
+          src2()
+        })
         expect(triggers).toBe(2)
       })
     })

@@ -22,17 +22,11 @@ for_($items)(
 
 ## Kida/Agera
 
-- rollback trigger to alien-signals state
-
-trigger(() => {
-  $tags().push('hot')
-})
 - mark store as hydrated?
 - ram benchmarks
 
 - immutability helpers? / make work with $data facet more comfortable
 - injectable class?
-- bundle types?
 - lazy scope to start and stop methods? for example for resort in loop
 - later: resort effects
 
