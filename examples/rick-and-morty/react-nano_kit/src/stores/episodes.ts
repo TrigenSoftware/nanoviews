@@ -4,7 +4,7 @@ import {
   type Episode,
   getEpisode,
   getEpisodes
-} from 'rickmortyapi'
+} from '#src/services/api'
 import { OK_STATUS } from '#src/common/constants'
 import {
   type Page,

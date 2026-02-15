@@ -3,8 +3,8 @@ import { useSignal } from '@nano_kit/react'
 import { $page } from '#src/stores/router'
 import {
   $characters,
-  $characterError,
-  $characterLoading
+  $charactersError,
+  $charactersLoading
 } from '#src/stores/characters'
 import { CharactersGrid } from '#src/ui/blocks/CharactersGrid'
 import { Pagination } from '#src/ui/components/Pagination'
@@ -21,17 +21,9 @@ function formatPageLabel(page: number) {
 
 export function Characters() {
   const charactersPage = useSignal($characters)
-  const error = useSignal($characterError)
-  const loading = useSignal($characterLoading)
+  const error = useSignal($charactersError)
+  const loading = useSignal($charactersLoading)
   const currentPage = useSignal($page)
-
-  if (loading || !charactersPage) {
-    return (
-      <section className={styles.container}>
-        <Spinner>Loading characters...</Spinner>
-      </section>
-    )
-  }
 
   if (error) {
     return (
@@ -40,6 +32,14 @@ export function Characters() {
           <h2>Error loading characters</h2>
           <p>{error}</p>
         </div>
+      </section>
+    )
+  }
+
+  if (loading || !charactersPage) {
+    return (
+      <section className={styles.container}>
+        <Spinner>Loading characters...</Spinner>
       </section>
     )
   }

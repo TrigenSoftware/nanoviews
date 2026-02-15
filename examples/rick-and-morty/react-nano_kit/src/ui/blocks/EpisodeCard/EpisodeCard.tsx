@@ -1,5 +1,5 @@
 /* DISCLAIMER! VIBECODED! */
-import { type Episode } from 'rickmortyapi'
+import { type Episode } from '#src/services/api'
 import { paths } from '#src/stores/router'
 import styles from './EpisodeCard.module.css'
 

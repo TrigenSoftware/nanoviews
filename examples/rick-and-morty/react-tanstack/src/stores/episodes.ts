@@ -4,7 +4,7 @@ import {
   getEpisode,
   getEpisodes,
   getCharacter
-} from 'rickmortyapi'
+} from '#src/services/api'
 import {
   OK_STATUS,
   STALE_TIME

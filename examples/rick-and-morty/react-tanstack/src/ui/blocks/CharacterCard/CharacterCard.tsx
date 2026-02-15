@@ -1,7 +1,7 @@
 /* DISCLAIMER! VIBECODED! */
-import { type Character } from 'rickmortyapi'
 import clsx from 'clsx'
 import { Link } from '@tanstack/react-router'
+import { type Character } from '#src/services/api'
 import styles from './CharacterCard.module.css'
 
 export interface CharacterCardProps {

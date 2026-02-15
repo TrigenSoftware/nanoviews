@@ -63,19 +63,37 @@ export async function fetchCities(query: string, signal?: AbortSignal) {
 
 export async function fetchCityByLocation(coords: Coords, signal?: AbortSignal) {
   const params = new URLSearchParams({
-    latitude: coords.latitude.toString(),
-    longitude: coords.longitude.toString(),
-    count: '1',
-    language: 'en',
-    format: 'json'
+    'lat': coords.latitude.toString(),
+    'lon': coords.longitude.toString(),
+    'format': 'json',
+    'limit': '1',
+    'accept-language': 'en'
   })
-  const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${params}`, {
-    signal
+  const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${params}`, {
+    signal,
+    headers: {
+      'User-Agent': 'NanoViews Weather App'
+    }
   })
-  const rawCity: RawCity = (await response.json())?.results?.[0] || null
 
-  if (rawCity) {
-    return toCity(rawCity)
+  if (!response.ok) {
+    return null
+  }
+
+  const data = await response.json()
+
+  if (data && data.address) {
+    const city: City = {
+      name: data.address.city || data.address.town || data.address.village || data.name,
+      country: data.address.country_code?.toUpperCase() || '',
+      lat: parseFloat(data.lat),
+      lon: parseFloat(data.lon),
+      label: ''
+    }
+
+    city.label = cityToString(city)
+
+    return city
   }
 
   return null

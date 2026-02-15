@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
-import { type Location } from 'rickmortyapi'
 import { Link } from '@tanstack/react-router'
+import { type Location } from '#src/services/api'
 import styles from './LocationCard.module.css'
 
 export interface LocationCardProps {

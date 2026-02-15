@@ -1,5 +1,5 @@
 /* DISCLAIMER! VIBECODED! */
-import { type Location } from 'rickmortyapi'
+import { type Location } from '#src/services/api'
 import { LocationCard } from '#src/ui/blocks/LocationCard'
 import styles from './LocationsGrid.module.css'
 

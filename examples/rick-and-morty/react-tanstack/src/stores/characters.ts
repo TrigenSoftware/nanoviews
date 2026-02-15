@@ -3,7 +3,7 @@ import {
   type Character,
   getCharacter,
   getCharacters
-} from 'rickmortyapi'
+} from '#src/services/api'
 import {
   OK_STATUS,
   STALE_TIME

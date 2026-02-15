@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
-import { type Character } from 'rickmortyapi'
 import clsx from 'clsx'
+import { type Character } from '#src/services/api'
 import { paths } from '#src/stores/router'
 import styles from './CharacterCard.module.css'
 

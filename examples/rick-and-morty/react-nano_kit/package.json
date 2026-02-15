@@ -18,8 +18,7 @@
     "@nano_kit/react-router": "*",
     "@nano_kit/router": "*",
     "@nano_kit/store": "*",
-    "clsx": "^2.1.1",
-    "rickmortyapi": "^2.3.0"
+    "clsx": "^2.1.1"
   },
   "devDependencies": {
     "@types/react": "^19.2.4",

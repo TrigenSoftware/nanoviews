@@ -1,5 +1,5 @@
 /* DISCLAIMER! VIBECODED! */
-import { type Location } from 'rickmortyapi'
+import { type Location } from '#src/services/api'
 import { paths } from '#src/stores/router'
 import styles from './LocationCard.module.css'
 

@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
-import { type Episode } from 'rickmortyapi'
 import { Link } from '@tanstack/react-router'
+import { type Episode } from '#src/services/api'
 import styles from './EpisodeCard.module.css'
 
 export interface EpisodeCardProps {

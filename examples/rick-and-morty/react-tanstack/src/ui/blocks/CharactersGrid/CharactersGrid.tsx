@@ -1,5 +1,5 @@
 /* DISCLAIMER! VIBECODED! */
-import { type Character } from 'rickmortyapi'
+import { type Character } from '#src/services/api'
 import { CharacterCard } from '#src/ui/blocks/CharacterCard'
 import styles from './CharactersGrid.module.css'
 
