@@ -25,6 +25,11 @@
 [coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nano_kit.svg
 [coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nano_kit
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../website/src/assets/planet_white.svg">
+  <img alt="Halftone planet logo" src="../../website/src/assets/planet_black.svg" width="100" height="100" align="right">
+</picture>
+
 A small state management library inspired by [Nano Stores](https://github.com/nanostores/nanostores) and based on [Agera](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/agera).
 
 - **Small**. Around 2 kB for basic methods (minified and brotlied). Zero dependencies.

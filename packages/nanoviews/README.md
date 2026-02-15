@@ -25,6 +25,10 @@
 [coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nano_kit.svg
 [coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nano_kit
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../website/src/assets/moon_white.svg">
+  <img alt="Halftone moon logo" src="../../website/src/assets/moon_black.svg" width="100" height="100" align="right">
+</picture>
 
 A small Direct DOM library for creating user interfaces.
 

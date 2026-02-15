@@ -25,6 +25,11 @@
 [coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nano_kit.svg
 [coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nano_kit
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../website/src/assets/sun_white.svg">
+  <img alt="Halftone sun logo" src="../../website/src/assets/sun_black.svg" width="100" height="100" align="right">
+</picture>
+
 A small push-pull based signal library based on [alien-signals](https://github.com/stackblitz/alien-signals) algorithm.
 
 Was created as reactivity system for [nanoviews](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/nanoviews) and [Kida](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/kida).
