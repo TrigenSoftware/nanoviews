@@ -8,7 +8,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Features
 
 * map -> object, signals map api, tasks minor rework, destroy function for onStart and onStop ([91d1683](https://github.com/TrigenSoftware/nano_kit/commit/91d1683cfec08de0f88c6ee53ff0f01dee24a20e))
-* move extra methods to [@nano](https://github.com/nano)_kit/store ([5cf1645](https://github.com/TrigenSoftware/nano_kit/commit/5cf16451758f1cc08b0b3856f55664f45e4f3525))
+* move extra methods to @nano_kit/store ([5cf1645](https://github.com/TrigenSoftware/nano_kit/commit/5cf16451758f1cc08b0b3856f55664f45e4f3525))
 
 ### Bug Fixes
 

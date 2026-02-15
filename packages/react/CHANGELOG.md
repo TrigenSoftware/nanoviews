@@ -7,7 +7,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* rename to [@nano](https://github.com/nano)_kit/react ([e360b42](https://github.com/TrigenSoftware/nano_kit/commit/e360b42ccbf1be6067a93278fef3080869753607))
+* rename to @nano_kit/react ([e360b42](https://github.com/TrigenSoftware/nano_kit/commit/e360b42ccbf1be6067a93278fef3080869753607))
 
 ### Performance Improvements
 

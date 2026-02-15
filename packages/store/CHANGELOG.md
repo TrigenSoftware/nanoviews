@@ -7,7 +7,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* introduce [@nano](https://github.com/nano)_kit/store state manager library ([155ab55](https://github.com/TrigenSoftware/nano_kit/commit/155ab551a0eef1ffbd6e09d2918d4c1d03ee025f))
+* introduce @nano_kit/store state manager library ([155ab55](https://github.com/TrigenSoftware/nano_kit/commit/155ab551a0eef1ffbd6e09d2918d4c1d03ee025f))
 * paced rework ([0ef6db1](https://github.com/TrigenSoftware/nano_kit/commit/0ef6db1582675a7046988c4ba3eef681492e3327))
 
 ### Performance Improvements
