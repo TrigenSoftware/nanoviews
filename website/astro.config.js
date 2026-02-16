@@ -20,7 +20,7 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             property: 'og:image',
-            content: '/og-image.jpg'
+            content: 'https://nano_kit.js.org/og-image.jpg'
           }
         },
         {
@@ -55,7 +55,7 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             name: 'twitter:image',
-            content: '/og-image.jpg'
+            content: 'https://nano_kit.js.org/og-image.jpg'
           }
         },
         {
