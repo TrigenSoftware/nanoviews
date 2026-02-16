@@ -60,4 +60,4 @@ export function Counter() {
 
 ## Documentation
 
-For comprehensive guides, API reference, and integration patterns, visit the [documentation website](https://nano_kit.js.org/integrations/react).
+For comprehensive guides, API reference, and integration patterns, visit the [documentation website](https://nano-kit.js.org/integrations/react).

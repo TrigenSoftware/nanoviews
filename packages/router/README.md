@@ -111,4 +111,4 @@ unsub()
 
 ## Documentation
 
-For comprehensive guides, advanced patterns, and API reference, visit the [documentation website](https://nano_kit.js.org/router).
+For comprehensive guides, advanced patterns, and API reference, visit the [documentation website](https://nano-kit.js.org/router).

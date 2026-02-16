@@ -4,7 +4,7 @@ import llmsTxt from 'starlight-llms-txt'
 import { viewTransitions } from 'astro-vtbot/starlight-view-transitions'
 
 export default defineConfig({
-  site: 'https://nano_kit.js.org',
+  site: 'https://nano-kit.js.org',
   integrations: [
     starlight({
       title: 'Nano Kit',
@@ -20,7 +20,7 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             property: 'og:image',
-            content: 'https://nano_kit.js.org/og-image.jpg'
+            content: 'https://nano-kit.js.org/og-image.jpg'
           }
         },
         {
@@ -55,7 +55,7 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             name: 'twitter:image',
-            content: 'https://nano_kit.js.org/og-image.jpg'
+            content: 'https://nano-kit.js.org/og-image.jpg'
           }
         },
         {

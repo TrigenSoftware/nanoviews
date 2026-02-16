@@ -5,7 +5,7 @@
   "description": "Seamless integration between @nano_kit/store signals, dependency injection and React components.",
   "author": "dangreen",
   "license": "MIT",
-  "homepage": "https://nano_kit.js.org/integrations/react",
+  "homepage": "https://nano-kit.js.org/integrations/react",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",

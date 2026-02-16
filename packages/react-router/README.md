@@ -71,4 +71,4 @@ createRoot(document.getElementById('root')!).render(<App />)
 
 ## Documentation
 
-For comprehensive guides, API reference, and integration patterns, visit the [documentation website](https://nano_kit.js.org/integrations/react-router).
+For comprehensive guides, API reference, and integration patterns, visit the [documentation website](https://nano-kit.js.org/integrations/react-router).

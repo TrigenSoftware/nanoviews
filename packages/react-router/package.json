@@ -5,7 +5,7 @@
   "description": "React integration for @nano_kit/router with code splitting, dependency injection, and state management.",
   "author": "dangreen",
   "license": "MIT",
-  "homepage": "https://nano_kit.js.org/integrations/react-router",
+  "homepage": "https://nano-kit.js.org/integrations/react-router",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",

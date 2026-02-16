@@ -88,4 +88,4 @@ unsub()
 
 ## Documentation
 
-For comprehensive guides, advanced patterns, and API reference, visit the [documentation website](https://nano_kit.js.org/store).
+For comprehensive guides, advanced patterns, and API reference, visit the [documentation website](https://nano-kit.js.org/store).

@@ -2,7 +2,7 @@
 
 A lightweight, modular, and performant state management ecosystem for building modern web applications.
 
-[📚 Documentation](https://nano_kit.js.org)
+[📚 Documentation](https://nano-kit.js.org)
 
 | Package | Description | Version | Dependencies |
 |---------|-------------|---------|--------------|
