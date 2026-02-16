@@ -2,7 +2,7 @@
   "name": "@nano_kit/store",
   "type": "module",
   "version": "1.0.0-alpha.0",
-  "description": "A lightweight state management library inspired by Nano Stores and built around a push-pull based reactivity system.",
+  "description": "A lightweight state management library inspired by Nano Stores.",
   "author": "dangreen",
   "license": "MIT",
   "homepage": "https://nano_kit.js.org/store",

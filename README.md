@@ -1,6 +1,6 @@
 # Nano Kit
 
-An ecosystem of lightweight, modular, and performant libraries for building modern web applications, built around a push-pull based reactivity system.
+A lightweight, modular, and performant state management ecosystem for building modern web applications.
 
 [📚 Documentation](https://nano_kit.js.org)
 
