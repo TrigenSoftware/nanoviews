@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.5...router@1.0.0-alpha.6) (2026-02-16)
+
+### Bug Fixes
+
+* migrate to nano-kit.js.org domain ([8106368](https://github.com/TrigenSoftware/nano_kit/commit/81063687c88bb8622602946428659954b38fc3b1))
+
 ## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.4...router@1.0.0-alpha.5) (2026-02-15)
 
 ### Features

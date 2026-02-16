@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/react-router@1.0.0-alpha.2...react-router@1.0.0-alpha.3) (2026-02-16)
+
+### Bug Fixes
+
+* migrate to nano-kit.js.org domain ([8106368](https://github.com/TrigenSoftware/nano_kit/commit/81063687c88bb8622602946428659954b38fc3b1))
+
 ## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/react-router@1.0.0-alpha.1...react-router@1.0.0-alpha.2) (2026-02-15)
 
 ### Features
