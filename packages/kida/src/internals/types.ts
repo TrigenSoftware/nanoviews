@@ -28,6 +28,8 @@ export type ValueOrWritableSignal<T> = T | WritableSignal<T>
 
 export type ValueOrAccessor<T> = T | Accessor<T>
 
+export type AnyValueOrAccessor = ValueOrAccessor<any>
+
 export type ToSignal<T> = [T] extends [AnyWritableSignal]
   ? T
   : [T] extends [AnyReadableSignal]

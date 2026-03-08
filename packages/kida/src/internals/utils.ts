@@ -2,7 +2,8 @@ import {
   signal,
   isSignal,
   isAccessor,
-  computed
+  computed,
+  untracked
 } from 'agera'
 import type {
   AnyObject,
@@ -56,13 +57,22 @@ export function assignKey<
 }
 
 /**
- * Get value from signal or return value
+ * Get value from signal or return value with tracking
+ * @param valueOr$signal - Value or signal
+ * @returns Value
+ */
+export function $get<T>(valueOr$signal: ValueOrAccessor<T>): T {
+  return isAccessor(valueOr$signal) ? valueOr$signal() : valueOr$signal
+}
+
+/**
+ * Get value from signal or return value without tracking
  * @param valueOr$signal - Value or signal
  * @returns Value
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function $get<T>(valueOr$signal: ValueOrAccessor<T>): T {
-  return isAccessor(valueOr$signal) ? valueOr$signal() : valueOr$signal
+export function get<T>(valueOrAccessor: ValueOrAccessor<T>): T {
+  return untracked(() => $get(valueOrAccessor))
 }
 
 /**
@@ -113,4 +123,13 @@ export function toAccessorOrSignal(valueOrReadable: unknown) {
   return isAccessor(valueOrReadable)
     ? valueOrReadable
     : signal(valueOrReadable)
+}
+
+/**
+ * Check if value is empty
+ * @param value - Value to check
+ * @returns True if value is empty
+ */
+export function isEmpty(value: unknown): value is EmptyValue {
+  return value === undefined || value === null
 }

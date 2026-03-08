@@ -104,3 +104,9 @@ export function inject<T>(factory: InjectionFactory<T>, context = currentContext
 
   return context.get(factory)
 }
+
+export class DependencyNotFound extends Error {
+  constructor(caller: string) {
+    super(`${caller} dependency not found in context.`)
+  }
+}
