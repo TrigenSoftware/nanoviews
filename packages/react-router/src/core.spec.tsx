@@ -10,20 +10,16 @@ import {
 import {
   virtualNavigation,
   page,
-  layout,
-  notFound,
-  buildPaths
+  layout
 } from '@nano_kit/router'
-import { useSignal } from '@nano_kit/react'
 import {
   router,
   Outlet,
-  link,
-  app
-} from './index.js'
+  usePage
+} from './core.jsx'
 
 describe('react-router', () => {
-  describe('router', () => {
+  describe('core', () => {
     it('should match correct page component based on route', () => {
       const [$location, navigation] = virtualNavigation('/', {
         home: '/home',
@@ -38,13 +34,13 @@ describe('react-router', () => {
         return <div>About Page</div>
       }
 
-      const [$page] = router($location, [
+      const $page = router($location, [
         page('home', HomePage),
         page('about', AboutPage)
       ])
 
       function TestApp() {
-        const Page = useSignal($page)
+        const Page = usePage($page)
 
         return Page ? <Page/> : <div>Not Found</div>
       }
@@ -106,7 +102,7 @@ describe('react-router', () => {
           )
         }
 
-        const [$page] = router($location, [
+        const $page = router($location, [
           page('home', HomePage),
           layout(AuthLayout, [
             page('login', LoginPage),
@@ -115,7 +111,7 @@ describe('react-router', () => {
         ])
 
         function TestApp() {
-          const Page = useSignal($page)
+          const Page = usePage($page)
 
           return Page ? <Page/> : <div>Not Found</div>
         }
@@ -207,7 +203,7 @@ describe('react-router', () => {
           )
         }
 
-        const [$page] = router($location, [
+        const $page = router($location, [
           page('home', HomePage),
           page('about', AboutPage),
           layout(AuthLayout, [
@@ -221,7 +217,7 @@ describe('react-router', () => {
         ])
 
         function TestApp() {
-          const Page = useSignal($page)
+          const Page = usePage($page)
 
           return Page ? <Page/> : <div>Not Found</div>
         }
@@ -261,62 +257,6 @@ describe('react-router', () => {
         })
         expect(container.innerHTML).toBe('<div>About</div>')
       })
-    })
-  })
-
-  describe('link', () => {
-    it('should create link elements that navigate without full page reload', () => {
-      const routes = {
-        home: '/home',
-        about: '/about'
-      }
-      const [$location, navigation] = virtualNavigation('/', routes)
-      const paths = buildPaths(routes)
-      const Link = link(navigation, paths)
-
-      function HomePage() {
-        return <div>Home Page</div>
-      }
-
-      function AboutPage() {
-        return <div>About Page</div>
-      }
-
-      function NotFoundPage() {
-        return <div>Not Found</div>
-      }
-
-      const App = app($location, [
-        page('home', HomePage),
-        page('about', AboutPage),
-        notFound(NotFoundPage)
-      ])
-      const { container } = render(
-        <div>
-          <nav>
-            <Link to='home'>Home</Link>
-            <Link to='about'>About</Link>
-          </nav>
-          <App/>
-        </div>
-      )
-      const nav = container.querySelector('nav')!
-      const homeLink = nav.children[0] as HTMLAnchorElement
-      const aboutLink = nav.children[1] as HTMLAnchorElement
-
-      expect(container.innerHTML).toContain('Not Found')
-
-      act(() => {
-        homeLink.click()
-      })
-      expect(container.innerHTML).toContain('Home Page')
-      expect($location().href).toBe('/home')
-
-      act(() => {
-        aboutLink.click()
-      })
-      expect(container.innerHTML).toContain('About Page')
-      expect($location().href).toBe('/about')
     })
   })
 })

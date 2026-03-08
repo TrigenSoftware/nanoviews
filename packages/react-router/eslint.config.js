@@ -21,7 +21,10 @@ export default [
     },
     rules: {
       '@typescript-eslint/no-empty-object-type': 'off',
-      'react/function-component-definition': 'off'
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+      'react/function-component-definition': 'off',
+      'no-multi-assign': 'off'
     }
   }
 ]

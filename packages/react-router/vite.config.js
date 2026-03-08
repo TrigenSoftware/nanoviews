@@ -9,7 +9,7 @@ export default defineConfig({
     lib: {
       formats: ['es'],
       entry: {
-        index: './src/index.tsx'
+        index: './src/index.ts'
       }
     },
     rollupOptions: {
