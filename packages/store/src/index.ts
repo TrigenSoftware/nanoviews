@@ -1,6 +1,5 @@
 export * from 'kida'
 export * from './types.js'
-export * from './channel.js'
 export * from './external.js'
 export * from './list.js'
 export * from './map.js'
