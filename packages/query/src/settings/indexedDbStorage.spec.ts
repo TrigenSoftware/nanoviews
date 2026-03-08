@@ -21,6 +21,7 @@ import {
   resetMockData,
   getPost
 } from '../client.mock.js'
+import { persistence } from './persistence.js'
 import {
   indexedDbStorage,
   connect,
@@ -61,7 +62,7 @@ describe('query', () => {
 
       it('should persist entry to IndexedDB', async () => {
         const { query } = client(
-          indexedDbStorage(60000),
+          persistence(indexedDbStorage(), 60000),
           tasks(tasksRunner(tasksPool))
         )
         const $id = signal(1)
@@ -86,7 +87,7 @@ describe('query', () => {
 
       it('should load entry from IndexedDB on mount', async () => {
         const { query } = client(
-          indexedDbStorage(60000),
+          persistence(indexedDbStorage(), 60000),
           tasks(tasksRunner(tasksPool))
         )
         const $id = signal(1)
@@ -104,7 +105,7 @@ describe('query', () => {
         off1()
 
         const { query: query2 } = client(
-          indexedDbStorage(60000),
+          persistence(indexedDbStorage(), 60000),
           tasks(tasksRunner(tasksPool))
         )
         const $id2 = signal(1)
@@ -123,7 +124,7 @@ describe('query', () => {
       })
 
       it('should update entry in IndexedDB on data change', async () => {
-        const { query } = client(tasks(tasksRunner(tasksPool)), indexedDbStorage(60000))
+        const { query } = client(tasks(tasksRunner(tasksPool)), persistence(indexedDbStorage(), 60000))
         const $id = signal(1)
         const fetcher = vi.fn(getPost)
         const [$data] = query(PostKey, [$id], fetcher)
@@ -144,7 +145,7 @@ describe('query', () => {
       })
 
       it('should delete entry on invalidate', async () => {
-        const { query, invalidate } = client(tasks(tasksRunner(tasksPool)), indexedDbStorage(60000))
+        const { query, invalidate } = client(tasks(tasksRunner(tasksPool)), persistence(indexedDbStorage(), 60000))
         const $id1 = signal(1)
         const $id2 = signal(2)
         const fetcher = vi.fn(getPost)
@@ -175,7 +176,7 @@ describe('query', () => {
 
       it('should delete all entries in shard on invalidate with undefined key', async () => {
         const { query, invalidate } = client(
-          indexedDbStorage(60000),
+          persistence(indexedDbStorage(), 60000),
           tasks(tasksRunner(tasksPool))
         )
         const $id1 = signal(1)

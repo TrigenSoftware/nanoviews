@@ -57,7 +57,6 @@ export function hasShardedMapKey<S, K, T>(
  * @param shardedKey - The sharded key.
  * @returns The value or undefined if not found.
  */
-/* @__NO_SIDE_EFFECTS__ */
 export function $getShardedMapKey<S, K, T>(
   map: ShardedSignalsMap<S, K, T>,
   shardedKey: ShardedKey<S, K>

@@ -2,7 +2,9 @@ import {
   type ReadableSignal,
   type TasksRunner,
   type Task,
-  taskPromise
+  TasksRunner$,
+  taskPromise,
+  inject
 } from '@nano_kit/store'
 import type { ClientSetting } from './client.types.js'
 import type { RequestContext } from './RequestContext.js'
@@ -203,10 +205,11 @@ export function dedupe(loading: boolean, time = loading): ClientSetting {
 
 /**
  * Set task runner for handling tasks.
+ * Without arguments, it will try to inject tasks runner from context.
  * @param runner - The tasks runner function.
  * @returns The client setting function.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function tasks(runner: TasksRunner): ClientSetting {
+export function tasks(runner: TasksRunner = inject(TasksRunner$)): ClientSetting {
   return ctx => ctx.task = runner
 }

@@ -1,17 +1,9 @@
-import { untracked } from '@nano_kit/store'
-import type { ClientSetting } from '../client.types.js'
 import type {
   CacheKey,
   CacheShardKey,
   CacheEntry
 } from '../CacheStorage.types.js'
-import type { QueryClientContext } from '../ClientContext.js'
-import { revLock, revLocked, UNSET_REV } from '../CacheStorage.js'
-import { hasShardedMapKey } from '../map.js'
-
-interface IndexedDbStorageContext extends QueryClientContext {
-  indexedDbStorageLifetime?: number
-}
+import type { Storage } from './persistence.js'
 
 export const DB_NAME = 'nano_kit'
 export const STORE_NAME = 'query'
@@ -163,87 +155,26 @@ export async function DELETE(
 }
 
 /**
- * Store cache in IndexedDB for persistence across sessions.
- * @param lifetime - How long to keep entries in IndexedDB in milliseconds.
- * @returns The client setting function.
+ * IndexedDB adapter for persistent storage.
+ * @returns IndexedDB storage implementation or null if IndexedDB is not supported.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function indexedDbStorage(lifetime: number): ClientSetting<QueryClientContext> {
-  return (ctx: IndexedDbStorageContext) => {
-    if (typeof indexedDB === 'undefined') {
-      return
+export function indexedDbStorage(): Storage | null {
+  if (typeof indexedDB === 'undefined') {
+    return null
+  }
+
+  const db = connect()
+
+  return {
+    get(key: CacheKey) {
+      return SELECT(db, key)
+    },
+    set(cacheKey: CacheKey, entry: CacheEntry, lifetime: number) {
+      return SET(db, cacheKey, entry, lifetime)
+    },
+    delete(cacheKey: CacheShardKey | CacheKey) {
+      return DELETE(db, cacheKey)
     }
-
-    if (ctx.indexedDbStorageLifetime === undefined) {
-      const superGet = ctx.$get
-      const superSet = ctx.set
-      const superInvalidate = ctx.invalidate
-      const db = connect()
-
-      ctx.$get = function (key) {
-        const cache = this.cache
-        const hasKey = hasShardedMapKey(cache, key)
-        const entry = superGet.call(this, key)
-
-        if (hasKey) {
-          return entry
-        }
-
-        superSet.call(this, key, {
-          ...entry,
-          rev: revLock(entry.rev)
-        })
-
-        void this.task(SELECT(db, key).then(storedEntry => superSet.call(this, key, {
-          ...entry,
-          ...storedEntry,
-          rev: UNSET_REV
-        })))
-
-        return superGet.call(this, key)
-      }
-
-      function saveSingleEntry(
-        this: IndexedDbStorageContext,
-        key: CacheKey
-      ) {
-        const entry = untracked(() => superGet.call(this, key))
-
-        if (entry && !entry.loading && !revLocked(entry.rev)) {
-          void this.task(SET(db, key, entry, this.indexedDbStorageLifetime!))
-        }
-      }
-
-      ctx.set = function (cacheKey, entry) {
-        superSet.call(this, cacheKey, entry)
-
-        const {
-          shard,
-          key
-        } = cacheKey
-
-        if (key !== undefined) {
-          saveSingleEntry.call(this, cacheKey)
-        } else {
-          const shardMap = this.cache.get(shard)
-
-          if (shardMap) {
-            for (const key of shardMap.keys()) {
-              saveSingleEntry.call(this, {
-                shard,
-                key
-              } as CacheKey)
-            }
-          }
-        }
-      }
-
-      ctx.invalidate = function (key) {
-        superInvalidate.call(this, key)
-        void this.task(DELETE(db, key))
-      }
-    }
-
-    ctx.indexedDbStorageLifetime = lifetime
   }
 }
