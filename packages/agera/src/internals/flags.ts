@@ -1,4 +1,4 @@
-// ReactiveFlags
+// Reactive flags
 export const NoneFlag = 0
 
 export const MutableFlag = 1 << 0
@@ -13,11 +13,13 @@ export const DirtyFlag = 1 << 4
 
 export const PendingFlag = 1 << 5
 
-// ModeFlags
-export const ScopeFlag = 1 << 0
+// Mode flags
+export const ScopeMode = 1 << 0
 
-export const LazyFlag = 1 << 1
+export const LazyMode = 1 << 1
 
-export const WritableFlag = 1 << 2
+export const WritableMode = 1 << 2
 
-export const MountableFlag = 1 << 3
+export const MountableMode = 1 << 3
+
+export const ExternalModesBase = 4

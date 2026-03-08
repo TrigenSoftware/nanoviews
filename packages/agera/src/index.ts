@@ -1,23 +1,5 @@
-export type {
-  AnyFn,
-  Destroy,
-  MaybeDestroy,
-  EffectCallback,
-  Compute,
-  Accessor,
-  ReadableSignal,
-  WritableSignal,
-  AnyAccessor,
-  AnyReadableSignal,
-  AnyWritableSignal,
-  AnySignal,
-  AnyAccessorOrSignal,
-  AccessorValue,
-  MaybeAccessorValue,
-  Morph,
-  Mountable,
-  NewValue
-} from './internals/types.js'
+export type * from './internals/types.js'
+export { ExternalModesBase } from './internals/flags.js'
 export {
   untracked,
   trigger

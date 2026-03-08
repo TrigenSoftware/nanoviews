@@ -7,8 +7,8 @@ import type {
   ReadableNode
 } from './types.js'
 import {
-  ScopeFlag,
-  LazyFlag
+  ScopeMode,
+  LazyMode
 } from './flags.js'
 
 type MountedListener = Stack<WritableSignal<boolean>>
@@ -36,7 +36,7 @@ export function notifyMounted(
 ): void {
   if (
     mountedListeners !== undefined
-    && (activeSub === undefined || (activeSub.modes & (ScopeFlag | LazyFlag)) === ScopeFlag)
+    && (activeSub === undefined || (activeSub.modes & (ScopeMode | LazyMode)) === ScopeMode)
   ) {
     let listener = mountedListeners
 

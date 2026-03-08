@@ -23,10 +23,10 @@ import {
   RecursedFlag,
   DirtyFlag,
   PendingFlag,
-  ScopeFlag,
-  WritableFlag,
-  MountableFlag,
-  LazyFlag
+  ScopeMode,
+  WritableMode,
+  MountableMode,
+  LazyMode
 } from './flags.js'
 import {
   incrementEffectCount,
@@ -162,11 +162,11 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
     dep.subs = newLink
   }
 
-  const isDepMountable = isMountableUsed && dep.modes & MountableFlag
+  const isDepMountable = isMountableUsed && dep.modes & MountableMode
 
   // Mark computed signals as mountable if any of their dependencies are mountable
   if (isDepMountable && 'compute' in sub) {
-    sub.modes |= MountableFlag
+    sub.modes |= MountableMode
   }
 
   if (isDepMountable && isActiveSubscriber(sub) && sub.noMount !== dep) {
@@ -208,7 +208,7 @@ function unlink(link: Link, sub = link.sub): Link | undefined {
     unwatch = true
   }
 
-  if (isMountableUsed && dep.modes & MountableFlag && sub.noMount !== dep) {
+  if (isMountableUsed && dep.modes & MountableMode && sub.noMount !== dep) {
     decrementEffectCount(dep, unwatch)
   }
 
@@ -450,7 +450,7 @@ export function signal<T>(value?: T): WritableSignal<T | undefined> {
     subs: undefined,
     subsTail: undefined,
     flags: MutableFlag,
-    modes: WritableFlag,
+    modes: WritableMode,
     subsCount: 0
   }) as WritableSignal<T | undefined>
 }
@@ -500,8 +500,8 @@ export function effect(fn: EffectCallback, noDefer = false): Destroy {
   if (activeSub !== undefined) {
     link(e, activeSub, 0)
 
-    if (!noDefer && activeSub.modes & LazyFlag) {
-      e.modes |= LazyFlag
+    if (!noDefer && activeSub.modes & LazyMode) {
+      e.modes |= LazyMode
       return effectOper.bind(e)
     }
   }
@@ -523,15 +523,15 @@ export function effectScope(fn: () => void): Destroy {
     subs: undefined,
     subsTail: undefined,
     flags: NoneFlag,
-    modes: ScopeFlag
+    modes: ScopeMode
   }
   const prevSub = pushActiveSub(e)
 
   if (prevSub !== undefined) {
     link(e, prevSub, 0)
 
-    if (prevSub.modes & LazyFlag) {
-      e.modes |= LazyFlag
+    if (prevSub.modes & LazyMode) {
+      e.modes |= LazyMode
     }
   }
 
@@ -556,7 +556,7 @@ export function deferScope(fn: () => void): () => Destroy {
     subs: undefined,
     subsTail: undefined,
     flags: NoneFlag,
-    modes: ScopeFlag | LazyFlag
+    modes: ScopeMode | LazyMode
   }
   const prevSub = pushActiveSub(e)
 
@@ -804,10 +804,10 @@ function runDeferredEffects(link: Link): void {
     const dep = link.dep
     const nextDep = link.nextDep
 
-    if (dep.modes & LazyFlag) {
-      dep.modes &= ~LazyFlag
+    if (dep.modes & LazyMode) {
+      dep.modes &= ~LazyMode
 
-      if (dep.modes & ScopeFlag) {
+      if (dep.modes & ScopeMode) {
         if (dep.deps !== undefined) {
           runDeferredEffects(dep.deps)
         }
@@ -821,7 +821,7 @@ function runDeferredEffects(link: Link): void {
 }
 
 function deferScopeOper(this: ReactiveNode): Destroy {
-  this.modes &= ~LazyFlag
+  this.modes &= ~LazyMode
 
   notifyMounted(activeSub)
 
