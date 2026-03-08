@@ -1,4 +1,7 @@
-import { isFunction } from 'kida'
+import {
+  isFunction,
+  subscribeAny
+} from 'kida'
 import type {
   PrimitiveAttributeValue,
   Primitive,
@@ -6,7 +9,6 @@ import type {
   EffectAttributeCallback
 } from '../types/index.js'
 import { isEmpty } from '../utils.js'
-import { subscribe } from '../effects.js'
 import { getEffectAttribute } from './effectAttribute.js'
 import { delegateEvent } from './events.js'
 
@@ -37,7 +39,7 @@ export function setProperty(
   unset: () => void,
   $value: PrimitiveAttributeValue
 ) {
-  subscribe(
+  subscribeAny(
     $value,
     value => setunset(set, unset, value)
   )

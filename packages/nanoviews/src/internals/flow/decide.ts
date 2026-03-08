@@ -6,7 +6,7 @@ import {
 } from 'kida'
 import type { Child } from '../types/index.js'
 import {
-  createDeferScopeWithContext,
+  deferScopeBindContext,
   effectScopeSwapper
 } from '../effects.js'
 import { createTextNode } from '../elements/text.js'
@@ -21,7 +21,7 @@ export function reactiveDecide<T>(
 ) {
   const start = createTextNode()
   const end = createTextNode()
-  const deferScope = createDeferScopeWithContext()
+  const deferScope = deferScopeBindContext()
   const fragment = document.createDocumentFragment()
 
   fragment.append(start, end)

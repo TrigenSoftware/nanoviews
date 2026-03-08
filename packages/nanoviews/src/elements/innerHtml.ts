@@ -1,6 +1,8 @@
 
-import type { ValueOrAccessor } from 'kida'
-import { subscribe } from '../internals/index.js'
+import {
+  type ValueOrAccessor,
+  subscribeAny
+} from 'kida'
 
 /**
  * Dangerously set inner HTML to element
@@ -14,7 +16,7 @@ export function dangerouslySetInnerHtml<T extends Element>(
 ) {
   const element = factory()
 
-  subscribe($html, value => element.innerHTML = value)
+  subscribeAny($html, value => element.innerHTML = value)
 
   return element
 }

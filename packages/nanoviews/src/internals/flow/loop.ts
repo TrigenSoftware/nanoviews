@@ -13,7 +13,7 @@ import type {
   EmptyValue
 } from '../types/index.js'
 import {
-  createDeferScopeWithContext,
+  deferScopeBindContext,
   effectScopeSwapper
 } from '../effects.js'
 import { isEmpty } from '../utils.js'
@@ -258,7 +258,7 @@ export function loop(
 ): Child {
   const start = createTextNode()
   const end = createTextNode()
-  const deferScope = createDeferScopeWithContext()
+  const deferScope = deferScopeBindContext()
   const fragment = document.createDocumentFragment()
   const blocksMap: LookupMap = new Map()
   const itemsList: LoopItemsList = {

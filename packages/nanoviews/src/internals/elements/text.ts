@@ -1,6 +1,8 @@
-import type { Accessor } from 'kida'
+import {
+  type Accessor,
+  subscribe
+} from 'kida'
 import type { Primitive } from '../types/index.js'
-import { subscribeAccessor } from '../effects.js'
 import { isEmpty } from '../utils.js'
 
 export function createTextNode(value: unknown = '') {
@@ -15,7 +17,7 @@ export function createTextNode(value: unknown = '') {
 export function createTextNodeFromAccessor<T extends Primitive>($value: Accessor<T>) {
   const node = createTextNode()
 
-  subscribeAccessor($value, value => node.data = isEmpty(value) ? '' : value as string)
+  subscribe($value, value => node.data = isEmpty(value) ? '' : value as string, true)
 
   return node
 }

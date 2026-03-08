@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 import {
   type ValueOrAccessor,
-  $get
+  $get,
+  subscribe
 } from 'kida'
 import {
   type FalsyValue,
-  createEffectAttribute,
-  subscribeAccessor
+  createEffectAttribute
 } from '../internals/index.js'
 
 export type ClassList = ValueOrAccessor<string | boolean | FalsyValue>[]
@@ -32,9 +32,10 @@ function cx(parts: unknown[]) {
 export const $$classList = /* @__PURE__ */ createEffectAttribute<'$$classList', HTMLElement, ClassList>(
   '$$classList',
   (element, parts) => {
-    subscribeAccessor(
+    subscribe(
       () => cx(parts.map($get)),
-      className => element.className = className
+      className => element.className = className,
+      true
     )
   }
 )
