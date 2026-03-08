@@ -1,26 +1,79 @@
 import type {
+  InjectionFactory,
+  Accessor,
   AnyAccessor,
-  ReadableSignal
+  WritableSignal
 } from '@nano_kit/store'
+import type { HeadDescriptor } from './head.types.js'
 
-export type StoresPreload = () => AnyAccessor[]
+export type Stores = AnyAccessor[]
 
-export interface ViewRef<V> {
+export type StoresFactory = InjectionFactory<Stores>
+
+export type Head = HeadDescriptor[]
+
+export type HeadFactory = InjectionFactory<Head>
+
+export interface CacheConditionDescriptor {
   /**
-   * The component or value of the view.
+   * A string or an array of strings representing the cache key(s) for the view.
+   * Current location href is always included as a cache key by default, so it is not necessary to include it in the returned keys.
+   * If not provided, the cache key will be the current location href.
    */
-  view: V | undefined
+  key?: string | string[]
   /**
-   * Optional function to preload stores associated with the view.
+   * Expiration time in seconds for the cache entry. If not provided, the cache entry will not expire.
    */
-  storesToPreload?: StoresPreload
+  expires?: number
+}
+
+export type CacheCondition = CacheConditionDescriptor | boolean
+
+export type CacheFactory = InjectionFactory<CacheCondition>
+
+export interface PageModule<V> {
+  /**
+   * Injection factory to get stores to dehydrate for the view while SSR.
+   */
+  Stores$?: StoresFactory
+  /**
+   * Injection factory to get head elements for the view.
+   */
+  Head$?: HeadFactory
+  /**
+   * Injection factory to get cache conditions for the view. If it returns a falsy value, the view will not be cached.
+   */
+  Cache$?: CacheFactory
+  /**
+   * Chunk names attached by plugin for SSR.
+   */
+  __chunks?: string[]
+  /**
+   * View component.
+   */
+  default: V | undefined
+}
+
+export interface PageRef<V> extends PageModule<V> {
   /**
    * Indicates if the view is loading.
    */
   loading?: boolean
 }
 
-export type ViewRefGetter<V> = (tasks?: Set<Promise<unknown> | null>) => ViewRef<V>
+export interface ComposedPageRef<V> extends PageRef<V> {
+  l?: ComposedPageRef<unknown>
+  r?: ComposedPageRef<unknown>
+}
+
+export interface LayoutRef<V> extends PageRef<V> {
+  r?: {
+    l: unknown
+    r: WritableSignal<unknown>
+  }
+}
+
+export type PageRefGetter<V> = (tasks?: Set<Promise<unknown> | null>) => PageRef<V>
 
 export interface PageMatchRef<R extends string | null, P> {
   /**
@@ -30,14 +83,14 @@ export interface PageMatchRef<R extends string | null, P> {
   /**
    * Function to get the view reference for the matched page.
    */
-  page: ViewRefGetter<P>
+  page: PageRefGetter<P>
 }
 
 export interface LayoutMatchRef<R extends string, P, L> {
   /**
    * Function to get the view reference for the layout.
    */
-  layout: ViewRefGetter<L>
+  layout: PageRefGetter<L>
   /**
    * Children match references for nested routes.
    */
@@ -49,18 +102,13 @@ export type MatchRef<R extends string, P, L> =
   | PageMatchRef<null, P>
   | LayoutMatchRef<R, P, L>
 
-export interface ViewModule<V> {
-  default: V
-  storesToPreload?: StoresPreload
-}
+export type PageModuleLoader<P> = () => Promise<PageModule<P>>
 
-export type ViewModuleLoader<P> = () => Promise<ViewModule<P>>
-
-export interface LoadableRef<P> {
+export interface PageModuleRef<P> {
   /**
-   * Function to load the view module asynchronously.
+   * Function to load the view module.
    */
-  load: ViewRefGetter<P>
+  load: PageRefGetter<P>
 }
 
 export type UnknownPageMatchRef = PageMatchRef<string, unknown> | PageMatchRef<null, unknown>
@@ -69,4 +117,4 @@ export type UnknownLayoutMatchRef = LayoutMatchRef<string, unknown, unknown>
 
 export type UnknownMatchRef = MatchRef<string, unknown, unknown>
 
-export type UnknownComposer = ($nested: ReadableSignal<unknown>, layout: unknown) => unknown
+export type UnknownComposer<T = unknown> = ($outlet: Accessor<T>, layout: T) => T

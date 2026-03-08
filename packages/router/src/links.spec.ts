@@ -10,10 +10,10 @@ import {
   start
 } from '@nano_kit/store'
 import { browserNavigation } from './navigation.js'
-import { listenLinks } from './diy.js'
+import { listenLinks } from './links.js'
 
 describe('router', () => {
-  describe('diy', () => {
+  describe('links', () => {
     beforeEach(() => {
       window.history.replaceState(null, '', '/')
     })

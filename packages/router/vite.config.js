@@ -19,6 +19,15 @@ export default defineConfig({
   },
   test: {
     environment: 'happy-dom',
+    environmentOptions: {
+      happyDOM: {
+        settings: {
+          disableJavaScriptFileLoading: true,
+          disableCSSFileLoading: true,
+          handleDisabledFileLoadingAsSuccess: true
+        }
+      }
+    },
     setupFiles: ['@testing-library/jest-dom/vitest'],
     exclude: [...configDefaults.exclude, './package'],
     coverage: {

@@ -22,8 +22,13 @@ export default [
     rules: {
       'no-cond-assign': 'off',
       'no-multi-assign': 'off',
+      'no-sequences': 'off',
+      'consistent-return': 'off',
+      '@typescript-eslint/naming-convention': 'off',
       '@typescript-eslint/no-use-before-define': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off'
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/unified-signatures': 'off',
+      '@typescript-eslint/no-unnecessary-type-arguments': 'off'
     }
   }
 ]

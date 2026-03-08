@@ -1,126 +1,61 @@
 import {
-  type InjectionFactory,
-  type ReadableSignal,
+  type Accessor,
+  DependencyNotFound,
   inject
 } from '@nano_kit/store'
-import type { Routes } from './types.js'
-import {
-  type Navigation,
-  type RouteLocationRecord,
-  browserNavigation,
-  virtualNavigation
+import type {
+  AppRoutes,
+  AppComponent
+} from './di.types.js'
+import type {
+  Navigation,
+  RouteLocationRecord
 } from './navigation.js'
-import {
-  type LayoutMatchRef,
-  type PageMatchRef,
-  type StoresPreload,
-  type UnknownComposer,
-  type UnknownMatchRef,
-  router
+import type {
+  MatchRef,
+  PageRef
 } from './router.js'
+import {
+  type Paths,
+  buildPaths
+} from './paths.js'
+
+export * from './di.types.js'
 
 /**
- * Create browser navigation and location injection factories.
- * @param routes - Routes object defining path patterns.
- * @returns Tuple of location and navigation injection factories.
+ * Global injection token for the current route location record.
  */
-/* @__NO_SIDE_EFFECTS__ */
-export function browserNavigation$<const R extends Routes = {}>(
-  routes: R = {} as R
-): [
-  InjectionFactory<RouteLocationRecord<R>>,
-  InjectionFactory<Navigation>
-] {
-  const BrowserNavigation$ = () => browserNavigation(routes)
-  const Location$ = () => inject(BrowserNavigation$)[0]
-  const Navigation$ = () => inject(BrowserNavigation$)[1]
-
-  return [
-    Location$,
-    Navigation$
-  ]
+export function Location$(): RouteLocationRecord<AppRoutes> {
+  throw new DependencyNotFound('Location$')
 }
 
 /**
- * Create virtual navigation and location injection factories.
- * @param initialPath - Initial path for the virtual navigation (default: '/').
- * @param routes - Routes object defining path patterns.
- * @returns Tuple of location and navigation injection factories.
+ * Global injection token for the navigation API.
  */
-/* @__NO_SIDE_EFFECTS__ */
-export function virtualNavigation$<const R extends Routes = {}>(
-  initialPath?: string,
-  routes?: R
-): [
-  InjectionFactory<RouteLocationRecord<R>>,
-  InjectionFactory<Navigation>
-] {
-  const VirtualNavigation$ = () => virtualNavigation(initialPath, routes)
-  const Location$ = () => inject(VirtualNavigation$)[0]
-  const Navigation$ = () => inject(VirtualNavigation$)[1]
-
-  return [
-    Location$,
-    Navigation$
-  ]
+export function Navigation$(): Navigation<AppRoutes> {
+  throw new DependencyNotFound('Navigation$')
 }
 
 /**
- * Creates a current route matching page injection factory.
- * @param Location$ - Injection factory for the route location record.
- * @param pages - Array of page match references.
- * @returns Tuple of page injection factory and stores preload injection factory.
+ * Global injection token for the current page match reference.
  */
-export function router$<R extends Routes, K extends keyof R & string, P>(
-  Location$: InjectionFactory<RouteLocationRecord<R>>,
-  pages: (
-    | PageMatchRef<NoInfer<K>, P>
-    | PageMatchRef<null, P>
-  )[]
-): [
-  InjectionFactory<ReadableSignal<P | null>>,
-  InjectionFactory<StoresPreload>
-]
+export function Page$(): Accessor<PageRef<AppComponent> | null> {
+  throw new DependencyNotFound('Page$')
+}
 
 /**
- * Creates a current route matching page and layout injection factory.
- * @param Location$ - Injection factory for the route location record.
- * @param pages - Array of page and layout match references.
- * @param compose - Function to compose layouts with nested content.
- * @returns Tuple of page injection factory and stores preload injection factory.
+ * Global injection token for the router page refs.
  */
-export function router$<R extends Routes, K extends keyof R & string, P, N, L, C>(
-  Location$: InjectionFactory<RouteLocationRecord<R>>,
-  pages: (
-    | PageMatchRef<NoInfer<K>, P>
-    | PageMatchRef<null, P>
-    | LayoutMatchRef<NoInfer<K>, N, L>
-  )[],
-  compose: ($nested: ReadableSignal<N | null>, layout: L) => C
-): [
-  InjectionFactory<ReadableSignal<P | C | null>>,
-  InjectionFactory<StoresPreload>
-]
+export function Pages$(): MatchRef<string, AppComponent, AppComponent>[] {
+  throw new DependencyNotFound('Pages$')
+}
 
-/* @__NO_SIDE_EFFECTS__ */
-export function router$(
-  Location$: InjectionFactory<RouteLocationRecord<Routes>>,
-  pages: UnknownMatchRef[],
-  compose?: UnknownComposer
-): [
-  InjectionFactory<ReadableSignal<unknown>>,
-  InjectionFactory<StoresPreload>
-] {
-  const Router$ = () => router(
-    inject(Location$),
-    pages,
-    compose!
-  )
-  const Page$ = () => inject(Router$)[0]
-  const StoresToPreload$ = () => inject(Router$)[1]
+/**
+ * Global injection token for the paths object built from the routes.
+ * @returns Object with path generators for each route
+ */
+export function Paths$(): Paths<AppRoutes> {
+  const navigation = inject(Navigation$)
 
-  return [
-    Page$,
-    StoresToPreload$
-  ]
+  return buildPaths(navigation.routes)
 }

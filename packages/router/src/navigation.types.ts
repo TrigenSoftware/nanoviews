@@ -29,7 +29,11 @@ export type RouteLocationRecord<R extends Routes> = ReadableRecord<RouteLocation
 /**
  * Navigation interface for managing route transitions.
  */
-export interface Navigation {
+export interface Navigation<R extends Routes = Routes> {
+  /**
+   * Routes with which the navigation instance was initialized.
+   */
+  routes: R
   /**
    * Handle a transition between two locations.
    * You can redefine this method to perform custom actions like transition confirmation.
@@ -37,7 +41,7 @@ export interface Navigation {
    * @param nextLocation - The next location to navigate to, or null.
    * @param prevLocation - The previous location.
    */
-  transition<R extends Routes = Routes>(
+  transition(
     fn: (
       nextLocation: RouteLocation<R> | null
     ) => void,

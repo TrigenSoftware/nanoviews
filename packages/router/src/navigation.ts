@@ -121,7 +121,7 @@ function applyBrowserLocation({ href, action }: Location) {
 /* @__NO_SIDE_EFFECTS__ */
 export function browserNavigation<const R extends Routes = {}>(
   routes: R = {} as R
-): [RouteLocationRecord<R>, Navigation] {
+): [RouteLocationRecord<R>, Navigation<R>] {
   const match = createCachedMatcher(routes)
   const routerLocation = (location: Location) => ({
     ...location,
@@ -167,7 +167,8 @@ export function browserNavigation<const R extends Routes = {}>(
       )
     )
   }
-  const navigation: Navigation = {
+  const navigation: Navigation<R> = {
+    routes,
     transition(fn, nextLocation) {
       fn(nextLocation)
     },
@@ -215,7 +216,7 @@ export function browserNavigation<const R extends Routes = {}>(
 export function virtualNavigation<const R extends Routes = {}>(
   initialPath = '/',
   routes: R = {} as R
-): [RouteLocationRecord<R>, Navigation] {
+): [RouteLocationRecord<R>, Navigation<R>] {
   const match = createCachedMatcher(routes)
   const routerLocation = (location: Location) => ({
     ...location,
@@ -275,7 +276,8 @@ export function virtualNavigation<const R extends Routes = {}>(
       )
     }
   }
-  const navigation: Navigation = {
+  const navigation: Navigation<R> = {
+    routes,
     transition(fn, location) {
       fn(location)
     },
