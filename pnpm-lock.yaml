@@ -596,7 +596,7 @@ importers:
         version: 11.2.0(size-limit@11.2.0)
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       size-limit:
         specifier: ^11.1.2
         version: 11.2.0
@@ -611,14 +611,11 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   packages/benchmarks:
     dependencies:
-      '@reatom/core':
-        specifier: ^1000.15.1
-        version: 1000.15.1
       alien-signals-1:
         specifier: npm:alien-signals@1.0.4
         version: alien-signals@1.0.4
@@ -661,7 +658,7 @@ importers:
         version: 11.2.0(size-limit@11.2.0)
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       size-limit:
         specifier: ^11.1.2
         version: 11.2.0
@@ -676,7 +673,7 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   packages/nanoviews:
@@ -714,13 +711,13 @@ importers:
         version: 14.6.1(@testing-library/dom@10.4.0)
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       csstype:
         specifier: ^3.1.3
         version: 3.2.3
       happy-dom:
-        specifier: ^18.0.0
-        version: 18.0.1
+        specifier: ^20.0.0
+        version: 20.8.4
       react:
         specifier: 'catalog:'
         version: 19.2.3
@@ -744,7 +741,7 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   packages/query:
@@ -757,7 +754,7 @@ importers:
         version: 11.2.0(size-limit@11.2.0)
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       fake-indexeddb:
         specifier: ^6.2.5
         version: 6.2.5
@@ -772,7 +769,7 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   packages/react:
@@ -800,10 +797,10 @@ importers:
         version: 4.6.0(vite@7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       happy-dom:
-        specifier: ^18.0.0
-        version: 18.0.1
+        specifier: ^20.0.0
+        version: 20.8.4
       react:
         specifier: 'catalog:'
         version: 19.2.3
@@ -821,7 +818,7 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   packages/react-router:
@@ -855,10 +852,10 @@ importers:
         version: 4.6.0(vite@7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       happy-dom:
-        specifier: ^18.0.0
-        version: 18.0.1
+        specifier: ^20.0.0
+        version: 20.8.4
       react:
         specifier: 'catalog:'
         version: 19.2.3
@@ -876,7 +873,7 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   packages/react-ssr:
@@ -905,7 +902,7 @@ importers:
         version: 4.6.0(vite@7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       cpy-cli:
         specifier: ^7.0.0
         version: 7.0.0
@@ -920,7 +917,7 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   packages/router:
@@ -939,10 +936,10 @@ importers:
         version: 6.6.3
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       happy-dom:
-        specifier: ^18.0.0
-        version: 18.0.1
+        specifier: ^20.0.0
+        version: 20.8.4
       size-limit:
         specifier: ^11.1.6
         version: 11.2.0
@@ -954,7 +951,7 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   packages/ssr:
@@ -971,7 +968,7 @@ importers:
         version: link:../store
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       cpy-cli:
         specifier: ^7.0.0
         version: 7.0.0
@@ -980,7 +977,7 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   packages/store:
@@ -994,7 +991,7 @@ importers:
         version: 11.2.0(size-limit@11.2.0)
       '@vitest/coverage-v8':
         specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
       size-limit:
         specifier: ^11.1.2
         version: 11.2.0
@@ -1009,7 +1006,7 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   packages/storybook:
@@ -1065,7 +1062,7 @@ importers:
         version: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     publishDirectory: package
 
   website:
@@ -1075,16 +1072,16 @@ importers:
         version: 0.9.6(prettier@3.8.1)(typescript@5.9.3)
       '@astrojs/starlight':
         specifier: ^0.36.0
-        version: 0.36.3(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
+        version: 0.36.3(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
       astro:
         specifier: ^5.0.0
-        version: 5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)
+        version: 5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)
       astro-vtbot:
         specifier: ^2.1.9
         version: 2.1.11
       starlight-llms-txt:
         specifier: ^0.6.0
-        version: 0.6.1(@astrojs/starlight@0.36.3(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)))(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
+        version: 0.6.1(@astrojs/starlight@0.36.3(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)))(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
     devDependencies:
       sharp:
         specifier: ^0.34.0
@@ -2608,89 +2605,105 @@ packages:
     resolution: {integrity: sha512-excjX8DfsIcJ10x1Kzr4RcWe1edC9PquDRRPx3YVCvQv+U5p7Yin2s32ftzikXojb1PIFc/9Mt28/y+iRklkrw==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-arm@1.2.4':
     resolution: {integrity: sha512-bFI7xcKFELdiNCVov8e44Ia4u2byA+l3XtsAj+Q8tfCwO6BQ8iDojYdvoPMqsKDkuoOo+X6HZA0s0q11ANMQ8A==}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-ppc64@1.2.4':
     resolution: {integrity: sha512-FMuvGijLDYG6lW+b/UvyilUWu5Ayu+3r2d1S8notiGCIyYU/76eig1UfMmkZ7vwgOrzKzlQbFSuQfgm7GYUPpA==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-riscv64@1.2.4':
     resolution: {integrity: sha512-oVDbcR4zUC0ce82teubSm+x6ETixtKZBh/qbREIOcI3cULzDyb18Sr/Wcyx7NRQeQzOiHTNbZFF1UwPS2scyGA==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-s390x@1.2.4':
     resolution: {integrity: sha512-qmp9VrzgPgMoGZyPvrQHqk02uyjA0/QrTO26Tqk6l4ZV0MPWIW6LTkqOIov+J1yEu7MbFQaDpwdwJKhbJvuRxQ==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-x64@1.2.4':
     resolution: {integrity: sha512-tJxiiLsmHc9Ax1bz3oaOYBURTXGIRDODBqhveVHonrHJ9/+k89qbLl0bcJns+e4t4rvaNBxaEZsFtSfAdquPrw==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linuxmusl-arm64@1.2.4':
     resolution: {integrity: sha512-FVQHuwx1IIuNow9QAbYUzJ+En8KcVm9Lk5+uGUQJHaZmMECZmOlix9HnH7n1TRkXMS0pGxIJokIVB9SuqZGGXw==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-libvips-linuxmusl-x64@1.2.4':
     resolution: {integrity: sha512-+LpyBk7L44ZIXwz/VYfglaX/okxezESc6UxDSoyo2Ks6Jxc4Y7sGjpgU9s4PMgqgjj1gZCylTieNamqA1MF7Dg==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-linux-arm64@0.34.5':
     resolution: {integrity: sha512-bKQzaJRY/bkPOXyKx5EVup7qkaojECG6NLYswgktOZjaXecSAeCWiZwwiFf3/Y+O1HrauiE3FVsGxFg8c24rZg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-arm@0.34.5':
     resolution: {integrity: sha512-9dLqsvwtg1uuXBGZKsxem9595+ujv0sJ6Vi8wcTANSFpwV/GONat5eCkzQo/1O6zRIkh0m/8+5BjrRr7jDUSZw==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-ppc64@0.34.5':
     resolution: {integrity: sha512-7zznwNaqW6YtsfrGGDA6BRkISKAAE1Jo0QdpNYXNMHu2+0dTrPflTLNkpc8l7MUP5M16ZJcUvysVWWrMefZquA==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-riscv64@0.34.5':
     resolution: {integrity: sha512-51gJuLPTKa7piYPaVs8GmByo7/U7/7TZOq+cnXJIHZKavIRHAP77e3N2HEl3dgiqdD/w0yUfiJnII77PuDDFdw==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-s390x@0.34.5':
     resolution: {integrity: sha512-nQtCk0PdKfho3eC5MrbQoigJ2gd1CgddUMkabUj+rBevs8tZ2cULOx46E7oyX+04WGfABgIwmMC0VqieTiR4jg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-x64@0.34.5':
     resolution: {integrity: sha512-MEzd8HPKxVxVenwAa+JRPwEC7QFjoPWuS5NZnBt6B3pu7EG2Ge0id1oLHZpPJdn3OQK+BQDiw9zStiHBTJQQQQ==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linuxmusl-arm64@0.34.5':
     resolution: {integrity: sha512-fprJR6GtRsMt6Kyfq44IsChVZeGN97gTD331weR1ex1c1rypDEABN6Tm2xa1wE6lYb5DdEnk03NZPqA7Id21yg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-linuxmusl-x64@0.34.5':
     resolution: {integrity: sha512-Jg8wNT1MUzIvhBFxViqrEhWDGzqymo3sV7z7ZsaWbZNDLXRJZoRGrjulp60YYtV4wfY8VIKcWidjojlLcWrd8Q==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-wasm32@0.34.5':
     resolution: {integrity: sha512-OdWTEiVkY2PHwqkbBI8frFxQQFekHaSSkUIJkwzclWZe64O1X4UlUjqqqLaPbUpMOQk6FBu/HtlGXNblIs0huw==}
@@ -3289,9 +3302,6 @@ packages:
   '@radix-ui/rect@1.0.1':
     resolution: {integrity: sha512-fyrgCaedtvMg9NK3en0pnOYJdtfwxUcNolezkNPUsoX57X8oQk+NkqcvzHXD2uKNij6GXmWU9NDru2IWjrO4BQ==}
 
-  '@reatom/core@1000.15.1':
-    resolution: {integrity: sha512-5KKwjD7teOfHNXUj9aJxFYR+DLWiaE0xZwy1tpWlSE+cx3VI5VwJZJuhvZ887pdrMbgwyOypcz/V9p1v3YSWPg==}
-
   '@resvg/resvg-js-android-arm-eabi@2.6.2':
     resolution: {integrity: sha512-FrJibrAk6v29eabIPgcTUMPXiEz8ssrAk7TXxsiZzww9UTQ1Z5KAbFJs+Z0Ez+VZTYgnE5IQJqBcoSiMebtPHA==}
     engines: {node: '>= 10'}
@@ -3327,24 +3337,28 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@resvg/resvg-js-linux-arm64-musl@2.6.2':
     resolution: {integrity: sha512-3h3dLPWNgSsD4lQBJPb4f+kvdOSJHa5PjTYVsWHxLUzH4IFTJUAnmuWpw4KqyQ3NA5QCyhw4TWgxk3jRkQxEKg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@resvg/resvg-js-linux-x64-gnu@2.6.2':
     resolution: {integrity: sha512-IVUe+ckIerA7xMZ50duAZzwf1U7khQe2E0QpUxu5MBJNao5RqC0zwV/Zm965vw6D3gGFUl7j4m+oJjubBVoftw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@resvg/resvg-js-linux-x64-musl@2.6.2':
     resolution: {integrity: sha512-UOf83vqTzoYQO9SZ0fPl2ZIFtNIz/Rr/y+7X8XRX1ZnBYsQ/tTb+cj9TE+KHOdmlTFBxhYzVkP2lRByCzqi4jQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@resvg/resvg-js-win32-arm64-msvc@2.6.2':
     resolution: {integrity: sha512-7C/RSgCa+7vqZ7qAbItfiaAWhyRSoD4l4BQAbVDqRRsRgY+S+hgS3in0Rxr7IorKUpGE69X48q6/nOAuTJQxeQ==}
@@ -3417,56 +3431,67 @@ packages:
     resolution: {integrity: sha512-RkdOTu2jK7brlu+ZwjMIZfdV2sSYHK2qR08FUWcIoqJC2eywHbXr0L8T/pONFwkGukQqERDheaGTeedG+rra6Q==}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm-musleabihf@4.45.1':
     resolution: {integrity: sha512-3kJ8pgfBt6CIIr1o+HQA7OZ9mp/zDk3ctekGl9qn/pRBgrRgfwiffaUmqioUGN9hv0OHv2gxmvdKOkARCtRb8Q==}
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-arm64-gnu@4.45.1':
     resolution: {integrity: sha512-k3dOKCfIVixWjG7OXTCOmDfJj3vbdhN0QYEqB+OuGArOChek22hn7Uy5A/gTDNAcCy5v2YcXRJ/Qcnm4/ma1xw==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm64-musl@4.45.1':
     resolution: {integrity: sha512-PmI1vxQetnM58ZmDFl9/Uk2lpBBby6B6rF4muJc65uZbxCs0EA7hhKCk2PKlmZKuyVSHAyIw3+/SiuMLxKxWog==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-loongarch64-gnu@4.45.1':
     resolution: {integrity: sha512-9UmI0VzGmNJ28ibHW2GpE2nF0PBQqsyiS4kcJ5vK+wuwGnV5RlqdczVocDSUfGX/Na7/XINRVoUgJyFIgipoRg==}
     cpu: [loong64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-powerpc64le-gnu@4.45.1':
     resolution: {integrity: sha512-7nR2KY8oEOUTD3pBAxIBBbZr0U7U+R9HDTPNy+5nVVHDXI4ikYniH1oxQz9VoB5PbBU1CZuDGHkLJkd3zLMWsg==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-gnu@4.45.1':
     resolution: {integrity: sha512-nlcl3jgUultKROfZijKjRQLUu9Ma0PeNv/VFHkZiKbXTBQXhpytS8CIj5/NfBeECZtY2FJQubm6ltIxm/ftxpw==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-musl@4.45.1':
     resolution: {integrity: sha512-HJV65KLS51rW0VY6rvZkiieiBnurSzpzore1bMKAhunQiECPuxsROvyeaot/tcK3A3aGnI+qTHqisrpSgQrpgA==}
     cpu: [riscv64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-s390x-gnu@4.45.1':
     resolution: {integrity: sha512-NITBOCv3Qqc6hhwFt7jLV78VEO/il4YcBzoMGGNxznLgRQf43VQDae0aAzKiBeEPIxnDrACiMgbqjuihx08OOw==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-gnu@4.45.1':
     resolution: {integrity: sha512-+E/lYl6qu1zqgPEnTrs4WysQtvc/Sh4fC2nByfFExqgYrqkKWp1tWIbe+ELhixnenSpBbLXNi6vbEEJ8M7fiHw==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-musl@4.45.1':
     resolution: {integrity: sha512-a6WIAp89p3kpNoYStITT9RbTbTnqarU7D8N8F2CV+4Cl9fwCOZraLVuVFvlpsW0SbIiYtEnhCZBPLoNdRkjQFw==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-win32-arm64-msvc@4.45.1':
     resolution: {integrity: sha512-T5Bi/NS3fQiJeYdGvRpTAP5P02kqSOpqiopwhj0uaXB6nzs5JVi2XMJb18JUSKhCOX8+UE1UKQufyD6Or48dJg==}
@@ -3549,9 +3574,6 @@ packages:
 
   '@so-ric/colorspace@1.1.6':
     resolution: {integrity: sha512-/KiKkpHNOBgkFJwu9sh48LkHSMYGyuTcSFK/qMBdnOAlrRJzRSXAOFB5qwzaVQuDl8wAvHVMkaASQDReTahxuw==}
-
-  '@standard-schema/spec@1.1.0':
-    resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
   '@storybook/addon-actions@7.6.20':
     resolution: {integrity: sha512-c/GkEQ2U9BC/Ew/IMdh+zvsh4N6y6n7Zsn2GIhJgcu9YEAa5aF2a9/pNgEGBMOABH959XE8DAOMERw/5qiLR8g==}
@@ -3762,24 +3784,28 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@swc/core-linux-arm64-musl@1.15.11':
     resolution: {integrity: sha512-PYftgsTaGnfDK4m6/dty9ryK1FbLk+LosDJ/RJR2nkXGc8rd+WenXIlvHjWULiBVnS1RsjHHOXmTS4nDhe0v0w==}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@swc/core-linux-x64-gnu@1.15.11':
     resolution: {integrity: sha512-DKtnJKIHiZdARyTKiX7zdRjiDS1KihkQWatQiCHMv+zc2sfwb4Glrodx2VLOX4rsa92NLR0Sw8WLcPEMFY1szQ==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@swc/core-linux-x64-musl@1.15.11':
     resolution: {integrity: sha512-mUjjntHj4+8WBaiDe5UwRNHuEzLjIWBTSGTw0JT9+C9/Yyuh4KQqlcEQ3ro6GkHmBGXBFpGIj/o5VMyRWfVfWw==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@swc/core-win32-arm64-msvc@1.15.11':
     resolution: {integrity: sha512-ZkNNG5zL49YpaFzfl6fskNOSxtcZ5uOYmWBkY4wVAvgbSAQzLRVBp+xArGWh2oXlY/WgL99zQSGTv7RI5E6nzA==}
@@ -4045,9 +4071,6 @@ packages:
   '@types/node@18.19.119':
     resolution: {integrity: sha512-d0F6m9itIPaKnrvEMlzE48UjwZaAnFW7Jwibacw9MNdqadjKNpUm9tfJYDwmShJmgqcoqYUX3EMKO1+RWiuuNg==}
 
-  '@types/node@20.19.8':
-    resolution: {integrity: sha512-HzbgCY53T6bfu4tT7Aq3TvViJyHjLjPNaAS3HOuMc9pw97KHsUtXNX4L+wu59g1WnjsZSko35MbEqnO58rihhw==}
-
   '@types/node@22.16.4':
     resolution: {integrity: sha512-PYRhNtZdm2wH/NT2k/oAJ6/f2VD2N2Dag0lGlx2vWgMSJXGNmlce5MiTQzoWAiIJtso30mjnfQCOKVH+kAQC/g==}
 
@@ -4106,6 +4129,9 @@ packages:
 
   '@types/whatwg-mimetype@3.0.2':
     resolution: {integrity: sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA==}
+
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@types/yargs-parser@21.0.3':
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
@@ -5359,6 +5385,10 @@ packages:
     resolution: {integrity: sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==}
     engines: {node: '>=0.12'}
 
+  entities@7.0.1:
+    resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
+    engines: {node: '>=0.12'}
+
   env-paths@2.2.1:
     resolution: {integrity: sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A==}
     engines: {node: '>=6'}
@@ -6008,8 +6038,8 @@ packages:
     engines: {node: '>=0.4.7'}
     hasBin: true
 
-  happy-dom@18.0.1:
-    resolution: {integrity: sha512-qn+rKOW7KWpVTtgIUi6RVmTBZJSe2k0Db0vh1f7CWrWclkkc7/Q+FrOfkZIb2eiErLyqu5AXEzE7XthO9JVxRA==}
+  happy-dom@20.8.4:
+    resolution: {integrity: sha512-GKhjq4OQCYB4VLFBzv8mmccUadwlAusOZOI7hC1D9xDIT5HhzkJK17c4el2f6R6C715P9xB4uiMxeKUa2nHMwQ==}
     engines: {node: '>=20.0.0'}
 
   has-bigints@1.1.0:
@@ -6173,9 +6203,6 @@ packages:
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
     engines: {node: '>=0.10.0'}
-
-  idb-keyval@6.2.2:
-    resolution: {integrity: sha512-yjD9nARJ/jb1g+CvD0tlhUHOrJ9Sy0P8T9MF3YaLlHnSRpwPfpTX0XIvpmw3gAJUmEu3FiICLBDPXVwyEvrleg==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -9365,6 +9392,18 @@ packages:
       utf-8-validate:
         optional: true
 
+  ws@8.19.0:
+    resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   xpath@0.0.34:
     resolution: {integrity: sha512-FxF6+rkr1rNSQrhUNYrAFJpRXNzlDoMxeXN5qI84939ylEv3qqPFKa85Oxr6tDaJKqwW6KKyo2v26TSv3k6LeA==}
     engines: {node: '>=0.6.0'}
@@ -9531,12 +9570,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@4.3.13(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))':
+  '@astrojs/mdx@4.3.13(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))':
     dependencies:
       '@astrojs/markdown-remark': 6.3.10
       '@mdx-js/mdx': 3.1.1
       acorn: 8.15.0
-      astro: 5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)
+      astro: 5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)
       es-module-lexer: 1.7.0
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.5
@@ -9560,17 +9599,17 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 3.25.76
 
-  '@astrojs/starlight@0.36.3(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))':
+  '@astrojs/starlight@0.36.3(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))':
     dependencies:
       '@astrojs/markdown-remark': 6.3.10
-      '@astrojs/mdx': 4.3.13(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
+      '@astrojs/mdx': 4.3.13(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
       '@astrojs/sitemap': 3.7.0
       '@pagefind/default-ui': 1.4.0
       '@types/hast': 3.0.4
       '@types/js-yaml': 4.0.9
       '@types/mdast': 4.0.4
-      astro: 5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)
-      astro-expressive-code: 0.41.6(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
+      astro: 5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)
+      astro-expressive-code: 0.41.6(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
       bcp-47: 2.1.0
       hast-util-from-html: 2.0.3
       hast-util-select: 6.0.4
@@ -11649,12 +11688,6 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.27.6
 
-  '@reatom/core@1000.15.1':
-    dependencies:
-      '@standard-schema/spec': 1.1.0
-    optionalDependencies:
-      idb-keyval: 6.2.2
-
   '@resvg/resvg-js-android-arm-eabi@2.6.2':
     optional: true
 
@@ -11850,8 +11883,6 @@ snapshots:
     dependencies:
       color: 5.0.3
       text-hex: 1.0.0
-
-  '@standard-schema/spec@1.1.0': {}
 
   '@storybook/addon-actions@7.6.20':
     dependencies:
@@ -12775,10 +12806,6 @@ snapshots:
     dependencies:
       undici-types: 5.26.5
 
-  '@types/node@20.19.8':
-    dependencies:
-      undici-types: 6.21.0
-
   '@types/node@22.16.4':
     dependencies:
       undici-types: 6.21.0
@@ -12840,6 +12867,10 @@ snapshots:
       '@types/node': 24.0.14
 
   '@types/whatwg-mimetype@3.0.2': {}
+
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 24.0.14
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -12976,7 +13007,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))':
+  '@vitest/coverage-v8@3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 1.0.2
@@ -12991,7 +13022,7 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -13335,9 +13366,9 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro-expressive-code@0.41.6(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)):
+  astro-expressive-code@0.41.6(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)):
     dependencies:
-      astro: 5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)
+      astro: 5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)
       rehype-expressive-code: 0.41.6
 
   astro-vtbot@2.1.11:
@@ -13348,7 +13379,7 @@ snapshots:
       '@vtbag/turn-signal': 1.3.1
       '@vtbag/utensil-drawer': 1.2.16
 
-  astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2):
+  astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2):
     dependencies:
       '@astrojs/compiler': 2.13.1
       '@astrojs/internal-helpers': 0.7.5
@@ -13403,7 +13434,7 @@ snapshots:
       ultrahtml: 1.6.0
       unifont: 0.7.3
       unist-util-visit: 5.1.0
-      unstorage: 1.17.4(idb-keyval@6.2.2)
+      unstorage: 1.17.4
       vfile: 6.0.3
       vite: 6.4.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
       vitefu: 1.1.1(vite@6.4.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2))
@@ -14333,6 +14364,8 @@ snapshots:
   entities@4.5.0: {}
 
   entities@6.0.1: {}
+
+  entities@7.0.1: {}
 
   env-paths@2.2.1: {}
 
@@ -15328,11 +15361,17 @@ snapshots:
     optionalDependencies:
       uglify-js: 3.19.3
 
-  happy-dom@18.0.1:
+  happy-dom@20.8.4:
     dependencies:
-      '@types/node': 20.19.8
+      '@types/node': 24.0.14
       '@types/whatwg-mimetype': 3.0.2
+      '@types/ws': 8.18.1
+      entities: 7.0.1
       whatwg-mimetype: 3.0.0
+      ws: 8.19.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   has-bigints@1.1.0: {}
 
@@ -15624,9 +15663,6 @@ snapshots:
   iconv-lite@0.4.24:
     dependencies:
       safer-buffer: 2.1.2
-
-  idb-keyval@6.2.2:
-    optional: true
 
   ieee754@1.2.1: {}
 
@@ -18073,13 +18109,13 @@ snapshots:
 
   stackback@0.0.2: {}
 
-  starlight-llms-txt@0.6.1(@astrojs/starlight@0.36.3(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)))(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)):
+  starlight-llms-txt@0.6.1(@astrojs/starlight@0.36.3(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)))(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)):
     dependencies:
-      '@astrojs/mdx': 4.3.13(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
-      '@astrojs/starlight': 0.36.3(astro@5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
+      '@astrojs/mdx': 4.3.13(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
+      '@astrojs/starlight': 0.36.3(astro@5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2))
       '@types/hast': 3.0.4
       '@types/micromatch': 4.0.10
-      astro: 5.17.1(@types/node@24.0.14)(idb-keyval@6.2.2)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)
+      astro: 5.17.1(@types/node@24.0.14)(jiti@2.4.2)(rollup@4.45.1)(terser@5.43.1)(typescript@5.9.3)(yaml@2.8.2)
       github-slugger: 2.0.0
       hast-util-select: 6.0.4
       micromatch: 4.0.8
@@ -18789,7 +18825,7 @@ snapshots:
       acorn: 8.15.0
       webpack-virtual-modules: 0.6.2
 
-  unstorage@1.17.4(idb-keyval@6.2.2):
+  unstorage@1.17.4:
     dependencies:
       anymatch: 3.1.3
       chokidar: 5.0.0
@@ -18799,8 +18835,6 @@ snapshots:
       node-fetch-native: 1.6.7
       ofetch: 1.5.1
       ufo: 1.6.3
-    optionalDependencies:
-      idb-keyval: 6.2.2
 
   untildify@4.0.0: {}
 
@@ -18994,7 +19028,7 @@ snapshots:
     optionalDependencies:
       vite: 7.3.1(@types/node@24.0.14)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2)
 
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@18.0.1)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2):
+  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.0.14)(happy-dom@20.8.4)(jiti@2.4.2)(terser@5.43.1)(yaml@2.8.2):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
@@ -19022,7 +19056,7 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 24.0.14
-      happy-dom: 18.0.1
+      happy-dom: 20.8.4
     transitivePeerDependencies:
       - jiti
       - less
@@ -19290,6 +19324,8 @@ snapshots:
       async-limiter: 1.0.1
 
   ws@8.18.1: {}
+
+  ws@8.19.0: {}
 
   xpath@0.0.34: {}
 
