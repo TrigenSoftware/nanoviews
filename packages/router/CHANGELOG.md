@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.6...router@1.0.0) (2026-03-13)
+
+### Features
+
+* remove `module()` wrapper, `page` and `layout` now supports module objects ([db93fde](https://github.com/TrigenSoftware/nano_kit/commit/db93fdefb0e55a39e1e7de78ffda3530854a8e76))
+* ssr ready features like `Head$` and `Stores$` page methods, `precompose` util for optimized ssr ([dba0c3a](https://github.com/TrigenSoftware/nano_kit/commit/dba0c3a5e243c5c9b017c34df5d3c3952e58bcde))
+
+### Bug Fixes
+
+* fix listenLinks types ([205e70e](https://github.com/TrigenSoftware/nano_kit/commit/205e70e6e7cb8df5d796fa5df3a3ac9c7cedbfae))
+
 ## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.5...router@1.0.0-alpha.6) (2026-02-16)
 
 ### Bug Fixes

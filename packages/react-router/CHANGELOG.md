@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/react-router@1.0.0-alpha.3...react-router@1.0.0) (2026-03-13)
+
+### Features
+
+* refactored to align vanilla router ssr capabilities ([163f991](https://github.com/TrigenSoftware/nano_kit/commit/163f991021dd80ccfe5d0da3e9fc490f5152b130))
+
+### Bug Fixes
+
+* fix listenLinks types ([205e70e](https://github.com/TrigenSoftware/nano_kit/commit/205e70e6e7cb8df5d796fa5df3a3ac9c7cedbfae))
+
 ## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/react-router@1.0.0-alpha.2...react-router@1.0.0-alpha.3) (2026-02-16)
 
 ### Bug Fixes

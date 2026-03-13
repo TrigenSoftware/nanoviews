@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-alpha.6...kida@1.0.0) (2026-03-13)
+
+### Features
+
+* `subscribeAny` and `isEmpty` are moved from nanoviews, `get` util and `DependencyNotFound` error class are added ([1734be8](https://github.com/TrigenSoftware/nano_kit/commit/1734be81037ba01ca6d5dc943d18a6c7571145d0))
+
 ## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-alpha.5...kida@1.0.0-alpha.6) (2026-02-15)
 
 ### Features

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.1...query@1.0.0) (2026-03-13)
+
+### Features
+
+* `hydratable` extension, `persistence` extension and `indexedDbStorage` persistent adapter ([5bd7219](https://github.com/TrigenSoftware/nano_kit/commit/5bd721948202c8eb95eff33a9de545490a07a7e8))
+
 ## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.0...query@1.0.0-alpha.1) (2026-02-16)
 
 ### Bug Fixes
