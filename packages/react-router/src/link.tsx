@@ -112,7 +112,7 @@ function createLinkComponent<R extends Routes>(
  * Listen raw link clicks on the document to enable navigation without Link component.
  * @param navigation - Router navigation object
  */
-export function useListenLinks(navigation: Navigation) {
+export function useListenLinks<R extends Routes = Routes>(navigation: Navigation<R>) {
   useEffect(() => listenLinks(navigation), [navigation])
 }
 

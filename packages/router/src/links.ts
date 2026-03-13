@@ -1,4 +1,5 @@
 import type { Navigation } from './navigation.js'
+import type { Routes } from './types.js'
 
 /**
  * Handle link click events to navigate using the router.
@@ -35,8 +36,8 @@ export function onLinkClick(
  * @param navigation - Router navigation object
  * @returns Cleanup function to remove the event listener
  */
-export function listenLinks(navigation: Navigation) {
-  const onClick = onLinkClick.bind(navigation)
+export function listenLinks<R extends Routes = Routes>(navigation: Navigation<R>) {
+  const onClick = onLinkClick.bind(navigation as unknown as Navigation)
 
   document.body.addEventListener('click', onClick)
 
