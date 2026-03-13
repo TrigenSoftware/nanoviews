@@ -23,6 +23,7 @@
     "node": ">=16"
   },
   "dependencies": {
+    "@reatom/core": "^1000.15.1",
     "alien-signals-1": "npm:alien-signals@1.0.4",
     "alien-signals-3": "npm:alien-signals@3.1.2",
     "effector": "^23.4.4",

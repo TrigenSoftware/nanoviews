@@ -9,6 +9,7 @@ import * as mobx from 'mobx'
 import * as valtio from 'valtio'
 import * as svelteStore from 'svelte/store'
 import * as jotai from 'jotai'
+import * as reatom from '@reatom/core'
 import * as agera from '../agera/dist/index.js' // 'agera'
 
 const bench = new Bench({
@@ -171,6 +172,32 @@ bench
 
     unsub()
     assert.equal(logs.length, 3)
+  })
+  .add('@reatom/core / effect', () => {
+    const a = reatom.atom(0)
+    const logs = []
+    const unsub = reatom.effect(() => {
+      logs.push(a())
+    })
+
+    a.set(a() + 1)
+    a.set(a() + 1)
+
+    unsub()
+    assert.equal(logs.length, 2)
+  })
+  .add('@reatom/core / effect (update fn)', () => {
+    const a = reatom.atom(0)
+    const logs = []
+    const unsub = reatom.effect(() => {
+      logs.push(a())
+    })
+
+    a.set(v => v + 1)
+    a.set(v => v + 1)
+
+    unsub()
+    assert.equal(logs.length, 2)
   })
 
 await bench.run()
