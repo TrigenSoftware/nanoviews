@@ -66,35 +66,27 @@ export function loadable<const V>(
   }
 }
 
-/**
- * Define a page module.
- * @param module - Page moudule
- * @returns Module reference object
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function module<const V>(module: PageModule<V>): PageModuleRef<V> {
-  return {
-    load() {
-      return {
-        ...module
-      }
-    }
-  }
-}
-
 function isLoadable<C = unknown>(ref: unknown): ref is PageModuleRef<C> {
   return typeof (ref as PageModuleRef<C>)?.load === 'function'
 }
 
-function getViewRefGetter<C>(page: C | PageModuleRef<C>): PageRefGetter<C> {
+function isModule<C = unknown>(ref: unknown): ref is PageModule<C> {
+  return (ref as PageModule<C>)?.default !== undefined
+}
+
+function getViewRefGetter<C>(page: C | PageModule<C> | PageModuleRef<C>): PageRefGetter<C> {
   let getter: PageRefGetter<C>
 
   if (isLoadable(page)) {
     getter = page.load
   } else {
-    const ref = {
-      default: page
-    }
+    const ref = isModule(page)
+      ? {
+        ...page
+      }
+      : {
+        default: page
+      }
 
     getter = () => ref
   }
@@ -105,12 +97,23 @@ function getViewRefGetter<C>(page: C | PageModuleRef<C>): PageRefGetter<C> {
 /**
  * Define a page match reference for route matching.
  * @param expected - The expected route name to match
- * @param page - The page module to return when matched
+ * @param page - The page module ref to return when matched
  * @returns Page view reference object
  */
 export function page<R extends string, const P>(
   expected: R,
   page: PageModuleRef<P>
+): PageMatchRef<R, P>
+
+/**
+ * Define a page match reference for route matching.
+ * @param expected - The expected route name to match
+ * @param page - The page module to return when matched
+ * @returns Page view reference object
+ */
+export function page<R extends string, const P>(
+  expected: R,
+  page: PageModule<P>
 ): PageMatchRef<R, P>
 
 /**
@@ -136,9 +139,8 @@ export function page<R extends string, const P>(
 }
 
 /**
- * Define a page match reference for route matching.
- * @param expected - The expected route name to match
- * @param page - The page module to return when matched
+ * Define a page match reference for not found handling.
+ * @param page - The page module ref to return when not found
  * @returns Page view reference object
  */
 export function notFound<const P>(
@@ -146,9 +148,17 @@ export function notFound<const P>(
 ): PageMatchRef<null, P>
 
 /**
- * Define a page match reference for route matching.
- * @param expected - The expected route name to match
- * @param page - The page component or value to return when matched
+ * Define a page match reference for not found handling.
+ * @param page - The page module to return when not found
+ * @returns Page view reference object
+ */
+export function notFound<const P>(
+  page: PageModule<P>
+): PageMatchRef<null, P>
+
+/**
+ * Define a page match reference for not found handling.
+ * @param page - The page component or value to return when not found
  * @returns Page view reference object
  */
 export function notFound<const P>(
@@ -167,12 +177,23 @@ export function notFound<const P>(
 
 /**
  * Define a layout match reference for nested route matching.
- * @param layout - The layout component module
+ * @param layout - The layout module ref
  * @param pages - Array of page or nested layout match references
  * @returns Layout match reference object
  */
 export function layout<R extends string, P, const L>(
   layout: PageModuleRef<L>,
+  pages: MatchRef<R, P, L>[]
+): LayoutMatchRef<R, P, L>
+
+/**
+ * Define a layout match reference for nested route matching.
+ * @param layout - The layout module
+ * @param pages - Array of page or nested layout match references
+ * @returns Layout match reference object
+ */
+export function layout<R extends string, P, const L>(
+  layout: PageModule<L>,
   pages: MatchRef<R, P, L>[]
 ): LayoutMatchRef<R, P, L>
 

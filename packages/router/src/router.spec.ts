@@ -11,8 +11,7 @@ import {
   layout,
   notFound,
   router,
-  loadable,
-  module
+  loadable
 } from './router.js'
 
 describe('router', () => {
@@ -116,14 +115,14 @@ describe('router', () => {
       const $homeData = () => 'home-store'
       const $aboutData = () => 'about-store'
       const $page = router($location, [
-        page('home', module({
+        page('home', {
           default: 'Home Page',
           Stores$: () => [$homeData]
-        })),
-        page('about', module({
+        }),
+        page('about', {
           default: 'About Page',
           Stores$: () => [$aboutData]
-        }))
+        })
       ])
       const stores = () => $page()?.Stores$?.() ?? []
 
@@ -288,28 +287,28 @@ describe('router', () => {
         const $adminData = () => 'admin-store'
         const compose = ($outlet: Accessor<(() => string) | null>, layout: () => string) => () => `${layout()} > ${$outlet()?.()}`
         const $page = router($location, [
-          page('home', module({
+          page('home', {
             default: (): string => 'Home',
             Stores$: () => [$homeData]
-          })),
-          page('about', module({
+          }),
+          page('about', {
             default: (): string => 'About',
             Stores$: () => [$aboutData]
-          })),
+          }),
           layout(
-            module({
+            {
               default: (): string => 'MainLayout',
               Stores$: () => [$layoutData]
-            }),
+            },
             [
-              page('dashboard', module({
+              page('dashboard', {
                 default: (): string => 'Dashboard',
                 Stores$: () => [$dashboardData]
-              })),
-              page('admin', module({
+              }),
+              page('admin', {
                 default: (): string => 'Admin',
                 Stores$: () => [$adminData]
-              }))
+              })
             ]
           )
         ], compose)
