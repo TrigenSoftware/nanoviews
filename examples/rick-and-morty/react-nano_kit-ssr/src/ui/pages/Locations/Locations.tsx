@@ -1,15 +1,28 @@
 /* DISCLAIMER! VIBECODED! */
-import { useSignal } from '@nano_kit/react'
-import { $page } from '#src/stores/router'
 import {
-  $locations,
-  $locationsError,
-  $locationsLoading
-} from '#src/stores/locations'
+  useSignal,
+  useInject
+} from '@nano_kit/react'
+import { inject } from '@nano_kit/store'
+import { title } from '@nano_kit/router'
+import { Params$ } from '#src/stores/router'
+import { Locations$ } from '#src/stores/locations'
 import { LocationsGrid } from '#src/ui/blocks/LocationsGrid'
 import { Pagination } from '#src/ui/components/Pagination'
 import { Spinner } from '#src/ui/components/Spinner'
 import styles from './Locations.module.css'
+
+export function Head$() {
+  return [
+    title('Rick and Morty Wiki | Locations')
+  ]
+}
+
+export function Stores$() {
+  const { $locations } = inject(Locations$)
+
+  return [$locations]
+}
 
 function formatUrl(page: number) {
   return `?page=${page}`
@@ -19,19 +32,17 @@ function formatPageLabel(page: number) {
   return `Go to page ${page}`
 }
 
-export function Locations() {
+export default function Locations() {
+  const { $page } = useInject(Params$)
+  const {
+    $locations,
+    $locationsError,
+    $locationsLoading
+  } = useInject(Locations$)
   const locationsPage = useSignal($locations)
   const currentPage = useSignal($page)
   const error = useSignal($locationsError)
   const loading = useSignal($locationsLoading)
-
-  if (loading || !locationsPage) {
-    return (
-      <section className={styles.container}>
-        <Spinner>Loading locations...</Spinner>
-      </section>
-    )
-  }
 
   if (error) {
     return (
@@ -40,6 +51,14 @@ export function Locations() {
           <h2>Error loading locations</h2>
           <p>{error}</p>
         </div>
+      </section>
+    )
+  }
+
+  if (loading || !locationsPage) {
+    return (
+      <section className={styles.container}>
+        <Spinner>Loading locations...</Spinner>
       </section>
     )
   }

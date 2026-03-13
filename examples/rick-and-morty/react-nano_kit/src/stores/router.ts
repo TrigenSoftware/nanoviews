@@ -1,8 +1,6 @@
-import { onMount } from '@nano_kit/store'
 import {
   browserNavigation,
   buildPaths,
-  listenLinks,
   routeParam,
   searchParam,
   searchParams
@@ -19,8 +17,6 @@ const routes = {
 } as const
 
 export const [$location, navigation] = browserNavigation(routes)
-
-onMount($location, () => listenLinks(navigation))
 
 export const $searchParams = searchParams($location)
 

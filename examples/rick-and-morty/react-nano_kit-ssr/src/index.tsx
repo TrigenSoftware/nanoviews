@@ -1,19 +1,22 @@
 import {
   layout,
   page,
-  loadable,
-  router,
-  usePage,
-  useListenLinks
+  loadable
 } from '@nano_kit/react-router'
-import {
-  $location,
-  navigation
-} from './stores/router'
+import { routes } from './stores/router'
 import { Spinner } from './ui/components/Spinner'
-import { MainLayout } from './ui/pages/MainLayout'
+import * as MainLayout from './ui/pages/MainLayout'
+import './app.css'
 
-const $page = router($location, [
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+
+export { routes }
+
+export const pages = [
   layout(MainLayout, [
     page('home', () => <></>),
     page(
@@ -59,12 +62,4 @@ const $page = router($location, [
       )
     )
   ])
-])
-
-export function App() {
-  const Page = usePage($page)
-
-  useListenLinks(navigation)
-
-  return Page && <Page />
-}
+]
