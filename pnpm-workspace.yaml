@@ -18,5 +18,7 @@ overrides:
   '@nano_kit/react@*': workspace:^
   '@nano_kit/react-router@*': workspace:^
   '@nano_kit/router@*': workspace:^
+  '@nano_kit/ssr@*': workspace:^
+  '@nano_kit/react-ssr@*': workspace:^
   '@nano_kit/store@*': workspace:^
   'nanoviews@*': workspace:^

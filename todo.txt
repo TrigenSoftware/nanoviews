@@ -1,3 +1,47 @@
+- hydration provider / etc? - @nano_kit/next @nano_kit/next-router integrations
+  https://github.com/effector/next
+
+- wildcard -> splat? shorter and easer to type
+- cookies / headers to store
+- cache handler
+- server cache
+- Compression
+  https://www.npmjs.com/package/vite-plugin-compression2
+  https://universal-middleware.dev/middlewares/sirv
+  https://github.com/lukeed/sirv/tree/main/packages/sirv#api
+
+- render to stream with data streaming
+- @nano_kit/framework ?
+
+## Kida/Agera
+
+- immutability helpers? / make work with $data facet more comfortable
+- injectable class?
+- lazy scope to start and stop methods? for example for resort in loop
+- later: resort effects
+
+## 🔥🔥🔥 Query 🔥🔥🔥
+
+- map data / default data
+- synced cache between tabs
+
+## Router
+
+- add payload to push, replace to store it in location state, for example mark transition without scroll, instead of compare prev route and next
+- dynamic redirect in storesToPreload and static in pages structure
+- page status codes
+- onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
+- scroll restoration ssr
+- loadable+react.lazy like util
+
+## React Router
+
+- mark current/active links?
+
+## intl
+
+## cookies
+
 ## Nanoviews
 
 - fix TruthyValueOrSignal type, return signal if signal, not accessor
@@ -19,59 +63,6 @@ for_($items)(
 for_($items)(
   asRecord(($item) => li()($item.$name))
 )
-
-## Kida/Agera
-
-- mark store as hydrated?
-- ram benchmarks
-
-- immutability helpers? / make work with $data facet more comfortable
-- injectable class?
-- lazy scope to start and stop methods? for example for resort in loop
-- later: resort effects
-
-## 🔥🔥🔥 Query 🔥🔥🔥
-
-```
-query<[city: City | undefined], Weather | null>(...)
-->
-query<(city: City | undefined) => Weather | null>(...)
-
-queryKey<[postId: number], Post | null>('post')
-->
-queryKey<(postId: number) => Post | null>('post')
-
-operationKey<[], [prompt: string], Post>('postGeneration')
-->
-operationKey<() => Post, [prompt: string]>('postGeneration')
-or
-operationKey<() => Post, (prompt: string) => void>('postGeneration')
-or
-operationKey<[], (prompt: string) => Post>('postGeneration')
-operationKey<[postId: number], (prompt: string) => Post>('postGeneration')
-```
-
-- map data / default data
-
-- hydration provider / etc?
-- serialize -> dehydrate / hydrate?
-- combine serialize + serializable?
-- synced cache between tabs
-
-## Router
-
-- add payload to push, replace to store it in location state, for example mark transition without scroll, instead of compare prev route and next
-- dynamic redirect in storesToPreload and static in pages structure
-- vite ssr integration
-- loadable+react.lazy like util
-- ~loadable and~ lazy preload on client after ssr - how?
-- onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
-- wildcard -> splash? shorter and easer to type
-
-# React Router
-
-- hydrate helper
-- server helper
 
 ## Perf
 
@@ -152,53 +143,6 @@ obj = props$({
 ```
 
 ```
-async function browser() {
-  const context = new InjectionContext()
-  const $location = inject($Location, context)
-  const storesToPrelod = inject($StoresToPreload, context)
-
-  await preloadPage(pages, $location().route)
-  deserialize(storesToPrelod, window.__SERIALIZED__)
-
-  hydrateRoot(
-    document.getElementById('root'),
-    <InjectionContextProvider
-      context={context}
-    >
-      <App />
-    </InjectionContext>,
-  )
-}
-
-await preloadPages(pages)
-
-async function ssr(path) {
-  const [$location, navigation] = virtualNavigation(path, paths)
-  const [$page, storesToPrelod] = router($location, pages)
-  const context = new InjectionContext([
-    provide($Location, $location),
-    provide($Navigation, navigation),
-    provide($Page, $page)
-  ])
-  const serialized = await serialize(storesToPrelod, context)
-  const html = renderToString(
-    <>
-      <script>
-        {`__SERIALIZED__ = ${JSON.stringify(serialized)}`}
-      </script>
-      <InjectionContextProvider
-        context={context}
-      >
-        <App />
-      </InjectionContext>
-    <>
-  )
-
-  return html
-}
-```
-
-```
 const $onNumpadClick = event(event => event.currentTarget.dataset.payload)
 const $onSubmit = event()
 
@@ -221,4 +165,23 @@ button({
   onClick: $onNumpadClick
   'data-payload': 5
 })('Click!')
+```
+
+```
+query<[city: City | undefined], Weather | null>(...)
+->
+query<(city: City | undefined) => Weather | null>(...)
+
+queryKey<[postId: number], Post | null>('post')
+->
+queryKey<(postId: number) => Post | null>('post')
+
+operationKey<[], [prompt: string], Post>('postGeneration')
+->
+operationKey<() => Post, [prompt: string]>('postGeneration')
+or
+operationKey<() => Post, (prompt: string) => void>('postGeneration')
+or
+operationKey<[], (prompt: string) => Post>('postGeneration')
+operationKey<[postId: number], (prompt: string) => Post>('postGeneration')
 ```
