@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/react@1.0.0-alpha.5...react@1.0.0) (2026-03-13)
+
+### Features
+
+* fix argument type for `useSignal`, `useInjectionContext` hook ([2a5b1d7](https://github.com/TrigenSoftware/nano_kit/commit/2a5b1d7de04be53113b83f5a6170e76b289cd04a))
+
 ## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/react@1.0.0-alpha.4...react@1.0.0-alpha.5) (2026-02-16)
 
 ### Bug Fixes
