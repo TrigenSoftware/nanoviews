@@ -5,7 +5,6 @@
 ## Agera/Kida/Store
 
 - latest util? computed(latest($searchQuery, $searchParam))
-- rework signal lifecycle/mounted mechanism holistically (lifecycle.ts): pending mounted queue, activation counts, noMount - current subsCount guard in notifyMounted is a spot fix
 
 ## 🔥🔥🔥 Query 🔥🔥🔥
 

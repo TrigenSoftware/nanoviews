@@ -115,7 +115,7 @@ function reconcile(
   let prev: LoopItem | undefined
   let current = itemsList.f
 
-  for (let i = 0, value: unknown, key: unknown, item: LoopItem | undefined; i < length; i += 1) {
+  for (let i = 0, value: unknown, key: unknown, item: LoopItem | undefined; i < length; i++) {
     value = nextItems[i]
     key = track(value, i)
     item = lookupMap.get(key)
@@ -155,11 +155,11 @@ function reconcile(
           const [a] = matched
           const b = matched[matched.length - 1]
 
-          for (j = 0; j < matched.length; j += 1) {
+          for (j = 0; j < matched.length; j++) {
             move(matched[j], start, anchor)
           }
 
-          for (j = 0; j < stashed.length; j += 1) {
+          for (j = 0; j < stashed.length; j++) {
             seen.delete(stashed[j])
           }
 
