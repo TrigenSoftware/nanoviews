@@ -19,15 +19,15 @@
 [size]: https://deno.bundlejs.com/badge?q=nanoviews
 [size-url]: https://bundlejs.com/?q=nanoviews
 
-[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nano_kit/tests.yml?branch=main
-[build-url]: https://github.com/TrigenSoftware/nano_kit/actions
+[build]: https://img.shields.io/github/actions/workflow/status/TrigenSoftware/nanoviews/tests.yml?branch=main
+[build-url]: https://github.com/TrigenSoftware/nanoviews/actions
 
-[coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nano_kit.svg
-[coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nano_kit
+[coverage]: https://img.shields.io/codecov/c/github/TrigenSoftware/nanoviews.svg
+[coverage-url]: https://app.codecov.io/gh/TrigenSoftware/nanoviews
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../../website/src/assets/moon_white.svg">
-  <img alt="Halftone moon logo" src="../../website/src/assets/moon_black.svg" width="100" height="100" align="right">
+  <source media="(prefers-color-scheme: dark)" srcset="../../assets/moon_white.svg">
+  <img alt="Halftone moon logo" src="../../assets/moon_black.svg" width="100" height="100" align="right">
 </picture>
 
 A small Direct DOM library for creating user interfaces.
@@ -48,7 +48,7 @@ function App() {
     a({ href: 'https://vitejs.dev', target: '_blank' })(
       img({ src: './vite.svg', class: 'logo', alt: 'Vite logo' })
     ),
-    a({ href: 'https://github.com/TrigenSoftware/nano_kit', target: '_blank' })(
+    a({ href: 'https://github.com/TrigenSoftware/nanoviews', target: '_blank' })(
       img({ src: './nanoviews.svg', class: 'logo nanoviews', alt: 'Nanoviews logo' })
     ),
     h1()('Vite + Nanoviews'),
@@ -510,7 +510,7 @@ App() // <div>Current theme: dark</div>
 ```
 
 > [!NOTE]
-> Nanoviews contexts are based on [Kida's dependency injection system](../kida#dependency-injection).
+> Nanoviews contexts are based on [Kida's dependency injection system](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/kida#dependency-injection).
 
 ## Control flow
 
@@ -670,7 +670,7 @@ Nanoviews and Kida are small libraries and designed to be tree-shakable. So apps
 | Example | Nanoviews | SolidJS | Svelte |
 | ------- | --------- | ------- | ------ |
 | Vite Demo | 7.78 kB / gzip: 3.14 kB<br>[source code](../../examples/vite-demo/nanoviews/) | 8.93 kB / gzip: 3.73 kB<br>[source code](../../examples/vite-demo/solid/) | 23.77 kB / gzip: 9.61 kB<br>[source code](../../examples/vite-demo/svelte/) |
-| Weather | + nano_kit<br>22.68 kB / gzip: 8.72 kB<br>[source code](../../examples/weather/nanoviews-nano_kit/) | + nanostores<br>30.18 kB / gzip: 11.97 kB<br>[source code](../../examples/weather/solid-nanostores/) | + nanostores<br>45.73 kB / gzip: 18.01 kB<br>[source code](../../examples/weather/svelte-nanostores/) |
+| Weather | + nano_kit<br>22.68 kB / gzip: 8.72 kB<br>[source code](../../examples/weather/nano_kit/) | + nanostores<br>30.18 kB / gzip: 11.97 kB<br>[source code](https://github.com/TrigenSoftware/nano_kit/tree/main/examples/weather/solid-nanostores/) | + nanostores<br>45.73 kB / gzip: 18.01 kB<br>[source code](https://github.com/TrigenSoftware/nano_kit/tree/main/examples/weather/svelte-nanostores/) |
 
 ### Performance
 

@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://nano-kit.js.org/sitemap-index.xml

@@ -1,64 +1,31 @@
 packages:
   - packages/*
-  - website
+  - examples/*
   - examples/*/*
-  - examples/common
 allowBuilds:
   esbuild: true
-  sharp: true
   simple-git-hooks: true
 autoInstallPeers: false
 catalog:
-  '@preact/preset-vite': ^2.10.2
-  '@types/react': ^19.2.17
-  '@types/react-dom': ^19.2.3
+  '@size-limit/preset-small-lib': ^12.0.0
   '@testing-library/dom': ^10.0.0
   '@testing-library/jest-dom': ^7.0.0
-  '@testing-library/preact': ^3.2.4
-  '@testing-library/react': ^16.1.0
-  '@testing-library/svelte': ^5.2.8
   '@testing-library/user-event': ^14.5.2
   '@types/node': ^24.0.14
-  '@vitejs/plugin-react': ^6.0.3
-  '@sveltejs/vite-plugin-svelte': ^7.2.0
   '@vitest/coverage-v8': ^4.1.10
-  '@size-limit/preset-small-lib': ^12.0.0
   happy-dom: ^20.0.0
-  preact: ^10.27.1
-  preact-render-to-string: ^6.6.1
   playwright: ^1.60.0
   react: ^19.2.8
   react-dom: ^19.2.8
   size-limit: ^12.0.0
   storybook: ^10.3.5
-  svelte: ^5.56.7
-  svelte-check: ^4.7.3
   typescript: ^7.0.2
   vite: ^8.2.1
   vitest: ^4.1.10
 overrides:
-  '@nano_kit/intl@*': workspace:^
-  '@nano_kit/next-router@*': workspace:^
-  '@nano_kit/preact@*': workspace:^
-  '@nano_kit/preact-router@*': workspace:^
-  '@nano_kit/preact-ssr@*': workspace:^
-  '@nano_kit/platform-web@*': workspace:^
-  '@nano_kit/query@*': workspace:^
-  '@nano_kit/react-router@*': workspace:^
-  '@nano_kit/react-ssr@*': workspace:^
-  '@nano_kit/react@*': workspace:^
-  '@nano_kit/router@*': workspace:^
-  '@nano_kit/ssr@*': workspace:^
-  '@nano_kit/store@*': workspace:^
-  '@nano_kit/svelte@*': workspace:^
-  '@nano_kit/svelte-kit@*': workspace:^
-  '@nano_kit/svelte-router@*': workspace:^
-  '@nano_kit/svelte-ssr@*': workspace:^
   'nanoviews@*': workspace:^
-packageExtensions:
-  # @sveltejs/package uses the TypeScript JS API but does not declare a
-  # typescript peer, so it resolves the hoisted TS. Declare the peer so it
-  # picks up svelte-router's TS 6 (the native TS 7 has no `ts.sys` JS API).
-  '@sveltejs/package':
-    peerDependencies:
-      typescript: '*'
+  # Temporary until the kida 2.0 release line ships: keep the whole graph on
+  # the same snapshot so examples get one kida instance shared with nanoviews.
+  '@nano_kit/platform-web@*': 2.0.0-snapshot.20260830203546
+  '@nano_kit/query@*': 2.0.0-snapshot.20260830203546
+  '@nano_kit/store@*': 2.0.0-snapshot.20260830203546

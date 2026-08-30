@@ -26,12 +26,6 @@ integration-test-cache.json
 dist
 package
 build
-.astro
-.next
-.output
-.tanstack
-.svelte-kit
-next-env.d.ts
 
 # Env files
 .env

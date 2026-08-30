@@ -4,7 +4,7 @@ Working notes for agents (and humans) contributing to this monorepo.
 
 ## What matters here
 
-This is a set of small, published libraries: `agera` (signals core), `kida`, `@nano_kit/store`, `nanoviews` (DOM view layer), `query`, `router` and thin framework adapters. Their selling point is that they are tiny and fast, so **bundle size is priority one and CPU is priority two**. A change that makes the code nicer but bigger is not an improvement.
+This is the `nanoviews` monorepo: `nanoviews` itself (a Direct DOM view layer built on `kida` signals) and its companion packages `@nanoviews/storybook`, `@nanoviews/storybook-vite` and `@nanoviews/testing-library`. The selling point is that the library is tiny and fast, so **bundle size is priority one and CPU is priority two**. A change that makes the code nicer but bigger is not an improvement.
 
 ## Writing internal code
 

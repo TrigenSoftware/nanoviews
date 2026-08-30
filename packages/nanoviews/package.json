@@ -1,20 +1,19 @@
 {
   "name": "nanoviews",
   "type": "module",
-  "private": true,
   "version": "1.0.0-alpha.9",
-  "description": "A small Direct DOM library for creating user interfaces.",
+  "description": "A small Direct DOM library for building user interfaces.",
   "author": "dangreen",
   "license": "MIT",
-  "homepage": "https://github.com/TrigenSoftware/nano_kit/tree/main/packages/nanoviews#readme",
+  "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/nanoviews#readme",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TrigenSoftware/nano_kit.git",
+    "url": "https://github.com/TrigenSoftware/nanoviews.git",
     "directory": "packages/nanoviews"
   },
   "bugs": {
-    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
+    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
   },
   "keywords": [
     "ui",
@@ -79,7 +78,7 @@
     }
   },
   "dependencies": {
-    "kida": "workspace:^"
+    "kida": "2.0.0-snapshot.20260830203546"
   },
   "devDependencies": {
     "@nanoviews/storybook": "workspace:^",

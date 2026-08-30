@@ -1,3 +1,0 @@
-<div class="notice notice_loading" role="status" aria-live="polite">
-  Loading...
-</div>

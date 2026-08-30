@@ -3,7 +3,7 @@ import baseConfig from '@trigen/oxlint-config'
 import testConfig from '@trigen/oxlint-config/test'
 
 export default defineConfig({
-  ignorePatterns: ['**/dist/', '**/build/', '**/package/', '**/.astro/'],
+  ignorePatterns: ['**/dist/', '**/build/', '**/package/'],
   extends: [
     baseConfig,
     testConfig

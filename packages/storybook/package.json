@@ -9,11 +9,11 @@
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TrigenSoftware/nano_kit.git",
+    "url": "https://github.com/TrigenSoftware/nanoviews.git",
     "directory": "packages/storybook"
   },
   "bugs": {
-    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
+    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
   },
   "keywords": [
     "storybook",
@@ -51,7 +51,7 @@
     "test": "run lint"
   },
   "peerDependencies": {
-    "kida": "workspace:^",
+    "kida": "2.0.0-snapshot.20260830203546",
     "nanoviews": "workspace:^",
     "storybook": "^10.3.5"
   },
@@ -60,7 +60,7 @@
     "type-fest": "^4.12.0"
   },
   "devDependencies": {
-    "kida": "workspace:^",
+    "kida": "2.0.0-snapshot.20260830203546",
     "nanoviews": "workspace:^",
     "storybook": "catalog:"
   }
