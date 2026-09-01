@@ -1,3 +1,4 @@
+/* oxlint-disable typescript/no-unnecessary-type-assertion */
 import {
   describe,
   it,
