@@ -21,7 +21,7 @@ export function createEffectAttribute<
   TargetElement extends Element,
   Value
 >(id: ID, callback: EffectAttributeCallback<TargetElement, Value>) {
-  (effectAttributes ??= new Map()).set(id, callback as EffectAttributeCallback)
+  (effectAttributes ??= new Map()).set(id, callback)
 
   return id
 }

@@ -466,7 +466,7 @@ describe('nanoviews', () => {
         const { container } = render(() => ul()(
           for_(items, trackById)(
             (item) => {
-              rows.push(item as WritableSignal<Player>)
+              rows.push(item)
 
               return li()(record(item).$name)
             }
@@ -685,7 +685,7 @@ describe('nanoviews', () => {
         const { container } = render(() => ul()(
           for_(items, trackById)(
             (item) => {
-              rows.push(item as WritableSignal<Player>)
+              rows.push(item)
 
               return li()(record(item).$name)
             }
@@ -742,7 +742,7 @@ describe('nanoviews', () => {
         const { container } = render(() => ul()(
           for_(items, trackById)(
             (item) => {
-              rows.push(item as WritableSignal<Player>)
+              rows.push(item)
 
               return li()(record(item).$name)
             }
@@ -781,7 +781,7 @@ describe('nanoviews', () => {
         const { container } = render(() => ul()(
           for_(items, trackById)(
             (item) => {
-              rows.push(item as WritableSignal<Player>)
+              rows.push(item)
 
               return li()(record(item).$name)
             }
