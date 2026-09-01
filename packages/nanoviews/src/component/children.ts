@@ -1,8 +1,7 @@
 import type {
-  AnyFn,
   Child,
   Children,
-  Slot,
+  AnySlot,
   ChildrenWithSlots,
   AnySlotDef,
   MapSlotDefsToContents,
@@ -18,7 +17,7 @@ import { lazyChild } from '../internals/index.js'
  * @returns Function that accepts children
  */
 export function children$<
-  T extends Child,
+  T extends Child | AnySlot,
   C extends unknown[] = Children
 >(render: Renderer<T, C>) {
   return lazyChild(
@@ -31,8 +30,8 @@ export function children$<
  * @param value
  * @returns Is a slot
  */
-export function isSlot(value: unknown): value is Slot<unknown, AnyFn> {
-  return typeof value === 'object' && value !== null && 'c' in (value as Slot<unknown, AnyFn>)
+export function isSlot(value: unknown): value is AnySlot {
+  return typeof value === 'object' && value !== null && 'c' in (value as AnySlot)
 }
 
 /**
@@ -43,8 +42,7 @@ export function isSlot(value: unknown): value is Slot<unknown, AnyFn> {
  */
 export function slot$<
   C,
-  // oxlint-disable-next-line typescript/no-explicit-any
-  F extends (...args: any[]) => Slot<C, F>
+  F extends AnySlotDef
 >(factory: F, content: C) {
   return {
     f: factory,
@@ -56,6 +54,7 @@ export function slot$<
  * Get defined slots from children
  * @param slotDefs - Slot definitions
  * @param children - Input children with possible slots
+ * @throws {Error} If a child is a slot that none of `slotDefs` declares
  * @returns Slots and rest children
  */
 export function getSlots<
@@ -77,12 +76,15 @@ export function getSlots<
       child = children[i]
 
       if (isSlot(child)) {
-        for (let j = 0; j < slotDefsLen; j++) {
-          if (child.f === slotDefs[j]) {
-            slots[j] = child.c
-            break
-          }
+        const j = slotDefs.indexOf(child.f)
+
+        // A slot nobody declared here has no place to go: it would vanish
+        // without a sound, so it stops one call away from the mistake
+        if (j < 0) {
+          throw new Error('Slot is not declared in slots$')
         }
+
+        slots[j] = child.c
       } else {
         restChildren.push(child)
       }
@@ -99,7 +101,7 @@ export function getSlots<
  * @returns Function that accepts children
  */
 export function slots$<
-  T extends Child,
+  T extends Child | AnySlot,
   D extends AnySlotDef[]
 >(
   slotDefs: [...D],

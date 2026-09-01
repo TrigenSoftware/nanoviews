@@ -10,7 +10,9 @@ import * as Stories from './children.stories.js'
 const {
   NoSlot,
   Slot,
-  Slots
+  Slots,
+  ComponentSlots,
+  UndeclaredSlot
 } = composeStories(Stories)
 
 describe('nanoviews', () => {
@@ -32,6 +34,18 @@ describe('nanoviews', () => {
         const { container } = render(Slots())
 
         expect(container.innerHTML).toBe('<div><div>Hello! World! From Slot!</div></div>')
+      })
+
+      it('should render slots of components', () => {
+        const { container } = render(ComponentSlots())
+
+        expect(container.innerHTML).toBe(
+          '<div><main><header data-testid="header">Header content</header>Main content<footer data-testid="footer">Footer content</footer></main></div>'
+        )
+      })
+
+      it('should throw on a slot that is not declared', () => {
+        expect(() => render(UndeclaredSlot())).toThrow('Slot is not declared in slots$')
       })
     })
   })

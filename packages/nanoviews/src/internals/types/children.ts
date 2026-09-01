@@ -4,7 +4,7 @@ import type {
   AnyFn
 } from './common.js'
 
-export type LazyChild<T extends () => Child = () => Child> = T & {
+export type LazyChild<T extends AnyFn = () => Child> = T & {
   /** Mark fn as lazy child. */
   c: true
 }
@@ -13,14 +13,11 @@ export type Child = ChildNode | DocumentFragment | LazyChild<() => Child> | Sign
 
 export type Children = Child[]
 
-export type ChildrenWithSlots<S extends AnySlot, C extends unknown[] = Children> = C extends (infer D)[]
+export type ChildrenWithSlots<S, C extends unknown[] = Children> = C extends (infer D)[]
   ? (D | S)[]
   : never
 
-export interface Slot<
-  C,
-  F extends (...args: any[]) => Slot<C, F>
-> {
+export interface Slot<C, F> {
   f: F
   c: C
 }
@@ -32,25 +29,35 @@ export interface SlotDef<C> {
 
 export type AnySlot = Slot<any, AnyFn>
 
-export type AnySlotDef = SlotDef<any>
+export type AnySlotDef = AnyFn
+
+/**
+ * Walk a slot definition's return chain down to the slot it eventually creates,
+ * stepping through the children receivers a component puts in between.
+ */
+export type SlotOf<D> = D extends (...args: any[]) => infer R
+  ? R extends AnySlot
+    ? R
+    : SlotOf<R>
+  : never
 
 export type MapSlotDefsToContents<D extends unknown[]> = D extends [infer F, ...infer R]
   ? [
-    F extends SlotDef<infer C>
+    SlotOf<F> extends Slot<infer C, any>
       ? C | undefined
       : never,
     ...MapSlotDefsToContents<R>
   ]
   : []
 
-export type MapSlotDefsToSlot<D extends AnySlotDef[]> = ReturnType<D[number]>
+export type MapSlotDefsToSlot<D extends AnySlotDef[]> = SlotOf<D[number]>
 
 export type Renderer<
-  T extends Child,
+  T extends Child | AnySlot,
   C extends unknown[] = Children
-> = (children: C | undefined) => T
+> = (children: C) => T
 
 export type RendererWithSlots<
-  T extends Child,
+  T extends Child | AnySlot,
   D extends AnySlotDef[]
-> = (...children: [...MapSlotDefsToContents<D>, Children | undefined]) => T
+> = (...children: [...MapSlotDefsToContents<D>, Children]) => T
