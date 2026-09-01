@@ -1,7 +1,6 @@
-import {
-  type Meta,
-  type StoryObj,
-  nanoStory
+import type {
+  Meta,
+  StoryObj
 } from '@nanoviews/storybook'
 import {
   b,
@@ -20,15 +19,22 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
-  render: nanoStory(() => swap_('static', value => b()(value)))
+  render() {
+    return swap_('static', value => b()(value))
+  }
 }
 
 export const ReactiveValue: Story = {
   args: {
     tab: 'list'
   },
-  render: nanoStory(({ tab }) => swap_(
-    tab,
-    tab => (tab === 'list' ? b()(tab) : i()(tab))
-  ))
+  render({ tab }) {
+    return (
+      swap_(tab, tab => (
+        tab === 'list'
+          ? b()(tab)
+          : i()(tab)
+      ))
+    )
+  }
 }

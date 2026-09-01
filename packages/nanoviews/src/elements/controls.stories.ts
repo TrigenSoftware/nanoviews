@@ -3,7 +3,6 @@ import type {
   StoryObj
 } from '@nanoviews/storybook'
 import { fn } from 'storybook/test'
-import { nanoStory } from '@nanoviews/storybook'
 import { effect } from 'kida'
 import {
   input,
@@ -39,7 +38,7 @@ export const TextInput: StoryObj<{
     onChange: fn(),
     value: 'Hello, world!'
   },
-  render: nanoStory(({ onChange, value }) => {
+  render({ onChange, value }) {
     if (onChange && value) {
       effect((warmup) => {
         const v = value()
@@ -50,11 +49,13 @@ export const TextInput: StoryObj<{
       })
     }
 
-    return input({
-      type: 'text',
-      [value$]: value
-    })
-  })
+    return (
+      input({
+        type: 'text',
+        [value$]: value
+      })
+    )
+  }
 }
 
 export const Textarea: StoryObj<{
@@ -65,7 +66,7 @@ export const Textarea: StoryObj<{
     onChange: fn(),
     value: 'Hello, world!'
   },
-  render: nanoStory(({ onChange, value }) => {
+  render({ onChange, value }) {
     if (onChange && value) {
       effect((warmup) => {
         const v = value()
@@ -76,10 +77,12 @@ export const Textarea: StoryObj<{
       })
     }
 
-    return textarea({
-      [value$]: value
-    })()
-  })
+    return (
+      textarea({
+        [value$]: value
+      })()
+    )
+  }
 }
 
 export const Select: StoryObj<{
@@ -100,7 +103,7 @@ export const Select: StoryObj<{
     onChange: fn(),
     value: 'green'
   },
-  render: nanoStory(({ onChange, value }) => {
+  render({ onChange, value }) {
     if (onChange && value) {
       effect((warmup) => {
         const v = value()
@@ -111,20 +114,22 @@ export const Select: StoryObj<{
       })
     }
 
-    return select({
-      [selected$]: value
-    })(
-      option({
-        value: 'red'
-      })('Red'),
-      option({
-        value: 'green'
-      })('Green'),
-      option({
-        value: 'blue'
-      })('Blue')
+    return (
+      select({
+        [selected$]: value
+      })(
+        option({
+          value: 'red'
+        })('Red'),
+        option({
+          value: 'green'
+        })('Green'),
+        option({
+          value: 'blue'
+        })('Blue')
+      )
     )
-  })
+  }
 }
 
 export const MultipleSelect: StoryObj<{
@@ -145,7 +150,7 @@ export const MultipleSelect: StoryObj<{
     onChange: fn(),
     values: ['green']
   },
-  render: nanoStory(({ onChange, values }) => {
+  render({ onChange, values }) {
     if (onChange && values) {
       effect((warmup) => {
         const v = values()
@@ -156,20 +161,22 @@ export const MultipleSelect: StoryObj<{
       })
     }
 
-    return select({
-      [selected$]: values
-    })(
-      option({
-        value: 'red'
-      })('Red'),
-      option({
-        value: 'green'
-      })('Green'),
-      option({
-        value: 'blue'
-      })('Blue')
+    return (
+      select({
+        [selected$]: values
+      })(
+        option({
+          value: 'red'
+        })('Red'),
+        option({
+          value: 'green'
+        })('Green'),
+        option({
+          value: 'blue'
+        })('Blue')
+      )
     )
-  })
+  }
 }
 
 export const Checkbox: StoryObj<{
@@ -190,7 +197,7 @@ export const Checkbox: StoryObj<{
     onChange: fn(),
     checked: true
   },
-  render: nanoStory(({ onChange, checked }) => {
+  render({ onChange, checked }) {
     if (onChange && checked) {
       effect((warmup) => {
         const v = checked()
@@ -201,11 +208,13 @@ export const Checkbox: StoryObj<{
       })
     }
 
-    return input({
-      type: 'checkbox',
-      [checked$]: checked
-    })
-  })
+    return (
+      input({
+        type: 'checkbox',
+        [checked$]: checked
+      })
+    )
+  }
 }
 
 export const Files: StoryObj<{
@@ -216,7 +225,7 @@ export const Files: StoryObj<{
     onChange: fn(),
     files: []
   },
-  render: nanoStory(({ onChange, files }) => {
+  render({ onChange, files }) {
     if (onChange && files) {
       effect((warmup) => {
         const v = files()
@@ -227,9 +236,11 @@ export const Files: StoryObj<{
       })
     }
 
-    return input({
-      type: 'file',
-      [files$]: files
-    })
-  })
+    return (
+      input({
+        type: 'file',
+        [files$]: files
+      })
+    )
+  }
 }

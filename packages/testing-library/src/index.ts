@@ -6,8 +6,8 @@ declare const afterEach: ((callback: () => void) => void) | undefined
 // then we'll automatically run cleanup afterEach test
 // this ensures that tests run in isolation from each other
 // if you don't like this then either import the `pure` module
-// or set the STL_SKIP_AUTO_CLEANUP env variable to 'true'.
-if (typeof afterEach === 'function' && !process.env.STL_SKIP_AUTO_CLEANUP) {
+// or set the NTL_SKIP_AUTO_CLEANUP env variable to 'true'.
+if (typeof afterEach === 'function' && (typeof process === 'undefined' || !process.env.NTL_SKIP_AUTO_CLEANUP)) {
   afterEach(cleanup)
 }
 

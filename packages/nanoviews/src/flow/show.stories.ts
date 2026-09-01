@@ -1,9 +1,8 @@
-import { signal } from 'kida'
-import {
-  type Meta,
-  type StoryObj,
-  nanoStory
+import type {
+  Meta,
+  StoryObj
 } from '@nanoviews/storybook'
+import { signal } from 'kida'
 import {
   b,
   button
@@ -22,14 +21,18 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
-  render: nanoStory(() => show_(true, () => b()('shown')))
+  render() {
+    return show_(true, () => b()('shown'))
+  }
 }
 
 export const ReactiveValue: Story = {
   args: {
     visible: false
   },
-  render: nanoStory(({ visible }) => show_(visible, () => b()('content')))
+  render({ visible }) {
+    return show_(visible, () => b()('content'))
+  }
 }
 
 // The tree lives across the toggles: hiding parks it instead of destroying,
@@ -39,10 +42,12 @@ export const KeptAlive: Story = {
     visible: true,
     text: 'a'
   },
-  render: nanoStory(({
+  render({
     visible,
     text
-  }) => show_(visible, () => b()(text)))
+  }) {
+    return show_(visible, () => b()(text))
+  }
 }
 
 // Internal state survives the toggles: the count stays and the click keeps
@@ -51,11 +56,17 @@ export const Counter: Story = {
   args: {
     visible: true
   },
-  render: nanoStory(({ visible }) => show_(visible, () => {
-    const $count = signal(0)
+  render({ visible }) {
+    return (
+      show_(visible, () => {
+        const $count = signal(0)
 
-    return button({
-      onClick: () => $count($count() + 1)
-    })('Count: ', $count)
-  }))
+        return button({
+          onClick: () => $count($count() + 1)
+        })(
+          'Count: ', $count
+        )
+      })
+    )
+  }
 }

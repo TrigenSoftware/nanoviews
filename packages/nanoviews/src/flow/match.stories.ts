@@ -1,8 +1,7 @@
 import type { Signalish } from 'kida'
-import {
-  type Meta,
-  type StoryObj,
-  nanoStory
+import type {
+  Meta,
+  StoryObj
 } from '@nanoviews/storybook'
 import {
   b,
@@ -29,11 +28,15 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
-  render: nanoStory(() => match_(
-    when_(0, () => b()('Zero')),
-    when_('ready', () => b()('Ready')),
-    default_(() => 'Nothing')
-  ))
+  render() {
+    return (
+      match_(
+        when_(0, () => b()('Zero')),
+        when_('ready', () => b()('Ready')),
+        default_(() => 'Nothing')
+      )
+    )
+  }
 }
 
 export const ReactiveValue: Story = {
@@ -41,14 +44,18 @@ export const ReactiveValue: Story = {
     loading: true,
     error: false
   },
-  render: nanoStory(({
+  render({
     loading,
     error
-  }) => match_(
-    when_(loading, () => i()('Loading')),
-    when_(error, () => b()('Error')),
-    default_(() => 'Ready')
-  ))
+  }) {
+    return (
+      match_(
+        when_(loading, () => i()('Loading')),
+        when_(error, () => b()('Error')),
+        default_(() => 'Ready')
+      )
+    )
+  }
 }
 
 export const ReactiveValueWithoutDefault: Story = {
@@ -56,21 +63,29 @@ export const ReactiveValueWithoutDefault: Story = {
     loading: true,
     error: false
   },
-  render: nanoStory(({
+  render({
     loading,
     error
-  }) => match_(
-    when_(loading, () => i()('Loading')),
-    when_(error, () => b()('Error'))
-  ))
+  }) {
+    return (
+      match_(
+        when_(loading, () => i()('Loading')),
+        when_(error, () => b()('Error'))
+      )
+    )
+  }
 }
 
 export const CaseValue: Story = {
   args: {
     post: null
   },
-  render: nanoStory(({ post }) => match_(
-    when_(post, $post => b()(() => $post().title)),
-    default_(() => 'No post')
-  ))
+  render({ post }) {
+    return (
+      match_(
+        when_(post, $post => b()(() => $post().title)),
+        default_(() => 'No post')
+      )
+    )
+  }
 }

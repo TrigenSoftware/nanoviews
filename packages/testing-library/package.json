@@ -1,11 +1,11 @@
 {
   "name": "@nanoviews/testing-library",
   "type": "module",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.9",
   "description": "Nanoviews testing utilities.",
   "author": "dangreen",
   "license": "MIT",
+  "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/testing-library#readme",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",
@@ -27,7 +27,9 @@
     "node": ">=20"
   },
   "exports": {
+    "./package.json": "./package.json",
     ".": "./src/index.ts",
+    "./pure": "./src/pure.ts",
     "./vitest": "./src/vitest.ts"
   },
   "publishConfig": {
@@ -35,11 +37,15 @@
       "./package.json": "./package.json",
       ".": {
         "types": "./dist/index.d.ts",
-        "import": "./dist/index.js"
+        "default": "./dist/index.js"
+      },
+      "./pure": {
+        "types": "./dist/pure.d.ts",
+        "default": "./dist/pure.js"
       },
       "./vitest": {
         "types": "./dist/vitest.d.ts",
-        "import": "./dist/vitest.js"
+        "default": "./dist/vitest.js"
       }
     },
     "directory": "package",
@@ -59,14 +65,21 @@
     "lint": "oxlint",
     "format": "oxlint --fix",
     "test:types": "tsc --noEmit",
-    "test": "run lint"
+    "test": "run -p lint test:types"
   },
   "peerDependencies": {
-    "@testing-library/dom": "catalog:",
-    "nanoviews": "workspace:^"
+    "@testing-library/dom": ">=7",
+    "nanoviews": "workspace:^",
+    "vitest": ">=1"
+  },
+  "peerDependenciesMeta": {
+    "vitest": {
+      "optional": true
+    }
   },
   "devDependencies": {
-    "@testing-library/dom": "^10.0.0",
+    "@testing-library/dom": "catalog:",
+    "@types/node": "catalog:",
     "nanoviews": "workspace:^",
     "vite": "catalog:",
     "vitest": "catalog:"

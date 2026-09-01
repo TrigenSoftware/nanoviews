@@ -6,7 +6,6 @@ import {
   effect,
   record
 } from 'kida'
-import { nanoStory } from '@nanoviews/storybook'
 import {
   ul,
   li
@@ -27,17 +26,21 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
-  render: nanoStory(() => ul()(
-    for_([
-      'Yatoro',
-      'Larl',
-      'Collapse',
-      'Mira',
-      'Miposhka'
-    ])(
-      item => li()(item)
+  render() {
+    return (
+      ul()(
+        for_([
+          'Yatoro',
+          'Larl',
+          'Collapse',
+          'Mira',
+          'Miposhka'
+        ])(
+          item => li()(item)
+        )
+      )
     )
-  ))
+  }
 }
 
 export const ReactiveValue: Story = {
@@ -50,12 +53,16 @@ export const ReactiveValue: Story = {
       'Miposhka'
     ]
   },
-  render: nanoStory(({ items }) => ul()(
-    for_(items)(
-      item => li()(item),
-      () => li()('No items')
+  render({ items }) {
+    return (
+      ul()(
+        for_(items)(
+          item => li()(item),
+          () => li()('No items')
+        )
+      )
     )
-  ))
+  }
 }
 
 interface Player {
@@ -91,20 +98,24 @@ export const EntitiesValue: StoryObj<{
       }
     ]
   },
-  render: nanoStory(({ onEffect, items }) => ul()(
-    for_(items, trackById)(
-      (item) => {
-        const { $name } = record(item)
+  render({ onEffect, items }) {
+    return (
+      ul()(
+        for_(items, trackById)(
+          (item) => {
+            const { $name } = record(item)
 
-        if (onEffect) {
-          effect(() => {
-            onEffect($name())
-          })
-        }
+            if (onEffect) {
+              effect(() => {
+                onEffect($name())
+              })
+            }
 
-        return li()($name)
-      }
+            return li()($name)
+          }
+        )
+      )
     )
-  ))
+  }
 }
 
