@@ -1,7 +1,6 @@
-import {
-  type Meta,
-  type StoryObj,
-  nanoStory
+import type {
+  Meta,
+  StoryObj
 } from '@nanoviews/storybook'
 import { div } from './elements.js'
 import { style$ } from './style.js'
@@ -17,44 +16,68 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
-  render: nanoStory(() => div({
-    [style$]: {
-      color: 'green'
-    }
-  })('Hello, world!'))
+  render() {
+    return (
+      div({
+        [style$]: {
+          color: 'green'
+        }
+      })(
+        'Hello, world!'
+      )
+    )
+  }
 }
 
 export const ReactiveValue: Story = {
   args: {
     color: 'green'
   },
-  render: nanoStory(({ color }) => div({
-    [style$]: {
-      color
-    }
-  })('Hello, world!'))
+  render({ color }) {
+    return (
+      div({
+        [style$]: {
+          color
+        }
+      })(
+        'Hello, world!'
+      )
+    )
+  }
 }
 
 export const CustomProperty: Story = {
   args: {
     color: 'green'
   },
-  render: nanoStory(({ color }) => div({
-    [style$]: {
-      '--accent': color,
-      '--gap': '4px'
-    }
-  })('Hello, world!'))
+  render({ color }) {
+    return (
+      div({
+        [style$]: {
+          '--accent': color,
+          '--gap': '4px'
+        }
+      })(
+        'Hello, world!'
+      )
+    )
+  }
 }
 
 export const MultiWordValue: Story = {
   args: {
     color: 'green'
   },
-  render: nanoStory(({ color }) => div({
-    [style$]: {
-      backgroundColor: color,
-      fontSize: '12px'
-    }
-  })('Hello, world!'))
+  render({ color }) {
+    return (
+      div({
+        [style$]: {
+          backgroundColor: color,
+          fontSize: '12px'
+        }
+      })(
+        'Hello, world!'
+      )
+    )
+  }
 }

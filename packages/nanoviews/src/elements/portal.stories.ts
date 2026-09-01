@@ -1,7 +1,6 @@
-import {
-  type Meta,
-  type StoryObj,
-  nanoStory
+import type {
+  Meta,
+  StoryObj
 } from '@nanoviews/storybook'
 import { div } from '../elements/elements.js'
 import { portal } from './portal.js'
@@ -15,8 +14,12 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  render: nanoStory(() => portal(
-    () => document.body,
-    div()('I wanna be in the body!')
-  ))
+  render() {
+    return (
+      portal(
+        () => document.body,
+        div()('I wanna be in the body!')
+      )
+    )
+  }
 }

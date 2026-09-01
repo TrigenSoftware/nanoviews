@@ -1,7 +1,6 @@
-import {
-  type Meta,
-  type StoryObj,
-  nanoStory
+import type {
+  Meta,
+  StoryObj
 } from '@nanoviews/storybook'
 import type { Primitive } from '../types/index.js'
 import {
@@ -18,12 +17,16 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
-  render: nanoStory(() => createTextNode('Hello, world!'))
+  render() {
+    return createTextNode('Hello, world!')
+  }
 }
 
 export const ReactiveValue: Story = {
   args: {
     value: 'Hello, world!'
   },
-  render: nanoStory(({ value }) => createTextNodeFromAccessor(value))
+  render({ value }) {
+    return createTextNodeFromAccessor(value)
+  }
 }

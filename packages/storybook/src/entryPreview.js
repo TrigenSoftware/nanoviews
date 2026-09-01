@@ -5,6 +5,7 @@ export const parameters = {
 }
 
 export {
+  applyDecorators,
   render,
   renderToCanvas
 } from './render.js'

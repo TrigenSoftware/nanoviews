@@ -1,11 +1,11 @@
 {
   "name": "@nanoviews/storybook",
   "type": "module",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.9",
   "description": "Nanoviews storybook renderer.",
   "author": "dangreen",
   "license": "MIT",
+  "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/storybook#readme",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",
@@ -17,14 +17,16 @@
   },
   "keywords": [
     "storybook",
+    "storybook-renderer",
     "renderer",
     "ui",
     "nanoviews",
     "nano_kit"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20.6"
   },
+  "sideEffects": false,
   "exports": {
     "./package.json": "./package.json",
     ".": {
@@ -51,16 +53,13 @@
     "test": "run lint"
   },
   "peerDependencies": {
-    "kida": "2.0.0-snapshot.20260830203546",
     "nanoviews": "workspace:^",
-    "storybook": "^10.3.5"
+    "storybook": "^10.5.10"
   },
   "dependencies": {
-    "@storybook/global": "^5.0.0",
-    "type-fest": "^4.12.0"
+    "type-fest": "^5.9.0"
   },
   "devDependencies": {
-    "kida": "2.0.0-snapshot.20260830203546",
     "nanoviews": "workspace:^",
     "storybook": "catalog:"
   }

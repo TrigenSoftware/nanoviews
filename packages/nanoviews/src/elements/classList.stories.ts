@@ -1,7 +1,6 @@
-import {
-  type Meta,
-  type StoryObj,
-  nanoStory
+import type {
+  Meta,
+  StoryObj
 } from '@nanoviews/storybook'
 import { when } from 'kida'
 import {
@@ -19,13 +18,19 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const StaticValue: Story = {
-  render: nanoStory(() => div({
-    [classList$]: [
-      'class1',
-      false,
-      'class3'
-    ]
-  })('Hello, world!'))
+  render() {
+    return (
+      div({
+        [classList$]: [
+          'class1',
+          false,
+          'class3'
+        ]
+      })(
+        'Hello, world!'
+      )
+    )
+  }
 }
 
 export const ReactiveValue: StoryObj<{
@@ -44,11 +49,17 @@ export const ReactiveValue: StoryObj<{
     primary: true,
     rounded: false
   },
-  render: nanoStory(({ primary, rounded }) => button({
-    [classList$]: [
-      'button',
-      when(primary, 'primary', 'regular'),
-      when(rounded, 'rounded')
-    ]
-  })('Hello, world!'))
+  render({ primary, rounded }) {
+    return (
+      button({
+        [classList$]: [
+          'button',
+          when(primary, 'primary', 'regular'),
+          when(rounded, 'rounded')
+        ]
+      })(
+        'Hello, world!'
+      )
+    )
+  }
 }
