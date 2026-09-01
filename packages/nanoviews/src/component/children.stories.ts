@@ -2,9 +2,17 @@ import type {
   Meta,
   StoryObj
 } from '@nanoviews/storybook'
-import { createElement } from '../elements/index.js'
+import type { Attributes } from '../internals/types/index.js'
 import {
+  createElement,
+  main,
+  header,
+  footer
+} from '../elements/index.js'
+import {
+  children$,
   slot$,
+  slots$,
   getSlots
 } from './children.js'
 
@@ -74,6 +82,68 @@ export const Slots: Story = {
         ...restChildren,
         testChild,
         postChild
+      )
+    )
+  }
+
+}
+
+function LayoutHeader(props: Attributes<'header'>) {
+  return children$(children => slot$(LayoutHeader, header(props)(
+    ...children
+  )))
+}
+
+function LayoutFooter(props: Attributes<'footer'>) {
+  return children$(children => slot$(LayoutFooter, footer(props)(
+    ...children
+  )))
+}
+
+function Layout() {
+  return slots$(
+    [LayoutHeader, LayoutFooter],
+    (headerSlot, footerSlot, children) => main()(
+      headerSlot,
+      ...children,
+      footerSlot
+    )
+  )
+}
+
+export const ComponentSlots: Story = {
+  render() {
+    return (
+      Layout()(
+        LayoutHeader({
+          'data-testid': 'header'
+        })(
+          'Header content'
+        ),
+        'Main content',
+        LayoutFooter({
+          'data-testid': 'footer'
+        })(
+          'Footer content'
+        )
+      )
+    )
+  }
+
+}
+
+export const UndeclaredSlot: Story = {
+  render() {
+    return (
+      slots$(
+        [LayoutHeader],
+        (headerSlot, children) => main()(
+          headerSlot,
+          ...children
+        )
+      )(
+        LayoutHeader({})('Header content'),
+        LayoutFooter({})('Footer content')
       )
     )
   }

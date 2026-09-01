@@ -3,6 +3,7 @@ import {
   isFunction
 } from 'kida'
 import type {
+  AnyFn,
   Child,
   EmptyValue,
   LazyChild,
@@ -20,7 +21,7 @@ export function isLazyChild<T extends () => Child = () => Child>(
   return isFunction(child) && 'c' in child
 }
 
-export function lazyChild<T extends () => Child>(
+export function lazyChild<T extends AnyFn>(
   child: T
 ): LazyChild<T> {
   (child as LazyChild<T>).c = true
