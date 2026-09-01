@@ -32,7 +32,7 @@
 
 A small Direct DOM library for creating user interfaces.
 
-- **Small**. Between 3.8 and 6.4 kB (minified and brotlied). Zero external dependencies[*](#reactivity).
+- **Small**. Between 3.5 and 7 kB (minified and brotlied). Zero external dependencies[*](#reactivity).
 - **Direct DOM**. Less CPU and memory usage compared to Virtual DOM.
 - Designed for best **Tree-Shaking**: only the code you use is included in your bundle.
 - **TypeScript**-first.
@@ -57,7 +57,9 @@ function App() {
         onClick() {
           $counter($counter() + 1)
         }
-      })('count is ', $counter)
+      })(
+        'count is ', $counter
+      )
     ),
     p({ class: 'read-the-docs' })('Click on the Vite and Nanoviews logos to learn more')
   )
@@ -156,9 +158,11 @@ import { signal } from 'nanoviews/store'
 import { div, h1, p, mount } from 'nanoviews'
 
 function App() {
-  return div()(
-    h1()('Nanoviews App'),
-    p()('Hello World!')
+  return (
+    div()(
+      h1()('Nanoviews App'),
+      p()('Hello World!')
+    )
   )
 }
 
@@ -205,6 +209,29 @@ button({
   'Click me'
 )
 ```
+
+### classList$
+
+`classList$` is an effect attribute that manages the class list of the element. It accepts an array of parts: every truthy string is joined with spaces into the `class` attribute, everything else is dropped.
+
+```js
+import { signal } from 'nanoviews/store'
+import { button, classList$ } from 'nanoviews'
+
+const $primary = signal(true)
+
+button({
+  [classList$]: [
+    'button',
+    () => $primary() && 'primary'
+  ]
+})(
+  'Click me'
+)
+// <button class="button primary">Click me</button>
+```
+
+Parts can be static or reactive. `classList$` writes the whole `class` attribute, so use either `class` or `classList$` on an element, not both.
 
 ### autoFocus$
 
@@ -277,7 +304,7 @@ select({
     value: 'carry'
   })('Yatoro'),
   option({
-    value: 'mid',
+    value: 'mid'
   })('Larl'),
   option({
     value: 'offlane'
@@ -286,8 +313,8 @@ select({
     value: 'support'
   })('Mira'),
   option({
-    value: 'full-support',
-  })('Miposhka'),
+    value: 'full-support'
+  })('Miposhka')
 )
 ```
 
@@ -304,7 +331,7 @@ select({
     value: 'carry'
   })('Yatoro'),
   option({
-    value: 'mid',
+    value: 'mid'
   })('Larl'),
   option({
     value: 'offlane'
@@ -313,8 +340,8 @@ select({
     value: 'support'
   })('Mira'),
   option({
-    value: 'full-support',
-  })('Miposhka'),
+    value: 'full-support'
+  })('Miposhka')
 )
 ```
 
@@ -334,6 +361,48 @@ input({
 })
 ```
 
+### createEffectAttribute
+
+The effect attributes above are built with `createEffectAttribute`, and so can yours. It takes an id and a handler that receives the element and the value, and returns the id to use as a computed key. The handler runs inside the element's effect scope, so an `effect` in it is torn down with the element.
+
+```js
+import { $get, effect } from 'nanoviews/store'
+import { createEffectAttribute } from 'nanoviews'
+
+export const title$ = createEffectAttribute('title$', (element, $value) => {
+  effect(() => {
+    element.title = $get($value)
+  })
+})
+```
+
+To make it typed at the call site, register it by augmenting the `nanoviews` module — `EffectAttributeValues` declares what the attribute accepts, `EffectAttributeTargets` which elements it applies to:
+
+```ts
+declare module 'nanoviews' {
+  interface EffectAttributeValues<Target extends Element> {
+    title$: Signalish<string>
+  }
+
+  interface EffectAttributeTargets {
+    title$: HTMLElement
+  }
+}
+```
+
+```js
+import { signal } from 'nanoviews/store'
+import { div } from 'nanoviews'
+
+const $title = signal('Hello')
+
+div({
+  [title$]: $title
+})(
+  'Hover me'
+)
+```
+
 ## Components
 
 Components are the building blocks of any application. These units are reusable and can be combined to create more complex applications.
@@ -344,6 +413,38 @@ Components are functions that return primitive or DOM node:
 function MyComponent() {
   return div()('Hello, Nanoviews!')
 }
+```
+
+### props$
+
+`props$` is a method that adds a `$`-prefixed accessor twin to every prop. `title` is the prop as it arrived, `$title` is the same prop in accessor form: the prop itself when it already is a signal or an accessor, a wrapper when it is a static value, and `undefined` when the prop is not set, so a destructuring default can fill it in.
+
+A prop read as `$title` leaves the rest, so `...restProps` carries exactly the props the component did not take, in the form they arrived in, straight onto an element:
+
+```js
+import { button, props$, classList$ } from 'nanoviews'
+
+function Button(props) {
+  const {
+    $size = () => 'm',
+    ...restProps
+  } = props$(props)
+
+  return (
+    button({
+      ...restProps,
+      [classList$]: [
+        'button',
+        () => `button_${$size()}`
+      ]
+    })(
+      'Send'
+    )
+  )
+}
+
+Button({ title: 'Send it', size: 's', id: 'send' })
+// <button title="Send it" id="send" class="button button_s">Send</button>
 ```
 
 ### effect
@@ -369,6 +470,7 @@ function MyComponent() {
 Also you can use `effect` with signals:
 
 ```js
+import { signal } from 'nanoviews/store'
 import { div, effect } from 'nanoviews'
 
 const $timeout = signal(1000)
@@ -390,17 +492,19 @@ function MyComponent() {
 }
 ```
 
-### $$children
+### children$
 
-`$$children` is a method that creates optional children receiver.
+`children$` is a method that creates optional children receiver.
 
 ```js
-import { div, $$children } from 'nanoviews'
+import { div, children$ } from 'nanoviews'
 
 function MyComponent(props) {
-  return $$children(children => div(props)(
-    'My component children: ',
-    ...children || ['empty']
+  return children$(children => (
+    div(props)(
+      'My component children: ',
+      ...children?.length ? children : ['empty']
+    )
   ))
 }
 
@@ -409,52 +513,69 @@ MyComponent() // <div>My component children: empty</div>
 MyComponent()('Hello, Nanoviews!') // <div>My component children: Hello, Nanoviews!</div>
 ```
 
-### $$slots
+### slots$
 
-`$$slots` is a method to receive slots and rest children.
+`slots$` is a method to receive slots and rest children.
 
 ```js
-import { main, header, footer, $$slot, $$slots } from 'nanoviews'
+import { main, header, footer, children$, slot$, slots$ } from 'nanoviews'
 
-function LayoutHeader(text) {
-  return $$slot(LayoutHeader, text)
+function LayoutHeader(props) {
+  return children$(children => slot$(LayoutHeader, (
+    header(props)(
+      ...children
+    )
+  )))
 }
 
-function LayoutFooter(text) {
-  return $$slot(LayoutFooter, text)
+function LayoutFooter(props) {
+  return children$(children => slot$(LayoutFooter, (
+    footer(props)(
+      ...children
+    )
+  )))
 }
 
 function Layout() {
-  return $$slots(
+  return slots$(
     [LayoutHeader, LayoutFooter],
     (headerSlot, footerSlot, children) => main()(
-      header()(headerSlot),
+      headerSlot,
       ...children,
-      footer()(footerSlot)
+      footerSlot
     )
   )
 }
 
 Layout()(
-  LayoutHeader('Header content'),
-  LayoutFooter('Footer content'),
+  LayoutHeader({
+    'data-testid': 'header'
+  })(
+    'Header content'
+  ),
+  LayoutFooter({
+    'data-testid': 'footer'
+  })(
+    'Footer content'
+  ),
   'Main content'
 )
+// <main><header data-testid="header">Header content</header>Main content<footer data-testid="footer">Footer content</footer></main>
 ```
 
 Slot's content can be anything, including functions, that can be used to render lists:
 
 ```js
-import { ul, li, b, $$slot, $$slots, for_ } from 'nanoviews'
+import { ul, li, b, slot$, slots$, for_ } from 'nanoviews'
 
 function ListItem(renderItem) {
-  return $$slot(ListItem, renderItem)
+  return slot$(ListItem, renderItem)
 }
 
 function List(items) {
-  return $$slots(
+  return slots$(
     [ListItem],
-    (listItemSlot) => ul()(
+    listItemSlot => ul()(
       for_(items)(
         item => li()(
           listItemSlot(item.name)
@@ -491,9 +612,11 @@ function ThemeContext() {
 function MyComponent() {
   const $theme = inject(ThemeContext)
 
-  return div()(
-    'Current theme: ',
-    $theme
+  return (
+    div()(
+      'Current theme: ',
+      $theme
+    )
   )
 }
 
@@ -511,6 +634,46 @@ App() // <div>Current theme: dark</div>
 
 > [!NOTE]
 > Nanoviews contexts are based on [Kida's dependency injection system](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/kida#dependency-injection).
+
+### isolate
+
+`isolate` runs a function outside the surrounding injection context, so nothing above it is reachable. `inject` inside a plain `isolate` throws — the point is to start a fresh provider tree that inherits nothing, rather than to fall back to defaults.
+
+```js
+import { signal } from 'nanoviews/store'
+import { div, context, isolate, provide, inject } from 'nanoviews'
+
+function ThemeContext() {
+  return signal('light')
+}
+
+function Themed() {
+  return (
+    div()(
+      'theme: ',
+      inject(ThemeContext)
+    )
+  )
+}
+
+function App() {
+  const $outer = signal('dark')
+  const $inner = signal('high-contrast')
+
+  return context(
+    [provide(ThemeContext, $outer)],
+    () => div()(
+      Themed(),
+      isolate(() => context(
+        [provide(ThemeContext, $inner)],
+        () => Themed()
+      ))
+    )
+  )
+}
+
+App() // <div><div>theme: dark</div><div>theme: high-contrast</div></div>
+```
 
 ## Control flow
 
@@ -536,21 +699,99 @@ if_($toggle)(
 )
 ```
 
+### show_
+
+`show_` is a method that hides and shows a child instead of rebuilding it. Hiding parks the tree instead of destroying it: the nodes are kept, the effects are paused, and the bindings keep the parked tree up to date, so it comes back exactly as it was. Unlike `if_`, which builds its branch anew on every flip, `show_` builds once and holds the tree even while it is hidden. There is no else branch.
+
+```js
+import { signal } from 'nanoviews/store'
+import { show_, button } from 'nanoviews'
+
+const $visible = signal(true)
+
+show_($visible, () => {
+  const $count = signal(0)
+
+  return (
+    button({
+      onClick() {
+        $count($count() + 1)
+      }
+    })(
+      'Count: ', $count
+    )
+  )
+})
+```
+
+The counter above keeps counting from where it was left: with `if_` it would start from zero every time it comes back.
+
 ### switch_
 
 `switch_` is a method like `if_` but with multiple conditions.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { switch_, case_, default_, div, p } from 'nanoviews'
+import { switch_, case_, default_, b } from 'nanoviews'
 
 const $state = signal('loading')
 
-switch_(state)(
+switch_($state)(
   case_('loading', () => b()('Loading')),
   case_('error', () => b()('Error')),
   default_(() => 'Success')
 )
+```
+
+### match_
+
+`match_` is a method that renders the child of the first case that holds: a cascade of conditions written as a list instead of `if_` inside `if_` inside `if_`. Cases are made with `when_`, and `default_`, the same one `switch_` takes, answers when no case holds.
+
+```js
+import { signal } from 'nanoviews/store'
+import { match_, when_, default_, b, i } from 'nanoviews'
+
+const $loading = signal(true)
+const $error = signal(false)
+
+match_(
+  when_($loading, () => i()('Loading')),
+  when_($error, () => b()('Error')),
+  default_(() => 'Ready')
+)
+```
+
+The walk stops at the case that holds, so a case below it is never read, and never wakes the block when it changes. Cases that move together are worth a `batch`: without one every write swaps the content, and the frame in between shows.
+
+Every case hands its own value to its child, narrowed to the truthy side:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { match_, when_, default_, b } from 'nanoviews'
+
+const $post = signal<{ title: string } | null>(null)
+
+match_(
+  when_($post, $post => b()(() => $post().title)),
+  default_(() => 'No post')
+)
+```
+
+### swap_
+
+`swap_` is the method `if_`, `switch_` and `match_` are built on: it renders a child decided by a value. Unlike a binding, which updates content in place, the child is built anew every time the value changes.
+
+```js
+import { signal } from 'nanoviews/store'
+import { swap_, b, i } from 'nanoviews'
+
+const $tab = signal('list')
+
+swap_($tab, tab => (
+  tab === 'list'
+    ? b()(tab)
+    : i()(tab)
+))
 ```
 
 ### for_
@@ -579,17 +820,56 @@ ul()(
 )
 ```
 
-There are exported predefined `trackById` function to track by `id` property and `trackBy(key)` function to create a tracker for specified key.
+The second argument is a tracker: it names a row, so on reorder the row's DOM, signals and effects move with it instead of being rebuilt. There are exported predefined `trackById` function to track by `id` property and `trackBy(key)` function to create a tracker for specified key.
+
+```js
+import { signal, record } from 'nanoviews/store'
+import { for_, trackBy, ul, li } from 'nanoviews'
+
+const $cities = signal([
+  { label: 'Berlin' },
+  { label: 'Prague' }
+])
+
+ul()(
+  for_($cities, trackBy('label'))(
+    $city => li()(
+      record($city).$label
+    )
+  )
+)
+```
+
+Without a tracker a row is named by its position. The render is given the row, its index signal and the key the tracker named the row by: the index changes while the row moves, the key never does.
+
+`as_` hands the row through a transform before rendering it, carrying the index and the key through: the same `$players` list, with `record` written once instead of in every child.
+
+```js
+import { record } from 'nanoviews/store'
+import { for_, trackById, as_, ul, li } from 'nanoviews'
+
+ul()(
+  for_($players, trackById)(
+    as_(record, ($player, $index) => li()(
+      $index, ': ', $player.$name
+    ))
+  )
+)
+```
 
 ### throw_
 
 `throw_` is a helper to throw an error in expressions.
 
 ```js
-import { ul, $$children, throw_ } from 'nanoviews'
+import { ul, children$, throw_ } from 'nanoviews'
 
 function MyComponent() {
-  return $$children((children = throw_(new Error('Children are required'))) => ul()(children))
+  return children$(children => (
+    ul()(
+      ...children?.length ? children : throw_(new Error('Children are required'))
+    )
+  ))
 }
 ```
 
