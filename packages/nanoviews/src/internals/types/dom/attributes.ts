@@ -28,12 +28,6 @@ export interface CSSProperties extends CSS.Properties<string | number> {
 }
 
 export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, DOMAttributes<T> {
-  // React-specific Attributes
-  defaultChecked?: Signalish<boolean | EmptyValue>
-  defaultValue?: Signalish<string | number | readonly string[] | EmptyValue>
-  suppressContentEditableWarning?: Signalish<boolean | EmptyValue>
-  suppressHydrationWarning?: Signalish<boolean | EmptyValue>
-
   // Standard HTML Attributes
   accessKey?: Signalish<string | EmptyValue>
   autoFocus?: Signalish<boolean | EmptyValue>
