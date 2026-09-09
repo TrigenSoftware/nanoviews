@@ -9,6 +9,23 @@ A small Direct DOM library for building user interfaces.
 | [`@nanoviews/storybook-vite`](packages/storybook-vite#readme) | Nanoviews + Vite framework for storybook. | [![NPM version][storybook-vite-npm]][storybook-vite-npm-url] |
 | [`@nanoviews/testing-library`](packages/testing-library#readme) | Nanoviews testing utilities. | [![NPM version][testing-library-npm]][testing-library-npm-url] |
 
+## Agent Skills
+
+Universal agent skills for AI coding agents live in the [skills](skills) directory:
+
+- [`nanoviews`](skills/nanoviews)
+- [`nanoviews-testing`](skills/nanoviews-testing)
+- [`nanoviews-storybook`](skills/nanoviews-storybook)
+
+Install a skill with either package runner:
+
+```sh
+# pnpm
+pnpx skills add TrigenSoftware/nanoviews --skill nanoviews
+# npm
+npx skills add TrigenSoftware/nanoviews --skill nanoviews
+```
+
 <!-- nanoviews -->
 
 [nanoviews-npm]: https://img.shields.io/npm/v/nanoviews.svg
