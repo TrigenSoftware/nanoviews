@@ -108,6 +108,51 @@ describe('nanoviews', () => {
           expect(container.innerHTML).toBe('<div><span data-value="false">Data attribute test</span></div>')
         })
 
+        it('should remove boolean attribute on false', () => {
+          const { container } = render(() => createElement('input', {
+            type: 'checkbox',
+            disabled: false,
+            hidden: true
+          }))
+
+          expect(container.innerHTML).toBe('<div><input type="checkbox" hidden="true"></div>')
+        })
+
+        it('should toggle reactive boolean attribute', () => {
+          const disabled = signal(true)
+          const { container } = render(() => createElement('button', {
+            disabled
+          })('Save'))
+          const button = container.querySelector('button')!
+
+          expect(button.disabled).toBe(true)
+
+          disabled(false)
+
+          expect(container.innerHTML).toBe('<div><button>Save</button></div>')
+          expect(button.disabled).toBe(false)
+
+          disabled(true)
+
+          expect(container.innerHTML).toBe('<div><button disabled="true">Save</button></div>')
+        })
+
+        it('should keep false as a string on enumerated and aria attributes', () => {
+          const hidden = signal(false)
+          const { container } = render(() => createElement('div', {
+            'draggable': false,
+            'contentEditable': false,
+            'spellCheck': false,
+            'aria-hidden': hidden
+          })('Text'))
+
+          expect(container.innerHTML).toBe('<div><div draggable="false" contenteditable="false" spellcheck="false" aria-hidden="false">Text</div></div>')
+
+          hidden(true)
+
+          expect(container.innerHTML).toBe('<div><div draggable="false" contenteditable="false" spellcheck="false" aria-hidden="true">Text</div></div>')
+        })
+
         it('should handle events', () => {
           const onClick = vi.fn()
           const { container } = render(Events({
