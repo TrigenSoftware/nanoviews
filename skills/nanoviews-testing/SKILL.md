@@ -1,6 +1,6 @@
 ---
 name: nanoviews-testing
-description: Conventions and API for unit-testing nanoviews views with @nanoviews/testing-library and Vitest: the happy-dom setup and cleanup entry, the render forms (function or [Component, props] tuple), what container is, driving value$/checked$/selected$ bindings with fireEvent, synchronous assertions after signal writes, awaiting resolved/query/onMount data, overriding dependency injection with context and provide, and rendering composed stories. Apply when writing or editing *.spec.ts files for nanoviews components, effect attributes, blocks or stores wired into views.
+description: "Conventions and API for unit-testing nanoviews views with @nanoviews/testing-library and Vitest: the happy-dom setup and cleanup entry, the render forms (function or [Component, props] tuple), what container is, driving value$/checked$/selected$ bindings with fireEvent, synchronous assertions after signal writes, awaiting resolved/query/onMount data, overriding dependency injection with context and provide, and rendering composed stories. Apply when writing or editing *.spec.ts files for nanoviews components, effect attributes, blocks or stores wired into views."
 license: MIT
 compatibility:
   - Claude Code

@@ -1,6 +1,6 @@
 ---
 name: nanoviews-storybook
-description: Setting up and writing Storybook stories for nanoviews with @nanoviews/storybook-vite: the framework and preview config, CSF3 Meta/StoryObj typing, args that reach render as writable signals, component-driven stories without render, decorators, and portable stories (composeStories, composeStory, setProjectAnnotations) for tests. Apply when adding or editing *.stories.ts files, .storybook config or story-based tests in a project that uses nanoviews.
+description: "Setting up and writing Storybook stories for nanoviews with @nanoviews/storybook-vite: the framework and preview config, CSF3 Meta/StoryObj typing, args that reach render as writable signals, component-driven stories without render, decorators, and portable stories (composeStories, composeStory, setProjectAnnotations) for tests. Apply when adding or editing *.stories.ts files, .storybook config or story-based tests in a project that uses nanoviews."
 license: MIT
 compatibility:
   - Claude Code
