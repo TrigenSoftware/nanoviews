@@ -169,6 +169,24 @@ function App() {
 mount(App, document.querySelector('#app'))
 ```
 
+### SVG
+
+SVG elements live in the `nanoviews/svg` entry point, so their code stays out of the bundle of an app that never draws one. The factories work the same way as the HTML ones, but create elements in the SVG namespace. Attributes are camelCase like in React: presentation attributes such as `strokeWidth` reach the DOM as `stroke-width`, the rest keep their SVG spelling, like `viewBox`.
+
+```js
+import { signal } from 'nanoviews/store'
+import { svg, circle, path } from 'nanoviews/svg'
+
+const $radius = signal(10)
+const icon = svg({ viewBox: '0 0 24 24', width: 24, height: 24 })(
+  circle({ cx: 12, cy: 12, r: $radius, fill: 'none', stroke: 'currentColor', strokeWidth: 2 }),
+  path({ d: 'M8 12l3 3 5-6', fill: 'none', stroke: 'currentColor' })
+)
+// `icon` is SVGSVGElement instance
+```
+
+HTML inside `foreignObject` comes from `nanoviews`. `a`, `title`, `style` and `script` exist in both entry points, so alias one of them in a module that imports both.
+
 ## Effect attributes
 
 Effect attributes are special attributes that can control element's behavior.

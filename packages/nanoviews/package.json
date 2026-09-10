@@ -31,7 +31,8 @@
   "exports": {
     "./package.json": "./package.json",
     ".": "./src/index.ts",
-    "./store": "./src/store.ts"
+    "./store": "./src/store.ts",
+    "./svg": "./src/svg/index.ts"
   },
   "publishConfig": {
     "exports": {
@@ -43,6 +44,10 @@
       "./store": {
         "types": "./dist/store.d.ts",
         "default": "./dist/store.js"
+      },
+      "./svg": {
+        "types": "./dist/svg/index.d.ts",
+        "default": "./dist/svg.js"
       }
     },
     "directory": "package",

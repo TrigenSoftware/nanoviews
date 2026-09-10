@@ -13,14 +13,12 @@ export interface IntrinsicElements {
   base: HTMLBaseElement
   bdi: HTMLElement
   bdo: HTMLElement
-  big: HTMLElement
   blockquote: HTMLQuoteElement
   body: HTMLBodyElement
   br: HTMLBRElement
   button: HTMLButtonElement
   canvas: HTMLCanvasElement
-  caption: HTMLElement
-  center: HTMLElement
+  caption: HTMLTableCaptionElement
   cite: HTMLElement
   code: HTMLElement
   col: HTMLTableColElement
@@ -59,7 +57,6 @@ export interface IntrinsicElements {
   input: HTMLInputElement
   ins: HTMLModElement
   kbd: HTMLElement
-  keygen: HTMLElement
   label: HTMLLabelElement
   legend: HTMLLegendElement
   li: HTMLLIElement
@@ -67,12 +64,10 @@ export interface IntrinsicElements {
   main: HTMLElement
   map: HTMLMapElement
   mark: HTMLElement
-  menu: HTMLElement
-  menuitem: HTMLElement
+  menu: HTMLMenuElement
   meta: HTMLMetaElement
   meter: HTMLMeterElement
   nav: HTMLElement
-  noindex: HTMLElement
   noscript: HTMLElement
   object: HTMLObjectElement
   ol: HTMLOListElement
@@ -80,8 +75,7 @@ export interface IntrinsicElements {
   option: HTMLOptionElement
   output: HTMLOutputElement
   p: HTMLParagraphElement
-  param: HTMLParamElement
-  picture: HTMLElement
+  picture: HTMLPictureElement
   pre: HTMLPreElement
   progress: HTMLProgressElement
   q: HTMLQuoteElement
@@ -106,10 +100,10 @@ export interface IntrinsicElements {
   table: HTMLTableElement
   template: HTMLTemplateElement
   tbody: HTMLTableSectionElement
-  td: HTMLTableDataCellElement
+  td: HTMLTableCellElement
   textarea: HTMLTextAreaElement
   tfoot: HTMLTableSectionElement
-  th: HTMLTableHeaderCellElement
+  th: HTMLTableCellElement
   thead: HTMLTableSectionElement
   time: HTMLTimeElement
   title: HTMLTitleElement
@@ -120,68 +114,6 @@ export interface IntrinsicElements {
   var: HTMLElement
   video: HTMLVideoElement
   wbr: HTMLElement
-
-  // SVG
-  svg: SVGSVGElement
-
-  animate: SVGAnimateElement
-  animateMotion: SVGElement
-  animateTransform: SVGAnimateTransformElement
-  circle: SVGCircleElement
-  clipPath: SVGClipPathElement
-  defs: SVGDefsElement
-  desc: SVGDescElement
-  ellipse: SVGEllipseElement
-  feBlend: SVGFEBlendElement
-  feColorMatrix: SVGFEColorMatrixElement
-  feComponentTransfer: SVGFEComponentTransferElement
-  feComposite: SVGFECompositeElement
-  feConvolveMatrix: SVGFEConvolveMatrixElement
-  feDiffuseLighting: SVGFEDiffuseLightingElement
-  feDisplacementMap: SVGFEDisplacementMapElement
-  feDistantLight: SVGFEDistantLightElement
-  feDropShadow: SVGFEDropShadowElement
-  feFlood: SVGFEFloodElement
-  feFuncA: SVGFEFuncAElement
-  feFuncB: SVGFEFuncBElement
-  feFuncG: SVGFEFuncGElement
-  feFuncR: SVGFEFuncRElement
-  feGaussianBlur: SVGFEGaussianBlurElement
-  feImage: SVGFEImageElement
-  feMerge: SVGFEMergeElement
-  feMergeNode: SVGFEMergeNodeElement
-  feMorphology: SVGFEMorphologyElement
-  feOffset: SVGFEOffsetElement
-  fePointLight: SVGFEPointLightElement
-  feSpecularLighting: SVGFESpecularLightingElement
-  feSpotLight: SVGFESpotLightElement
-  feTile: SVGFETileElement
-  feTurbulence: SVGFETurbulenceElement
-  filter: SVGFilterElement
-  foreignObject: SVGForeignObjectElement
-  g: SVGGElement
-  image: SVGImageElement
-  line: SVGLineElement
-  linearGradient: SVGLinearGradientElement
-  marker: SVGMarkerElement
-  mask: SVGMaskElement
-  metadata: SVGMetadataElement
-  mpath: SVGElement
-  path: SVGPathElement
-  pattern: SVGPatternElement
-  polygon: SVGPolygonElement
-  polyline: SVGPolylineElement
-  radialGradient: SVGRadialGradientElement
-  rect: SVGRectElement
-  set: SVGSetElement
-  stop: SVGStopElement
-  switch: SVGSwitchElement
-  symbol: SVGSymbolElement
-  text: SVGTextElement
-  textPath: SVGTextPathElement
-  tspan: SVGTSpanElement
-  use: SVGUseElement
-  view: SVGViewElement
 }
 
 export interface IntrinsicElementsAttributes {
@@ -197,14 +129,12 @@ export interface IntrinsicElementsAttributes {
   base: Attributes.BaseHTMLAttributes<HTMLBaseElement>
   bdi: Attributes.HTMLAttributes<HTMLElement>
   bdo: Attributes.HTMLAttributes<HTMLElement>
-  big: Attributes.HTMLAttributes<HTMLElement>
   blockquote: Attributes.BlockquoteHTMLAttributes<HTMLQuoteElement>
   body: Attributes.HTMLAttributes<HTMLBodyElement>
   br: Attributes.HTMLAttributes<HTMLBRElement>
   button: Attributes.ButtonHTMLAttributes<HTMLButtonElement>
   canvas: Attributes.CanvasHTMLAttributes<HTMLCanvasElement>
-  caption: Attributes.HTMLAttributes<HTMLElement>
-  center: Attributes.HTMLAttributes<HTMLElement>
+  caption: Attributes.HTMLAttributes<HTMLTableCaptionElement>
   cite: Attributes.HTMLAttributes<HTMLElement>
   code: Attributes.HTMLAttributes<HTMLElement>
   col: Attributes.ColHTMLAttributes<HTMLTableColElement>
@@ -243,7 +173,6 @@ export interface IntrinsicElementsAttributes {
   input: Attributes.InputHTMLAttributes<HTMLInputElement>
   ins: Attributes.InsHTMLAttributes<HTMLModElement>
   kbd: Attributes.HTMLAttributes<HTMLElement>
-  keygen: Attributes.KeygenHTMLAttributes<HTMLElement>
   label: Attributes.LabelHTMLAttributes<HTMLLabelElement>
   legend: Attributes.HTMLAttributes<HTMLLegendElement>
   li: Attributes.LiHTMLAttributes<HTMLLIElement>
@@ -251,12 +180,10 @@ export interface IntrinsicElementsAttributes {
   main: Attributes.HTMLAttributes<HTMLElement>
   map: Attributes.MapHTMLAttributes<HTMLMapElement>
   mark: Attributes.HTMLAttributes<HTMLElement>
-  menu: Attributes.MenuHTMLAttributes<HTMLElement>
-  menuitem: Attributes.HTMLAttributes<HTMLElement>
+  menu: Attributes.MenuHTMLAttributes<HTMLMenuElement>
   meta: Attributes.MetaHTMLAttributes<HTMLMetaElement>
   meter: Attributes.MeterHTMLAttributes<HTMLMeterElement>
   nav: Attributes.HTMLAttributes<HTMLElement>
-  noindex: Attributes.HTMLAttributes<HTMLElement>
   noscript: Attributes.HTMLAttributes<HTMLElement>
   object: Attributes.ObjectHTMLAttributes<HTMLObjectElement>
   ol: Attributes.OlHTMLAttributes<HTMLOListElement>
@@ -264,8 +191,7 @@ export interface IntrinsicElementsAttributes {
   option: Attributes.OptionHTMLAttributes<HTMLOptionElement>
   output: Attributes.OutputHTMLAttributes<HTMLOutputElement>
   p: Attributes.HTMLAttributes<HTMLParagraphElement>
-  param: Attributes.ParamHTMLAttributes<HTMLParamElement>
-  picture: Attributes.HTMLAttributes<HTMLElement>
+  picture: Attributes.HTMLAttributes<HTMLPictureElement>
   pre: Attributes.HTMLAttributes<HTMLPreElement>
   progress: Attributes.ProgressHTMLAttributes<HTMLProgressElement>
   q: Attributes.QuoteHTMLAttributes<HTMLQuoteElement>
@@ -290,10 +216,10 @@ export interface IntrinsicElementsAttributes {
   table: Attributes.TableHTMLAttributes<HTMLTableElement>
   template: Attributes.HTMLAttributes<HTMLTemplateElement>
   tbody: Attributes.HTMLAttributes<HTMLTableSectionElement>
-  td: Attributes.TdHTMLAttributes<HTMLTableDataCellElement>
+  td: Attributes.TdHTMLAttributes<HTMLTableCellElement>
   textarea: Attributes.TextareaHTMLAttributes<HTMLTextAreaElement>
   tfoot: Attributes.HTMLAttributes<HTMLTableSectionElement>
-  th: Attributes.ThHTMLAttributes<HTMLTableHeaderCellElement>
+  th: Attributes.ThHTMLAttributes<HTMLTableCellElement>
   thead: Attributes.HTMLAttributes<HTMLTableSectionElement>
   time: Attributes.TimeHTMLAttributes<HTMLTimeElement>
   title: Attributes.HTMLAttributes<HTMLTitleElement>
@@ -304,68 +230,6 @@ export interface IntrinsicElementsAttributes {
   var: Attributes.HTMLAttributes<HTMLElement>
   video: Attributes.VideoHTMLAttributes<HTMLVideoElement>
   wbr: Attributes.HTMLAttributes<HTMLElement>
-
-  // SVG
-  svg: Attributes.SVGAttributes<SVGSVGElement>
-
-  animate: Attributes.SVGAttributes<SVGAnimateElement>
-  animateMotion: Attributes.SVGAttributes<SVGElement>
-  animateTransform: Attributes.SVGAttributes<SVGAnimateTransformElement>
-  circle: Attributes.SVGAttributes<SVGCircleElement>
-  clipPath: Attributes.SVGAttributes<SVGClipPathElement>
-  defs: Attributes.SVGAttributes<SVGDefsElement>
-  desc: Attributes.SVGAttributes<SVGDescElement>
-  ellipse: Attributes.SVGAttributes<SVGEllipseElement>
-  feBlend: Attributes.SVGAttributes<SVGFEBlendElement>
-  feColorMatrix: Attributes.SVGAttributes<SVGFEColorMatrixElement>
-  feComponentTransfer: Attributes.SVGAttributes<SVGFEComponentTransferElement>
-  feComposite: Attributes.SVGAttributes<SVGFECompositeElement>
-  feConvolveMatrix: Attributes.SVGAttributes<SVGFEConvolveMatrixElement>
-  feDiffuseLighting: Attributes.SVGAttributes<SVGFEDiffuseLightingElement>
-  feDisplacementMap: Attributes.SVGAttributes<SVGFEDisplacementMapElement>
-  feDistantLight: Attributes.SVGAttributes<SVGFEDistantLightElement>
-  feDropShadow: Attributes.SVGAttributes<SVGFEDropShadowElement>
-  feFlood: Attributes.SVGAttributes<SVGFEFloodElement>
-  feFuncA: Attributes.SVGAttributes<SVGFEFuncAElement>
-  feFuncB: Attributes.SVGAttributes<SVGFEFuncBElement>
-  feFuncG: Attributes.SVGAttributes<SVGFEFuncGElement>
-  feFuncR: Attributes.SVGAttributes<SVGFEFuncRElement>
-  feGaussianBlur: Attributes.SVGAttributes<SVGFEGaussianBlurElement>
-  feImage: Attributes.SVGAttributes<SVGFEImageElement>
-  feMerge: Attributes.SVGAttributes<SVGFEMergeElement>
-  feMergeNode: Attributes.SVGAttributes<SVGFEMergeNodeElement>
-  feMorphology: Attributes.SVGAttributes<SVGFEMorphologyElement>
-  feOffset: Attributes.SVGAttributes<SVGFEOffsetElement>
-  fePointLight: Attributes.SVGAttributes<SVGFEPointLightElement>
-  feSpecularLighting: Attributes.SVGAttributes<SVGFESpecularLightingElement>
-  feSpotLight: Attributes.SVGAttributes<SVGFESpotLightElement>
-  feTile: Attributes.SVGAttributes<SVGFETileElement>
-  feTurbulence: Attributes.SVGAttributes<SVGFETurbulenceElement>
-  filter: Attributes.SVGAttributes<SVGFilterElement>
-  foreignObject: Attributes.SVGAttributes<SVGForeignObjectElement>
-  g: Attributes.SVGAttributes<SVGGElement>
-  image: Attributes.SVGAttributes<SVGImageElement>
-  line: Attributes.SVGAttributes<SVGLineElement>
-  linearGradient: Attributes.SVGAttributes<SVGLinearGradientElement>
-  marker: Attributes.SVGAttributes<SVGMarkerElement>
-  mask: Attributes.SVGAttributes<SVGMaskElement>
-  metadata: Attributes.SVGAttributes<SVGMetadataElement>
-  mpath: Attributes.SVGAttributes<SVGElement>
-  path: Attributes.SVGAttributes<SVGPathElement>
-  pattern: Attributes.SVGAttributes<SVGPatternElement>
-  polygon: Attributes.SVGAttributes<SVGPolygonElement>
-  polyline: Attributes.SVGAttributes<SVGPolylineElement>
-  radialGradient: Attributes.SVGAttributes<SVGRadialGradientElement>
-  rect: Attributes.SVGAttributes<SVGRectElement>
-  set: Attributes.SVGAttributes<SVGSetElement>
-  stop: Attributes.SVGAttributes<SVGStopElement>
-  switch: Attributes.SVGAttributes<SVGSwitchElement>
-  symbol: Attributes.SVGAttributes<SVGSymbolElement>
-  text: Attributes.SVGAttributes<SVGTextElement>
-  textPath: Attributes.SVGAttributes<SVGTextPathElement>
-  tspan: Attributes.SVGAttributes<SVGTSpanElement>
-  use: Attributes.SVGAttributes<SVGUseElement>
-  view: Attributes.SVGAttributes<SVGViewElement>
 }
 
 export type ElementName = keyof IntrinsicElements
