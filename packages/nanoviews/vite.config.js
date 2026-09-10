@@ -8,7 +8,8 @@ export default defineConfig({
       formats: ['es'],
       entry: {
         index: './src/index.ts',
-        store: './src/store.ts'
+        store: './src/store.ts',
+        svg: './src/svg/index.ts'
       }
     },
     rolldownOptions: {

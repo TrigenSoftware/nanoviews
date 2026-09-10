@@ -17,7 +17,6 @@
 - universal dom
 - ssr
 - hydration
-- svg ?
 - error boundaries
 - hmr
 - COMPILER to compete with svelte and solid

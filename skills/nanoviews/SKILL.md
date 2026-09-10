@@ -72,7 +72,25 @@ p({ class: 'note', title: () => `${$count()} items`, hidden: $done })(
 - `class` and `classList$` both write the class attribute (the later key wins); a `style` string replaces `style$` properties set before it. Use one of each pair per element.
 - Events: `on` + PascalCase DOM event name (`onClick`, `onInput`, `onKeyDown`, `onDblClick`, `onPointerDown`), `Capture` suffix for the capture phase. The handler gets the native event with a typed `target`; reads inside are untracked and writes are not batched. A writable signal given as a handler receives the event.
 - `fragment(...children)` is a `DocumentFragment` at runtime, typed `Element | DocumentFragment`. `mount(app, target)` returns the unmount function, which stops effects and removes the nodes.
-- Factories share names with globals: `text` is SVG `<text>`, `style` and `slot` are elements (`style$`, `slot$` are the helpers), `title`, `map`, `set`, `filter`, `data`, `object`, `image` exist too; `var` and `switch` are imported as `{ var as htmlVar, switch as svgSwitch }`. Alias on collision.
+- Factories share names with globals: `style` and `slot` are elements (`style$`, `slot$` are the helpers), `title`, `map`, `data`, `object` exist too; `var` is imported as `{ var as htmlVar }`. Alias on collision.
+
+## SVG (`nanoviews/svg`)
+
+```ts
+import { div } from 'nanoviews'
+import { svg, circle, path, foreignObject } from 'nanoviews/svg'
+
+svg({ viewBox: '0 0 24 24', width: 24, height: 24 })(
+  circle({ cx: 12, cy: 12, r: $radius, fill: 'none', stroke: 'currentColor', strokeWidth: 2 }),
+  path({ d: 'M8 12l3 3 5-6' }),
+  foreignObject({ x: 0, y: 0, width: 24, height: 24 })(div()('HTML inside'))
+)
+```
+
+- Every SVG tag is a factory in `nanoviews/svg` with the same call shape, created in the SVG namespace; `nanoviews` itself has no SVG factories. Shapes and leaves (`circle`, `rect`, `path`, `line`, `ellipse`, `polygon`, `polyline`, `image`, `use`, `animate`, `animateMotion`, `animateTransform`, `set`, `mpath`) are void: one call, no children. HTML inside `foreignObject` comes from `nanoviews`.
+- Attribute names are camelCase as in React: `viewBox`, `preserveAspectRatio`, `strokeWidth`, `fillOpacity`, `textAnchor`, `tabIndex`. Presentation attributes reach the DOM hyphenated (`stroke-width`), the rest keep their SVG spelling; a dashed key like `'stroke-width'` is a type error. `href` replaces `xlinkHref`; the SVG 1.1 font, glyph and color-profile attributes are not typed.
+- `a`, `title`, `style` and `script` exist in both entries, and `switch` is imported as `{ switch as svgSwitch }`; alias on collision. `ref$`, `style$` and `autoFocus$` work on SVG elements; `classList$` is HTML-only, so set `class` as an attribute.
+- `Attributes<'circle'>`, `ElementName` and the factory types come from `nanoviews/svg` under the same names as the HTML ones in `nanoviews`.
 
 ## Reactivity (`nanoviews/store`)
 
@@ -158,7 +176,7 @@ form({ onSubmit: event => { event.preventDefault(); save($name()) } })(
 
 - `value$` (text inputs, textarea; `input` event), `checked$` (checkbox, radio; `change`; `Indeterminate` symbol for the third state), `selected$` (select; a `string[]` signal makes it multiple; `change`) are two-way and need a `WritableSignal` typed exactly `string` or `boolean`: a literal-union signal is rejected. Keep it `string` and narrow where read, or cast a `record` field (`$task.$status as WritableSignal<string>`). Put `[value$]` before an `onInput` key that reads the signal. `files$` is DOM-to-signal only (`File[]`).
 - `ref$`: a `signal<HTMLInputElement | null>(null)` holds the element from build to unmount, then `null`. Use it in an effect or a handler.
-- `style$`: `{ backgroundColor: $color, fontSize: '12px', '--gap': '4px' }`, camelCase keys, units spelled out; typed for `HTMLElement` (and SVG `<a>` only). `classList$` parts may be falsy and are dropped: `['btn', () => $active() && 'btn_active']`. `autoFocus$`: `true` focuses on mount; pass a plain boolean only (an accessor counts as true); dynamic focus goes through `ref$`.
+- `style$`: `{ backgroundColor: $color, fontSize: '12px', '--gap': '4px' }`, camelCase keys, units spelled out; typed for `HTMLElement` and `SVGElement`. `classList$` parts may be falsy and are dropped: `['btn', () => $active() && 'btn_active']`. `autoFocus$`: `true` focuses on mount; pass a plain boolean only (an accessor counts as true); dynamic focus goes through `ref$`.
 - Own attributes: see "Custom effect attributes" below.
 
 ## Differences from React, Solid and Svelte
@@ -170,7 +188,6 @@ form({ onSubmit: event => { event.preventDefault(); save($name()) } })(
 
 ## Unsupported
 
-- SVG factories create HTML-namespace elements that do not render; inline SVG via `dangerouslySetInnerHtml(div(), '<svg ...>')` or `img`.
 - No SSR, hydration, router or error boundaries in nanoviews itself; routing comes from the `@nano_kit/router` core (see the nano-kit-react-router skill, there is no nanoviews adapter yet).
 - Exported but internal, do not use: `deferScope`, `boundDeferScope`, `startScope`, `stopScope`, `pauseScope`, `resumeScope`, `unsafeRun`, `createSignal`, `computedOper`, `nextValue`, `signalNextValue`, `assignIndex`, `assignKey`, `onSignal`, `unsafeMark*`, node and flag constants, and `createElement`/`createVoidElement`/`create*Factory` beyond known tag names.
 

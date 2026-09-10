@@ -392,15 +392,6 @@ export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
   onChange?: ChangeEventHandler<T> | undefined
 }
 
-export interface KeygenHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  challenge?: Signalish<string | EmptyValue>
-  disabled?: Signalish<boolean | EmptyValue>
-  form?: Signalish<string | EmptyValue>
-  keyType?: Signalish<string | EmptyValue>
-  keyParams?: Signalish<string | EmptyValue>
-  name?: Signalish<string | EmptyValue>
-}
-
 export interface LabelHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   form?: Signalish<string | EmptyValue>
   for?: Signalish<string | EmptyValue>
@@ -503,11 +494,6 @@ export interface OutputHTMLAttributes<T extends HTMLElement> extends HTMLAttribu
   form?: Signalish<string | EmptyValue>
   for?: Signalish<string | EmptyValue>
   name?: Signalish<string | EmptyValue>
-}
-
-export interface ParamHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  name?: Signalish<string | EmptyValue>
-  value?: Signalish<string | readonly string[] | number | EmptyValue>
 }
 
 export interface ProgressHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
@@ -661,7 +647,6 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   crossOrigin?: Signalish<CrossOrigin>
 
   // SVG Specific attributes
-  accentHeight?: Signalish<number | string | EmptyValue>
   accumulate?: Signalish<'none' | 'sum' | EmptyValue>
   additive?: Signalish<'replace' | 'sum' | EmptyValue>
   alignmentBaseline?: Signalish<
@@ -681,10 +666,7 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
     | EmptyValue
   >
   allowReorder?: Signalish<'no' | 'yes' | EmptyValue>
-  alphabetic?: Signalish<number | string | EmptyValue>
   amplitude?: Signalish<number | string | EmptyValue>
-  arabicForm?: Signalish<'initial' | 'medial' | 'terminal' | 'isolated' | EmptyValue>
-  ascent?: Signalish<number | string | EmptyValue>
   attributeName?: Signalish<string | EmptyValue>
   attributeType?: Signalish<string | EmptyValue>
   autoReverse?: Signalish<Booleanish | EmptyValue>
@@ -692,19 +674,16 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   baseFrequency?: Signalish<number | string | EmptyValue>
   baselineShift?: Signalish<number | string | EmptyValue>
   baseProfile?: Signalish<number | string | EmptyValue>
-  bbox?: Signalish<number | string | EmptyValue>
   begin?: Signalish<number | string | EmptyValue>
   bias?: Signalish<number | string | EmptyValue>
   by?: Signalish<number | string | EmptyValue>
   calcMode?: Signalish<number | string | EmptyValue>
-  capHeight?: Signalish<number | string | EmptyValue>
   clip?: Signalish<number | string | EmptyValue>
   clipPath?: Signalish<string | EmptyValue>
   clipPathUnits?: Signalish<number | string | EmptyValue>
   clipRule?: Signalish<number | string | EmptyValue>
   colorInterpolation?: Signalish<number | string | EmptyValue>
   colorInterpolationFilters?: Signalish<'auto' | 'sRGB' | 'linearRGB' | 'inherit' | EmptyValue>
-  colorProfile?: Signalish<number | string | EmptyValue>
   colorRendering?: Signalish<number | string | EmptyValue>
   contentScriptType?: Signalish<number | string | EmptyValue>
   contentStyleType?: Signalish<number | string | EmptyValue>
@@ -713,7 +692,6 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   cy?: Signalish<number | string | EmptyValue>
   d?: Signalish<string | EmptyValue>
   decelerate?: Signalish<number | string | EmptyValue>
-  descent?: Signalish<number | string | EmptyValue>
   diffuseConstant?: Signalish<number | string | EmptyValue>
   direction?: Signalish<number | string | EmptyValue>
   display?: Signalish<number | string | EmptyValue>
@@ -724,7 +702,6 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   dy?: Signalish<number | string | EmptyValue>
   edgeMode?: Signalish<number | string | EmptyValue>
   elevation?: Signalish<number | string | EmptyValue>
-  enableBackground?: Signalish<number | string | EmptyValue>
   end?: Signalish<number | string | EmptyValue>
   exponent?: Signalish<number | string | EmptyValue>
   externalResourcesRequired?: Signalish<Booleanish | EmptyValue>
@@ -744,24 +721,13 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   fontStyle?: Signalish<number | string | EmptyValue>
   fontVariant?: Signalish<number | string | EmptyValue>
   fontWeight?: Signalish<number | string | EmptyValue>
-  format?: Signalish<number | string | EmptyValue>
   fr?: Signalish<number | string | EmptyValue>
   from?: Signalish<number | string | EmptyValue>
   fx?: Signalish<number | string | EmptyValue>
   fy?: Signalish<number | string | EmptyValue>
-  g1?: Signalish<number | string | EmptyValue>
-  g2?: Signalish<number | string | EmptyValue>
-  glyphName?: Signalish<number | string | EmptyValue>
-  glyphOrientationHorizontal?: Signalish<number | string | EmptyValue>
-  glyphOrientationVertical?: Signalish<number | string | EmptyValue>
-  glyphRef?: Signalish<number | string | EmptyValue>
   gradientTransform?: Signalish<string | EmptyValue>
   gradientUnits?: Signalish<string | EmptyValue>
-  hanging?: Signalish<number | string | EmptyValue>
-  horizAdvX?: Signalish<number | string | EmptyValue>
-  horizOriginX?: Signalish<number | string | EmptyValue>
   href?: Signalish<string | EmptyValue>
-  ideographic?: Signalish<number | string | EmptyValue>
   imageRendering?: Signalish<number | string | EmptyValue>
   in2?: Signalish<number | string | EmptyValue>
   in?: Signalish<string | EmptyValue>
@@ -770,7 +736,6 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   k2?: Signalish<number | string | EmptyValue>
   k3?: Signalish<number | string | EmptyValue>
   k4?: Signalish<number | string | EmptyValue>
-  k?: Signalish<number | string | EmptyValue>
   kernelMatrix?: Signalish<number | string | EmptyValue>
   kernelUnitLength?: Signalish<number | string | EmptyValue>
   kerning?: Signalish<number | string | EmptyValue>
@@ -781,7 +746,6 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   letterSpacing?: Signalish<number | string | EmptyValue>
   lightingColor?: Signalish<number | string | EmptyValue>
   limitingConeAngle?: Signalish<number | string | EmptyValue>
-  local?: Signalish<number | string | EmptyValue>
   markerEnd?: Signalish<string | EmptyValue>
   markerHeight?: Signalish<number | string | EmptyValue>
   markerMid?: Signalish<string | EmptyValue>
@@ -791,7 +755,6 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   mask?: Signalish<string | EmptyValue>
   maskContentUnits?: Signalish<number | string | EmptyValue>
   maskUnits?: Signalish<number | string | EmptyValue>
-  mathematical?: Signalish<number | string | EmptyValue>
   mode?: Signalish<number | string | EmptyValue>
   numOctaves?: Signalish<number | string | EmptyValue>
   offset?: Signalish<number | string | EmptyValue>
@@ -799,13 +762,9 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   operator?: Signalish<number | string | EmptyValue>
   order?: Signalish<number | string | EmptyValue>
   orient?: Signalish<number | string | EmptyValue>
-  orientation?: Signalish<number | string | EmptyValue>
   origin?: Signalish<number | string | EmptyValue>
   overflow?: Signalish<number | string | EmptyValue>
-  overlinePosition?: Signalish<number | string | EmptyValue>
-  overlineThickness?: Signalish<number | string | EmptyValue>
   paintOrder?: Signalish<number | string | EmptyValue>
-  panose1?: Signalish<number | string | EmptyValue>
   path?: Signalish<string | EmptyValue>
   pathLength?: Signalish<number | string | EmptyValue>
   patternContentUnits?: Signalish<string | EmptyValue>
@@ -823,7 +782,6 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   radius?: Signalish<number | string | EmptyValue>
   refX?: Signalish<number | string | EmptyValue>
   refY?: Signalish<number | string | EmptyValue>
-  renderingIntent?: Signalish<number | string | EmptyValue>
   repeatCount?: Signalish<number | string | EmptyValue>
   repeatDur?: Signalish<number | string | EmptyValue>
   requiredExtensions?: Signalish<number | string | EmptyValue>
@@ -844,14 +802,9 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   spreadMethod?: Signalish<string | EmptyValue>
   startOffset?: Signalish<number | string | EmptyValue>
   stdDeviation?: Signalish<number | string | EmptyValue>
-  stemh?: Signalish<number | string | EmptyValue>
-  stemv?: Signalish<number | string | EmptyValue>
   stitchTiles?: Signalish<number | string | EmptyValue>
   stopColor?: Signalish<string | EmptyValue>
   stopOpacity?: Signalish<number | string | EmptyValue>
-  strikethroughPosition?: Signalish<number | string | EmptyValue>
-  strikethroughThickness?: Signalish<number | string | EmptyValue>
-  string?: Signalish<number | string | EmptyValue>
   stroke?: Signalish<string | EmptyValue>
   strokeDasharray?: Signalish<string | number | EmptyValue>
   strokeDashoffset?: Signalish<string | number | EmptyValue>
@@ -871,47 +824,20 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   textRendering?: Signalish<number | string | EmptyValue>
   to?: Signalish<number | string | EmptyValue>
   transform?: Signalish<string | EmptyValue>
-  u1?: Signalish<number | string | EmptyValue>
-  u2?: Signalish<number | string | EmptyValue>
-  underlinePosition?: Signalish<number | string | EmptyValue>
-  underlineThickness?: Signalish<number | string | EmptyValue>
-  unicode?: Signalish<number | string | EmptyValue>
   unicodeBidi?: Signalish<number | string | EmptyValue>
-  unicodeRange?: Signalish<number | string | EmptyValue>
-  unitsPerEm?: Signalish<number | string | EmptyValue>
-  vAlphabetic?: Signalish<number | string | EmptyValue>
   values?: Signalish<string | EmptyValue>
   vectorEffect?: Signalish<number | string | EmptyValue>
   version?: Signalish<string | EmptyValue>
-  vertAdvY?: Signalish<number | string | EmptyValue>
-  vertOriginX?: Signalish<number | string | EmptyValue>
-  vertOriginY?: Signalish<number | string | EmptyValue>
-  vHanging?: Signalish<number | string | EmptyValue>
-  vIdeographic?: Signalish<number | string | EmptyValue>
   viewBox?: Signalish<string | EmptyValue>
   viewTarget?: Signalish<number | string | EmptyValue>
   visibility?: Signalish<number | string | EmptyValue>
-  vMathematical?: Signalish<number | string | EmptyValue>
-  widths?: Signalish<number | string | EmptyValue>
   wordSpacing?: Signalish<number | string | EmptyValue>
   writingMode?: Signalish<number | string | EmptyValue>
   x1?: Signalish<number | string | EmptyValue>
   x2?: Signalish<number | string | EmptyValue>
   x?: Signalish<number | string | EmptyValue>
   xChannelSelector?: Signalish<string | EmptyValue>
-  xHeight?: Signalish<number | string | EmptyValue>
-  xlinkActuate?: Signalish<string | EmptyValue>
-  xlinkArcrole?: Signalish<string | EmptyValue>
-  xlinkHref?: Signalish<string | EmptyValue>
-  xlinkRole?: Signalish<string | EmptyValue>
-  xlinkShow?: Signalish<string | EmptyValue>
-  xlinkTitle?: Signalish<string | EmptyValue>
-  xlinkType?: Signalish<string | EmptyValue>
-  xmlBase?: Signalish<string | EmptyValue>
-  xmlLang?: Signalish<string | EmptyValue>
   xmlns?: Signalish<string | EmptyValue>
-  xmlnsXlink?: Signalish<string | EmptyValue>
-  xmlSpace?: Signalish<string | EmptyValue>
   y1?: Signalish<number | string | EmptyValue>
   y2?: Signalish<number | string | EmptyValue>
   y?: Signalish<number | string | EmptyValue>

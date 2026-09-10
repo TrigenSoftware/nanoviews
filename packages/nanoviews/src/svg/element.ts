@@ -1,21 +1,20 @@
+import {
+  lazyChild,
+  elementChildren
+} from '../internals/index.js'
 import type {
   ElementName,
-  PickElementType,
   Attributes,
-  Children,
   VoidElementFactory,
   LazyElement,
-  ElementFactory,
-  EmptyValue
-} from '../types/index.js'
-import {
-  childToNode,
-  lazyChild
-} from './child.js'
+  ElementFactory
+} from './types.js'
 import { setAttributes } from './attributes.js'
 
+const namespace = 'http://www.w3.org/2000/svg'
+
 /**
- * Create [void HTML element](https://developer.mozilla.org/en-US/docs/Glossary/Void_element)
+ * Create SVG element without children
  * @param tag - Tag name
  * @param attributes - Element attributes
  * @returns Void element
@@ -24,7 +23,7 @@ export function createVoidElement<Tag extends ElementName>(
   tag: Tag,
   attributes?: Attributes<Tag>
 ) {
-  const element = document.createElement(tag) as PickElementType<Tag>
+  const element = document.createElementNS(namespace, tag)
 
   if (attributes !== undefined) {
     setAttributes(element, attributes)
@@ -34,7 +33,7 @@ export function createVoidElement<Tag extends ElementName>(
 }
 
 /**
- * Create [void HTML element](https://developer.mozilla.org/en-US/docs/Glossary/Void_element) factory
+ * Create SVG element without children factory
  * @param tag - Tag name
  * @returns Function to create given void element
  */
@@ -46,22 +45,8 @@ export function createVoidElementFactory<Tag extends ElementName>(
   return createVoidElement.bind(null, tag as ElementName) as VoidElementFactory<Tag>
 }
 
-export function elementChildren(
-  this: Element | ShadowRoot | DocumentFragment,
-  result: Element | DocumentFragment,
-  ...children: Children
-) {
-  for (let i = 0, len = children.length, node: ChildNode | DocumentFragment | EmptyValue; i < len; i++) {
-    if (node = childToNode(children[i])) {
-      this.appendChild(node)
-    }
-  }
-
-  return result
-}
-
 /**
- * Create HTML element
+ * Create SVG element
  * @param tag - Tag name
  * @param attributes - Element attributes
  * @returns Function to pass children
@@ -76,7 +61,7 @@ export function createElement<Tag extends ElementName>(
 }
 
 /**
- * Create HTML element factory
+ * Create SVG element factory
  * @param tag - Tag name
  * @returns Function to create given element
  */

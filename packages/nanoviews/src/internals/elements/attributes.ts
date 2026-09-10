@@ -22,7 +22,7 @@ function isEmptyAttribute(name: string, value: unknown) {
   return isEmpty(value) || value === false && !/^(?:aria-|data-|draggable$|contentEditable$|spellCheck$)/.test(name)
 }
 
-function setAttribute(element: Element, name: string, $value: PrimitiveAttributeValue) {
+export function setAttribute(element: Element, name: string, $value: PrimitiveAttributeValue) {
   // A static attribute is the common case: apply it without building the
   // setter closures a reactive binding needs
   if (isAccessor($value)) {
@@ -40,7 +40,7 @@ function setAttribute(element: Element, name: string, $value: PrimitiveAttribute
   }
 }
 
-function isEventHandler(key: string, value: unknown): value is TargetEventHandler {
+export function isEventHandler(key: string, value: unknown): value is TargetEventHandler {
   return key.startsWith('on') && isFunction(value)
 }
 
@@ -49,7 +49,7 @@ function isEventHandler(key: string, value: unknown): value is TargetEventHandle
 // handed over every time
 const eventNames: Record<string, string> = {}
 
-function setEventListener(element: Element, name: string, value: TargetEventHandler) {
+export function setEventListener(element: Element, name: string, value: TargetEventHandler) {
   // `onGotPointerCapture` and `onLostPointerCapture` end with `Capture`
   // themselves, and are ordinary bubbling events
   const capture = name.endsWith('Capture') && !name.endsWith('PointerCapture')
