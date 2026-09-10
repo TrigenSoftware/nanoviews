@@ -21,13 +21,17 @@ describe('nanoviews', () => {
       it('should focus element by static value', () => {
         render(StaticValue())
 
-        expect(screen.getByRole('textbox')).toHaveFocus()
+        const input = screen.getByRole('textbox')
+
+        expect(input.ownerDocument.activeElement).toBe(input)
       })
 
       it('should focus element by reactive value', () => {
         render(ReactiveValue())
 
-        expect(screen.getByRole('textbox')).toHaveFocus()
+        const input = screen.getByRole('textbox')
+
+        expect(input.ownerDocument.activeElement).toBe(input)
       })
     })
   })
