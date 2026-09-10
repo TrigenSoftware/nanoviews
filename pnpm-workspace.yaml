@@ -24,7 +24,7 @@ catalog:
 overrides:
   'nanoviews@*': workspace:^
   # Temporary until the kida 2.0 release line ships: keep the whole graph on
-  # the same snapshot so examples get one kida instance shared with nanoviews.
-  '@nano_kit/platform-web@*': 2.0.0-snapshot.20260830203546
-  '@nano_kit/query@*': 2.0.0-snapshot.20260830203546
-  '@nano_kit/store@*': 2.0.0-snapshot.20260830203546
+  # the same prerelease so examples get one kida instance shared with nanoviews.
+  '@nano_kit/platform-web@*': 2.0.0-prerelease.20260910112739
+  '@nano_kit/query@*': 2.0.0-prerelease.20260910112739
+  '@nano_kit/store@*': 2.0.0-prerelease.20260910112739
