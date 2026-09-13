@@ -14,6 +14,7 @@ import {
   inject,
   getContext
 } from 'kida'
+import { effect$ } from '../component/effect.js'
 import {
   button,
   div,
@@ -21,7 +22,7 @@ import {
 } from '../elements/elements.js'
 import { if_ } from '../flow/if.js'
 import { for_ } from '../flow/for.js'
-import { context } from '../component/context.js'
+import { context$ } from '../component/context.js'
 
 describe('nanoviews', () => {
   describe('internals', () => {
@@ -31,7 +32,7 @@ describe('nanoviews', () => {
           const log: string[] = []
 
           function Child() {
-            effect(() => {
+            effect$(() => {
               log.push('child')
             })
 
@@ -39,7 +40,7 @@ describe('nanoviews', () => {
           }
 
           function Parent() {
-            effect(() => {
+            effect$(() => {
               log.push('parent')
             })
 
@@ -59,7 +60,7 @@ describe('nanoviews', () => {
           const log: string[] = []
 
           function Row($item: () => number) {
-            effect(() => {
+            effect$(() => {
               log.push(`row ${$item()}`)
             })
 
@@ -67,7 +68,7 @@ describe('nanoviews', () => {
           }
 
           function Parent() {
-            effect(() => {
+            effect$(() => {
               log.push('parent')
             })
 
@@ -91,7 +92,7 @@ describe('nanoviews', () => {
           const log: string[] = []
 
           function Child() {
-            effect(() => {
+            effect$(() => {
               log.push('child')
             })
 
@@ -103,7 +104,7 @@ describe('nanoviews', () => {
               if_(signal(true))(
                 () => Child()
               )
-            )
+            )()
           })
 
           expect(log).toEqual([])
@@ -119,7 +120,7 @@ describe('nanoviews', () => {
           const log: string[] = []
           const $condition = signal(true)
           const Block = (name: string) => {
-            effect(() => {
+            effect$(() => {
               log.push(name)
             })
 
@@ -134,7 +135,7 @@ describe('nanoviews', () => {
               if_(signal(true))(
                 () => Block('sibling')
               )
-            )
+            )()
           })
 
           // swap before mount must not move the block to the parent deps tail
@@ -151,7 +152,7 @@ describe('nanoviews', () => {
           const log: string[] = []
           const $condition = signal(true)
           const Block = (name: string) => {
-            effect(() => () => {
+            effect$(() => () => {
               log.push(`${name} destroy`)
             })
 
@@ -166,7 +167,7 @@ describe('nanoviews', () => {
               if_(signal(true))(
                 () => Block('sibling')
               )
-            )
+            )()
           })
 
           startScope(scope)
@@ -183,7 +184,7 @@ describe('nanoviews', () => {
           const log: string[] = []
           const $condition = signal(true)
           const Block = (name: string) => {
-            effect(() => {
+            effect$(() => {
               log.push(`${name} run`)
 
               return () => log.push(`${name} destroy`)
@@ -197,7 +198,7 @@ describe('nanoviews', () => {
                 () => Block('then'),
                 () => Block('else')
               )
-            )
+            )()
           })
 
           startScope(scope)
@@ -216,7 +217,7 @@ describe('nanoviews', () => {
           const $condition = signal(true)
           const Block = (name: string) => {
             log.push(`${name} render`)
-            effect(() => {
+            effect$(() => {
               log.push(`${name} run`)
 
               return () => log.push(`${name} destroy`)
@@ -230,7 +231,7 @@ describe('nanoviews', () => {
                 () => Block('then'),
                 () => Block('else')
               )
-            )
+            )()
           })
 
           startScope(scope)
@@ -252,9 +253,9 @@ describe('nanoviews', () => {
           let connectedAtDestroy: boolean | undefined
 
           function Then() {
-            const el = span()('then')
+            const el = span()('then')()
 
-            effect(() => () => {
+            effect$(() => () => {
               connectedAtDestroy = el.isConnected
             })
 
@@ -283,7 +284,7 @@ describe('nanoviews', () => {
           function Row($item: () => number) {
             const id = $item()
 
-            effect(() => {
+            effect$(() => {
               log.push(`row ${id} run ${$tick()}`)
 
               if (id === 1 && armed) {
@@ -310,15 +311,18 @@ describe('nanoviews', () => {
           $items([])
           armed = true
           log.length = 0
-          // the branch is torn down from inside the first row start:
-          // the teardown is immediate - the running row is destroyed and
-          // the remaining rows never start
+          // the branch is torn down from inside the first row start: the
+          // write is queued behind the flush already running, even inside a
+          // batch, so the remaining rows still start, then the teardown
+          // destroys every row and nothing runs again
           $items([1, 2])
           armed = false
 
           expect(log).toEqual([
             'row 1 run 0',
-            'row 1 destroy'
+            'row 2 run 0',
+            'row 1 destroy',
+            'row 2 destroy'
           ])
 
           log.length = 0
@@ -334,7 +338,7 @@ describe('nanoviews', () => {
           function Row($item: () => number) {
             const initial = $item()
 
-            effect(() => {
+            effect$(() => {
               log.push(`row ${initial} run`)
 
               return () => log.push(`row ${initial} destroy`)
@@ -349,7 +353,7 @@ describe('nanoviews', () => {
               for_($items, item => item)(
                 $item => Row($item)
               )
-            )
+            )()
           })
 
           // pre-mount transition to empty must discard the stale rows
@@ -396,7 +400,7 @@ describe('nanoviews', () => {
               for_($items, item => item)(
                 $item => Row($item)
               )
-            )
+            )()
           })
 
           log.length = 0
@@ -415,7 +419,7 @@ describe('nanoviews', () => {
           function Row($item: () => number) {
             const initial = $item()
 
-            effect(() => {
+            effect$(() => {
               log.push(`row ${initial} run`)
 
               return () => log.push(`row ${initial} destroy`)
@@ -429,7 +433,7 @@ describe('nanoviews', () => {
               for_($items, item => item)(
                 $item => Row($item)
               )
-            )
+            )()
           })
 
           startScope(scope)
@@ -454,7 +458,7 @@ describe('nanoviews', () => {
             observed.push(getContext())
           })
           const scope = deferScope(() => {
-            context([], () => {
+            context$()(
               div()(
                 for_($items, (item) => {
                   // signal write from the tracker queues the outer effect for the flush
@@ -465,7 +469,7 @@ describe('nanoviews', () => {
                   $item => span()(String($item()))
                 )
               )
-            })
+            )()
           })
 
           startScope(scope)
@@ -487,13 +491,13 @@ describe('nanoviews', () => {
 
           const $items = signal([1])
           const scope = deferScope(() => {
-            context([], () => {
+            context$()(
               div()(
                 for_($items, item => inject(Key)(item))(
                   $item => span()(String($item()))
                 )
               )
-            })
+            )()
           })
 
           startScope(scope)
@@ -509,7 +513,7 @@ describe('nanoviews', () => {
           const $condition = signal(true)
 
           function Then() {
-            effect(() => {
+            effect$(() => {
               log.push('then')
             })
 
@@ -517,7 +521,7 @@ describe('nanoviews', () => {
           }
 
           function Else() {
-            effect(() => {
+            effect$(() => {
               log.push('else')
             })
 
@@ -530,7 +534,7 @@ describe('nanoviews', () => {
                 () => Then(),
                 () => Else()
               )
-            )
+            )()
           })
 
           // swap before start: the replaced branch must never run or resurrect
@@ -549,7 +553,7 @@ describe('nanoviews', () => {
           const $dep = signal(0)
 
           function Child() {
-            effect(() => {
+            effect$(() => {
               log.push(`child ${$dep()}`)
 
               return () => log.push('child destroy')
@@ -581,7 +585,7 @@ describe('nanoviews', () => {
           const log: string[] = []
 
           function Child() {
-            effect(() => () => {
+            effect$(() => () => {
               log.push('child destroy')
             })
 
@@ -589,14 +593,14 @@ describe('nanoviews', () => {
           }
 
           const scope = deferScope(() => {
-            effect(() => () => {
+            effect$(() => () => {
               log.push('parent destroy')
             })
             div()(
               if_(signal(true))(
                 () => Child()
               )
-            )
+            )()
           })
 
           startScope(scope)
@@ -614,7 +618,7 @@ describe('nanoviews', () => {
           function Row($item: () => number) {
             const initial = $item()
 
-            effect(() => () => {
+            effect$(() => () => {
               log.push(`row ${initial} destroy`)
             })
 
@@ -626,7 +630,7 @@ describe('nanoviews', () => {
               for_($items, item => item)(
                 $item => Row($item)
               )
-            )
+            )()
           })
 
           startScope(scope)
@@ -647,7 +651,7 @@ describe('nanoviews', () => {
           const $items = signal([1, 2])
 
           function Row($item: () => number) {
-            effect(() => {
+            effect$(() => {
               log.push(`row ${$item()}`)
 
               return () => log.push(`row ${$item()} destroy`)
@@ -661,7 +665,7 @@ describe('nanoviews', () => {
               for_($items, item => item)(
                 $item => Row($item)
               )
-            )
+            )()
           })
 
           startScope(scope)
@@ -683,7 +687,7 @@ describe('nanoviews', () => {
           const log: string[] = []
 
           function Child() {
-            effect(() => {
+            effect$(() => {
               log.push('child')
 
               return () => log.push('child destroy')
@@ -693,7 +697,7 @@ describe('nanoviews', () => {
           }
 
           const scope = deferScope(() => {
-            context([], () => div()(Child()))
+            context$()(div()(Child()))()
           })
 
           expect(log).toEqual([])
@@ -712,7 +716,7 @@ describe('nanoviews', () => {
           const log: string[] = []
 
           function Inner() {
-            effect(() => {
+            effect$(() => {
               log.push('inner')
             })
 
@@ -720,7 +724,7 @@ describe('nanoviews', () => {
           }
 
           function Middle() {
-            effect(() => {
+            effect$(() => {
               log.push('middle')
             })
 
@@ -732,7 +736,7 @@ describe('nanoviews', () => {
           }
 
           function Outer() {
-            effect(() => {
+            effect$(() => {
               log.push('outer')
             })
 
@@ -765,9 +769,9 @@ describe('nanoviews', () => {
               onClick: () => {
                 handlerRuns.push($unrelated())
               }
-            })('click')
+            })('click')()
 
-            effect(() => {
+            effect$(() => {
               effectRuns.push(effectRuns.length)
               el.click()
             })

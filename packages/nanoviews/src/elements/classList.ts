@@ -2,7 +2,7 @@
 import {
   type Signalish,
   $get,
-  effect
+  deferEffect
 } from 'kida'
 import {
   type FalsyValue,
@@ -32,7 +32,7 @@ function cx(parts: unknown[]) {
 export const classList$ = /* @__PURE__ */ createEffectAttribute<'classList$', HTMLElement, ClassList>(
   'classList$',
   (element, parts) => {
-    effect(() => {
+    deferEffect(() => {
       element.className = cx(parts.map($get))
     }, true)
   }

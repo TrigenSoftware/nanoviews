@@ -6,10 +6,13 @@ import {
 } from 'vitest'
 import { render } from '@nanoviews/testing-library'
 import { signal } from 'kida'
-import { createElement } from '../elements/index.js'
+import {
+  createElement,
+  lazyChild
+} from '../elements/index.js'
 import {
   provide,
-  context,
+  context$,
   inject
 } from '../../component/context.js'
 import { swap } from './swap.js'
@@ -24,9 +27,8 @@ describe('nanoviews', () => {
           const ComponentA = vi.fn(() => createElement('div')('(A) ', inject(ThemeContext)))
           const ComponentB = vi.fn(() => createElement('div')('(B) ', inject(ThemeContext)))
           const decider = vi.fn(value => (value ? ComponentA() : ComponentB()))
-          const Swapper = () => context(
-            [provide(ThemeContext, 'dark')],
-            () => swap($value, decider)
+          const Swapper = () => context$(provide(ThemeContext, 'dark'))(
+            lazyChild(() => swap($value, decider))
           )
           const { container } = render(Swapper)
 

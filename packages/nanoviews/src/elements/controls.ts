@@ -1,6 +1,6 @@
 import {
   type WritableSignal,
-  effect
+  deferEffect
 } from 'kida'
 import {
   valueProperty,
@@ -48,7 +48,7 @@ function createElementPropertySetter<E extends Element, V>(
     control: E,
     $value: WritableSignal<V>
   ): void => {
-    effect(() => {
+    deferEffect(() => {
       setValue(control, $value())
     })
 

@@ -1,7 +1,7 @@
 import {
   isAccessor,
   isFunction,
-  effect,
+  deferEffect,
   untracked
 } from 'kida'
 import type {
@@ -26,7 +26,7 @@ export function setAttribute(element: Element, name: string, $value: PrimitiveAt
   // A static attribute is the common case: apply it without building the
   // setter closures a reactive binding needs
   if (isAccessor($value)) {
-    effect(() => {
+    deferEffect(() => {
       const value = $value()
 
       if (isEmptyAttribute(name, value)) {

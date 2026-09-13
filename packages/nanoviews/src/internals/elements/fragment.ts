@@ -1,17 +1,13 @@
 import type { Children } from '../types/index.js'
-import { elementChildren } from './element.js'
+import { lazyChild } from './child.js'
+import { appendChildren } from './element.js'
 
 /**
- * Create fragment
- * @param children
- * @returns Document fragment
+ * Describe a document fragment with the given children
+ * @param children - Children of the fragment
+ * @returns Fragment description
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function fragment(...children: Children) {
-  const fragment = document.createDocumentFragment()
-
-  return elementChildren.call(
-    fragment,
-    fragment,
-    ...children
-  )
+  return lazyChild(() => appendChildren(document.createDocumentFragment(), children))
 }

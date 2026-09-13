@@ -1,7 +1,10 @@
 import { signal } from 'nanoviews/store'
-import { button } from 'nanoviews'
+import {
+  button,
+  component$
+} from 'nanoviews'
 
-export function Counter() {
+export const Counter = component$(() => {
   const $count = signal(0)
 
   return button({
@@ -11,4 +14,4 @@ export function Counter() {
   })(
     'count is ', $count
   )
-}
+})

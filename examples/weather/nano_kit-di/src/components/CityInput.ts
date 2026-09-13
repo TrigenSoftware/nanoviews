@@ -1,11 +1,14 @@
-import { inject } from 'nanoviews'
+import {
+  inject,
+  component$
+} from 'nanoviews'
 import {
   LocationSearch$,
   CitySuggestions$
 } from '../stores/location.js'
 import { Autocomplete } from './Autocomplete.js'
 
-export function CityInput() {
+export const CityInput = component$(() => {
   const { $searchInputValue } = inject(LocationSearch$)
   const { $suggestions } = inject(CitySuggestions$)
 
@@ -16,4 +19,4 @@ export function CityInput() {
     $value: $searchInputValue,
     $suggestions
   })
-}
+})

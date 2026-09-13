@@ -8,7 +8,8 @@ import {
   time,
   img,
   h3,
-  p
+  p,
+  component$
 } from 'nanoviews'
 import type { Weather } from '../services/types.js'
 
@@ -17,10 +18,10 @@ export interface Props {
   mode: Accessor<string>
 }
 
-export function ForecastWeather({
+export const ForecastWeather = component$(({
   weather,
   mode: $mode
-}: Props) {
+}: Props) => {
   const $weather = record(weather)
   const $weatherTime = computed(() => {
     const date = $weather.$date()
@@ -67,4 +68,4 @@ export function ForecastWeather({
       $weather.$description
     )
   )
-}
+})

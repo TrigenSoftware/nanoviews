@@ -1,6 +1,6 @@
 import {
   isAccessor,
-  effect
+  deferEffect
 } from 'kida'
 import {
   type CSSProperties,
@@ -44,7 +44,7 @@ function setStyle(
   const style = element.style as StyleDeclaration
 
   if (isAccessor($value)) {
-    effect(() => {
+    deferEffect(() => {
       setStyleValue(style, name, $value())
     }, true)
   } else {

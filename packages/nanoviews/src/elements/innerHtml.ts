@@ -1,29 +1,32 @@
-
 import {
   type Signalish,
   isAccessor,
-  effect
+  deferEffect
 } from 'kida'
+import { lazyChild } from '../internals/index.js'
 
 /**
  * Dangerously set inner HTML to element
- * @param factory - Element factory
+ * @param factory - Element description or factory
  * @param $html - HTML string or store with it
- * @returns Target element
+ * @returns Element description
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function dangerouslySetInnerHtml<T extends Element>(
   factory: () => T,
   $html: Signalish<string>
 ) {
-  const element = factory()
+  return lazyChild(() => {
+    const element = factory()
 
-  if (isAccessor($html)) {
-    effect(() => {
-      element.innerHTML = $html()
-    }, true)
-  } else {
-    element.innerHTML = $html
-  }
+    if (isAccessor($html)) {
+      deferEffect(() => {
+        element.innerHTML = $html()
+      }, true)
+    } else {
+      element.innerHTML = $html
+    }
 
-  return element
+    return element
+  })
 }

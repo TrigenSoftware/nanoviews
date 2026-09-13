@@ -14,13 +14,14 @@ import {
   selected$,
   trackBy,
   inject,
+  component$,
   for_,
   if_
 } from 'nanoviews'
 import { WeatherForecast$ } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.js'
 
-export function Forecast() {
+export const Forecast = component$(() => {
   const { $forecast } = inject(WeatherForecast$)
   const $mode = signal('hourly')
   const $forecastToShow = computed(() => {
@@ -71,4 +72,4 @@ export function Forecast() {
       )
     )
   )
-}
+})

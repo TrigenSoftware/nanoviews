@@ -1,4 +1,1 @@
-export {
-  effect,
-  effectScope
-} from 'kida'
+export { deferEffect as effect$ } from 'kida'

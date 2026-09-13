@@ -12,6 +12,7 @@ export type SwitchCase<T> = readonly [T | typeof default_, () => Child]
  * @param $value - Static value or store
  * @returns Function that accepts cases and returns Block that renders decided child
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function switch_<T>($value: Signalish<T>) {
   type Value = SignalishValue<T>
 
@@ -31,10 +32,12 @@ export function switch_<T>($value: Signalish<T>) {
   }
 }
 
+/* @__NO_SIDE_EFFECTS__ */
 export function case_<T>(value: T, then_: () => Child): SwitchCase<T> {
   return [value, then_]
 }
 
+/* @__NO_SIDE_EFFECTS__ */
 export function default_(then_: () => Child): SwitchCase<typeof default_> {
   return [default_, then_]
 }

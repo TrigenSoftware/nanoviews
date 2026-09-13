@@ -15,6 +15,7 @@ import {
   span,
   trackBy,
   ul,
+  component$,
   for_,
   if_
 } from 'nanoviews'
@@ -30,7 +31,7 @@ interface AutocompleteProps {
 
 const FIRST_SUGGESTION = 0
 
-export function Autocomplete(props: AutocompleteProps) {
+export const Autocomplete = component$((props: AutocompleteProps) => {
   const $isOpen = signal(false)
   const $activeIndex = signal(FIRST_SUGGESTION)
   const $hasSuggestions = computed(() => $isOpen() && props.$suggestions().length > 0)
@@ -128,4 +129,4 @@ export function Autocomplete(props: AutocompleteProps) {
       )
     )
   )
-}
+})

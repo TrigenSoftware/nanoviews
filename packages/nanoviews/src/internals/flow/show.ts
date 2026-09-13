@@ -1,6 +1,6 @@
 import {
   type Accessor,
-  effect,
+  deferEffect,
   untracked,
   boundDeferScope,
   startScope,
@@ -41,7 +41,7 @@ export function show(
     parked = extractBetween(start, end)
   }
 
-  effect(() => {
+  deferEffect(() => {
     if ($value()) {
       if (parked !== undefined) {
         end.before(parked)
@@ -62,7 +62,7 @@ export function show(
   // re-queue it. This second subscriber is idle at that moment, so its
   // read settles the value and re-queues the parked toggle for the
   // corrective pass
-  effect(() => void $value(), true)
+  deferEffect(() => void $value(), true)
 
   return fragment
 }

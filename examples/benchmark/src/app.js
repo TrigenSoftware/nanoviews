@@ -16,7 +16,8 @@ import {
   td,
   a,
   span,
-  for_
+  for_,
+  component$
 } from 'nanoviews'
 import './main.css'
 
@@ -99,7 +100,7 @@ function buildData(count = 1000) {
   return data
 }
 
-export function App(ref = {}) {
+export const App = component$((ref) => {
   const $data = signal([])
   const $selected = signal()
   const $isSelected = selector($selected)
@@ -254,4 +255,4 @@ export function App(ref = {}) {
       'aria-hidden': true
     })
   )
-}
+})

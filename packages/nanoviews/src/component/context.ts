@@ -5,9 +5,13 @@ import {
   run,
   unsafeRun,
   provide,
-  inject,
-  isFunction
+  inject
 } from 'kida'
+import {
+  type Child,
+  childToNode,
+  lazyChild
+} from '../internals/index.js'
 
 export {
   getContext,
@@ -17,44 +21,37 @@ export {
 }
 
 /**
- * Run a function within an current injection context.
- * @param fn - The function to run.
- * @returns The return value of the function.
+ * Provide dependencies to a child: it is built within a child injection
+ * context with the given values, or within the current one when there are
+ * none to give and there is a context to inherit.
+ * @param providers - The values to provide.
+ * @returns Function that accepts the child.
  */
-export function context<R>(fn: () => R): R
+/* @__NO_SIDE_EFFECTS__ */
+export function context$(...providers: InjectionProvider[]) {
+  return (child: Child) => lazyChild(() => {
+    const currentContext = getContext()
 
-/**
- * Run a function within a new injection context with the given values.
- * @param providers - The values to use in the context.
- * @param fn - The function to run.
- * @returns The return value of the function.
- */
-export function context<R>(providers: InjectionProvider[], fn: () => R): R
-
-export function context<R>(providersOrFn: InjectionProvider[] | (() => R), maybeFn?: () => R) {
-  const currentContext = getContext()
-  let providers: InjectionProvider[] | undefined
-  let fn: () => R
-
-  if (isFunction(providersOrFn)) {
-    fn = providersOrFn
-
-    if (currentContext !== undefined) {
-      return fn()
-    }
-  } else {
-    providers = providersOrFn
-    fn = maybeFn!
-  }
-
-  return unsafeRun(new InjectionContext(providers, currentContext), fn)
+    // With nothing to provide and a context to inherit there is nothing to
+    // enter: the child is handed back as it is, and the parent builds it
+    // under the caller's context on its way through `childToNode`
+    return !providers.length && currentContext !== undefined
+      ? child
+      : unsafeRun(
+        new InjectionContext(providers, currentContext),
+        childToNode,
+        child
+      )
+  })
 }
 
 /**
- * Run a function within a new isolated injection context.
- * @param fn - The function to run.
- * @returns The return value of the function.
+ * Isolate a child: it is built without an injection context, so nothing
+ * above it is reachable.
+ * @param child - The child to isolate.
+ * @returns The isolated child.
  */
-export function isolate<R>(fn: () => R): R {
-  return unsafeRun(undefined, fn)
+/* @__NO_SIDE_EFFECTS__ */
+export function isolate$(child: Child) {
+  return lazyChild(() => unsafeRun(undefined, childToNode, child))
 }

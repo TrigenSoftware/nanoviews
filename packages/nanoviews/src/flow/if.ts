@@ -14,6 +14,7 @@ import { swap_ } from './swap.js'
  * @param $value - Static value or store
  * @returns Function that accepts then and else functions and returns Block that renders decided child
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function if_<T>($value: T) {
   /**
    * Decide which child to render based on condition

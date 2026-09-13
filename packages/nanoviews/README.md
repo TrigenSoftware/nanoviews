@@ -39,9 +39,9 @@ A small Direct DOM library for creating user interfaces.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { div, a, img, h1, button, p, mount } from 'nanoviews'
+import { div, a, img, h1, button, p, component$, mount } from 'nanoviews'
 
-function App() {
+const App = component$(() => {
   const $counter = signal(0)
 
   return div()(
@@ -63,7 +63,7 @@ function App() {
     ),
     p({ class: 'read-the-docs' })('Click on the Vite and Nanoviews logos to learn more')
   )
-}
+})
 
 mount(App, document.querySelector('#app'))
 ```
@@ -132,9 +132,9 @@ effect(() => {
 
 ## Basic markup
 
-Nanoviews provides a set of methods for creating HTML elements with the specified attributes and children. Every method creates a DOM node.
+Nanoviews provides a set of methods for describing HTML elements with the specified attributes and children. A description is a function: called with children it keeps them, called with no arguments it builds the DOM node. The parent makes that call when it is built itself, so a whole tree is built top-down by `mount`.
 
-Child can be an another DOM node, primitive value (string, number, boolean, `null` or `undefined`) or signal with primitive. Attributes also can be a primitive value or signal.
+Child can be another description, a DOM node, primitive value (string, number, boolean, `null` or `undefined`) or signal with primitive. Attributes also can be a primitive value or signal.
 
 ```js
 import { signal } from 'nanoviews/store'
@@ -146,7 +146,19 @@ const list = ul({ class: 'list' })(
   li()('Number value', 42),
   li()('Boolean value', $boolean)
 )
-// `list` is HTMLUListElement instance
+// `list` describes the list, `list()` builds the HTMLUListElement
+```
+
+A DOM node made elsewhere is a child too and goes into the tree as is, so vanilla code needs no wrapping:
+
+```js
+import { div } from 'nanoviews'
+
+const canvas = document.createElement('canvas')
+
+canvas.getContext('2d').fillRect(0, 0, 10, 10)
+
+const chart = div({ class: 'chart' })(canvas)
 ```
 
 ### mount
@@ -154,17 +166,14 @@ const list = ul({ class: 'list' })(
 `mount` is a method that mounts the component to the specified container.
 
 ```js
-import { signal } from 'nanoviews/store'
-import { div, h1, p, mount } from 'nanoviews'
+import { div, h1, p, component$, mount } from 'nanoviews'
 
-function App() {
-  return (
-    div()(
-      h1()('Nanoviews App'),
-      p()('Hello World!')
-    )
+const App = component$(() => (
+  div()(
+    h1()('Nanoviews App'),
+    p()('Hello World!')
   )
-}
+))
 
 mount(App, document.querySelector('#app'))
 ```
@@ -182,7 +191,7 @@ const icon = svg({ viewBox: '0 0 24 24', width: 24, height: 24 })(
   circle({ cx: 12, cy: 12, r: $radius, fill: 'none', stroke: 'currentColor', strokeWidth: 2 }),
   path({ d: 'M8 12l3 3 5-6', fill: 'none', stroke: 'currentColor' })
 )
-// `icon` is SVGSVGElement instance
+// `icon` describes the image, `icon()` builds the SVGSVGElement
 ```
 
 HTML inside `foreignObject` comes from `nanoviews`. `a`, `title`, `style` and `script` exist in both entry points, so alias one of them in a module that imports both.
@@ -381,14 +390,14 @@ input({
 
 ### createEffectAttribute
 
-The effect attributes above are built with `createEffectAttribute`, and so can yours. It takes an id and a handler that receives the element and the value, and returns the id to use as a computed key. The handler runs inside the element's effect scope, so an `effect` in it is torn down with the element.
+The effect attributes above are built with `createEffectAttribute`, and so can yours. It takes an id and a handler that receives the element and the value, and returns the id to use as a computed key. The handler runs inside the element's effect scope, so an `effect$` in it is torn down with the element.
 
 ```js
-import { $get, effect } from 'nanoviews/store'
-import { createEffectAttribute } from 'nanoviews'
+import { $get } from 'nanoviews/store'
+import { createEffectAttribute, effect$ } from 'nanoviews'
 
 export const title$ = createEffectAttribute('title$', (element, $value) => {
-  effect(() => {
+  effect$(() => {
     element.title = $get($value)
   })
 })
@@ -425,12 +434,12 @@ div({
 
 Components are the building blocks of any application. These units are reusable and can be combined to create more complex applications.
 
-Components are functions that return primitive or DOM node:
+A component is made with `component$`. Its render returns a description, a node or a primitive, and runs when the instance is built into the parent, so the parent's context and scope are already in place:
 
 ```ts
-function MyComponent() {
-  return div()('Hello, Nanoviews!')
-}
+const MyComponent = component$(() => (
+  div()('Hello, Nanoviews!')
+))
 ```
 
 ### props$
@@ -440,9 +449,9 @@ function MyComponent() {
 A prop read as `$title` leaves the rest, so `...restProps` carries exactly the props the component did not take, in the form they arrived in, straight onto an element:
 
 ```js
-import { button, props$, classList$ } from 'nanoviews'
+import { button, component$, props$, classList$ } from 'nanoviews'
 
-function Button(props) {
+const Button = component$((props) => {
   const {
     $size = () => 'm',
     ...restProps
@@ -459,21 +468,21 @@ function Button(props) {
       'Send'
     )
   )
-}
+})
 
 Button({ title: 'Send it', size: 's', id: 'send' })
 // <button title="Send it" id="send" class="button button_s">Send</button>
 ```
 
-### effect
+### effect$
 
-`effect` is a method that add effects to the component.
+`effect$` is a method that adds effects to the component. The effect first runs once `mount` has appended the tree, re-runs when a signal it read changes, and is stopped on unmount. It belongs to the scope of the view being built, so it is called while a view is built under `mount` and nowhere else. `effect` from `nanoviews/store` is the store effect: it runs at once wherever it is called and returns a function to stop it.
 
 ```js
-import { div, effect } from 'nanoviews'
+import { div, component$, effect$ } from 'nanoviews'
 
-function MyComponent() {
-  effect(() => {
+const MyComponent = component$(() => {
+  effect$(() => {
     console.log('Mounted')
 
     return () => {
@@ -482,21 +491,21 @@ function MyComponent() {
   })
 
   return div()('Hello, Nanoviews!')
-}
+})
 ```
 
-Also you can use `effect` with signals:
+Also you can use `effect$` with signals:
 
 ```js
 import { signal } from 'nanoviews/store'
-import { div, effect } from 'nanoviews'
+import { div, component$, effect$ } from 'nanoviews'
 
 const $timeout = signal(1000)
 
-function MyComponent() {
+const MyComponent = component$(() => {
   let intervalId
 
-  effect(() => {
+  effect$(() => {
     intervalId = setInterval(() => {
       console.log('Tick')
     }, $timeout())
@@ -507,127 +516,119 @@ function MyComponent() {
   })
 
   return div()('Hello, Nanoviews!')
-}
+})
 ```
 
-### children$
+### component$
 
-`children$` is a method that creates optional children receiver.
+`component$` creates a component. The component takes its props in the first call and its children in the second, like an element does, and renders when its instance is built into the parent. That happens after the parent's own render, so a parent can provide context and scope to its children.
 
 ```js
-import { div, children$ } from 'nanoviews'
+import { div, component$ } from 'nanoviews'
 
-function MyComponent(props) {
-  return children$(children => (
-    div(props)(
-      'My component children: ',
-      ...children?.length ? children : ['empty']
-    )
-  ))
-}
+const MyComponent = component$((props, children) => (
+  div(props)(
+    'My component children: ',
+    ...children.length ? children : ['empty']
+  )
+))
 
 MyComponent() // <div>My component children: empty</div>
 
-MyComponent()('Hello, Nanoviews!') // <div>My component children: Hello, Nanoviews!</div>
+MyComponent({ class: 'my' })('Hello, Nanoviews!') // <div class="my">My component children: Hello, Nanoviews!</div>
+```
+
+`children` is always an array. The props are optional when every prop is optional, and `props$` turns them into accessors:
+
+```ts
+import type { Attributes } from 'nanoviews'
+import { button, component$, props$, classList$ } from 'nanoviews'
+
+interface ButtonProps extends Attributes<'button'> {
+  size?: 's' | 'm'
+}
+
+const Button = component$((props: ButtonProps, children) => {
+  const {
+    $size = () => 'm',
+    ...restProps
+  } = props$(props)
+
+  return (
+    button({
+      ...restProps,
+      [classList$]: [
+        'button',
+        () => `button_${$size()}`
+      ]
+    })(
+      ...children
+    )
+  )
+})
+```
+
+An instance called with no arguments renders: `MyComponent()()` is what the render returned, the `div(...)` description here, and the parent builds it on insertion.
+
+The children are typed on the second parameter. A tuple with a function makes a render prop:
+
+```ts
+import type { Child } from 'nanoviews'
+import { ul, li, b, component$ } from 'nanoviews'
+
+const List = component$((
+  { items }: { items: string[] },
+  [renderItem]: [renderItem: (item: string) => Child]
+) => ul()(
+  ...items.map(item => li()(renderItem(item)))
+))
+
+List({ items: ['chopper', 'magixx'] })(item => b()('Player: ', item))
+// <ul><li><b>Player: chopper</b></li><li><b>Player: magixx</b></li></ul>
 ```
 
 ### slots$
 
-`slots$` is a method to receive slots and rest children.
+A slot is a component made with `slot$`: its instances name the component and keep their props, so a layout can pick them out of its children. `slots$` gives the layout's render the declared slots in order, an instance or `undefined` each, and the rest of the children last; `component$` turns the result into a component.
 
 ```js
-import { main, header, footer, children$, slot$, slots$ } from 'nanoviews'
+import { main, header, footer, component$, slot$, slots$ } from 'nanoviews'
 
-function LayoutHeader(props) {
-  return children$(children => slot$(LayoutHeader, (
-    header(props)(
-      ...children
-    )
-  )))
-}
+const LayoutHeader = slot$((props, children) => header(props)(...children))
+const LayoutFooter = slot$((props, children) => footer(props)(...children))
 
-function LayoutFooter(props) {
-  return children$(children => slot$(LayoutFooter, (
-    footer(props)(
-      ...children
-    )
-  )))
-}
-
-function Layout() {
-  return slots$(
-    [LayoutHeader, LayoutFooter],
-    (headerSlot, footerSlot, children) => main()(
-      headerSlot,
-      ...children,
-      footerSlot
-    )
+const Layout = component$(slots$(
+  [LayoutHeader, LayoutFooter],
+  (props, headerSlot, footerSlot, children) => main(props)(
+    headerSlot,
+    ...children,
+    footerSlot
   )
-}
+))
 
-Layout()(
-  LayoutHeader({
-    'data-testid': 'header'
-  })(
-    'Header content'
-  ),
-  LayoutFooter({
-    'data-testid': 'footer'
-  })(
-    'Footer content'
-  ),
-  'Main content'
+Layout({ class: 'page' })(
+  LayoutHeader({ 'data-testid': 'header' })('Header content'),
+  'Main content',
+  LayoutFooter({ 'data-testid': 'footer' })('Footer content')
 )
-// <main><header data-testid="header">Header content</header>Main content<footer data-testid="footer">Footer content</footer></main>
+// <main class="page"><header data-testid="header">Header content</header>Main content<footer data-testid="footer">Footer content</footer></main>
 ```
 
-Slot's content can be anything, including functions, that can be used to render lists:
+A slot the caller did not pass is `undefined` and renders nothing, the same slot passed twice keeps the last one, and a slot the layout did not declare throws.
 
-```js
-import { ul, li, b, slot$, slots$, for_ } from 'nanoviews'
+### context$
 
-function ListItem(renderItem) {
-  return slot$(ListItem, renderItem)
-}
-
-function List(items) {
-  return slots$(
-    [ListItem],
-    listItemSlot => ul()(
-      for_(items)(
-        item => li()(
-          listItemSlot(item.name)
-        )
-      )
-    )
-  )
-}
-
-List([
-  { id: 0, name: 'chopper' },
-  { id: 1, name: 'magixx' },
-  { id: 2, name: 'zont1x' },
-  { id: 3, name: 'donk' },
-  { id: 4, name: 'sh1ro' },
-  { id: 5, name: 'hally' }
-])(
-  ListItem(name => b()('Player: ', name))
-)
-```
-
-### context
-
-`context` is a method that can provide a context to the children.
+`context$` provides values to a child. The child is built within the context, so every `inject` in it, however deep, sees the values.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { div, context, provide, inject } from 'nanoviews'
+import { div, component$, context$, provide, inject } from 'nanoviews'
 
 function ThemeContext() {
   return signal('light') // default value
 }
 
-function MyComponent() {
+const Themed = component$(() => {
   const $theme = inject(ThemeContext)
 
   return (
@@ -636,59 +637,56 @@ function MyComponent() {
       $theme
     )
   )
-}
+})
 
-function App() {
+const App = component$(() => {
   const $theme = signal('dark')
 
-  return context(
-    [provide(ThemeContext, $theme)],
-    () => MyComponent()
+  return context$(provide(ThemeContext, $theme))(
+    Themed()
   )
-}
+})
 
 App() // <div>Current theme: dark</div>
 ```
 
+`context$()` with no providers opens the root context an app needs before any `inject`. A component provides to its own children the same way: `context$(provide(Value$, $value))(div()(...children))`.
+
 > [!NOTE]
 > Nanoviews contexts are based on [Kida's dependency injection system](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/kida#dependency-injection).
 
-### isolate
+### isolate$
 
-`isolate` runs a function outside the surrounding injection context, so nothing above it is reachable. `inject` inside a plain `isolate` throws — the point is to start a fresh provider tree that inherits nothing, rather than to fall back to defaults.
+`isolate$` builds a child outside the surrounding injection context, so nothing above it is reachable. `inject` inside a bare `isolate$` throws — the point is to start a fresh provider tree with `context$` that inherits nothing, rather than to fall back to defaults.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { div, context, isolate, provide, inject } from 'nanoviews'
+import { div, component$, context$, isolate$, provide, inject } from 'nanoviews'
 
 function ThemeContext() {
   return signal('light')
 }
 
-function Themed() {
-  return (
-    div()(
-      'theme: ',
-      inject(ThemeContext)
-    )
+const Themed = component$(() => (
+  div()(
+    'theme: ',
+    inject(ThemeContext)
   )
-}
+))
 
-function App() {
+const App = component$(() => {
   const $outer = signal('dark')
   const $inner = signal('high-contrast')
 
-  return context(
-    [provide(ThemeContext, $outer)],
-    () => div()(
+  return context$(provide(ThemeContext, $outer))(
+    div()(
       Themed(),
-      isolate(() => context(
-        [provide(ThemeContext, $inner)],
-        () => Themed()
+      isolate$(context$(provide(ThemeContext, $inner))(
+        Themed()
       ))
     )
   )
-}
+})
 
 App() // <div><div>theme: dark</div><div>theme: high-contrast</div></div>
 ```
@@ -880,15 +878,13 @@ ul()(
 `throw_` is a helper to throw an error in expressions.
 
 ```js
-import { ul, children$, throw_ } from 'nanoviews'
+import { ul, component$, throw_ } from 'nanoviews'
 
-function MyComponent() {
-  return children$(children => (
-    ul()(
-      ...children?.length ? children : throw_(new Error('Children are required'))
-    )
-  ))
-}
+const MyComponent = component$((_, children) => (
+  ul()(
+    ...children.length ? children : throw_(new Error('Children are required'))
+  )
+))
 ```
 
 ## Special methods
@@ -899,12 +895,12 @@ function MyComponent() {
 
 ```js
 import { signal } from 'nanoviews/store'
-import { fragment, effect } from 'nanoviews'
+import { fragment, component$, effect$ } from 'nanoviews'
 
-function TickTak() {
+const TickTak = component$(() => {
   const $tick = signal(0)
 
-  effect(() => {
+  effect$(() => {
     const id = setInterval(() => {
       $tick($tick() + 1)
     }, 1000)
@@ -913,12 +909,12 @@ function TickTak() {
   })
 
   return fragment('Tick tak: ', $tick)
-}
+})
 ```
 
 ### dangerouslySetInnerHtml
 
-`dangerouslySetInnerHtml` is a method that sets the inner HTML of the element. It is used for inserting HTML from a source that may not be trusted.
+`dangerouslySetInnerHtml` is a method that sets the inner HTML of the element once it is built. It is used for inserting HTML from a source that may not be trusted.
 
 ```js
 import { div, dangerouslySetInnerHtml } from 'nanoviews'
@@ -931,7 +927,7 @@ dangerouslySetInnerHtml(
 
 ### shadow
 
-`shadow` is a method that attaches a shadow DOM to the specified element.
+`shadow` is a method that attaches a shadow DOM to the specified element once it is built. The children go into the shadow root.
 
 ```js
 import { div, shadow } from 'nanoviews'
@@ -948,7 +944,7 @@ shadow(
 
 ### portal
 
-`portal` is a method that can render a DOM node in a different place in the DOM.
+`portal` is a method that can render a child in a different place in the DOM. The child is mounted into the target when the portal is built, and removed with the scope the portal was built in. In place it is an empty child.
 
 ```js
 import { div, portal } from 'nanoviews'

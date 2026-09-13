@@ -2,14 +2,15 @@ import {
   main,
   header,
   h1,
-  context
+  context$,
+  component$
 } from 'nanoviews'
 import { CityInput } from './components/CityInput.js'
 import { Weather } from './components/Weather.js'
 import { Forecast } from './components/Forecast.js'
 
-export function App() {
-  return context(() => main({
+export const App = component$(() => context$()(
+  main({
     class: 'app'
   })(
     header()(
@@ -22,5 +23,5 @@ export function App() {
     CityInput(),
     Weather(),
     Forecast()
-  ))
-}
+  )
+))

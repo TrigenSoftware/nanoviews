@@ -9,9 +9,9 @@ import { render } from '@nanoviews/testing-library'
 import {
   type WritableSignal,
   type ReadableSignal,
-  signal,
-  effect
+  signal
 } from 'kida'
+import { effect$ } from '../component/effect.js'
 import {
   b,
   i
@@ -68,7 +68,7 @@ describe('nanoviews', () => {
           () => {
             // the branch refuses to be shown, so the write reaches the
             // condition from an effect the swap itself started
-            effect(() => {
+            effect$(() => {
               if (!$allowed()) {
                 $open(false)
               }
@@ -102,7 +102,7 @@ describe('nanoviews', () => {
           () => {
             // an effect of the branch the write brought back: unlike a
             // binding it runs only if that branch was started
-            effect(() => {
+            effect$(() => {
               runs.push($tick())
             })
 
@@ -127,7 +127,7 @@ describe('nanoviews', () => {
         const runs: number[] = []
         const { container } = render(() => if_($open)(
           () => {
-            effect(() => {
+            effect$(() => {
               if (!$allowed()) {
                 $open(false)
               }
@@ -138,7 +138,7 @@ describe('nanoviews', () => {
           () => {
             // an effect of the branch the mount-time write brought up:
             // unlike a binding it runs only if that branch was started
-            effect(() => {
+            effect$(() => {
               runs.push($tick())
             })
 

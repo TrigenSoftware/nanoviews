@@ -10,16 +10,18 @@ import * as Stories from './context.stories.js'
 const {
   DefaultValue,
   OneContext,
-  FewContexts
+  FewContexts,
+  NestedContext,
+  IsolatedContext
 } = composeStories(Stories)
 
 describe('nanoviews', () => {
   describe('component', () => {
-    describe('context', () => {
+    describe('context$', () => {
       it('should render default value', () => {
         const { container } = render(DefaultValue())
 
-        expect(container.innerHTML).toBe('<div><div>Default theme: light</div></div>')
+        expect(container.innerHTML).toBe('<div><div>Theme: light</div></div>')
       })
 
       it('should render one context', () => {
@@ -32,6 +34,20 @@ describe('nanoviews', () => {
         const { container } = render(FewContexts())
 
         expect(container.innerHTML).toBe('<div><div>Theme: dark User: Admin</div></div>')
+      })
+
+      it('should override a value in a nested context', () => {
+        const { container } = render(NestedContext())
+
+        expect(container.innerHTML).toBe('<div><div><div>Theme: dark</div><div>Theme: blue</div></div></div>')
+      })
+    })
+
+    describe('isolate$', () => {
+      it('should hide the providers above', () => {
+        const { container } = render(IsolatedContext())
+
+        expect(container.innerHTML).toBe('<div><div><div>Theme: dark</div><div>Theme: light User: Admin</div></div></div>')
       })
     })
   })
