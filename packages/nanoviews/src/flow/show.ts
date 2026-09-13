@@ -4,7 +4,8 @@ import {
 } from 'kida'
 import {
   type Child,
-  show
+  show,
+  lazyChild
 } from '../internals/index.js'
 
 /**
@@ -17,7 +18,7 @@ import {
  */
 export function show_($value: Signalish<unknown>, render: () => Child) {
   if (isAccessor($value)) {
-    return show($value, render)
+    return lazyChild(() => show($value, render))
   }
 
   return $value ? render() : null

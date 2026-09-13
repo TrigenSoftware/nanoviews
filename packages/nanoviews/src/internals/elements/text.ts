@@ -1,6 +1,6 @@
 import {
   type Accessor,
-  effect
+  deferEffect
 } from 'kida'
 import type { Primitive } from '../types/index.js'
 
@@ -18,7 +18,7 @@ export function createTextNodeFromAccessor<T extends Primitive>($value: Accessor
 
   // The body only writes to the DOM, so it is the whole binding.
   // `??` is exactly the empty check: an empty value is a nullish one
-  effect(() => {
+  deferEffect(() => {
     node.data = $value() as string ?? ''
   }, true)
 

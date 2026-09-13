@@ -1,7 +1,7 @@
 import {
   type Signalish,
   isAccessor,
-  effect
+  deferEffect
 } from 'kida'
 import { createEffectAttribute } from '../internals/index.js'
 
@@ -12,7 +12,7 @@ export const autoFocus$ = /* @__PURE__ */ createEffectAttribute<'autoFocus$', HT
   'autoFocus$',
   (element, $value) => {
     if (isAccessor($value) && $value() || $value) {
-      effect(() => {
+      deferEffect(() => {
         element.focus()
       })
     }

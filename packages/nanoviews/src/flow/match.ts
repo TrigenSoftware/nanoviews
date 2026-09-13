@@ -20,6 +20,7 @@ export type AnyMatchCase = MatchCase<any>
  * @param then_ - Function that returns child when the value is truthy
  * @returns Case to pass to `match_`
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function when_<T>(
   $value: T,
   then_: (value: TruthySignalish<T>) => Child
@@ -37,6 +38,7 @@ export function when_<T>(
  * @param cases - Cases to decide from
  * @returns Block that renders the child of the case that holds
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function match_(...cases: AnyMatchCase[]) {
   const fallback = cases.find(matchCase => matchCase[0] === default_)
 

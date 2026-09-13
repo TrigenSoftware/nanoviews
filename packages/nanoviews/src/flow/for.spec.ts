@@ -13,11 +13,11 @@ import {
   type WritableSignal,
   signal,
   computed,
-  effect,
   untracked,
   isWritable,
   record
 } from 'kida'
+import { effect$ } from '../component/effect.js'
 import {
   ul,
   li
@@ -578,7 +578,7 @@ describe('nanoviews', () => {
             (item) => {
               const id = item()
 
-              effect(() => () => destroyed.push(id))
+              effect$(() => () => destroyed.push(id))
 
               return li()(() => String(item()))
             }
@@ -826,7 +826,7 @@ describe('nanoviews', () => {
 
               // the row normalises its own value, so the write reaches the
               // items array from a row effect the update itself started
-              effect(() => {
+              effect$(() => {
                 const name = $name()
 
                 if (name !== name.trim()) {
@@ -865,7 +865,7 @@ describe('nanoviews', () => {
             (item) => {
               const { $name } = record(item)
 
-              effect(() => {
+              effect$(() => {
                 const name = $name()
 
                 if (name !== name.trim()) {
@@ -945,7 +945,7 @@ describe('nanoviews', () => {
             (item) => {
               const { $name } = record(item)
 
-              effect(() => {
+              effect$(() => {
                 const name = $name()
 
                 if (name !== name.trim()) {
@@ -986,7 +986,7 @@ describe('nanoviews', () => {
             () => {
               // the placeholder is rendered once: a write that leaves the
               // array empty must not tear it down and build it again
-              effect(() => {
+              effect$(() => {
                 runs.push(runs.length)
               })
 
@@ -1193,7 +1193,7 @@ describe('nanoviews', () => {
                 (item) => {
                   const { id } = untracked(item)
 
-                  effect(() => {
+                  effect$(() => {
                     started.add(id)
                   })
 

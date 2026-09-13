@@ -13,13 +13,14 @@ import {
   ul,
   selected$,
   trackBy,
+  component$,
   for_,
   if_
 } from 'nanoviews'
 import { $weatherForecast } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.js'
 
-export function Forecast() {
+export const Forecast = component$(() => {
   const $mode = signal('hourly')
   const $forecastToShow = computed(() => {
     const forecast = $weatherForecast()
@@ -69,4 +70,4 @@ export function Forecast() {
       )
     )
   )
-}
+})

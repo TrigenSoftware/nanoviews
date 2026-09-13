@@ -1,6 +1,6 @@
 import {
   type WritableSignal,
-  effect
+  deferEffect
 } from 'kida'
 import { createEffectAttribute } from '../internals/index.js'
 
@@ -12,7 +12,7 @@ export const ref$ = /* @__PURE__ */ createEffectAttribute<'ref$', Element, Writa
   (element, $ref) => {
     $ref(element)
 
-    effect(() => () => $ref(null))
+    deferEffect(() => () => $ref(null))
   }
 )
 

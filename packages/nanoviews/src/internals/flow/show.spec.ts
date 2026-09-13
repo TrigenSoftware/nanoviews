@@ -5,10 +5,8 @@ import {
   vi
 } from 'vitest'
 import { render } from '@nanoviews/testing-library'
-import {
-  signal,
-  effect
-} from 'kida'
+import { signal } from 'kida'
+import { effect$ } from '../../component/effect.js'
 import { createElement } from '../elements/index.js'
 import { show } from './show.js'
 
@@ -44,14 +42,14 @@ describe('nanoviews', () => {
           const log: string[] = []
           const { container } = render(() => {
             const child = show($visible, () => {
-              effect(() => {
+              effect$(() => {
                 log.push('content')
               })
 
               return createElement('div')('shown')
             })
 
-            effect(() => {
+            effect$(() => {
               log.push('after')
             })
 
@@ -93,7 +91,7 @@ describe('nanoviews', () => {
           const log: string[] = []
 
           render(() => show($visible, () => {
-            effect(() => {
+            effect$(() => {
               log.push(`deferred ${$value()}`)
 
               return () => log.push('cleanup')
@@ -130,7 +128,7 @@ describe('nanoviews', () => {
           const { container } = render(() => show($outer, () => createElement('div')(
             'outer',
             show($inner, () => {
-              effect(() => {
+              effect$(() => {
                 log.push('inner effect')
               })
 
@@ -165,7 +163,7 @@ describe('nanoviews', () => {
           const { container } = render(() => show($outer, () => createElement('div')(
             'outer',
             show($inner, () => {
-              effect(() => {
+              effect$(() => {
                 log.push('inner effect')
               })
 
@@ -191,7 +189,7 @@ describe('nanoviews', () => {
         it('should apply a value written back from inside a waking effect', () => {
           const $visible = signal(false)
           const { container } = render(() => show($visible, () => {
-            effect(() => {
+            effect$(() => {
               $visible(false)
             })
 
@@ -207,9 +205,9 @@ describe('nanoviews', () => {
           const $visible = signal(true)
           let connected: boolean | undefined
           const { container } = render(() => show($visible, () => {
-            const el = createElement('div')('content')
+            const el = createElement('div')('content')()
 
-            effect(() => () => {
+            effect$(() => () => {
               connected = el.isConnected
             })
 
@@ -230,7 +228,7 @@ describe('nanoviews', () => {
           const { container } = render(() => show($outer, () => createElement('div')(
             'outer',
             show($inner, () => {
-              effect(() => {
+              effect$(() => {
                 log.push('inner effect')
               })
 

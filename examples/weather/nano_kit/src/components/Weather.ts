@@ -5,12 +5,13 @@ import {
   img,
   p,
   br,
+  component$,
   if_
 } from 'nanoviews'
 import { $currentLocation } from '../stores/location.js'
 import { $currentWeather } from '../stores/weather.js'
 
-export function Weather() {
+export const Weather = component$(() => {
   const $city = record($currentLocation).$name
 
   return if_($currentWeather)(
@@ -44,4 +45,4 @@ export function Weather() {
       )
     )
   )
-}
+})

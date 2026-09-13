@@ -1,7 +1,7 @@
 import {
   type Accessor,
   type DeferredScope,
-  effect
+  deferEffect
 } from 'kida'
 import type { Child } from '../types/index.js'
 import {
@@ -42,7 +42,7 @@ export function swap<T>(
   // running swapper, which cannot be re-queued by its own propagation. This
   // second subscriber is idle at that moment, so its read settles the value
   // and re-queues the parked swapper for the corrective swap
-  effect(() => void $value(), true)
+  deferEffect(() => void $value(), true)
 
   return fragment
 }

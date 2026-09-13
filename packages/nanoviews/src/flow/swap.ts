@@ -4,7 +4,8 @@ import {
 } from 'kida'
 import {
   type Child,
-  swap
+  swap,
+  lazyChild
 } from '../internals/index.js'
 
 /**
@@ -19,7 +20,7 @@ export function swap_<T>(
   render: (value: T) => Child
 ) {
   if (isAccessor($value)) {
-    return swap($value, render)
+    return lazyChild(() => swap($value, render))
   }
 
   return render($value)

@@ -55,7 +55,7 @@ import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@nanoviews/testing-library'
 import { signal } from 'nanoviews/store'
 import { input, value$ } from 'nanoviews'
-import { Counter } from './Counter.js' // function Counter({ count }: { count: WritableSignal<number> })
+import { Counter } from './Counter.js' // component$((props: { count: WritableSignal<number> }) => ...)
 
 describe('components', () => {
   describe('Counter', () => {
@@ -85,7 +85,7 @@ describe('components', () => {
 })
 ```
 
-- `render` takes a function returning a view (`render(App)`, `render(() => Card({ id }))`) or a `[Component, ...args]` tuple. `render(Counter({ count }))` passes the built view instead: an element or block throws `Invalid block creator. Expected a function.`, a lazy child is silently mounted with its effects already started outside `mount`.
+- `render` takes a function returning a view (`render(App)`, `render(() => Card({ id }))`) or a `[Component, ...args]` tuple. A `component$` instance is a function too, so `render(Counter({ count }))` builds it under `mount`. Building by hand outside `render` (`Counter({ count })()`) throws at the first `effect$` (`Cannot read properties of undefined (reading 'depsTail')`), and passing a built node throws `Invalid block creator. Expected a function.`.
 - It mounts into a fresh `<div>` appended to `document.body`; `container` is `document.body` and the mount wrapper is `container.firstElementChild`, so `container.innerHTML` starts with that `<div>` and a portalled node is a sibling of the wrapper. Queries are bound to the container; `screen` sees the same DOM.
 - The result also has `destroy()` (early unmount, idempotent) and `debug()`. `RenderOptions` are `{ target?, container?, queries? }`; cleanup removes only targets sitting directly in `document.body`, a custom `container` is the test's to remove.
 
@@ -111,7 +111,7 @@ describe('components', () => {
 it('should use the provided theme', () => {
   const $theme = signal<Theme>('dark')
 
-  render(() => context([provide(Theme$, $theme)], App))  // creates the root context with the override
+  render(() => context$(provide(Theme$, $theme))(App()))  // the root context with the override
 
   expect(screen.getByTestId('card').className).toContain('card_dark')
   $theme('light')
@@ -119,7 +119,7 @@ it('should use the provided theme', () => {
 })
 ```
 
-- `context(providers, fn)` with no current context creates the root context with those providers; a one-argument `context(fn)` inside `App` then reuses it.
+- `context$(...providers)(child)` with no current context builds the child under the root context with those providers; `context$()` inside `App` then reuses it.
 - A provided signal must have exactly the factory's return type (`signal<Theme>('dark')`, not `signal('dark')`).
 - `inject` outside a context throws; `expect(() => render(ComponentThatInjects)).toThrow()` is the test for a missing root context.
 

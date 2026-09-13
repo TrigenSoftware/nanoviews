@@ -8,7 +8,8 @@ import {
 import {
   type Child,
   loop,
-  fragment
+  fragment,
+  lazyChild
 } from '../internals/index.js'
 
 /**
@@ -16,6 +17,7 @@ import {
  * @param key - The key to track the item by
  * @returns A function that returns the value of the key in the item
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function trackBy<K extends string>(key: K) {
   return <T>(item: { [P in K]: T }) => item[key]
 }
@@ -26,6 +28,7 @@ export function trackBy<K extends string>(key: K) {
  * @param item.id - The id of the item
  * @returns The id of the item
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function trackById<T>(item: { id: T }) {
   return item.id
 }
@@ -119,13 +122,13 @@ export function for_(
     return (
       each_: AnyEach,
       else_?: () => Child
-    ) => loop($items, each_, else_, track)
+    ): Child => lazyChild(() => loop($items, each_, else_, track))
   }
 
   return (
     each_: StaticEach<unknown>,
     else_?: () => Child
-  ) => (
+  ): Child => (
     $items?.length
       ? fragment(...$items.map((item, index) => each_(item, index, index)))
       : else_?.()

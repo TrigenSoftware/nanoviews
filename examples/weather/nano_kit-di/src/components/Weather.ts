@@ -6,12 +6,13 @@ import {
   p,
   br,
   inject,
+  component$,
   if_
 } from 'nanoviews'
 import { CitySuggestions$ } from '../stores/location.js'
 import { CurrentWeather$ } from '../stores/weather.js'
 
-export function Weather() {
+export const Weather = component$(() => {
   const { $weather } = inject(CurrentWeather$)
   const { $currentLocation } = inject(CitySuggestions$)
   const $city = record($currentLocation).$name
@@ -47,4 +48,4 @@ export function Weather() {
       )
     )
   )
-}
+})

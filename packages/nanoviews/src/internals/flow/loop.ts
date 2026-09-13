@@ -7,7 +7,7 @@ import {
   NoneFlag,
   WritableMode,
   signal,
-  effect,
+  deferEffect,
   deferScope,
   startScope,
   stopScope,
@@ -440,7 +440,7 @@ export function loop(
             removeBetween(start, end)
           }
 
-          effect(() => stopRows, true)
+          deferEffect(() => stopRows, true)
           reconcile(
             itemsList,
             blocksMap,
@@ -467,7 +467,7 @@ export function loop(
   // subscribes after the swap on purpose: the array notifies its readers in
   // subscription order, and the rows have to be there before anything starts
   // them
-  periodScope(() => effect(() => {
+  periodScope(() => deferEffect(() => {
     $items()
     startRows()
   }))

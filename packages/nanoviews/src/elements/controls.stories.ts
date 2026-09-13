@@ -3,7 +3,7 @@ import type {
   StoryObj
 } from '@nanoviews/storybook'
 import { fn } from 'storybook/test'
-import { effect } from 'kida'
+import { effect$ } from '../component/effect.js'
 import {
   input,
   textarea,
@@ -40,7 +40,7 @@ export const TextInput: StoryObj<{
   },
   render({ onChange, value }) {
     if (onChange && value) {
-      effect((warmup) => {
+      effect$((warmup) => {
         const v = value()
 
         if (!warmup) {
@@ -68,7 +68,7 @@ export const Textarea: StoryObj<{
   },
   render({ onChange, value }) {
     if (onChange && value) {
-      effect((warmup) => {
+      effect$((warmup) => {
         const v = value()
 
         if (!warmup) {
@@ -105,7 +105,7 @@ export const Select: StoryObj<{
   },
   render({ onChange, value }) {
     if (onChange && value) {
-      effect((warmup) => {
+      effect$((warmup) => {
         const v = value()
 
         if (!warmup) {
@@ -152,7 +152,7 @@ export const MultipleSelect: StoryObj<{
   },
   render({ onChange, values }) {
     if (onChange && values) {
-      effect((warmup) => {
+      effect$((warmup) => {
         const v = values()
 
         if (!warmup) {
@@ -199,7 +199,7 @@ export const Checkbox: StoryObj<{
   },
   render({ onChange, checked }) {
     if (onChange && checked) {
-      effect((warmup) => {
+      effect$((warmup) => {
         const v = checked()
 
         if (!warmup) {
@@ -227,7 +227,7 @@ export const Files: StoryObj<{
   },
   render({ onChange, files }) {
     if (onChange && files) {
-      effect((warmup) => {
+      effect$((warmup) => {
         const v = files()
 
         if (!warmup) {

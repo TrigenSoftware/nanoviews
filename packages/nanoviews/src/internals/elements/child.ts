@@ -1,7 +1,4 @@
-import {
-  isAccessor,
-  isFunction
-} from 'kida'
+import { isFunction } from 'kida'
 import type {
   AnyFn,
   Child,
@@ -15,12 +12,14 @@ import {
   createTextNodeFromAccessor
 } from './text.js'
 
+/* @__NO_SIDE_EFFECTS__ */
 export function isLazyChild<T extends () => Child = () => Child>(
   child: unknown
 ): child is LazyChild<T> {
   return isFunction(child) && 'c' in child
 }
 
+/* @__NO_SIDE_EFFECTS__ */
 export function lazyChild<T extends AnyFn>(
   child: T
 ): LazyChild<T> {
@@ -30,16 +29,21 @@ export function lazyChild<T extends AnyFn>(
 }
 
 export function childToNode(child: Child) {
-  if (isEmpty(child)) {
-    return child
+  // A function is the common child, a description most of all, and it is
+  // never empty, so it is asked about first. A description unwraps in place
+  // rather than through a call per level: a component that returns an element
+  // that returns a fragment is three levels. The brand test is that of
+  // `isLazyChild`, spelled out to skip its own function check
+  while (isFunction(child)) {
+    if (!('c' in child)) {
+      return createTextNodeFromAccessor(child)
+    }
+
+    child = child()
   }
 
-  if (isLazyChild(child)) {
-    return childToNode(child())
-  }
-
-  return isAccessor(child)
-    ? createTextNodeFromAccessor(child)
+  return isEmpty(child)
+    ? child
     : typeof child === 'object'
       ? child
       : createTextNode(child)

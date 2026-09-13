@@ -16,13 +16,13 @@
     "name": "Average usage (Gzip)",
     "gzip": true,
     "path": "dist/index.js",
-    "import": "{ fragment, div, form, input, button, label, classList$, if_, for_, value$, children$, effect }",
+    "import": "{ fragment, div, form, input, button, label, classList$, if_, for_, value$, component$, effect$ }",
     "limit": "3.90 kB"
   },
   {
     "name": "Average usage (Brotli)",
     "path": "dist/index.js",
-    "import": "{ fragment, div, form, input, button, label, classList$, if_, for_, value$, children$, effect }",
+    "import": "{ fragment, div, form, input, button, label, classList$, if_, for_, value$, component$, effect$ }",
     "limit": "3.65 kB"
   },
   {

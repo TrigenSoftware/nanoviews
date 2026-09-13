@@ -2,10 +2,8 @@ import type {
   Meta,
   StoryObj
 } from '@nanoviews/storybook'
-import {
-  effect,
-  record
-} from 'kida'
+import { record } from 'kida'
+import { effect$ } from '../component/effect.js'
 import {
   ul,
   li
@@ -106,7 +104,7 @@ export const EntitiesValue: StoryObj<{
             const { $name } = record(item)
 
             if (onEffect) {
-              effect(() => {
+              effect$(() => {
                 onEffect($name())
               })
             }

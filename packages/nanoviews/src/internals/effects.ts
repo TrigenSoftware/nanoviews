@@ -1,7 +1,7 @@
 import {
   type Accessor,
   type DeferredScope,
-  effect,
+  deferEffect,
   boundDeferScope,
   startScope,
   getContext,
@@ -23,7 +23,7 @@ export function effectScopeSwapper<T>(
 ) {
   let prev: DeferredScope | undefined
 
-  effect(() => {
+  deferEffect(() => {
     const value = $signal()
 
     prev = untracked(() => callback(prev, value))

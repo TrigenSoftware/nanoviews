@@ -1,8 +1,8 @@
 import type {
   SVGAttributes,
   PickEffectAttributesByTarget,
-  LazyChild,
-  Children
+  LazyVoidElement,
+  LazyElement
 } from '../internals/types/index.js'
 
 export type IntrinsicElements = SVGElementTagNameMap
@@ -15,8 +15,6 @@ export type Attributes<Tag extends ElementName> =
   & PickEffectAttributesByTarget<PickElementType<Tag>>
   & SVGAttributes<PickElementType<Tag>>
 
-export type VoidElementFactory<Tag extends ElementName> = (attributes?: Attributes<Tag>) => PickElementType<Tag>
+export type VoidElementFactory<Tag extends ElementName> = (attributes?: Attributes<Tag>) => LazyVoidElement<PickElementType<Tag>>
 
-export type LazyElement<Tag extends ElementName> = LazyChild<(...children: Children) => PickElementType<Tag>>
-
-export type ElementFactory<Tag extends ElementName> = (attributes?: Attributes<Tag>) => LazyElement<Tag>
+export type ElementFactory<Tag extends ElementName> = (attributes?: Attributes<Tag>) => LazyElement<PickElementType<Tag>>

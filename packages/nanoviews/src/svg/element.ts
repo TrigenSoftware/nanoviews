@@ -1,28 +1,22 @@
 import {
-  lazyChild,
-  elementChildren
+  type Children,
+  type LazyVoidElement,
+  type LazyElement,
+  appendChildren,
+  lazyChild
 } from '../internals/index.js'
 import type {
   ElementName,
+  PickElementType,
   Attributes,
   VoidElementFactory,
-  LazyElement,
   ElementFactory
 } from './types.js'
 import { setAttributes } from './attributes.js'
 
 const namespace = 'http://www.w3.org/2000/svg'
 
-/**
- * Create SVG element without children
- * @param tag - Tag name
- * @param attributes - Element attributes
- * @returns Void element
- */
-export function createVoidElement<Tag extends ElementName>(
-  tag: Tag,
-  attributes?: Attributes<Tag>
-) {
+function createNode<Tag extends ElementName>(tag: Tag, attributes: Attributes<Tag> | undefined) {
   const element = document.createElementNS(namespace, tag)
 
   if (attributes !== undefined) {
@@ -33,9 +27,23 @@ export function createVoidElement<Tag extends ElementName>(
 }
 
 /**
+ * Describe an SVG element without children: the call builds it
+ * @param tag - Tag name
+ * @param attributes - Element attributes
+ * @returns Void element description
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function createVoidElement<Tag extends ElementName>(
+  tag: Tag,
+  attributes?: Attributes<Tag>
+) {
+  return lazyChild(() => createNode(tag, attributes)) as LazyVoidElement<PickElementType<Tag>>
+}
+
+/**
  * Create SVG element without children factory
  * @param tag - Tag name
- * @returns Function to create given void element
+ * @returns Function to describe given void element
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function createVoidElementFactory<Tag extends ElementName>(
@@ -46,24 +54,39 @@ export function createVoidElementFactory<Tag extends ElementName>(
 }
 
 /**
- * Create SVG element
+ * Describe an SVG element: the call with children keeps them, the call with
+ * no arguments builds the element with them
  * @param tag - Tag name
  * @param attributes - Element attributes
- * @returns Function to pass children
+ * @returns Element description
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function createElement<Tag extends ElementName>(
   tag: Tag,
   attributes?: Attributes<Tag>
 ) {
-  const element = createVoidElement(tag, attributes)
+  // The receiver is written out here rather than shared through a helper
+  // that takes a build callback: one closure per description instead of two
+  // is a measured 6% of the time to create a thousand rows, and the same
+  // receiver spelled out in every factory compresses better than a helper
+  let children: Children | undefined
+  const element: LazyElement<PickElementType<Tag>> = lazyChild((...args: Children) => {
+    if (args.length) {
+      children = args
 
-  return lazyChild(elementChildren.bind(element, element)) as LazyElement<Tag>
+      return element
+    }
+
+    return appendChildren(createNode(tag, attributes), children)
+  }) as LazyElement<PickElementType<Tag>>
+
+  return element
 }
 
 /**
  * Create SVG element factory
  * @param tag - Tag name
- * @returns Function to create given element
+ * @returns Function to describe given element
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function createElementFactory<Tag extends ElementName>(
