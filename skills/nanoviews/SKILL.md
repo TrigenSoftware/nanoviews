@@ -89,7 +89,7 @@ svg({ viewBox: '0 0 24 24', width: 24, height: 24 })(
 
 - Every SVG tag is a factory in `nanoviews/svg` with the same call shape, created in the SVG namespace; `nanoviews` itself has no SVG factories. Shapes and leaves (`circle`, `rect`, `path`, `line`, `ellipse`, `polygon`, `polyline`, `image`, `use`, `animate`, `animateMotion`, `animateTransform`, `set`, `mpath`) are void: one call, no children. HTML inside `foreignObject` comes from `nanoviews`.
 - Attribute names are camelCase as in React: `viewBox`, `preserveAspectRatio`, `strokeWidth`, `fillOpacity`, `textAnchor`, `tabIndex`. Presentation attributes reach the DOM hyphenated (`stroke-width`), the rest keep their SVG spelling; a dashed key like `'stroke-width'` is a type error. `href` replaces `xlinkHref`; the SVG 1.1 font, glyph and color-profile attributes are not typed.
-- `a`, `title`, `style` and `script` exist in both entries, and `switch` is imported as `{ switch as svgSwitch }`; alias on collision. `ref$`, `style$` and `autoFocus$` work on SVG elements; `classList$` is HTML-only, so set `class` as an attribute.
+- `a`, `title`, `style` and `script` exist in both entries, and `switch` is imported as `{ switch as svgSwitch }`; alias on collision. `ref$`, `style$`, `autoFocus$` and `classList$` work on SVG elements.
 - `Attributes<'circle'>`, `ElementName` and the factory types come from `nanoviews/svg` under the same names as the HTML ones in `nanoviews`.
 
 ## Reactivity (`nanoviews/store`)
