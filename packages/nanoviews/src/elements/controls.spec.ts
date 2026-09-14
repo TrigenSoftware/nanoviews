@@ -1,4 +1,5 @@
 import {
+  vi,
   describe,
   it,
   expect
@@ -13,6 +14,8 @@ import { userEvent } from '@testing-library/user-event'
 import { signal } from 'kida'
 import {
   input,
+  select,
+  option,
   fragment
 } from '../index.js'
 import * as Stories from './controls.stories.js'
@@ -116,6 +119,25 @@ describe('nanoviews', () => {
             'reversed:'
           ])
         })
+
+        it('should follow a read-only accessor without writing back', () => {
+          const $value = vi.fn(() => 'Hello, world!')
+          const { container } = render(() => input({
+            value$: $value
+          }))
+          const textbox = container.querySelector('input')!
+
+          expect(textbox.value).toBe('Hello, world!')
+
+          fireEvent.input(textbox, {
+            target: {
+              value: 'user input'
+            }
+          })
+
+          expect(textbox.value).toBe('user input')
+          expect($value).not.toHaveBeenCalledWith('user input')
+        })
       })
 
       describe('selected$', () => {
@@ -166,6 +188,35 @@ describe('nanoviews', () => {
             selected: true
           })).toHaveLength(1)
         })
+
+        it('should follow a read-only accessor without writing back', () => {
+          const $selected = vi.fn(() => 'green')
+          const { container } = render(() => select({
+            selected$: $selected
+          })(
+            option({
+              value: 'red'
+            })('Red'),
+            option({
+              value: 'green'
+            })('Green'),
+            option({
+              value: 'blue'
+            })('Blue')
+          ))
+          const combobox = container.querySelector('select')!
+
+          expect(combobox.value).toBe('green')
+
+          fireEvent.change(combobox, {
+            target: {
+              value: 'blue'
+            }
+          })
+
+          expect(combobox.value).toBe('blue')
+          expect($selected).not.toHaveBeenCalledWith('blue')
+        })
       })
 
       describe('checked$', () => {
@@ -191,6 +242,26 @@ describe('nanoviews', () => {
           })
 
           expect(checkbox.checked).toBe(true)
+        })
+
+        it('should follow a read-only accessor without writing back', () => {
+          const $checked = vi.fn(() => true)
+          const { container } = render(() => input({
+            type: 'checkbox',
+            checked$: $checked
+          }))
+          const checkbox = container.querySelector('input')!
+
+          expect(checkbox.checked).toBe(true)
+
+          fireEvent.change(checkbox, {
+            target: {
+              checked: false
+            }
+          })
+
+          expect(checkbox.checked).toBe(false)
+          expect($checked).not.toHaveBeenCalledWith(false)
         })
       })
 
