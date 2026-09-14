@@ -11,8 +11,8 @@ import type {
 } from './aria.js'
 import type {
   DOMAttributes,
-  TargetEventHandler,
-  ChangeEventHandler
+  ChangeEventHandler,
+  PictureInPictureEventHandler
 } from './events.js'
 
 export interface CSSProperties extends CSS.Properties<string | number> {
@@ -33,10 +33,9 @@ export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, D
   autoFocus?: Signalish<boolean | EmptyValue>
   class?: Signalish<string | EmptyValue>
   contentEditable?: Signalish<Booleanish | 'inherit' | 'plaintext-only' | EmptyValue>
-  contextMenu?: Signalish<string | EmptyValue>
   dir?: Signalish<string | EmptyValue>
   draggable?: Signalish<Booleanish | EmptyValue>
-  hidden?: Signalish<boolean | EmptyValue>
+  hidden?: Signalish<boolean | 'until-found' | EmptyValue>
   id?: Signalish<string | EmptyValue>
   lang?: Signalish<string | EmptyValue>
   nonce?: Signalish<string | EmptyValue>
@@ -46,9 +45,6 @@ export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, D
   tabIndex?: Signalish<number | EmptyValue>
   title?: Signalish<string | EmptyValue>
   translate?: Signalish<'yes' | 'no' | EmptyValue>
-
-  // Unknown
-  radioGroup?: Signalish<string | EmptyValue> // <command>, <menuitem>
 
   // WAI-ARIA
   role?: Signalish<AriaRole | EmptyValue>
@@ -69,18 +65,29 @@ export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, D
   // Non-standard Attributes
   autoCapitalize?: Signalish<string | EmptyValue>
   autoCorrect?: Signalish<string | EmptyValue>
-  autoSave?: Signalish<string | EmptyValue>
   color?: Signalish<string | EmptyValue>
   itemProp?: Signalish<string | EmptyValue>
   itemScope?: Signalish<boolean | EmptyValue>
   itemType?: Signalish<string | EmptyValue>
   itemID?: Signalish<string | EmptyValue>
   itemRef?: Signalish<string | EmptyValue>
-  results?: Signalish<number | EmptyValue>
-  security?: Signalish<string | EmptyValue>
-  unselectable?: Signalish<'on' | 'off' | EmptyValue>
 
   // Living Standard
+  /**
+   * Hints at the label or icon to present for the enter key on virtual keyboards
+   * @see {@link https://html.spec.whatwg.org/multipage/interaction.html#attr-enterkeyhint}
+   */
+  enterKeyHint?: Signalish<'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' | EmptyValue>
+  /**
+   * Forwards shadow parts of the element's shadow tree to the tree that contains the element
+   * @see {@link https://drafts.csswg.org/css-shadow-1/#exportparts-attr}
+   */
+  exportParts?: Signalish<string | EmptyValue>
+  /**
+   * Makes the element and its subtree inert: not focusable, not clickable and hidden from assistive technology
+   * @see {@link https://html.spec.whatwg.org/multipage/interaction.html#the-inert-attribute}
+   */
+  inert?: Signalish<boolean | EmptyValue>
   /**
    * Hints at the type of data that might be entered by the user while editing the element or its contents
    * @see {@link https://html.spec.whatwg.org/multipage/interaction.html#input-modalities:-the-inputmode-attribute}
@@ -91,6 +98,23 @@ export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, D
    * @see {@link https://html.spec.whatwg.org/multipage/custom-elements.html#attr-is}
    */
   is?: Signalish<string | EmptyValue>
+  /**
+   * Names the element as a shadow part that `::part()` selectors outside the shadow tree can style
+   * @see {@link https://drafts.csswg.org/css-shadow-1/#part-attr}
+   */
+  part?: Signalish<string | EmptyValue>
+  /**
+   * Turns the element into a popover. The empty string is the `auto` state. `true` is left out on purpose:
+   * it would be written as `"true"`, an invalid value that falls back to `manual`
+   * @see {@link https://html.spec.whatwg.org/multipage/popover.html#attr-popover}
+   */
+  popover?: Signalish<'' | 'auto' | 'manual' | 'hint' | EmptyValue>
+  /**
+   * Whether the browser may offer writing suggestions. The empty string means `true`. Pass strings:
+   * a boolean `false` would remove the attribute instead of writing `"false"`
+   * @see {@link https://html.spec.whatwg.org/multipage/interaction.html#attr-writingsuggestions}
+   */
+  writingSuggestions?: Signalish<'' | 'true' | 'false' | EmptyValue>
 
   /**
    * Data attributes
@@ -136,6 +160,7 @@ export interface AreaHTMLAttributes<T extends HTMLElement> extends HTMLAttribute
   href?: Signalish<string | EmptyValue>
   hrefLang?: Signalish<string | EmptyValue>
   media?: Signalish<string | EmptyValue>
+  ping?: Signalish<string | EmptyValue>
   referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | EmptyValue>
   shape?: Signalish<string | EmptyValue>
   target?: Signalish<string | EmptyValue>
@@ -151,6 +176,8 @@ export interface BlockquoteHTMLAttributes<T extends HTMLElement> extends HTMLAtt
 }
 
 export interface ButtonHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
+  command?: Signalish<'toggle-popover' | 'show-popover' | 'hide-popover' | 'show-modal' | 'close' | 'request-close' | `--${string}` | EmptyValue>
+  commandFor?: Signalish<string | EmptyValue>
   disabled?: Signalish<boolean | EmptyValue>
   form?: Signalish<string | EmptyValue>
   formAction?: Signalish<string | EmptyValue>
@@ -159,6 +186,8 @@ export interface ButtonHTMLAttributes<T extends HTMLElement> extends HTMLAttribu
   formNoValidate?: Signalish<boolean | EmptyValue>
   formTarget?: Signalish<string | EmptyValue>
   name?: Signalish<string | EmptyValue>
+  popoverTarget?: Signalish<string | EmptyValue>
+  popoverTargetAction?: Signalish<'toggle' | 'show' | 'hide' | EmptyValue>
   type?: Signalish<'submit' | 'reset' | 'button' | EmptyValue>
   value?: Signalish<string | readonly string[] | number | EmptyValue>
 }
@@ -183,7 +212,6 @@ export interface DataHTMLAttributes<T extends HTMLElement> extends HTMLAttribute
 
 export interface DetailsHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   open?: Signalish<boolean | EmptyValue>
-  onToggle?: TargetEventHandler<T> | EmptyValue
   name?: Signalish<string | EmptyValue>
 }
 
@@ -193,8 +221,7 @@ export interface DelHTMLAttributes<T extends HTMLElement> extends HTMLAttributes
 }
 
 export interface DialogHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  onCancel?: TargetEventHandler<T> | EmptyValue
-  onClose?: TargetEventHandler<T> | EmptyValue
+  closedBy?: Signalish<'any' | 'closerequest' | 'none' | EmptyValue>
   open?: Signalish<boolean | EmptyValue>
 }
 
@@ -222,14 +249,11 @@ export interface FormHTMLAttributes<T extends HTMLElement> extends HTMLAttribute
   target?: Signalish<string | EmptyValue>
 }
 
-export interface HtmlHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  manifest?: Signalish<string | EmptyValue>
-}
+export interface HtmlHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {}
 
 export interface IframeHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   allow?: Signalish<string | EmptyValue>
   allowFullScreen?: Signalish<boolean | EmptyValue>
-  allowTransparency?: Signalish<boolean | EmptyValue>
   /** @deprecated */
   frameBorder?: Signalish<number | string | EmptyValue>
   height?: Signalish<number | string | EmptyValue>
@@ -243,7 +267,6 @@ export interface IframeHTMLAttributes<T extends HTMLElement> extends HTMLAttribu
   sandbox?: Signalish<string | EmptyValue>
   /** @deprecated */
   scrolling?: Signalish<string | EmptyValue>
-  seamless?: Signalish<boolean | EmptyValue>
   src?: Signalish<string | EmptyValue>
   srcDoc?: Signalish<string | EmptyValue>
   width?: Signalish<number | string | EmptyValue>
@@ -255,6 +278,7 @@ export interface ImgHTMLAttributes<T extends HTMLElement> extends HTMLAttributes
   decoding?: Signalish<'async' | 'auto' | 'sync' | EmptyValue>
   fetchPriority?: Signalish<'high' | 'low' | 'auto'>
   height?: Signalish<number | string | EmptyValue>
+  isMap?: Signalish<boolean | EmptyValue>
   loading?: Signalish<'eager' | 'lazy' | EmptyValue>
   referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | EmptyValue>
   sizes?: Signalish<string | EmptyValue>
@@ -362,8 +386,8 @@ export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
   autoComplete?: Signalish<HTMLInputAutoCompleteAttribute | EmptyValue>
   capture?: Signalish<boolean | 'user' | 'environment' | EmptyValue> // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
   checked?: Signalish<boolean | EmptyValue>
+  dirName?: Signalish<string | EmptyValue>
   disabled?: Signalish<boolean | EmptyValue>
-  enterKeyHint?: Signalish<'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' | EmptyValue>
   form?: Signalish<string | EmptyValue>
   formAction?: Signalish<string | EmptyValue>
   formEncType?: Signalish<string | EmptyValue>
@@ -380,8 +404,11 @@ export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
   name?: Signalish<string | EmptyValue>
   pattern?: Signalish<string | EmptyValue>
   placeholder?: Signalish<string | EmptyValue>
+  popoverTarget?: Signalish<string | EmptyValue>
+  popoverTargetAction?: Signalish<'toggle' | 'show' | 'hide' | EmptyValue>
   readOnly?: Signalish<boolean | EmptyValue>
   required?: Signalish<boolean | EmptyValue>
+  results?: Signalish<number | EmptyValue>
   size?: Signalish<number | EmptyValue>
   src?: Signalish<string | EmptyValue>
   step?: Signalish<number | string | EmptyValue>
@@ -403,7 +430,9 @@ export interface LiHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<
 
 export interface LinkHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   as?: Signalish<string | EmptyValue>
+  blocking?: Signalish<'render' | EmptyValue>
   crossOrigin?: Signalish<CrossOrigin>
+  disabled?: Signalish<boolean | EmptyValue>
   fetchPriority?: Signalish<'high' | 'low' | 'auto'>
   href?: Signalish<string | EmptyValue>
   hrefLang?: Signalish<string | EmptyValue>
@@ -430,8 +459,8 @@ export interface MediaHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
   controls?: Signalish<boolean | EmptyValue>
   controlsList?: Signalish<string | EmptyValue>
   crossOrigin?: Signalish<CrossOrigin>
+  disableRemotePlayback?: Signalish<boolean | EmptyValue>
   loop?: Signalish<boolean | EmptyValue>
-  mediaGroup?: Signalish<string | EmptyValue>
   muted?: Signalish<boolean | EmptyValue>
   playsInline?: Signalish<boolean | EmptyValue>
   preload?: Signalish<string | EmptyValue>
@@ -461,6 +490,7 @@ export interface QuoteHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
 }
 
 export interface ObjectHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
+  /** @deprecated */
   classID?: Signalish<string | EmptyValue>
   data?: Signalish<string | EmptyValue>
   form?: Signalish<string | EmptyValue>
@@ -469,7 +499,6 @@ export interface ObjectHTMLAttributes<T extends HTMLElement> extends HTMLAttribu
   type?: Signalish<string | EmptyValue>
   useMap?: Signalish<string | EmptyValue>
   width?: Signalish<number | string | EmptyValue>
-  wmode?: Signalish<string | EmptyValue>
 }
 
 export interface OlHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
@@ -507,10 +536,12 @@ export interface SlotHTMLAttributes<T extends HTMLElement> extends HTMLAttribute
 
 export interface ScriptHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   async?: Signalish<boolean | EmptyValue>
+  blocking?: Signalish<'render' | EmptyValue>
   /** @deprecated */
   charSet?: Signalish<string | EmptyValue>
   crossOrigin?: Signalish<CrossOrigin>
   defer?: Signalish<boolean | EmptyValue>
+  fetchPriority?: Signalish<'high' | 'low' | 'auto' | EmptyValue>
   integrity?: Signalish<string | EmptyValue>
   noModule?: Signalish<boolean | EmptyValue>
   referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | EmptyValue>
@@ -541,8 +572,8 @@ export interface SourceHTMLAttributes<T extends HTMLElement> extends HTMLAttribu
 }
 
 export interface StyleHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
+  blocking?: Signalish<'render' | EmptyValue>
   media?: Signalish<string | EmptyValue>
-  scoped?: Signalish<boolean | EmptyValue>
   type?: Signalish<string | EmptyValue>
 }
 
@@ -556,6 +587,19 @@ export interface TableHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
   rules?: Signalish<'none' | 'groups' | 'rows' | 'columns' | 'all' | EmptyValue>
   summary?: Signalish<string | EmptyValue>
   width?: Signalish<number | string | EmptyValue>
+}
+
+export interface TemplateHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
+  shadowRootClonable?: Signalish<boolean | EmptyValue>
+  shadowRootCustomElementRegistry?: Signalish<boolean | EmptyValue>
+  shadowRootDelegatesFocus?: Signalish<boolean | EmptyValue>
+  /**
+   * Declares a shadow root for the parent element. Only the HTML parser acts on it and the other
+   * `shadowRoot*` attributes, as in `setHTMLUnsafe()`: a template built by nanoviews gets no shadow root
+   * @see {@link https://html.spec.whatwg.org/multipage/scripting.html#attr-template-shadowrootmode}
+   */
+  shadowRootMode?: Signalish<'open' | 'closed' | EmptyValue>
+  shadowRootSerializable?: Signalish<boolean | EmptyValue>
 }
 
 export interface TextareaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
@@ -616,7 +660,9 @@ export interface VideoHTMLAttributes<T extends HTMLElement> extends MediaHTMLAtt
   poster?: Signalish<string | EmptyValue>
   width?: Signalish<number | string | EmptyValue>
   disablePictureInPicture?: Signalish<boolean | EmptyValue>
-  disableRemotePlayback?: Signalish<boolean | EmptyValue>
+
+  onEnterPictureInPicture?: PictureInPictureEventHandler<T> | undefined
+  onLeavePictureInPicture?: PictureInPictureEventHandler<T> | undefined
 }
 
 // The three broad type categories are (in order of restrictiveness):

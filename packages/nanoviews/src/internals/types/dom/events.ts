@@ -11,7 +11,13 @@ import type {
   NativePointerEvent,
   NativeTransitionEvent,
   NativeUIEvent,
-  NativeWheelEvent
+  NativeWheelEvent,
+  NativeCommandEvent,
+  NativeContentVisibilityAutoStateChangeEvent,
+  NativeFormDataEvent,
+  NativePictureInPictureEvent,
+  NativeSecurityPolicyViolationEvent,
+  NativeToggleEvent
 } from './native.js'
 
 type TargetEvent<T extends EventTarget, E extends NativeEvent> = E & {
@@ -62,6 +68,12 @@ export type PointerEvent<T extends EventTarget = EventTarget> = TargetEventExt<T
 export type TransitionEvent<T extends EventTarget = EventTarget> = TargetEvent<T, NativeTransitionEvent>
 export type UIEvent<T extends EventTarget = EventTarget> = TargetEvent<T, NativeUIEvent>
 export type WheelEvent<T extends EventTarget = EventTarget> = TargetEvent<T, NativeWheelEvent>
+export type CommandEvent<T extends EventTarget = EventTarget> = TargetEvent<T, NativeCommandEvent>
+export type ContentVisibilityAutoStateChangeEvent<T extends EventTarget = EventTarget> = TargetEvent<T, NativeContentVisibilityAutoStateChangeEvent>
+export type FormDataEvent<T extends EventTarget = EventTarget> = TargetEvent<T, NativeFormDataEvent>
+export type PictureInPictureEvent<T extends EventTarget = EventTarget> = TargetEvent<T, NativePictureInPictureEvent>
+export type SecurityPolicyViolationEvent<T extends EventTarget = EventTarget> = TargetEvent<T, NativeSecurityPolicyViolationEvent>
+export type ToggleEvent<T extends EventTarget = EventTarget> = TargetEvent<T, NativeToggleEvent>
 
 export type EventHandler<E extends Event> = { bivarianceHack(event: E): void }['bivarianceHack']
 
@@ -81,6 +93,12 @@ export type UIEventHandler<T extends EventTarget = EventTarget> = EventHandler<U
 export type WheelEventHandler<T extends EventTarget = EventTarget> = EventHandler<WheelEvent<T>>
 export type AnimationEventHandler<T extends EventTarget = EventTarget> = EventHandler<AnimationEvent<T>>
 export type TransitionEventHandler<T extends EventTarget = EventTarget> = EventHandler<TransitionEvent<T>>
+export type CommandEventHandler<T extends EventTarget = EventTarget> = EventHandler<CommandEvent<T>>
+export type ContentVisibilityAutoStateChangeEventHandler<T extends EventTarget = EventTarget> = EventHandler<ContentVisibilityAutoStateChangeEvent<T>>
+export type FormDataEventHandler<T extends EventTarget = EventTarget> = EventHandler<FormDataEvent<T>>
+export type PictureInPictureEventHandler<T extends EventTarget = EventTarget> = EventHandler<PictureInPictureEvent<T>>
+export type SecurityPolicyViolationEventHandler<T extends EventTarget = EventTarget> = EventHandler<SecurityPolicyViolationEvent<T>>
+export type ToggleEventHandler<T extends EventTarget = EventTarget> = EventHandler<ToggleEvent<T>>
 
 export interface DOMAttributes<T extends EventTarget = EventTarget> {
   // Clipboard Events
@@ -104,6 +122,10 @@ export interface DOMAttributes<T extends EventTarget = EventTarget> {
   onFocusCapture?: FocusEventHandler<T> | undefined
   onBlur?: FocusEventHandler<T> | undefined
   onBlurCapture?: FocusEventHandler<T> | undefined
+  onFocusIn?: FocusEventHandler<T> | undefined
+  onFocusInCapture?: FocusEventHandler<T> | undefined
+  onFocusOut?: FocusEventHandler<T> | undefined
+  onFocusOutCapture?: FocusEventHandler<T> | undefined
 
   // Form Events
   onChange?: FormEventHandler<T> | undefined
@@ -118,6 +140,8 @@ export interface DOMAttributes<T extends EventTarget = EventTarget> {
   onSubmitCapture?: FormEventHandler<T> | undefined
   onInvalid?: FormEventHandler<T> | undefined
   onInvalidCapture?: FormEventHandler<T> | undefined
+  onFormData?: FormDataEventHandler<T> | undefined
+  onFormDataCapture?: FormDataEventHandler<T> | undefined
 
   // Image Events
   onLoad?: TargetEventHandler<T> | undefined
@@ -142,6 +166,8 @@ export interface DOMAttributes<T extends EventTarget = EventTarget> {
   onCanPlayCapture?: TargetEventHandler<T> | undefined
   onCanPlayThrough?: TargetEventHandler<T> | undefined
   onCanPlayThroughCapture?: TargetEventHandler<T> | undefined
+  onCueChange?: TargetEventHandler<T> | undefined
+  onCueChangeCapture?: TargetEventHandler<T> | undefined
   onDurationChange?: TargetEventHandler<T> | undefined
   onDurationChangeCapture?: TargetEventHandler<T> | undefined
   onEmptied?: TargetEventHandler<T> | undefined
@@ -182,6 +208,8 @@ export interface DOMAttributes<T extends EventTarget = EventTarget> {
   onVolumeChangeCapture?: TargetEventHandler<T> | undefined
   onWaiting?: TargetEventHandler<T> | undefined
   onWaitingCapture?: TargetEventHandler<T> | undefined
+  onWaitingForKey?: TargetEventHandler<T> | undefined
+  onWaitingForKeyCapture?: TargetEventHandler<T> | undefined
 
   // MouseEvents
   onAuxClick?: MouseEventHandler<T> | undefined
@@ -224,6 +252,10 @@ export interface DOMAttributes<T extends EventTarget = EventTarget> {
   // Selection Events
   onSelect?: TargetEventHandler<T> | undefined
   onSelectCapture?: TargetEventHandler<T> | undefined
+  onSelectionChange?: TargetEventHandler<T> | undefined
+  onSelectionChangeCapture?: TargetEventHandler<T> | undefined
+  onSelectStart?: TargetEventHandler<T> | undefined
+  onSelectStartCapture?: TargetEventHandler<T> | undefined
 
   // Touch Events
   onTouchCancel?: TouchEventHandler<T> | undefined
@@ -240,6 +272,8 @@ export interface DOMAttributes<T extends EventTarget = EventTarget> {
   onPointerDownCapture?: PointerEventHandler<T> | undefined
   onPointerMove?: PointerEventHandler<T> | undefined
   onPointerMoveCapture?: PointerEventHandler<T> | undefined
+  onPointerRawUpdate?: PointerEventHandler<T> | undefined
+  onPointerRawUpdateCapture?: PointerEventHandler<T> | undefined
   onPointerUp?: PointerEventHandler<T> | undefined
   onPointerUpCapture?: PointerEventHandler<T> | undefined
   onPointerCancel?: PointerEventHandler<T> | undefined
@@ -260,6 +294,8 @@ export interface DOMAttributes<T extends EventTarget = EventTarget> {
   // UI Events
   onScroll?: UIEventHandler<T> | undefined
   onScrollCapture?: UIEventHandler<T> | undefined
+  onScrollEnd?: TargetEventHandler<T> | undefined
+  onScrollEndCapture?: TargetEventHandler<T> | undefined
 
   // Wheel Events
   onWheel?: WheelEventHandler<T> | undefined
@@ -272,8 +308,60 @@ export interface DOMAttributes<T extends EventTarget = EventTarget> {
   onAnimationEndCapture?: AnimationEventHandler<T> | undefined
   onAnimationIteration?: AnimationEventHandler<T> | undefined
   onAnimationIterationCapture?: AnimationEventHandler<T> | undefined
+  onAnimationCancel?: AnimationEventHandler<T> | undefined
+  onAnimationCancelCapture?: AnimationEventHandler<T> | undefined
 
   // Transition Events
   onTransitionEnd?: TransitionEventHandler<T> | undefined
   onTransitionEndCapture?: TransitionEventHandler<T> | undefined
+  onTransitionCancel?: TransitionEventHandler<T> | undefined
+  onTransitionCancelCapture?: TransitionEventHandler<T> | undefined
+  onTransitionRun?: TransitionEventHandler<T> | undefined
+  onTransitionRunCapture?: TransitionEventHandler<T> | undefined
+  onTransitionStart?: TransitionEventHandler<T> | undefined
+  onTransitionStartCapture?: TransitionEventHandler<T> | undefined
+
+  // Toggle Events
+  onBeforeToggle?: ToggleEventHandler<T> | undefined
+  onBeforeToggleCapture?: ToggleEventHandler<T> | undefined
+  onToggle?: ToggleEventHandler<T> | undefined
+  onToggleCapture?: ToggleEventHandler<T> | undefined
+
+  // Command Events
+  onCommand?: CommandEventHandler<T> | undefined
+  onCommandCapture?: CommandEventHandler<T> | undefined
+
+  // Dialog Events, `cancel` also fires on file inputs
+  onCancel?: TargetEventHandler<T> | undefined
+  onCancelCapture?: TargetEventHandler<T> | undefined
+  onClose?: TargetEventHandler<T> | undefined
+  onCloseCapture?: TargetEventHandler<T> | undefined
+
+  // Find-in-page Events
+  onBeforeMatch?: TargetEventHandler<T> | undefined
+  onBeforeMatchCapture?: TargetEventHandler<T> | undefined
+
+  // Fullscreen Events
+  onFullscreenChange?: TargetEventHandler<T> | undefined
+  onFullscreenChangeCapture?: TargetEventHandler<T> | undefined
+  onFullscreenError?: TargetEventHandler<T> | undefined
+  onFullscreenErrorCapture?: TargetEventHandler<T> | undefined
+
+  // Canvas Events
+  onContextLost?: TargetEventHandler<T> | undefined
+  onContextLostCapture?: TargetEventHandler<T> | undefined
+  onContextRestored?: TargetEventHandler<T> | undefined
+  onContextRestoredCapture?: TargetEventHandler<T> | undefined
+
+  // Shadow DOM Events
+  onSlotChange?: TargetEventHandler<T> | undefined
+  onSlotChangeCapture?: TargetEventHandler<T> | undefined
+
+  // Content Visibility Events
+  onContentVisibilityAutoStateChange?: ContentVisibilityAutoStateChangeEventHandler<T> | undefined
+  onContentVisibilityAutoStateChangeCapture?: ContentVisibilityAutoStateChangeEventHandler<T> | undefined
+
+  // Security Events
+  onSecurityPolicyViolation?: SecurityPolicyViolationEventHandler<T> | undefined
+  onSecurityPolicyViolationCapture?: SecurityPolicyViolationEventHandler<T> | undefined
 }
