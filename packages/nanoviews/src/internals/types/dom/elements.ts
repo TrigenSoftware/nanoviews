@@ -214,7 +214,7 @@ export interface IntrinsicElementsAttributes {
   summary: Attributes.HTMLAttributes<HTMLElement>
   sup: Attributes.HTMLAttributes<HTMLElement>
   table: Attributes.TableHTMLAttributes<HTMLTableElement>
-  template: Attributes.HTMLAttributes<HTMLTemplateElement>
+  template: Attributes.TemplateHTMLAttributes<HTMLTemplateElement>
   tbody: Attributes.HTMLAttributes<HTMLTableSectionElement>
   td: Attributes.TdHTMLAttributes<HTMLTableCellElement>
   textarea: Attributes.TextareaHTMLAttributes<HTMLTextAreaElement>
