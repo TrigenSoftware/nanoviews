@@ -4,17 +4,7 @@ import {
   isWritable,
   deferEffect
 } from 'kida'
-import {
-  valueProperty,
-  checkedProperty,
-  indeterminateProperty,
-  optionsProperty,
-  multipleProperty,
-  selectedProperty,
-  onChangeEvent,
-  onInputEvent,
-  createEffectAttribute
-} from '../internals/index.js'
+import { createEffectAttribute } from '../internals/index.js'
 
 // https://caniuse.com/?search=oninput onInput doesn't fire an input event when (un)checking a checkbox or radio button, or when changing the selected file(s) of an <input type="file">
 
@@ -70,11 +60,11 @@ function setValue(
   control: TextboxElement,
   value: string
 ) {
-  control[valueProperty] = value
+  control.value = value
 }
 
 function getValue(control: TextboxElement) {
-  return control[valueProperty]
+  return control.value
 }
 
 /**
@@ -83,7 +73,7 @@ function getValue(control: TextboxElement) {
 export const value$ = /* @__PURE__ */ createEffectAttribute<'value$', TextboxElement, Value>(
   'value$',
   createElementPropertySetter(
-    onInputEvent,
+    'input',
     getValue,
     setValue
   )
@@ -94,15 +84,15 @@ function setChecked(
   value: CheckedPrimitive
 ) {
   if (value === Indeterminate) {
-    control[indeterminateProperty] = true
+    control.indeterminate = true
   } else {
-    control[indeterminateProperty] = false
+    control.indeterminate = false
     control.checked = value
   }
 }
 
 function getChecked(control: CheckboxElement): CheckedPrimitive {
-  return control[indeterminateProperty] ? Indeterminate : control[checkedProperty]
+  return control.indeterminate ? Indeterminate : control.checked
 }
 
 /**
@@ -111,7 +101,7 @@ function getChecked(control: CheckboxElement): CheckedPrimitive {
 export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, Checked>(
   'checked$',
   createElementPropertySetter(
-    onChangeEvent,
+    'change',
     getChecked,
     setChecked
   )
@@ -121,7 +111,7 @@ function setSelected(
   control: ComboboxElement,
   values: SelectedPrimitive
 ) {
-  const options = control[optionsProperty]
+  const options = control.options
   const len = options.length
   const isArray = Array.isArray(values)
   const test = isArray
@@ -133,14 +123,14 @@ function setSelected(
   if (len) {
     for (let i = 0, option: HTMLOptionElement; i < len; i++) {
       option = options[i]
-      option[selectedProperty] = test(option[valueProperty])
+      option.selected = test(option.value)
     }
   }
 }
 
 function getSelected(control: ComboboxElement): SelectedPrimitive {
-  const isMultiple = control[multipleProperty]
-  const options = control[optionsProperty]
+  const isMultiple = control.multiple
+  const options = control.options
   const len = options.length
   const values: string[] = []
 
@@ -148,11 +138,11 @@ function getSelected(control: ComboboxElement): SelectedPrimitive {
     for (let i = 0, option: HTMLOptionElement; i < len; i++) {
       option = options[i]
 
-      if (option[selectedProperty]) {
+      if (option.selected) {
         if (isMultiple) {
-          values.push(option[valueProperty])
+          values.push(option.value)
         } else {
-          return option[valueProperty]
+          return option.value
         }
       }
     }
@@ -167,7 +157,7 @@ function getSelected(control: ComboboxElement): SelectedPrimitive {
 export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, Selected>(
   'selected$',
   createElementPropertySetter(
-    onChangeEvent,
+    'change',
     getSelected,
     setSelected
   )
@@ -177,7 +167,7 @@ function filesEffectAttribute(
   control: FileElement,
   $value: Files
 ) {
-  control.addEventListener(onChangeEvent, () => $value(Array.from(control.files!)))
+  control.addEventListener('change', () => $value(Array.from(control.files!)))
 }
 
 /**
