@@ -11,13 +11,15 @@ import {
 
 export type ClassList = Signalish<string | boolean | FalsyValue>[]
 
-function cx(parts: unknown[]) {
+// The parts are read in the loop that joins them, so an update allocates no
+// array of values on the way
+function cx(parts: ClassList) {
   const len = parts.length
   let cls = ''
 
   if (len) {
     for (let i = 0, part: unknown; i < len; i++) {
-      if ((part = parts[i]) && typeof part === 'string') {
+      if ((part = $get(parts[i])) && typeof part === 'string') {
         cls += (cls && ' ') + part
       }
     }
@@ -29,11 +31,14 @@ function cx(parts: unknown[]) {
 /**
  * Effect attribute to set class list on element
  */
-export const classList$ = /* @__PURE__ */ createEffectAttribute<'classList$', HTMLElement, ClassList>(
+export const classList$ = /* @__PURE__ */ createEffectAttribute<'classList$', Element, ClassList>(
   'classList$',
   (element, parts) => {
+    // `className` is a read-only `SVGAnimatedString` on an SVG element, and
+    // assigning it throws in a module; the `class` attribute is the same one
+    // in both namespaces
     deferEffect(() => {
-      element.className = cx(parts.map($get))
+      element.setAttribute('class', cx(parts))
     }, true)
   }
 )
@@ -44,6 +49,6 @@ declare module 'nanoviews' {
   }
 
   interface EffectAttributeTargets {
-    classList$: HTMLElement
+    classList$: Element
   }
 }

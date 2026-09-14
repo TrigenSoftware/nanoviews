@@ -258,7 +258,7 @@ button({
 // <button class="button primary">Click me</button>
 ```
 
-Parts can be static or reactive. `classList$` writes the whole `class` attribute, so use either `class` or `classList$` on an element, not both.
+Parts can be static or reactive. `classList$` writes the whole `class` attribute, so use either `class` or `classList$` on an element, not both. It works the same way on the SVG elements from `nanoviews/svg`.
 
 ### autoFocus$
 
