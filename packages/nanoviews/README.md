@@ -291,6 +291,8 @@ textarea({
 )
 ```
 
+A read-only accessor, such as a computed, works too: the control follows it, and what the user types stays in the control. The same goes for `checked$` and `selected$`.
+
 ### checked$
 
 `checked$` is an effect attribute that manages the checked state of checkboxes and radio buttons.

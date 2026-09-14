@@ -1,5 +1,7 @@
 import {
+  type Accessor,
   type WritableSignal,
+  isWritable,
   deferEffect
 } from 'kida'
 import {
@@ -18,15 +20,15 @@ import {
 
 export const Indeterminate = Symbol.for('Indeterminate')
 
-type Value = WritableSignal<string>
+type Value = Accessor<string>
 
 type CheckedPrimitive = boolean | typeof Indeterminate
 
-type Checked = WritableSignal<boolean> | WritableSignal<CheckedPrimitive>
+type Checked = Accessor<CheckedPrimitive>
 
 type SelectedPrimitive = string | string[]
 
-type Selected = WritableSignal<string> | WritableSignal<string[]> | WritableSignal<SelectedPrimitive>
+type Selected = Accessor<SelectedPrimitive>
 
 type Files = WritableSignal<File[]>
 
@@ -46,17 +48,21 @@ function createElementPropertySetter<E extends Element, V>(
 ) {
   return (
     control: E,
-    $value: WritableSignal<V>
+    $value: Accessor<V>
   ): void => {
     deferEffect(() => {
       setValue(control, $value())
     })
 
+    // A read-only accessor, a computed say, only drives the control: the
+    // user's input has nowhere to go, so it gets no listener.
     // The registration dies with the element, so the binding needs no
     // teardown - and no effect node to carry one. It reads the DOM and writes
     // a signal, and a write subscribes nobody, so it needs no tracking barrier
     // either
-    control.addEventListener(eventName, () => $value(getValue(control)))
+    if (isWritable<WritableSignal<V>>($value)) {
+      control.addEventListener(eventName, () => $value(getValue(control)))
+    }
   }
 }
 
@@ -102,7 +108,7 @@ function getChecked(control: CheckboxElement): CheckedPrimitive {
 /**
  * Effect attribute to set and read checked value of checkbox or radio button element
  */
-export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, WritableSignal<CheckedPrimitive>>(
+export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, Checked>(
   'checked$',
   createElementPropertySetter(
     onChangeEvent,
@@ -158,7 +164,7 @@ function getSelected(control: ComboboxElement): SelectedPrimitive {
 /**
  * Effect attribute to set and read selected value of combobox element
  */
-export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, WritableSignal<SelectedPrimitive>>(
+export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, Selected>(
   'selected$',
   createElementPropertySetter(
     onChangeEvent,
