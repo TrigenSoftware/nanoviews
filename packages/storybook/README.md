@@ -205,6 +205,8 @@ export const ReactiveValue: Story = {
 
 `Meta` can be parameterized either with the component or with the plain args type — the values you put into `args` and the Controls panel edits. Both forms describe the same story: `args` stays plain, `render` and the component get signals.
 
+With the component form, a prop typed as `Signalish<T>` takes a plain `T` in `args`, and a prop that is only a function, like an event handler, stays a function. An optional arg reaches `render` as `WritableSignal<T> | undefined`, because an arg that is left out is not passed at all.
+
 ### Stories without a render
 
 `component` in the meta is the story's default renderer, so a story that only picks args needs no `render` of its own — the `Counter` stories at the top of the page do exactly that.
