@@ -16,6 +16,7 @@ import type {
 import type {
   AnyProps,
   NanoviewsRenderer,
+  ComponentArgs,
   ComponentType,
   OrAnyProps,
   RawProps,
@@ -35,7 +36,7 @@ export type {
  * @see [Default export](https://storybook.js.org/docs/formats/component-story-format/#default-export)
  */
 export type Meta<CmpOrArgs = Args> = CmpOrArgs extends ComponentType<infer Props>
-  ? WithRender<ComponentAnnotations<NanoviewsRenderer<RawProps<Props>>, RawProps<Props>>, RawProps<Props>>
+  ? WithRender<ComponentAnnotations<NanoviewsRenderer<ComponentArgs<Props>>, ComponentArgs<Props>>, ComponentArgs<Props>>
   : WithRender<
     ComponentAnnotations<NanoviewsRenderer<OrAnyProps<CmpOrArgs>>, RawProps<OrAnyProps<CmpOrArgs>>>,
     RawProps<OrAnyProps<CmpOrArgs>>
@@ -46,7 +47,7 @@ export type Meta<CmpOrArgs = Args> = CmpOrArgs extends ComponentType<infer Props
  * @see [Named Story exports](https://storybook.js.org/docs/formats/component-story-format/#named-story-exports)
  */
 export type StoryFn<CmpOrArgs = Args> = CmpOrArgs extends ComponentType<infer Props>
-  ? Render<RawProps<Props>> & WithRender<StoryAnnotations<NanoviewsRenderer<RawProps<Props>>, RawProps<Props>>, RawProps<Props>>
+  ? Render<ComponentArgs<Props>> & WithRender<StoryAnnotations<NanoviewsRenderer<ComponentArgs<Props>>, ComponentArgs<Props>>, ComponentArgs<Props>>
   : Render<RawProps<OrAnyProps<CmpOrArgs>>> & WithRender<
     StoryAnnotations<NanoviewsRenderer<OrAnyProps<CmpOrArgs>>, RawProps<OrAnyProps<CmpOrArgs>>>,
     RawProps<OrAnyProps<CmpOrArgs>>
@@ -70,7 +71,7 @@ export type StoryObj<MetaOrCmpOrArgs = Args> = MetaOrCmpOrArgs extends {
       : never
     : never
   : MetaOrCmpOrArgs extends ComponentType<infer Props>
-    ? WithRender<StoryAnnotations<NanoviewsRenderer<RawProps<Props>>, RawProps<Props>>, RawProps<Props>>
+    ? WithRender<StoryAnnotations<NanoviewsRenderer<ComponentArgs<Props>>, ComponentArgs<Props>>, ComponentArgs<Props>>
     : WithRender<
       StoryAnnotations<NanoviewsRenderer<OrAnyProps<MetaOrCmpOrArgs>>, RawProps<OrAnyProps<MetaOrCmpOrArgs>>>,
       RawProps<OrAnyProps<MetaOrCmpOrArgs>>
@@ -80,6 +81,7 @@ export type {
   NanoviewsRenderer,
   NanoviewsMountRenderer,
   NanoviewsStoryResult,
+  ComponentArgs,
   ComponentType,
   RawProps,
   SignalProps,

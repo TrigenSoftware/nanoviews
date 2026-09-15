@@ -5,6 +5,7 @@ import type {
 import type {
   AnyWritableSignal,
   WritableSignal,
+  Accessor,
   AnyFn
 } from 'nanoviews/store'
 import type {
@@ -26,7 +27,9 @@ export type UniversalProps<T extends AnyProps> = {
       ? T[K]
       : NonEmptyValue<T[K]> extends AnyFn
         ? T[K]
-        : Exclude<T[K], AnyWritableSignal> extends infer Primitive
+        // An optional prop may be left out, so its `undefined` stays outside the signal;
+        // a required prop that takes `undefined` holds it inside
+        : Exclude<T[K], AnyWritableSignal | ({} extends Pick<T, K> ? undefined : never)> extends infer Primitive
           ? Primitive | WritableSignal<Primitive> | Extract<T[K], AnyWritableSignal>
           : never
 }
@@ -38,7 +41,9 @@ export type SignalProps<T extends AnyProps> = {
       ? T[K]
       : NonEmptyValue<T[K]> extends AnyFn
         ? T[K]
-        : Exclude<T[K], AnyWritableSignal> extends infer Primitive
+        // An optional prop may be left out, so its `undefined` stays outside the signal;
+        // a required prop that takes `undefined` holds it inside
+        : Exclude<T[K], AnyWritableSignal | ({} extends Pick<T, K> ? undefined : never)> extends infer Primitive
           ? WritableSignal<Primitive> | Extract<T[K], AnyWritableSignal>
           : never
 }
@@ -50,6 +55,25 @@ export type RawProps<T extends AnyProps> = {
       ? V extends WritableSignal<infer U>
         ? U
         : V
+      : never
+}
+
+/**
+ * The plain args of a component. A prop that takes a value or an accessor, like `Signalish<T>`,
+ * takes the value, and a signal prop takes what it holds. A prop that is only a function, like an
+ * event handler, stays a function.
+ */
+export type ComponentArgs<T extends AnyProps> = {
+  [K in keyof T]: T[K] extends EmptyValue
+    ? T[K]
+    : T[K] extends infer V
+      ? NonEmptyValue<T[K]> extends AnyFn
+        ? V extends WritableSignal<infer U>
+          ? U
+          : V
+        : V extends Accessor<infer U>
+          ? U
+          : V
       : never
 }
 

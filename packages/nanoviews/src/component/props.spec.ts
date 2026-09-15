@@ -6,6 +6,7 @@ import {
   expectTypeOf,
   vi
 } from 'vitest'
+import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
 import {
   type Accessor,
@@ -16,6 +17,7 @@ import {
 import { button } from '../elements/elements.js'
 import { classList$ } from '../elements/classList.js'
 import { props$ } from './props.js'
+import * as Stories from './props.stories.js'
 
 interface ButtonProps {
   title: Signalish<string>
@@ -225,6 +227,32 @@ describe('nanoviews', () => {
         $size('l')
 
         expect(container.innerHTML).toBe('<div><button title="Send it" id="send" class="button button_l">Send</button></div>')
+      })
+
+      describe('stories', () => {
+        const {
+          Default,
+          CustomRender
+        } = composeStories(Stories)
+
+        it('should render a component story from plain args', () => {
+          const { container } = render(Default())
+
+          expect(container.textContent).toBe('Unread: 3')
+        })
+
+        it('should pass story args through a custom render', () => {
+          const count = signal(1)
+          const { container } = render(CustomRender({
+            count
+          }))
+
+          expect(container.textContent).toBe('Unread: 1')
+
+          count(2)
+
+          expect(container.textContent).toBe('Unread: 2')
+        })
       })
     })
   })
