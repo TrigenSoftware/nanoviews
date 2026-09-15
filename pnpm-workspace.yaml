@@ -31,4 +31,4 @@ overrides:
   '@nano_kit/query@*': 2.0.0-prerelease.20260913103613
   '@nano_kit/store@*': 2.0.0-prerelease.20260913103613
   'kida@*': 2.0.0-prerelease.20260913103613
-  'agera@*': 2.0.0-prerelease.20260913103613
+  'agera@*': 2.0.0-snapshot.20260830203546
