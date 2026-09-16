@@ -1,54 +1,26 @@
-/* oxlint-disable typescript/no-redundant-type-constituents */
 import {
-  type Signalish,
-  $get,
-  deferEffect
-} from 'kida'
-import {
-  type FalsyValue,
-  createEffectAttribute
+  type ClassValue,
+  cx
 } from '../internals/index.js'
 
-export type ClassList = Signalish<string | boolean | FalsyValue>[]
-
-// The parts are read in the loop that joins them, so an update allocates no
-// array of values on the way
-function cx(parts: ClassList) {
-  const len = parts.length
-  let cls = ''
-
-  if (len) {
-    for (let i = 0, part: unknown; i < len; i++) {
-      if ((part = $get(parts[i])) && typeof part === 'string') {
-        cls += (cls && ' ') + part
-      }
-    }
-  }
-
-  return cls
-}
-
 /**
- * Effect attribute to set class list on element
+ * Build a `class` accessor from parts.
+ *
+ * Every truthy string part is joined with a space, everything else is
+ * dropped. A part may be an accessor or a nested list, so the class follows
+ * the parts, and a component can fold the `class` it received into its own.
+ * The `class` attribute joins a list the same way, so this is for a class
+ * built away from an element.
+ * @param parts - Class names, accessors and lists of them, falsy values to skip
+ * @returns Accessor of the joined class names
+ * @example
+ * ```ts
+ * const $class = classList('button', () => $primary() && 'button_primary')
+ *
+ * $class() // 'button button_primary'
+ * ```
  */
-export const classList$ = /* @__PURE__ */ createEffectAttribute<'classList$', Element, ClassList>(
-  'classList$',
-  (element, parts) => {
-    // `className` is a read-only `SVGAnimatedString` on an SVG element, and
-    // assigning it throws in a module; the `class` attribute is the same one
-    // in both namespaces
-    deferEffect(() => {
-      element.setAttribute('class', cx(parts))
-    }, true)
-  }
-)
-
-declare module 'nanoviews' {
-  interface EffectAttributeValues<Target extends Element> {
-    classList$: ClassList
-  }
-
-  interface EffectAttributeTargets {
-    classList$: Element
-  }
+/* @__NO_SIDE_EFFECTS__ */
+export function classList(...parts: ClassValue[]) {
+  return cx(parts)
 }
