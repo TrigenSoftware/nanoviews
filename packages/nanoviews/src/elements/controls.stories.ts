@@ -4,28 +4,24 @@ import type {
 } from '@nanoviews/storybook'
 import { fn } from 'storybook/test'
 import { effect$ } from '../component/effect.js'
+import { for_ } from '../flow/for.js'
 import {
+  Indeterminate,
   input,
   textarea,
   select,
   option
-} from './elements.js'
-import {
-  Indeterminate,
-  value$,
-  checked$,
-  selected$,
-  files$
 } from './controls.js'
 
 const meta: Meta<{
   value?: string
   values?: string[]
+  options?: string[]
   checked?: boolean | typeof Indeterminate
   files?: File[]
   onChange?(value: unknown): void
 }> = {
-  title: 'Elements/Effect Attributes/Controls'
+  title: 'Elements/Controls'
 }
 
 export default meta
@@ -52,7 +48,7 @@ export const TextInput: StoryObj<{
     return (
       input({
         type: 'text',
-        [value$]: value
+        value
       })
     )
   }
@@ -79,7 +75,7 @@ export const Textarea: StoryObj<{
 
     return (
       textarea({
-        [value$]: value
+        value
       })()
     )
   }
@@ -116,7 +112,7 @@ export const Select: StoryObj<{
 
     return (
       select({
-        [selected$]: value
+        value
       })(
         option({
           value: 'red'
@@ -163,7 +159,8 @@ export const MultipleSelect: StoryObj<{
 
     return (
       select({
-        [selected$]: values
+        multiple: true,
+        value: values
       })(
         option({
           value: 'red'
@@ -174,6 +171,43 @@ export const MultipleSelect: StoryObj<{
         option({
           value: 'blue'
         })('Blue')
+      )
+    )
+  }
+}
+
+export const DynamicOptions: StoryObj<{
+  value: string
+  options: string[]
+  onChange(value: unknown): void
+}> = {
+  args: {
+    onChange: fn(),
+    value: 'green',
+    options: [
+      'red',
+      'green',
+      'blue'
+    ]
+  },
+  render({ onChange, value, options }) {
+    if (onChange && value) {
+      effect$((warmup) => {
+        const v = value()
+
+        if (!warmup) {
+          onChange(v)
+        }
+      })
+    }
+
+    return (
+      select({
+        value
+      })(
+        for_(options)($color => option({
+          value: $color
+        })($color))
       )
     )
   }
@@ -211,7 +245,7 @@ export const Checkbox: StoryObj<{
     return (
       input({
         type: 'checkbox',
-        [checked$]: checked
+        checked
       })
     )
   }
@@ -239,7 +273,7 @@ export const Files: StoryObj<{
     return (
       input({
         type: 'file',
-        [files$]: files
+        value: files
       })
     )
   }

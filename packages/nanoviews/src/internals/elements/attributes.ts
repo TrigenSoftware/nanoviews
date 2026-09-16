@@ -1,21 +1,33 @@
 import {
+  type Accessor,
+  type WritableSignal,
   isAccessor,
   isFunction,
   deferEffect,
-  untracked
+  untracked,
+  $get
 } from 'kida'
 import type {
   ClassValue,
-  PrimitiveAttributeValue,
+  Primitive,
   TargetEventHandler
 } from '../types/index.js'
 import { isEmpty } from '../utils.js'
-import { effectAttributes } from './effectAttribute.js'
 import { cx } from './classList.js'
+import { setStyle } from './style.js'
 
-type AttributeValue = PrimitiveAttributeValue | TargetEventHandler
+export type AttributeRecord = Record<string, unknown>
 
-type Attributes = Record<string, AttributeValue>
+/**
+ * Set one attribute of an element: the loop hands it every attribute that is
+ * not an event handler
+ */
+export type AttributeSetter<E extends Element> = (
+  element: E,
+  name: string,
+  value: unknown,
+  attributes: AttributeRecord
+) => void
 
 // A boolean attribute is switched off by its absence, so `false` leaves it
 // out, the way a React reader expects. The enumerated attributes and the
@@ -24,17 +36,45 @@ function isEmptyAttribute(name: string, value: unknown) {
   return isEmpty(value) || value === false && !/^(?:aria-|data-|draggable$|contentEditable$|spellCheck$)/.test(name)
 }
 
-export function setAttribute(element: Element, name: string, $value: PrimitiveAttributeValue | readonly ClassValue[]) {
+export function setAttribute(element: Element, name: string, $value: unknown) {
+  // A few names are bindings rather than attributes. Each is told apart by
+  // its name first: the compare is a pointer one for the keys of a literal,
+  // and it fails for almost every attribute
+  if (name === 'ref') {
+    // The signal holds the element from its build to its unmount
+    ($value as WritableSignal<Element | null>)(element)
+    deferEffect(() => () => ($value as WritableSignal<Element | null>)(null))
+
+    return
+  }
+
+  if (name === 'autoFocus') {
+    // The `autofocus` attribute is honoured once per page load, so the
+    // element is focused by hand instead, once it is in the document
+    if ($get($value)) {
+      deferEffect(() => {
+        (element as HTMLElement).focus()
+      })
+    }
+
+    return
+  }
+
+  if (name === 'style' && $value && typeof $value === 'object') {
+    setStyle(element as HTMLElement, $value)
+
+    return
+  }
+
   // A class may come as a list of parts, joined by an accessor that follows
-  // them. The name goes first: comparing it is cheaper, and it is not `class`
-  // for almost every attribute
+  // them
   if (name === 'class' && Array.isArray($value)) {
     $value = cx($value as readonly ClassValue[])
   }
 
   // A static attribute is the common case: apply it without building the
   // setter closures a reactive binding needs
-  if (isAccessor($value)) {
+  if (isAccessor<Accessor<Primitive>>($value)) {
     deferEffect(() => {
       const value = $value()
 
@@ -67,7 +107,7 @@ export function setEventListener(element: Element, name: string, value: TargetEv
     eventNames[name] ??= name.slice(2, capture ? -7 : undefined).toLowerCase(),
     // A handler is user code: it must not subscribe whatever effect happens to
     // be running when the event is dispatched synchronously from inside one -
-    // `autoFocus$` calls `focus()` from an effect, and that is not exotic
+    // `autoFocus` calls `focus()` from an effect, and that is not exotic
     event => untracked(() => (value as EventListener).call(element, event)),
     capture
   )
@@ -80,18 +120,20 @@ export function setEventListener(element: Element, name: string, value: TargetEv
  *       https://github.com/facebook/react/blob/2f8f7760223241665f472a2a9be16650473bce39/packages/react-dom-bindings/src/client/ReactDOMComponent.js
  * @param element - Target element
  * @param attributes - Target attributes
+ * @param set - Attribute setter, for an element that binds some of its attributes its own way
  */
-export function setAttributes<A extends object>(element: Element, attributes: A) {
+export function setAttributes<E extends Element, A extends object>(
+  element: E,
+  attributes: A,
+  set: AttributeSetter<E> = setAttribute
+) {
   for (const key in attributes) {
-    const value = (attributes as Attributes)[key]
-    const tEffectAttr = effectAttributes?.get(key)
+    const value = (attributes as AttributeRecord)[key]
 
-    if (tEffectAttr !== undefined) {
-      tEffectAttr(element, value, attributes as Attributes)
-    } else if (isEventHandler(key, value)) {
+    if (isEventHandler(key, value)) {
       setEventListener(element, key, value)
     } else {
-      setAttribute(element, key, value)
+      set(element, key, value, attributes as AttributeRecord)
     }
   }
 }

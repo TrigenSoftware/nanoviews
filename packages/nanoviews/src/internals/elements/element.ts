@@ -13,7 +13,10 @@ import {
   childToNode,
   lazyChild
 } from './child.js'
-import { setAttributes } from './attributes.js'
+import {
+  type AttributeSetter,
+  setAttributes
+} from './attributes.js'
 
 /**
  * Build the children, if any, and append them to a node
@@ -33,14 +36,49 @@ export function appendChildren<T extends ParentNode>(target: T, children: Childr
   return target
 }
 
-function createNode<Tag extends ElementName>(tag: Tag, attributes: Attributes<Tag> | undefined) {
+/**
+ * Create an element and set its attributes
+ * @param tag - Tag name
+ * @param attributes - Element attributes
+ * @param set - Attribute setter, for an element that binds some of its attributes its own way
+ * @returns The element
+ */
+export function createNode<Tag extends ElementName>(
+  tag: Tag,
+  attributes: Attributes<Tag> | undefined,
+  set?: AttributeSetter<PickElementType<Tag>>
+) {
   const element = document.createElement(tag) as PickElementType<Tag>
 
   if (attributes !== undefined) {
-    setAttributes(element, attributes)
+    setAttributes(element, attributes, set)
   }
 
   return element
+}
+
+/**
+ * Build an element with its attributes and children
+ */
+export type BuildElement<Tag extends ElementName> = (
+  tag: Tag,
+  attributes: Attributes<Tag> | undefined,
+  children: Children | undefined
+) => PickElementType<Tag>
+
+/**
+ * Build an element: the attributes are set, then the children are appended
+ * @param tag - Tag name
+ * @param attributes - Element attributes
+ * @param children - Element children
+ * @returns The element
+ */
+export function buildElement<Tag extends ElementName>(
+  tag: Tag,
+  attributes: Attributes<Tag> | undefined,
+  children: Children | undefined
+) {
+  return appendChildren(createNode(tag, attributes), children)
 }
 
 /**
@@ -75,12 +113,14 @@ export function createVoidElementFactory<Tag extends ElementName>(
  * no arguments builds the element with them
  * @param tag - Tag name
  * @param attributes - Element attributes
+ * @param build - Element builder, for an element that binds its attributes or children its own way
  * @returns Element description
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function createElement<Tag extends ElementName>(
   tag: Tag,
-  attributes?: Attributes<Tag>
+  attributes?: Attributes<Tag>,
+  build: BuildElement<Tag> = buildElement
 ) {
   // The receiver is written out here rather than shared through a helper
   // that takes a build callback: one closure per description instead of two
@@ -94,7 +134,7 @@ export function createElement<Tag extends ElementName>(
       return element
     }
 
-    return appendChildren(createNode(tag, attributes), children)
+    return build(tag, attributes, children)
   }) as LazyElement<PickElementType<Tag>>
 
   return element

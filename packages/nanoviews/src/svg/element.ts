@@ -3,7 +3,8 @@ import {
   type LazyVoidElement,
   type LazyElement,
   appendChildren,
-  lazyChild
+  lazyChild,
+  setAttributes
 } from '../internals/index.js'
 import type {
   ElementName,
@@ -12,7 +13,7 @@ import type {
   VoidElementFactory,
   ElementFactory
 } from './types.js'
-import { setAttributes } from './attributes.js'
+import { setAttribute } from './attributes.js'
 
 const namespace = 'http://www.w3.org/2000/svg'
 
@@ -20,7 +21,7 @@ function createNode<Tag extends ElementName>(tag: Tag, attributes: Attributes<Ta
   const element = document.createElementNS(namespace, tag)
 
   if (attributes !== undefined) {
-    setAttributes(element, attributes)
+    setAttributes(element, attributes, setAttribute)
   }
 
   return element

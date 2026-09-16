@@ -1,48 +1,63 @@
 import {
-  type Accessor,
+  type Injectable,
+  type Signalish,
   type WritableSignal,
+  type EmptyValue,
+  InjectionContext,
+  getContext,
+  unsafeRun,
+  isAccessor,
   isWritable,
-  deferEffect
+  deferEffect,
+  $get
 } from 'kida'
-import { createEffectAttribute } from '../internals/index.js'
+import {
+  type Attributes,
+  type AttributeRecord,
+  type Children,
+  lazyChild,
+  createNode,
+  createElement,
+  appendChildren,
+  setAttribute,
+  setAttributes
+} from '../internals/index.js'
 
 // https://caniuse.com/?search=oninput onInput doesn't fire an input event when (un)checking a checkbox or radio button, or when changing the selected file(s) of an <input type="file">
 
+/**
+ * The third state of a checkbox, for `checked`
+ */
 export const Indeterminate = Symbol.for('Indeterminate')
-
-type Value = Accessor<string>
-
-type CheckedPrimitive = boolean | typeof Indeterminate
-
-type Checked = Accessor<CheckedPrimitive>
-
-type SelectedPrimitive = string | string[]
-
-type Selected = Accessor<SelectedPrimitive>
-
-type Files = WritableSignal<File[]>
 
 type TextboxElement = HTMLInputElement | HTMLTextAreaElement
 
-type CheckboxElement = HTMLInputElement
+type Value = string | number | EmptyValue
 
-type ComboboxElement = HTMLSelectElement
+type Checked = boolean | typeof Indeterminate | EmptyValue
 
-type FileElement = HTMLInputElement
+type Selected = Signalish<string | readonly string[] | EmptyValue>
 
-/* @__NO_SIDE_EFFECTS__ */
-function createElementPropertySetter<E extends Element, V>(
-  eventName: string,
-  getValue: (control: E) => V,
-  setValue: (control: E, value: V) => void
+/**
+ * Bind a property of a control: a plain value is set once, an accessor drives
+ * the property, and a writable signal also takes the user's input
+ * @param control - The control
+ * @param $value - The value
+ * @param set - Property setter
+ * @param get - Property getter
+ * @param eventName - The event the user's input comes with
+ */
+function bind<E extends Element, V>(
+  control: E,
+  $value: Signalish<V>,
+  set: (control: E, value: V) => void,
+  get: (control: E) => V,
+  eventName: string
 ) {
-  return (
-    control: E,
-    $value: Accessor<V>
-  ): void => {
+  if (isAccessor($value)) {
     deferEffect(() => {
-      setValue(control, $value())
-    })
+      set(control, $value())
+    }, true)
 
     // A read-only accessor, a computed say, only drives the control: the
     // user's input has nowhere to go, so it gets no listener.
@@ -51,145 +66,203 @@ function createElementPropertySetter<E extends Element, V>(
     // a signal, and a write subscribes nobody, so it needs no tracking barrier
     // either
     if (isWritable<WritableSignal<V>>($value)) {
-      control.addEventListener(eventName, () => $value(getValue(control)))
+      control.addEventListener(eventName, () => $value(get(control)))
     }
+  } else {
+    set(control, $value)
   }
 }
 
-function setValue(
-  control: TextboxElement,
-  value: string
-) {
-  control.value = value
+function setValue(control: TextboxElement, value: Value) {
+  // The default follows the value, the React way, so a form reset keeps the
+  // control at it
+  control.value = control.defaultValue = (value ?? '') as string
 }
 
-function getValue(control: TextboxElement) {
+function getValue(control: TextboxElement | HTMLOptionElement) {
   return control.value
 }
 
-/**
- * Effect attribute to set and read text value of input element
- */
-export const value$ = /* @__PURE__ */ createEffectAttribute<'value$', TextboxElement, Value>(
-  'value$',
-  createElementPropertySetter(
-    'input',
-    getValue,
-    setValue
-  )
-)
-
-function setChecked(
-  control: CheckboxElement,
-  value: CheckedPrimitive
-) {
+function setChecked(control: HTMLInputElement, value: Checked) {
   if (value === Indeterminate) {
     control.indeterminate = true
   } else {
     control.indeterminate = false
-    control.checked = value
+    control.checked = control.defaultChecked = value as boolean
   }
 }
 
-function getChecked(control: CheckboxElement): CheckedPrimitive {
+function getChecked(control: HTMLInputElement): Checked {
   return control.indeterminate ? Indeterminate : control.checked
 }
 
-/**
- * Effect attribute to set and read checked value of checkbox or radio button element
- */
-export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, Checked>(
-  'checked$',
-  createElementPropertySetter(
-    'change',
-    getChecked,
-    setChecked
-  )
-)
-
-function setSelected(
-  control: ComboboxElement,
-  values: SelectedPrimitive
+function setControlAttribute(
+  control: TextboxElement,
+  name: string,
+  $value: unknown,
+  attributes: AttributeRecord
 ) {
-  const options = control.options
-  const len = options.length
-  const isArray = Array.isArray(values)
-  const test = isArray
-    ? (v: string) => values.includes(v)
-    : (v: string) => values === v
+  if (name === 'value') {
+    if (attributes.type === 'file') {
+      // The files come from the user only, so the signal just takes them
+      control.addEventListener('change', () => ($value as WritableSignal<File[]>)(Array.from((control as HTMLInputElement).files!)))
+    } else {
+      bind(control, $value as Signalish<Value>, setValue, getValue, 'input')
+    }
+  } else if (name === 'checked') {
+    bind(control as HTMLInputElement, $value as Signalish<Checked>, setChecked, getChecked, 'change')
+  } else {
+    setAttribute(control, name, $value)
+  }
+}
 
-  control.multiple = isArray
+/**
+ * Describe an `input`. `value` and `checked` are the live state of the
+ * control, bound through the DOM properties: a plain value is set once, an
+ * accessor is followed, and a writable signal also receives the user's input.
+ * The default follows the value, so a form reset keeps the control at it.
+ * The `value` of a file input is a signal that receives the picked files
+ * @param attributes - Element attributes
+ * @returns Void element description
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function input(attributes?: Attributes<'input'>) {
+  return lazyChild(() => createNode('input', attributes, setControlAttribute))
+}
 
-  if (len) {
-    for (let i = 0, option: HTMLOptionElement; i < len; i++) {
-      option = options[i]
-      option.selected = test(option.value)
+function buildTextarea(
+  tag: 'textarea',
+  attributes: Attributes<'textarea'> | undefined,
+  children: Children | undefined
+) {
+  // The children are the default text of the control, and `value` replaces
+  // it, so they go in first
+  const textarea = appendChildren(document.createElement(tag), children)
+
+  if (attributes !== undefined) {
+    setAttributes(textarea, attributes, setControlAttribute)
+  }
+
+  return textarea
+}
+
+/**
+ * Describe a `textarea`. `value` is the live text of the control, bound
+ * through the DOM property: a plain value is set once, an accessor is
+ * followed, and a writable signal also receives what the user types. It is
+ * the default text too, in place of the children, so a form reset keeps it
+ * @param attributes - Element attributes
+ * @returns Element description
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function textarea(attributes?: Attributes<'textarea'>) {
+  return createElement('textarea', attributes, buildTextarea)
+}
+
+// The value a select holds reaches its options through the injection context
+// the select builds them under: every option binds its own selectedness, so
+// the ones built later, by a `for_` say, follow the value too. The key is
+// never called: an option looks it up in find mode, and finds nothing outside
+// a select
+const SelectValue$: Injectable<Selected> = () => undefined
+
+function setSelectAttribute(
+  select: HTMLSelectElement,
+  name: string,
+  $value: unknown
+) {
+  if (name === 'value') {
+    const $selected = $value as Selected
+
+    // The options follow the value, the select itself only reports the choice
+    if (isAccessor($selected) && isWritable<WritableSignal<string | readonly string[]>>($selected)) {
+      select.addEventListener('change', () => $selected(
+        select.multiple
+          ? Array.from(select.selectedOptions, getValue)
+          : select.value
+      ))
+    }
+  } else {
+    setAttribute(select, name, $value)
+  }
+}
+
+function buildSelect(
+  tag: 'select',
+  attributes: Attributes<'select'> | undefined,
+  children: Children | undefined
+) {
+  const select = createNode(tag, attributes, setSelectAttribute)
+  const $value = attributes?.value
+
+  return $value === undefined
+    ? appendChildren(select, children)
+    : unsafeRun(
+      new InjectionContext([[SelectValue$, $value]], getContext()),
+      appendChildren,
+      select,
+      children
+    ) as HTMLSelectElement
+}
+
+/**
+ * Describe a `select`. `value` is the value of the selected option, or the
+ * list of them under `multiple`: a plain value is set once, an accessor is
+ * followed, and a writable signal also receives the user's choice. The
+ * options follow the value, the ones built later included, and so does
+ * their default, so a form reset keeps the choice
+ * @param attributes - Element attributes
+ * @returns Element description
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function select(attributes?: Attributes<'select'>) {
+  return createElement('select', attributes, buildSelect)
+}
+
+function isSelected($selected: Selected, value: string) {
+  const values = $get($selected)
+
+  return Array.isArray(values)
+    ? values.includes(value)
+    : values === value
+}
+
+function buildOption(
+  tag: 'option',
+  attributes: Attributes<'option'> | undefined,
+  children: Children | undefined
+) {
+  const option = appendChildren(createNode(tag, attributes), children)
+  // The value of the select the option is built under, if any
+  const $selected = getContext()?.get(SelectValue$, true)
+
+  if ($selected !== undefined) {
+    const $value = attributes?.value
+    // The option's own value is read through its accessor, to follow it. An
+    // option without a `value` attribute is worth its text, which is why the
+    // DOM is asked once the children are in. The default follows the
+    // selection, the React way, so a form reset keeps it
+    const update = () => {
+      option.selected = option.defaultSelected = isSelected($selected, String($get($value) ?? option.value))
+    }
+
+    if (isAccessor($selected) || isAccessor($value)) {
+      deferEffect(update, true)
+    } else {
+      update()
     }
   }
-}
 
-function getSelected(control: ComboboxElement): SelectedPrimitive {
-  const isMultiple = control.multiple
-  const options = control.options
-  const len = options.length
-  const values: string[] = []
-
-  if (len) {
-    for (let i = 0, option: HTMLOptionElement; i < len; i++) {
-      option = options[i]
-
-      if (option.selected) {
-        if (isMultiple) {
-          values.push(option.value)
-        } else {
-          return option.value
-        }
-      }
-    }
-  }
-
-  return values
+  return option
 }
 
 /**
- * Effect attribute to set and read selected value of combobox element
+ * Describe an `option`. Under a `select` with a `value`, the option is
+ * selected when its value is the one the select holds, and it follows both
+ * @param attributes - Element attributes
+ * @returns Element description
  */
-export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, Selected>(
-  'selected$',
-  createElementPropertySetter(
-    'change',
-    getSelected,
-    setSelected
-  )
-)
-
-function filesEffectAttribute(
-  control: FileElement,
-  $value: Files
-) {
-  control.addEventListener('change', () => $value(Array.from(control.files!)))
-}
-
-/**
- * Effect attribute to read files of file input element
- */
-export const files$ = /* @__PURE__ */ createEffectAttribute<'files$', FileElement, Files>(
-  'files$',
-  filesEffectAttribute
-)
-
-declare module 'nanoviews' {
-  interface EffectAttributeValues<Target extends Element> {
-    value$: Value
-    checked$: Checked
-    selected$: Selected
-    files$: Files
-  }
-
-  interface EffectAttributeTargets {
-    value$: TextboxElement
-    checked$: CheckboxElement
-    selected$: ComboboxElement
-    files$: FileElement
-  }
+/* @__NO_SIDE_EFFECTS__ */
+export function option(attributes?: Attributes<'option'>) {
+  return createElement('option', attributes, buildOption)
 }

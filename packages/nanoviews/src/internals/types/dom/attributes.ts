@@ -1,10 +1,17 @@
 import type * as CSS from 'csstype'
-import type { Signalish } from 'kida'
-import type { EmptyValue } from '../common.js'
+import type {
+  Signalish,
+  WritableSignal
+} from 'kida'
+import type {
+  AccessibleProps,
+  EmptyValue
+} from '../common.js'
 import type {
   Booleanish,
   ClassValue,
-  CrossOrigin
+  CrossOrigin,
+  ElementRef
 } from './common.js'
 import type {
   AriaRole,
@@ -28,9 +35,18 @@ export interface CSSProperties extends CSS.Properties<string | number> {
   [name: `--${string}`]: string | number | undefined
 }
 
+/**
+ * A `style` object: a CSS property per key, camelCased, each a static value or
+ * an accessor to follow
+ */
+export type StyleProps = AccessibleProps<CSSProperties>
+
 export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, DOMAttributes<T> {
   // Standard HTML Attributes
   accessKey?: Signalish<string | EmptyValue>
+  /**
+   * Focus the element once it is in the document. Read once, when the element is built
+   */
   autoFocus?: Signalish<boolean | EmptyValue>
   class?: ClassValue
   contentEditable?: Signalish<Booleanish | 'inherit' | 'plaintext-only' | EmptyValue>
@@ -42,10 +58,19 @@ export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, D
   nonce?: Signalish<string | EmptyValue>
   slot?: Signalish<string | EmptyValue>
   spellCheck?: Signalish<Booleanish | EmptyValue>
-  style?: Signalish<string | EmptyValue>
+  /**
+   * A style string, or an object of camelCased properties, each a static value or an accessor to follow
+   */
+  style?: Signalish<string | EmptyValue> | StyleProps
   tabIndex?: Signalish<number | EmptyValue>
   title?: Signalish<string | EmptyValue>
   translate?: Signalish<'yes' | 'no' | EmptyValue>
+
+  // Element binding
+  /**
+   * A signal that holds the element from its build to its unmount, then `null`
+   */
+  ref?: ElementRef<T, HTMLElement>
 
   // WAI-ARIA
   role?: Signalish<AriaRole | EmptyValue>
@@ -317,7 +342,6 @@ export type HTMLInputTypeAttribute =
   | 'time'
   | 'url'
   | 'week'
-  | string & {}
 
 export type AutoFillAddressKind = 'billing' | 'shipping'
 export type AutoFillBase = '' | 'off' | 'on'
@@ -381,12 +405,11 @@ export type AutoFill =
   >}${AutoFillField}${OptionalPostfixToken<AutoFillCredentialField>}`
 export type HTMLInputAutoCompleteAttribute = AutoFill | string & {}
 
-export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
+interface InputHTMLAttributesBase<T extends HTMLElement> extends HTMLAttributes<T> {
   accept?: Signalish<string | EmptyValue>
   alt?: Signalish<string | EmptyValue>
   autoComplete?: Signalish<HTMLInputAutoCompleteAttribute | EmptyValue>
   capture?: Signalish<boolean | 'user' | 'environment' | EmptyValue> // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
-  checked?: Signalish<boolean | EmptyValue>
   dirName?: Signalish<string | EmptyValue>
   disabled?: Signalish<boolean | EmptyValue>
   form?: Signalish<string | EmptyValue>
@@ -413,12 +436,55 @@ export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
   size?: Signalish<number | EmptyValue>
   src?: Signalish<string | EmptyValue>
   step?: Signalish<number | string | EmptyValue>
-  type?: Signalish<HTMLInputTypeAttribute | EmptyValue>
-  value?: Signalish<string | readonly string[] | number | EmptyValue>
   width?: Signalish<number | string | EmptyValue>
 
   onChange?: ChangeEventHandler<T> | undefined
 }
+
+/**
+ * A text-like input, the default kind: `value` is its live text
+ */
+export interface TextInputHTMLAttributes<T extends HTMLElement> extends InputHTMLAttributesBase<T> {
+  /**
+   * The kind of input. It is read once, when the element is built, so it is static
+   */
+  type?: Exclude<HTMLInputTypeAttribute, 'checkbox' | 'radio' | 'file'> | EmptyValue
+  /**
+   * The value of the control, set through the DOM property: a plain value is set once, an accessor
+   * is followed, and a writable signal also receives what the user types
+   */
+  value?: Signalish<string | EmptyValue> | number
+}
+
+/**
+ * A checkbox or a radio button: `checked` is its live state
+ */
+export interface CheckboxInputHTMLAttributes<T extends HTMLElement> extends InputHTMLAttributesBase<T> {
+  type: 'checkbox' | 'radio'
+  /**
+   * Whether the control is checked, set through the DOM property: a plain value is set once, an
+   * accessor is followed, and a writable signal also receives what the user picks. The
+   * `Indeterminate` symbol is the third state of a checkbox
+   */
+  checked?: Signalish<boolean | symbol | EmptyValue>
+  /**
+   * The value the control submits
+   */
+  value?: Signalish<string | EmptyValue>
+}
+
+/**
+ * A file input: `value` is a signal that receives the files the user picks
+ */
+export interface FileInputHTMLAttributes<T extends HTMLElement> extends InputHTMLAttributesBase<T> {
+  type: 'file'
+  value?: WritableSignal<File[]>
+}
+
+export type InputHTMLAttributes<T extends HTMLElement> =
+  | TextInputHTMLAttributes<T>
+  | CheckboxInputHTMLAttributes<T>
+  | FileInputHTMLAttributes<T>
 
 export interface LabelHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   form?: Signalish<string | EmptyValue>
@@ -550,17 +616,43 @@ export interface ScriptHTMLAttributes<T extends HTMLElement> extends HTMLAttribu
   type?: Signalish<string | EmptyValue>
 }
 
-export interface SelectHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
+interface SelectHTMLAttributesBase<T extends HTMLElement> extends HTMLAttributes<T> {
   autoComplete?: Signalish<string | EmptyValue>
   disabled?: Signalish<boolean | EmptyValue>
   form?: Signalish<string | EmptyValue>
-  multiple?: Signalish<boolean | EmptyValue>
   name?: Signalish<string | EmptyValue>
   required?: Signalish<boolean | EmptyValue>
   size?: Signalish<number | EmptyValue>
-  value?: Signalish<string | readonly string[] | number | EmptyValue>
   onChange?: ChangeEventHandler<T> | undefined
 }
+
+/**
+ * A select with one selected option: `value` is its value
+ */
+export interface SingleSelectHTMLAttributes<T extends HTMLElement> extends SelectHTMLAttributesBase<T> {
+  multiple?: false | EmptyValue
+  /**
+   * The value of the selected option: a plain value is set once, an accessor is followed, and a
+   * writable signal also receives the user's choice. The options follow it, the ones built later
+   * included
+   */
+  value?: Signalish<string | EmptyValue>
+}
+
+/**
+ * A select with any number of selected options: `value` lists their values
+ */
+export interface MultipleSelectHTMLAttributes<T extends HTMLElement> extends SelectHTMLAttributesBase<T> {
+  /**
+   * Whether more than one option may be selected. It decides the shape of `value`, so it is static
+   */
+  multiple: true
+  value?: Signalish<readonly string[] | EmptyValue>
+}
+
+export type SelectHTMLAttributes<T extends HTMLElement> =
+  | SingleSelectHTMLAttributes<T>
+  | MultipleSelectHTMLAttributes<T>
 
 export interface SourceHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   height?: Signalish<number | string | EmptyValue>
@@ -616,7 +708,11 @@ export interface TextareaHTMLAttributes<T extends HTMLElement> extends HTMLAttri
   readOnly?: Signalish<boolean | EmptyValue>
   required?: Signalish<boolean | EmptyValue>
   rows?: Signalish<number | EmptyValue>
-  value?: Signalish<string | readonly string[] | number | EmptyValue>
+  /**
+   * The value of the control, set through the DOM property: a plain value is set once, an accessor
+   * is followed, and a writable signal also receives what the user types
+   */
+  value?: Signalish<string | EmptyValue>
   wrap?: Signalish<string | EmptyValue>
 
   onChange?: ChangeEventHandler<T> | undefined
@@ -683,10 +779,19 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   method?: Signalish<string | EmptyValue>
   min?: Signalish<number | string | EmptyValue>
   name?: Signalish<string | EmptyValue>
-  style?: Signalish<string | EmptyValue>
+  /**
+   * A style string, or an object of camelCased properties, each a static value or an accessor to follow
+   */
+  style?: Signalish<string | EmptyValue> | StyleProps
   target?: Signalish<string | EmptyValue>
   type?: Signalish<string | EmptyValue>
   width?: Signalish<number | string | EmptyValue>
+
+  // Element binding
+  /**
+   * A signal that holds the element from its build to its unmount, then `null`
+   */
+  ref?: ElementRef<T, SVGElement>
 
   // Other HTML properties supported by SVG elements in browsers
   role?: Signalish<AriaRole | EmptyValue>

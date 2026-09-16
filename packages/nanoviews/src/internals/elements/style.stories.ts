@@ -2,13 +2,12 @@ import type {
   Meta,
   StoryObj
 } from '@nanoviews/storybook'
-import { div } from './elements.js'
-import { style$ } from './style.js'
+import { div } from '../../elements/elements.js'
 
 const meta: Meta<{
   color: string
 }> = {
-  title: 'Elements/Effect Attributes/Style'
+  title: 'Internals/Elements/Style'
 }
 
 export default meta
@@ -19,7 +18,7 @@ export const StaticValue: Story = {
   render() {
     return (
       div({
-        [style$]: {
+        style: {
           color: 'green'
         }
       })(
@@ -36,7 +35,7 @@ export const ReactiveValue: Story = {
   render({ color }) {
     return (
       div({
-        [style$]: {
+        style: {
           color
         }
       })(
@@ -53,7 +52,7 @@ export const CustomProperty: Story = {
   render({ color }) {
     return (
       div({
-        [style$]: {
+        style: {
           '--accent': color,
           '--gap': '4px'
         }
@@ -71,7 +70,7 @@ export const MultiWordValue: Story = {
   render({ color }) {
     return (
       div({
-        [style$]: {
+        style: {
           backgroundColor: color,
           fontSize: '12px'
         }

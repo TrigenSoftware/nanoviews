@@ -1,4 +1,7 @@
-import type { Signalish } from 'kida'
+import type {
+  Signalish,
+  WritableSignal
+} from 'kida'
 import type { EmptyValue } from '../common.js'
 
 /**
@@ -17,3 +20,13 @@ export type CrossOrigin = 'anonymous' | 'use-credentials' | '' | EmptyValue
  * truthy strings with spaces, drops the rest, and joins a nested list in place.
  */
 export type ClassValue = Signalish<string | boolean | 0 | EmptyValue | readonly ClassValue[]>
+
+/**
+ * A `ref` value: a signal that holds the element from its build to its
+ * unmount, then `null`. A signal is invariant, so it may be declared with the
+ * element's own type, the type of its tree, or `Element`.
+ */
+export type ElementRef<T, Tree> =
+  | WritableSignal<T | null>
+  | WritableSignal<Tree | null>
+  | WritableSignal<Element | null>

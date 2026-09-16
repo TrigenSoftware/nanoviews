@@ -7,13 +7,14 @@ import {
   signal,
   effectScope
 } from 'kida'
-import { setAttributes } from './attributes.js'
+import { setAttributes } from '../internals/index.js'
+import { setAttribute } from './attributes.js'
 
 // A reactive attribute is an effect, and an effect belongs to a scope
 function createElement(attributes: object) {
   const element = document.createElementNS('http://www.w3.org/2000/svg', 'path')
 
-  effectScope(() => setAttributes(element, attributes))
+  effectScope(() => setAttributes(element, attributes, setAttribute))
 
   return element
 }

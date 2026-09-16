@@ -1,15 +1,4 @@
-import {
-  type PrimitiveAttributeValue,
-  type TargetEventHandler,
-  effectAttributes,
-  isEventHandler,
-  setEventListener,
-  setAttribute
-} from '../internals/index.js'
-
-type AttributeValue = PrimitiveAttributeValue | TargetEventHandler
-
-type Attributes = Record<string, AttributeValue>
+import { setAttribute as setElementAttribute } from '../internals/index.js'
 
 // The props are camelCase throughout, the React way, while SVG spells its
 // presentation attributes like the CSS properties they are, `stroke-width`,
@@ -30,21 +19,11 @@ function toAttributeName(name: string) {
 }
 
 /**
- * Set reactive attributes to SVG element
+ * Set an attribute of an SVG element under its SVG name
  * @param element - Target element
- * @param attributes - Target attributes
+ * @param name - Attribute name, camelCased
+ * @param value - Attribute value
  */
-export function setAttributes<A extends object>(element: Element, attributes: A) {
-  for (const key in attributes) {
-    const value = (attributes as Attributes)[key]
-    const tEffectAttr = effectAttributes?.get(key)
-
-    if (tEffectAttr !== undefined) {
-      tEffectAttr(element, value, attributes as Attributes)
-    } else if (isEventHandler(key, value)) {
-      setEventListener(element, key, value)
-    } else {
-      setAttribute(element, attributeNames[key] ??= toAttributeName(key), value)
-    }
-  }
+export function setAttribute(element: Element, name: string, value: unknown) {
+  setElementAttribute(element, attributeNames[name] ??= toAttributeName(name), value)
 }
