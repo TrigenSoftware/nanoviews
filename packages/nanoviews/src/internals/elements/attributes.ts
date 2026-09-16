@@ -5,11 +5,13 @@ import {
   untracked
 } from 'kida'
 import type {
+  ClassValue,
   PrimitiveAttributeValue,
   TargetEventHandler
 } from '../types/index.js'
 import { isEmpty } from '../utils.js'
 import { effectAttributes } from './effectAttribute.js'
+import { cx } from './classList.js'
 
 type AttributeValue = PrimitiveAttributeValue | TargetEventHandler
 
@@ -22,7 +24,14 @@ function isEmptyAttribute(name: string, value: unknown) {
   return isEmpty(value) || value === false && !/^(?:aria-|data-|draggable$|contentEditable$|spellCheck$)/.test(name)
 }
 
-export function setAttribute(element: Element, name: string, $value: PrimitiveAttributeValue) {
+export function setAttribute(element: Element, name: string, $value: PrimitiveAttributeValue | readonly ClassValue[]) {
+  // A class may come as a list of parts, joined by an accessor that follows
+  // them. The name goes first: comparing it is cheaper, and it is not `class`
+  // for almost every attribute
+  if (name === 'class' && Array.isArray($value)) {
+    $value = cx($value as readonly ClassValue[])
+  }
+
   // A static attribute is the common case: apply it without building the
   // setter closures a reactive binding needs
   if (isAccessor($value)) {

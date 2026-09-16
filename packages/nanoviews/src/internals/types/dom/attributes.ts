@@ -3,6 +3,7 @@ import type { Signalish } from 'kida'
 import type { EmptyValue } from '../common.js'
 import type {
   Booleanish,
+  ClassValue,
   CrossOrigin
 } from './common.js'
 import type {
@@ -31,7 +32,7 @@ export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, D
   // Standard HTML Attributes
   accessKey?: Signalish<string | EmptyValue>
   autoFocus?: Signalish<boolean | EmptyValue>
-  class?: Signalish<string | EmptyValue>
+  class?: ClassValue
   contentEditable?: Signalish<Booleanish | 'inherit' | 'plaintext-only' | EmptyValue>
   dir?: Signalish<string | EmptyValue>
   draggable?: Signalish<Booleanish | EmptyValue>
@@ -672,7 +673,7 @@ export interface VideoHTMLAttributes<T extends HTMLElement> extends MediaHTMLAtt
 export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAttributes<T> {
   // Attributes which also defined in HTMLAttributes
   // See comment in SVGDOMPropertyConfig.js
-  class?: Signalish<string | EmptyValue>
+  class?: ClassValue
   color?: Signalish<string | EmptyValue>
   height?: Signalish<number | string | EmptyValue>
   id?: Signalish<string | EmptyValue>

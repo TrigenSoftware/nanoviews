@@ -69,7 +69,7 @@ p({ class: 'note', title: () => `${$count()} items`, hidden: $done })(
 - Attribute names follow the type definitions: HTML spelling for single words (`class`, `for`, `hidden`), camelCase for multi-word names (`tabIndex`, `readOnly`, `autoComplete`; lowercase `tabindex` is a type error), quoted dashed names (`'aria-expanded'`, `'data-id'`; `data-*` is typed on HTML elements only).
 - Attribute values are static or accessors. `null`, `undefined` and `false` remove the attribute, so `disabled: $busy` toggles like in React. `aria-*`, `data-*`, `draggable`, `contentEditable` and `spellCheck` are the exception: `false` is written as the string `"false"`, so pass a boolean signal or accessor to them directly (a `string` accessor is rejected on `aria-*`).
 - Attributes go through `setAttribute`, so `value`, `checked` and `selected` are initial values only. Live form state goes through `value$`, `checked$`, `selected$` (below).
-- `class` and `classList$` both write the class attribute (the later key wins); a `style` string replaces `style$` properties set before it. Use one of each pair per element.
+- `class` takes a string, an accessor or a list: `class: ['btn', () => $active() && 'btn_active']` joins the truthy strings and drops the rest, nested lists included, so a component folds the `class` it received into its own with `class: ['card', $class]`. The list is read once at build; the class changes through the accessors in it. `classList(...parts)` builds the same accessor away from an element. A `style` string replaces `style$` properties set before it, so use one of the two per element.
 - Events: `on` + PascalCase DOM event name (`onClick`, `onInput`, `onKeyDown`, `onDblClick`, `onPointerDown`), `Capture` suffix for the capture phase. The handler gets the native event with a typed `target`; reads inside are untracked and writes are not batched. A writable signal given as a handler receives the event.
 - `fragment(...children)` describes a `DocumentFragment`, which empties into the parent on insertion. `mount(app, target)` builds the tree `app` returns and returns the unmount function, which stops effects and removes the nodes.
 - Factories share names with globals: `style` and `slot` are elements (`style$` is the helper), `title`, `map`, `data`, `object` exist too; `var` is imported as `{ var as htmlVar }`. Alias on collision.
@@ -89,7 +89,7 @@ svg({ viewBox: '0 0 24 24', width: 24, height: 24 })(
 
 - Every SVG tag is a factory in `nanoviews/svg` with the same call shape, created in the SVG namespace; `nanoviews` itself has no SVG factories. Shapes and leaves (`circle`, `rect`, `path`, `line`, `ellipse`, `polygon`, `polyline`, `image`, `use`, `animate`, `animateMotion`, `animateTransform`, `set`, `mpath`) are void: one call, no children. HTML inside `foreignObject` comes from `nanoviews`.
 - Attribute names are camelCase as in React: `viewBox`, `preserveAspectRatio`, `strokeWidth`, `fillOpacity`, `textAnchor`, `tabIndex`. Presentation attributes reach the DOM hyphenated (`stroke-width`), the rest keep their SVG spelling; a dashed key like `'stroke-width'` is a type error. `href` replaces `xlinkHref`; the SVG 1.1 font, glyph and color-profile attributes are not typed.
-- `a`, `title`, `style` and `script` exist in both entries, and `switch` is imported as `{ switch as svgSwitch }`; alias on collision. `ref$`, `style$`, `autoFocus$` and `classList$` work on SVG elements.
+- `a`, `title`, `style` and `script` exist in both entries, and `switch` is imported as `{ switch as svgSwitch }`; alias on collision. `ref$`, `style$` and `autoFocus$` work on SVG elements, and so does a `class` list.
 - `Attributes<'circle'>`, `ElementName` and the factory types come from `nanoviews/svg` under the same names as the HTML ones in `nanoviews`.
 
 ## Reactivity (`nanoviews/store`)
@@ -116,20 +116,22 @@ const [$post, $error, $pending] = resolved(() => fetchPost($id())) // async: sta
 
 ```ts
 import type { Signalish } from 'nanoviews/store'
-import { button, effect$, component$, props$, classList$ } from 'nanoviews'
+import type { ClassValue } from 'nanoviews'
+import { button, effect$, component$, props$ } from 'nanoviews'
 
 interface ButtonProps {
   label: Signalish<string>
   size?: Signalish<'s' | 'm'>
+  class?: ClassValue
   onSelect?: () => void
 }
 
 const Button = component$((props: ButtonProps, children) => {
-  const { $label, $size = () => 'm', onSelect, ...rest } = props$(props)
+  const { $label, $size = () => 'm', $class, onSelect, ...rest } = props$(props)
 
   effect$(() => () => console.log('unmounted')) // effect with no reads: mount/unmount hook
 
-  return button({ [classList$]: ['btn', () => `btn_${$size()}`], onClick: onSelect, ...rest })($label, ...children)
+  return button({ class: ['btn', () => `btn_${$size()}`, $class], onClick: onSelect, ...rest })($label, ...children)
 })
 
 Button({ label: 'Send' })          // props only
@@ -180,7 +182,7 @@ form({ onSubmit: event => { event.preventDefault(); save($name()) } })(
 
 - `value$` (text inputs, textarea; `input` event), `checked$` (checkbox, radio; `change`; `Indeterminate` symbol for the third state), `selected$` (select; a `string[]` signal makes it multiple; `change`) are two-way and need a `WritableSignal` typed exactly `string` or `boolean`: a literal-union signal is rejected. Keep it `string` and narrow where read, or cast a `record` field (`$task.$status as WritableSignal<string>`). Put `[value$]` before an `onInput` key that reads the signal. `files$` is DOM-to-signal only (`File[]`).
 - `ref$`: a `signal<HTMLInputElement | null>(null)` holds the element from build to unmount, then `null`. Use it in an effect or a handler.
-- `style$`: `{ backgroundColor: $color, fontSize: '12px', '--gap': '4px' }`, camelCase keys, units spelled out; typed for `HTMLElement` and `SVGElement`. `classList$` parts may be falsy and are dropped: `['btn', () => $active() && 'btn_active']`. `autoFocus$`: `true` focuses on mount; pass a plain boolean only (an accessor counts as true); dynamic focus goes through `ref$`.
+- `style$`: `{ backgroundColor: $color, fontSize: '12px', '--gap': '4px' }`, camelCase keys, units spelled out; typed for `HTMLElement` and `SVGElement`. `autoFocus$`: `true` focuses on mount; pass a plain boolean only (an accessor counts as true); dynamic focus goes through `ref$`.
 - Own attributes: see "Custom effect attributes" below.
 
 ## Differences from React, Solid and Svelte
@@ -251,7 +253,7 @@ div({ [title$]: $title })('text') // $title: a placeholder signal
 - The value type may depend on the element: `onMounted$: (el: Target) => void` is a valid declaration.
 - Ids are global; pick a unique `name$` so it never shadows a built-in.
 - The third callback argument is the whole attributes object of the element.
-- Built-in bindings (`style$`, `classList$`, text, attributes) apply their first value synchronously through an internal non-deferred effect; a custom attribute should use `effect$`, which runs after mount and pauses while a `show_` is hidden. The store `effect` runs at build time, like the built-in bindings, and keeps running while hidden.
+- Built-in bindings (`style$`, text, attributes) apply their first value synchronously through an internal non-deferred effect; a custom attribute should use `effect$`, which runs after mount and pauses while a `show_` is hidden. The store `effect` runs at build time, like the built-in bindings, and keeps running while hidden.
 
 ## Raw HTML, shadow DOM, portals
 
@@ -315,7 +317,7 @@ isolate$(context$(provide(Theme$, $inner))(Settings()))     // fresh tree, inher
 - A signal-driven `if_`, `swap_`, `match_`/`switch_` branch or `for_` row is its own scope and its effects start before the effects of the scope that contains it, innermost first. `show_` is the exception: its content effects are started by the toggle effect, in the containing scope's creation order. A block with a static condition is rendered inline and has no scope of its own.
 - Effects in the same scope start in creation order. A `component$` child renders when the parent's returned tree is built, after the parent's render has finished, so every effect of the parent's render precedes the effects of its component children; a plain function child runs, and creates its effects, where it is called.
 - On a swap the old branch's cleanups run while its DOM is still attached, the DOM is removed, the new branch is rendered, then its effects start. Removed rows are destroyed before new rows start.
-- Under a hidden `show_`, `effect$` effects have run their cleanup and re-run on show with `warmup === true` again; text, attribute, `style$` and `classList$` bindings keep updating the parked DOM.
+- Under a hidden `show_`, `effect$` effects have run their cleanup and re-run on show with `warmup === true` again; text, attribute and `style$` bindings keep updating the parked DOM.
 - Writes made during render and during unmount are batched by `mount`. Writes made inside a running effect are queued onto the flush already running, so they land together; a `batch` there flushes nothing either. Everywhere else (handlers, timers, promise callbacks) every write flushes on its own; wrap several in `batch`.
 - Do not depend on a parent effect having run when a child effect runs; communicate through signals.
 

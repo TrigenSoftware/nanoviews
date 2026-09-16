@@ -196,6 +196,36 @@ const icon = svg({ viewBox: '0 0 24 24', width: 24, height: 24 })(
 
 HTML inside `foreignObject` comes from `nanoviews`. `a`, `title`, `style` and `script` exist in both entry points, so alias one of them in a module that imports both.
 
+### Classes
+
+`class` takes a string, an accessor, or a list of parts. A list joins every truthy string with a space and drops everything else. A part can be an accessor, and the class follows it.
+
+```js
+import { signal } from 'nanoviews/store'
+import { button } from 'nanoviews'
+
+const $primary = signal(true)
+
+button({
+  class: ['button', () => $primary() && 'primary']
+})(
+  'Click me'
+)
+// <button class="button primary">Click me</button>
+```
+
+A list may hold another list, so a component folds the `class` it received into its own, as the [`props$`](#props) example does. The list itself is read once, when the element is built: the class changes through the accessors in it. Lists work the same way on the SVG elements from `nanoviews/svg`.
+
+`classList` builds the same accessor away from an element:
+
+```js
+import { classList } from 'nanoviews'
+
+const $class = classList('button', () => $primary() && 'primary')
+
+$class() // 'button primary'
+```
+
 ## Effect attributes
 
 Effect attributes are special attributes that can control element's behavior.
@@ -236,29 +266,6 @@ button({
   'Click me'
 )
 ```
-
-### classList$
-
-`classList$` is an effect attribute that manages the class list of the element. It accepts an array of parts: every truthy string is joined with spaces into the `class` attribute, everything else is dropped.
-
-```js
-import { signal } from 'nanoviews/store'
-import { button, classList$ } from 'nanoviews'
-
-const $primary = signal(true)
-
-button({
-  [classList$]: [
-    'button',
-    () => $primary() && 'primary'
-  ]
-})(
-  'Click me'
-)
-// <button class="button primary">Click me</button>
-```
-
-Parts can be static or reactive. `classList$` writes the whole `class` attribute, so use either `class` or `classList$` on an element, not both. It works the same way on the SVG elements from `nanoviews/svg`.
 
 ### autoFocus$
 
@@ -451,10 +458,11 @@ const MyComponent = component$(() => (
 A prop read as `$title` leaves the rest, so `...restProps` carries exactly the props the component did not take, in the form they arrived in, straight onto an element:
 
 ```js
-import { button, component$, props$, classList$ } from 'nanoviews'
+import { button, component$, props$ } from 'nanoviews'
 
 const Button = component$((props) => {
   const {
+    $class,
     $size = () => 'm',
     ...restProps
   } = props$(props)
@@ -462,18 +470,15 @@ const Button = component$((props) => {
   return (
     button({
       ...restProps,
-      [classList$]: [
-        'button',
-        () => `button_${$size()}`
-      ]
+      class: ['button', () => `button_${$size()}`, $class]
     })(
       'Send'
     )
   )
 })
 
-Button({ title: 'Send it', size: 's', id: 'send' })
-// <button title="Send it" id="send" class="button button_s">Send</button>
+Button({ title: 'Send it', size: 's', id: 'send', class: 'wide' })
+// <button title="Send it" id="send" class="button button_s wide">Send</button>
 ```
 
 ### effect$
@@ -544,7 +549,7 @@ MyComponent({ class: 'my' })('Hello, Nanoviews!') // <div class="my">My componen
 
 ```ts
 import type { Attributes } from 'nanoviews'
-import { button, component$, props$, classList$ } from 'nanoviews'
+import { button, component$, props$ } from 'nanoviews'
 
 interface ButtonProps extends Attributes<'button'> {
   size?: 's' | 'm'
@@ -552,6 +557,7 @@ interface ButtonProps extends Attributes<'button'> {
 
 const Button = component$((props: ButtonProps, children) => {
   const {
+    $class,
     $size = () => 'm',
     ...restProps
   } = props$(props)
@@ -559,10 +565,7 @@ const Button = component$((props: ButtonProps, children) => {
   return (
     button({
       ...restProps,
-      [classList$]: [
-        'button',
-        () => `button_${$size()}`
-      ]
+      class: ['button', () => `button_${$size()}`, $class]
     })(
       ...children
     )

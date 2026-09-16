@@ -15,7 +15,6 @@ import {
   effect
 } from 'kida'
 import { button } from '../elements/elements.js'
-import { classList$ } from '../elements/classList.js'
 import { props$ } from './props.js'
 import * as Stories from './props.stories.js'
 
@@ -24,6 +23,7 @@ interface ButtonProps {
   size?: Signalish<'s' | 'm' | 'l'>
   onSelect: (event: Event) => void
   id?: string
+  class?: string
 }
 
 describe('nanoviews', () => {
@@ -201,15 +201,17 @@ describe('nanoviews', () => {
       it('should carry the rest into an element', () => {
         function Button(props: ButtonProps) {
           const {
+            $class,
             $size,
             ...restProps
           } = props$(props)
 
           return button({
             ...restProps,
-            [classList$]: [
+            class: [
               'button',
-              () => `button_${$size?.() ?? 'm'}`
+              () => `button_${$size?.() ?? 'm'}`,
+              $class
             ]
           })('Send')
         }
@@ -219,14 +221,15 @@ describe('nanoviews', () => {
           title: 'Send it',
           size: $size,
           onSelect: () => {},
-          id: 'send'
+          id: 'send',
+          class: 'wide'
         }))
 
-        expect(container.innerHTML).toBe('<div><button title="Send it" id="send" class="button button_s">Send</button></div>')
+        expect(container.innerHTML).toBe('<div><button title="Send it" id="send" class="button button_s wide">Send</button></div>')
 
         $size('l')
 
-        expect(container.innerHTML).toBe('<div><button title="Send it" id="send" class="button button_l">Send</button></div>')
+        expect(container.innerHTML).toBe('<div><button title="Send it" id="send" class="button button_l wide">Send</button></div>')
       })
 
       describe('stories', () => {

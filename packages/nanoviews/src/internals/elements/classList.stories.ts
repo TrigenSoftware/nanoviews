@@ -6,11 +6,10 @@ import { when } from 'kida'
 import {
   button,
   div
-} from './elements.js'
-import { classList$ } from './classList.js'
+} from '../../elements/elements.js'
 
 const meta: Meta = {
-  title: 'Elements/Effect Attributes/Class List'
+  title: 'Internals/Elements/Class List'
 }
 
 export default meta
@@ -21,7 +20,7 @@ export const StaticValue: Story = {
   render() {
     return (
       div({
-        [classList$]: [
+        class: [
           'class1',
           false,
           'class3'
@@ -52,7 +51,7 @@ export const ReactiveValue: StoryObj<{
   render({ primary, rounded }) {
     return (
       button({
-        [classList$]: [
+        class: [
           'button',
           when(primary, 'primary', 'regular'),
           when(rounded, 'rounded')

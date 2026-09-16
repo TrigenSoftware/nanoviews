@@ -1,3 +1,4 @@
+import type { Signalish } from 'kida'
 import type { EmptyValue } from '../common.js'
 
 /**
@@ -10,3 +11,9 @@ export type Booleanish = boolean | 'true' | 'false'
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/crossorigin MDN}
  */
 export type CrossOrigin = 'anonymous' | 'use-credentials' | '' | EmptyValue
+
+/**
+ * A `class` value: a string, an accessor, or a list of parts. A list joins its
+ * truthy strings with spaces, drops the rest, and joins a nested list in place.
+ */
+export type ClassValue = Signalish<string | boolean | 0 | EmptyValue | readonly ClassValue[]>
