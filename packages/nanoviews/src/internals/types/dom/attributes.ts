@@ -4,7 +4,8 @@ import type { EmptyValue } from '../common.js'
 import type {
   Booleanish,
   ClassValue,
-  CrossOrigin
+  CrossOrigin,
+  ElementRef
 } from './common.js'
 import type {
   AriaRole,
@@ -15,6 +16,15 @@ import type {
   ChangeEventHandler,
   PictureInPictureEventHandler
 } from './events.js'
+
+export type AttributeRecord = Record<string, unknown>
+
+export type AttributeSetter<E extends Element> = (
+  element: E,
+  name: string,
+  value: unknown,
+  attributes: AttributeRecord
+) => void
 
 export interface CSSProperties extends CSS.Properties<string | number> {
   /**
@@ -28,9 +38,18 @@ export interface CSSProperties extends CSS.Properties<string | number> {
   [name: `--${string}`]: string | number | undefined
 }
 
+/**
+ * A `style` value: an object of camelCased CSS properties, or an accessor of
+ * one to follow. A property the new object no longer names is dropped.
+ */
+export type StyleValue = Signalish<CSSProperties | EmptyValue>
+
 export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, DOMAttributes<T> {
   // Standard HTML Attributes
   accessKey?: Signalish<string | EmptyValue>
+  /**
+   * Focus the element once it is in the document. Read once, when the element is built
+   */
   autoFocus?: Signalish<boolean | EmptyValue>
   class?: ClassValue
   contentEditable?: Signalish<Booleanish | 'inherit' | 'plaintext-only' | EmptyValue>
@@ -42,10 +61,19 @@ export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, D
   nonce?: Signalish<string | EmptyValue>
   slot?: Signalish<string | EmptyValue>
   spellCheck?: Signalish<Booleanish | EmptyValue>
-  style?: Signalish<string | EmptyValue>
+  /**
+   * Style properties, camelCased, or an accessor of them to follow
+   */
+  style?: StyleValue
   tabIndex?: Signalish<number | EmptyValue>
   title?: Signalish<string | EmptyValue>
   translate?: Signalish<'yes' | 'no' | EmptyValue>
+
+  // Element binding
+  /**
+   * A signal that holds the element from its build to its unmount, then `null`
+   */
+  ref?: ElementRef<T>
 
   // WAI-ARIA
   role?: Signalish<AriaRole | EmptyValue>
@@ -386,7 +414,22 @@ export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
   alt?: Signalish<string | EmptyValue>
   autoComplete?: Signalish<HTMLInputAutoCompleteAttribute | EmptyValue>
   capture?: Signalish<boolean | 'user' | 'environment' | EmptyValue> // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
-  checked?: Signalish<boolean | EmptyValue>
+  /**
+   * Whether the control is checked, set through the DOM property: a plain value is set once, an
+   * accessor is followed, and a writable signal also receives what the user picks. The
+   * `Indeterminate` symbol is the third state of a checkbox
+   */
+  checked?: Signalish<boolean | symbol | EmptyValue>
+  /**
+   * The initial check of the control, what a form reset returns it to. Set through the DOM property,
+   * one way
+   */
+  defaultChecked?: Signalish<boolean | EmptyValue>
+  /**
+   * The initial value of the control, what a form reset returns it to. Set through the DOM property,
+   * one way
+   */
+  defaultValue?: Signalish<string | EmptyValue>
   dirName?: Signalish<string | EmptyValue>
   disabled?: Signalish<boolean | EmptyValue>
   form?: Signalish<string | EmptyValue>
@@ -414,6 +457,10 @@ export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
   src?: Signalish<string | EmptyValue>
   step?: Signalish<number | string | EmptyValue>
   type?: Signalish<HTMLInputTypeAttribute | EmptyValue>
+  /**
+   * The value of the control, set through the DOM property: a plain value is set once, an accessor
+   * is followed, and a writable signal also receives what the user types
+   */
   value?: Signalish<string | readonly string[] | number | EmptyValue>
   width?: Signalish<number | string | EmptyValue>
 
@@ -558,7 +605,16 @@ export interface SelectHTMLAttributes<T extends HTMLElement> extends HTMLAttribu
   name?: Signalish<string | EmptyValue>
   required?: Signalish<boolean | EmptyValue>
   size?: Signalish<number | EmptyValue>
-  value?: Signalish<string | readonly string[] | number | EmptyValue>
+  /**
+   * The value of the selected option, or the list of them under `multiple`: a plain value is set
+   * once, an accessor is followed, and a writable signal also receives the user's choice. The
+   * options follow it, the ones built later included
+   */
+  value?: Signalish<string | readonly string[] | EmptyValue>
+  /**
+   * The initial selection, what a form reset returns it to. One way
+   */
+  defaultValue?: Signalish<string | readonly string[] | EmptyValue>
   onChange?: ChangeEventHandler<T> | undefined
 }
 
@@ -606,6 +662,11 @@ export interface TemplateHTMLAttributes<T extends HTMLElement> extends HTMLAttri
 export interface TextareaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   autoComplete?: Signalish<string | EmptyValue>
   cols?: Signalish<number | EmptyValue>
+  /**
+   * The initial text of the control, what a form reset returns it to. Set through the DOM property,
+   * one way
+   */
+  defaultValue?: Signalish<string | EmptyValue>
   dirName?: Signalish<string | EmptyValue>
   disabled?: Signalish<boolean | EmptyValue>
   form?: Signalish<string | EmptyValue>
@@ -616,6 +677,10 @@ export interface TextareaHTMLAttributes<T extends HTMLElement> extends HTMLAttri
   readOnly?: Signalish<boolean | EmptyValue>
   required?: Signalish<boolean | EmptyValue>
   rows?: Signalish<number | EmptyValue>
+  /**
+   * The text of the control, set through the DOM property: a plain value is set once, an accessor
+   * is followed, and a writable signal also receives what the user types
+   */
   value?: Signalish<string | readonly string[] | number | EmptyValue>
   wrap?: Signalish<string | EmptyValue>
 
@@ -683,12 +748,26 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
   method?: Signalish<string | EmptyValue>
   min?: Signalish<number | string | EmptyValue>
   name?: Signalish<string | EmptyValue>
-  style?: Signalish<string | EmptyValue>
+  /**
+   * Style properties, camelCased, or an accessor of them to follow
+   */
+  style?: StyleValue
   target?: Signalish<string | EmptyValue>
   type?: Signalish<string | EmptyValue>
   width?: Signalish<number | string | EmptyValue>
 
+  // Element binding
+  /**
+   * A signal that holds the element from its build to its unmount, then `null`
+   */
+  ref?: ElementRef<T>
+
   // Other HTML properties supported by SVG elements in browsers
+  /**
+   * Focus the element once it is in the document, the way `tabIndex` lets it be. Read once, when
+   * the element is built
+   */
+  autoFocus?: Signalish<boolean | EmptyValue>
   role?: Signalish<AriaRole | EmptyValue>
   tabIndex?: Signalish<number | EmptyValue>
   crossOrigin?: Signalish<CrossOrigin>

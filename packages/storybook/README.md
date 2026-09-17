@@ -155,15 +155,12 @@ import type {
   Meta,
   StoryObj
 } from '@nanoviews/storybook'
-import {
-  div,
-  style$
-} from 'nanoviews'
+import { div } from 'nanoviews'
 
 const meta: Meta<{
   color: string
 }> = {
-  title: 'Elements/Effect Attributes/Style'
+  title: 'Elements/Style'
 }
 
 export default meta
@@ -174,7 +171,7 @@ export const StaticValue: Story = {
   render() {
     return (
       div({
-        [style$]: {
+        style: {
           color: 'green'
         }
       })(
@@ -192,9 +189,9 @@ export const ReactiveValue: Story = {
   render({ color }) {
     return (
       div({
-        [style$]: {
-          color
-        }
+        style: () => ({
+          color: color()
+        })
       })(
         'Hello, world!'
       )
@@ -260,7 +257,7 @@ const {
   ReactiveValue
 } = composeStories(Stories)
 
-describe('style$', () => {
+describe('style', () => {
   it('should render static value', () => {
     const { container } = render(StaticValue())
 

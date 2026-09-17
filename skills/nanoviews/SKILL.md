@@ -1,6 +1,6 @@
 ---
 name: nanoviews
-description: "Rules for writing user interfaces with nanoviews, a tiny Direct DOM view library on kida signals: the element call shape `div({ attrs })(...children)`, signals and accessors as the only reactive values, components with `component$` and `props$`, blocks (`if_`, `show_`, `for_`, `match_`, `switch_`), form bindings (`value$`, `checked$`, `selected$`), effects, slots, custom effect attributes, dependency injection and the kida store API. Apply when creating or editing components, views, forms, lists, stores wired into views or custom effect attributes in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. Tests and stories have their own skills, nanoviews-testing and nanoviews-storybook."
+description: "Rules for writing user interfaces with nanoviews, a tiny Direct DOM view library on kida signals: the element call shape `div({ attrs })(...children)`, signals and accessors as the only reactive values, components with `component$` and `props$`, blocks (`if_`, `show_`, `for_`, `match_`, `switch_`), form bindings (`value`, `checked`, `defaultValue`), effects, slots, dependency injection and the kida store API. Apply when creating or editing components, views, forms, lists or stores wired into views in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. Tests and stories have their own skills, nanoviews-testing and nanoviews-storybook."
 license: MIT
 compatibility:
   - Claude Code
@@ -51,7 +51,7 @@ const unmount = mount(Counter, document.querySelector('#app')!)
 - A reactive value is an *accessor*: a signal `$x` or an arrow `() => ...`. Pass it to bind, call it to read now. Every function child or non-`on*` attribute is treated as an accessor and tracked.
 - A static value renders once; anything that must change later has to be a signal or an accessor. Ternaries and `.map()` run once at build time; reactive conditions and lists need blocks.
 - No hooks, no dependency arrays, no re-render: `effect$` can go anywhere in the build, once.
-- Naming: signals and accessors `$name`; helpers and effect attributes end with `$` where a plain name would shadow a common one (`component$`, `context$`, `props$`, `value$`); flow blocks end with `_` (`if_`, `for_`); injectable factories `Name$`.
+- Naming: signals and accessors `$name`; helpers end with `$` where a plain name would shadow a common one (`component$`, `context$`, `props$`, `effect$`); flow blocks end with `_` (`if_`, `for_`); injectable factories `Name$`.
 
 ## Elements, children, attributes, events
 
@@ -68,11 +68,13 @@ p({ class: 'note', title: () => `${$count()} items`, hidden: $done })(
 - Call components: `div()(Counter())`. An uncalled component is a type error (untyped, it would be read as an accessor and its return stringified). A description inserted twice is built twice; build it by hand and insert the node to share it.
 - Attribute names follow the type definitions: HTML spelling for single words (`class`, `for`, `hidden`), camelCase for multi-word names (`tabIndex`, `readOnly`, `autoComplete`; lowercase `tabindex` is a type error), quoted dashed names (`'aria-expanded'`, `'data-id'`; `data-*` is typed on HTML elements only).
 - Attribute values are static or accessors. `null`, `undefined` and `false` remove the attribute, so `disabled: $busy` toggles like in React. `aria-*`, `data-*`, `draggable`, `contentEditable` and `spellCheck` are the exception: `false` is written as the string `"false"`, so pass a boolean signal or accessor to them directly (a `string` accessor is rejected on `aria-*`).
-- Attributes go through `setAttribute`, so `value`, `checked` and `selected` are initial values only. Live form state goes through `value$`, `checked$`, `selected$` (below).
-- `class` takes a string, an accessor or a list: `class: ['btn', () => $active() && 'btn_active']` joins the truthy strings and drops the rest, nested lists included, so a component folds the `class` it received into its own with `class: ['card', $class]`. The list is read once at build; the class changes through the accessors in it. `classList(...parts)` builds the same accessor away from an element. A `style` string replaces `style$` properties set before it, so use one of the two per element.
+- `value` and `checked` of a control, and `value` of a `select`, are its live state, bound through the DOM properties (see "Forms"); every other attribute goes through `setAttribute`.
+- `class` takes a string, an accessor or a list: `class: ['btn', () => $active() && 'btn_active']` joins the truthy strings and drops the rest, nested lists included, so a component folds the `class` it received into its own with `class: ['card', $class]`. The list is read once at build; the class changes through the accessors in it. `classList(...parts)` builds the same accessor away from an element.
+- `style` takes an object of camelCased properties, or an accessor of one: `style: () => ({ color: $color(), '--gap': '4px' })`. A property the next object no longer names is dropped. No style strings.
+- `ref: $element` or `ref: element => ...` receives the element on build and `null` on unmount. `autoFocus: true` focuses the element once it is in the document.
 - Events: `on` + PascalCase DOM event name (`onClick`, `onInput`, `onKeyDown`, `onDblClick`, `onPointerDown`), `Capture` suffix for the capture phase. The handler gets the native event with a typed `target`; reads inside are untracked and writes are not batched. A writable signal given as a handler receives the event.
 - `fragment(...children)` describes a `DocumentFragment`, which empties into the parent on insertion. `mount(app, target)` builds the tree `app` returns and returns the unmount function, which stops effects and removes the nodes.
-- Factories share names with globals: `style` and `slot` are elements (`style$` is the helper), `title`, `map`, `data`, `object` exist too; `var` is imported as `{ var as htmlVar }`. Alias on collision.
+- Factories share names with globals: `style` and `slot` are elements (`style` the attribute is the binding), `title`, `map`, `data`, `object` exist too; `var` is imported as `{ var as htmlVar }`. Alias on collision.
 
 ## SVG (`nanoviews/svg`)
 
@@ -89,7 +91,7 @@ svg({ viewBox: '0 0 24 24', width: 24, height: 24 })(
 
 - Every SVG tag is a factory in `nanoviews/svg` with the same call shape, created in the SVG namespace; `nanoviews` itself has no SVG factories. Shapes and leaves (`circle`, `rect`, `path`, `line`, `ellipse`, `polygon`, `polyline`, `image`, `use`, `animate`, `animateMotion`, `animateTransform`, `set`, `mpath`) are void: one call, no children. HTML inside `foreignObject` comes from `nanoviews`.
 - Attribute names are camelCase as in React: `viewBox`, `preserveAspectRatio`, `strokeWidth`, `fillOpacity`, `textAnchor`, `tabIndex`. Presentation attributes reach the DOM hyphenated (`stroke-width`), the rest keep their SVG spelling; a dashed key like `'stroke-width'` is a type error. `href` replaces `xlinkHref`; the SVG 1.1 font, glyph and color-profile attributes are not typed.
-- `a`, `title`, `style` and `script` exist in both entries, and `switch` is imported as `{ switch as svgSwitch }`; alias on collision. `ref$`, `style$` and `autoFocus$` work on SVG elements, and so does a `class` list.
+- `a`, `title`, `style` and `script` exist in both entries, and `switch` is imported as `{ switch as svgSwitch }`; alias on collision. `ref`, `style` objects, `autoFocus` and `class` lists work on SVG elements too.
 - `Attributes<'circle'>`, `ElementName` and the factory types come from `nanoviews/svg` under the same names as the HTML ones in `nanoviews`.
 
 ## Reactivity (`nanoviews/store`)
@@ -156,7 +158,7 @@ Button({ label: 'Send' })(' now')  // props and children
 | `for_` | reactive list | `for_($items, trackById)(($item, $index, key) => row, () => emptyView)` |
 
 - `if_` and `when_` pass the narrowed signal to the branch: `if_($post)($post => b()(() => $post().title), () => 'none')`. `if_` rebuilds only when truthiness flips (inner state resets); a new object in the same branch updates in place.
-- `show_` builds once and parks the tree while hidden: detached from the document, state kept, bindings still updating, effects stopped (cleanup run) and restarted on show. No else branch. Keep `portal` and `ref$` out of it: `portal(() => document.body, show_($open, () => Modal()))`, and `if_` for a subtree that needs `ref$` (details under "Raw HTML, shadow DOM, portals").
+- `show_` builds once and parks the tree while hidden: detached from the document, state kept, bindings still updating, effects stopped (cleanup run) and restarted on show. No else branch. Keep `portal` and `ref` out of it: `portal(() => document.body, show_($open, () => Modal()))`, and `if_` for a subtree that needs `ref` (details under "Raw HTML, shadow DOM, portals").
 - `switch_` matches by strict equality against plain case values; `match_` stops at the first truthy case and `default_` is shared by both. `batch` writes to several `match_` conditions or the frame in between shows.
 - `for_`: give a tracker (`trackById`, `trackBy('key')`, `item => item.id`) whenever items are objects or rows hold state; without one rows are positions and a reorder rewrites values into existing rows. A repeated key is not detected: its row is silently dropped.
 - Each row gets `$item` (a signal; for a `WritableSignal<T[]>` it is writable: `$item(next)` and `record($item).$done(true)` write a new item and array back, so computeds recompute; a list typed `T[] | null` gets read-only rows, so keep list signals non-nullable), `$index` (a signal) and the plain key. Read only `$item()`/`$index()` inside a row: `$items()` there re-runs every row on every change. Per-row selection: one `const $isSelected = selector($selectedId)` outside the loop, then `class: () => $isSelected(key) ? 'active' : ''` in each row.
@@ -164,30 +166,36 @@ Button({ label: 'Send' })(' now')  // props and children
 - `as_(record, ($item, $index, key) => ...)` applies a transform to every row and keeps writes bound. The second argument of the row call renders the empty state, for `[]` and for `null`. A static array takes no tracker: `for_(list)((item, index) => ...)` renders once; a static condition renders once with no block.
 - `throw_(new Error('...'))` throws inside an expression.
 
-## Forms and effect attributes
+## Forms
 
 ```ts
 const $name = signal('')
+const $note = signal('')
 const $agree = signal(false)
 const $plan = signal('pro')
 
 form({ onSubmit: event => { event.preventDefault(); save($name()) } })(
   label({ for: 'name' })('Name'),
-  input({ id: 'name', type: 'text', [value$]: $name, [autoFocus$]: true }),
-  input({ type: 'checkbox', [checked$]: $agree }),
-  select({ [selected$]: $plan })(option({ value: 'free' })('Free'), option({ value: 'pro' })('Pro')),
+  input({ id: 'name', type: 'text', value: $name, autoFocus: true }),
+  textarea({ value: $note }),
+  input({ type: 'checkbox', checked: $agree }),
+  select({ value: $plan })(option({ value: 'free' })('Free'), option({ value: 'pro' })('Pro')),
   button({ type: 'submit', disabled: () => !$agree() })('Save')
 )
 ```
 
-- `value$` (text inputs, textarea; `input` event), `checked$` (checkbox, radio; `change`; `Indeterminate` symbol for the third state), `selected$` (select; a `string[]` signal makes it multiple; `change`) are two-way and need a `WritableSignal` typed exactly `string` or `boolean`: a literal-union signal is rejected. Keep it `string` and narrow where read, or cast a `record` field (`$task.$status as WritableSignal<string>`). Put `[value$]` before an `onInput` key that reads the signal. `files$` is DOM-to-signal only (`File[]`).
-- `ref$`: a `signal<HTMLInputElement | null>(null)` holds the element from build to unmount, then `null`. Use it in an effect or a handler.
-- `style$`: `{ backgroundColor: $color, fontSize: '12px', '--gap': '4px' }`, camelCase keys, units spelled out; typed for `HTMLElement` and `SVGElement`. `autoFocus$`: `true` focuses on mount; pass a plain boolean only (an accessor counts as true); dynamic focus goes through `ref$`.
-- Own attributes: see "Custom effect attributes" below.
+- `value` (text inputs, `textarea`; `input` event), `checked` (checkbox, radio; `change`; the `Indeterminate` symbol is the third state) and `value` of a `select` (`change`; `multiple: true` with a `string[]` signal) are bound through the DOM properties: a plain value is set once, an accessor is followed, a writable signal is two-way. A read-only accessor, a computed say, only drives the control. Put `value` before an `onInput` key that reads the signal.
+- A value rewritten under the user keeps the caret: a formatter in `onInput` or an `effect$` writing the signal back is fine.
+- `textarea` is void: no children call, its text is `value` or `defaultValue`.
+- `defaultValue` (`input`, `textarea`, `select`) and `defaultChecked` set the default a form reset returns to; one way, a plain value or an accessor. A bound `value` leaves the default alone.
+- A `select` follows its value into the options built later (`for_`, async data) and into an option whose `value` attribute changes; they are selected a microtask after they land, and so is a plain `value`. A signal `value` is applied at mount and on write, synchronously.
+- No file binding: read `event.target.files` in `onChange`.
+- `ref`: a callback `element => ...` or a `signal<HTMLInputElement | null>(null)` gets the element from build to unmount, then `null`. Both are typed by the element: a wider `HTMLElement | null` or `Element | null` fits, another element is a type error.
+- `style`: `style: () => ({ backgroundColor: $color(), fontSize: '12px', '--gap': '4px' })`, camelCase keys, units spelled out; a property missing from the next object is removed; on `HTMLElement` and `SVGElement`. `autoFocus: true` focuses once the element is in the document; an accessor is read once, at build; dynamic focus goes through `ref`.
 
 ## Differences from React, Solid and Svelte
 
-- Type errors: `className`, `htmlFor`, `key`, `onDoubleClick`, `defaultValue`, `defaultChecked` (use `class`, `for`, a tracker, `onDblClick`, and `value`/`checked` for an initial value, `value$`/`checked$` for live state).
+- Type errors: `className`, `htmlFor`, `key`, `onDoubleClick` (use `class`, `for`, a tracker, `onDblClick`). `value`/`checked` are the live state and `defaultValue`/`defaultChecked` the reset defaults, as in React; there is no `files` binding.
 - Do not unwrap a signal at build time (`const count = $count()`) for anything the view shows: it freezes. Pass `$count` or `() => ...`.
 - Do not `.map` a signal array or `if` on a signal at build time; use `for_`, `if_`, `match_`. Do not interpolate a signal into a template string child.
 - A function argument to a signal is a reducer; store a function as `$fn(() => handler)`.
@@ -222,38 +230,26 @@ Layout()(LayoutHeader({})('Top'), 'Body', LayoutFooter({})('Bottom'))
 - A slot renders inside the layout's tree: the layout hands it data with `context$` (`context$(provide(Draft$, $draft))(footerSlot)`) and the slot injects it; a function child, `slot$<Props, [render: (draft: WritableSignal<string>) => Child]>`, is how a caller passes a render function.
 - `getSlots(defs, children)` is the splitter behind `slots$`, for a component that wants its children raw.
 
-## Custom effect attributes
+## Own bindings
 
-`createEffectAttribute(id, callback)` registers the callback in a global map and returns the id, which is then used as a computed key. The callback runs synchronously while the element is built, before it is in the document; an `effect$` created inside it belongs to the enclosing block and is torn down with it.
+There are no custom attributes: an element behaviour of your own is a `ref` callback that opens an `effect$`. The callback runs while the element is built, so the effect belongs to the enclosing block and is torn down with it; it gets `null` on unmount, so guard.
 
 ```ts
 import { $get, type Signalish } from 'nanoviews/store'
-import { div, createEffectAttribute, effect$ } from 'nanoviews'
+import { div, effect$ } from 'nanoviews'
 
-export const title$ = createEffectAttribute('title$', (element: HTMLElement, $value: Signalish<string>) => {
-  effect$(() => {
-    element.title = $get($value)
-  })
-})
-
-declare module 'nanoviews' {
-  interface EffectAttributeValues<Target extends Element> {
-    title$: Signalish<string>
-  }
-  interface EffectAttributeTargets {
-    title$: HTMLElement
+const withTitle = ($title: Signalish<string>) => (element: HTMLElement | null) => {
+  if (element) {
+    effect$(() => {
+      element.title = $get($title)
+    })
   }
 }
 
-div({ [title$]: $title })('text') // $title: a placeholder signal
+div({ ref: withTitle($title) })('text')
 ```
 
-- Annotate the callback parameters (or pass the three generics): untyped, they are `Element` and `unknown` and the body does not compile.
-- Both augmentations are required: `EffectAttributeValues` gives the value type, `EffectAttributeTargets` decides on which element types the key is allowed. Without them the key is a type error even though it works at runtime.
-- The value type may depend on the element: `onMounted$: (el: Target) => void` is a valid declaration.
-- Ids are global; pick a unique `name$` so it never shadows a built-in.
-- The third callback argument is the whole attributes object of the element.
-- Built-in bindings (`style$`, text, attributes) apply their first value synchronously through an internal non-deferred effect; a custom attribute should use `effect$`, which runs after mount and pauses while a `show_` is hidden. The store `effect` runs at build time, like the built-in bindings, and keeps running while hidden.
+- Built-in bindings (`style`, text, attributes, `value`) apply their first value synchronously through an internal non-deferred effect; `effect$` runs after mount and pauses while a `show_` is hidden. The store `effect` runs at build time, like the built-in bindings, and keeps running while hidden.
 
 ## Raw HTML, shadow DOM, portals
 
@@ -266,7 +262,7 @@ portal(() => document.body, div({ class: 'modal' })('in the body'))
 - `dangerouslySetInnerHtml(factory, html)` takes an uncalled description or any `() => Element` and accepts a static string or a signal; it describes the element and sets `innerHTML` on build, so no children call follows.
 - `shadow(factory, init)` describes the host element and takes the children like an element; on build it attaches the shadow root and puts the children into it. Hosts must allow a shadow root (`div`, `span`, custom elements).
 - `portal(target, child)` describes an empty child; on build it calls `target()` and mounts the child there, so the target must exist by then. Removal is registered on the enclosing scope, so a portal inside a component or an `if_` branch is removed with it. A component that only portals returns `portal(...)`.
-- Never put a `portal` inside `show_`: hiding runs the removal and showing again does not re-append. Toggle a portalled tree the other way round, `portal(() => document.body, show_($open, () => Modal()))`: while hidden the parked DOM leaves the target and comes back with its state on show. The same applies to `ref$` under `show_`, which stays `null` after the first hide; use `if_` there.
+- Never put a `portal` inside `show_`: hiding runs the removal and showing again does not re-append. Toggle a portalled tree the other way round, `portal(() => document.body, show_($open, () => Modal()))`: while hidden the parked DOM leaves the target and comes back with its state on show. The same applies to `ref` under `show_`, which stays `null` after the first hide; use `if_` there.
 
 ## Dependency injection in depth
 
@@ -317,7 +313,7 @@ isolate$(context$(provide(Theme$, $inner))(Settings()))     // fresh tree, inher
 - A signal-driven `if_`, `swap_`, `match_`/`switch_` branch or `for_` row is its own scope and its effects start before the effects of the scope that contains it, innermost first. `show_` is the exception: its content effects are started by the toggle effect, in the containing scope's creation order. A block with a static condition is rendered inline and has no scope of its own.
 - Effects in the same scope start in creation order. A `component$` child renders when the parent's returned tree is built, after the parent's render has finished, so every effect of the parent's render precedes the effects of its component children; a plain function child runs, and creates its effects, where it is called.
 - On a swap the old branch's cleanups run while its DOM is still attached, the DOM is removed, the new branch is rendered, then its effects start. Removed rows are destroyed before new rows start.
-- Under a hidden `show_`, `effect$` effects have run their cleanup and re-run on show with `warmup === true` again; text, attribute and `style$` bindings keep updating the parked DOM.
+- Under a hidden `show_`, `effect$` effects have run their cleanup and re-run on show with `warmup === true` again; text, attribute and `style` bindings keep updating the parked DOM.
 - Writes made during render and during unmount are batched by `mount`. Writes made inside a running effect are queued onto the flush already running, so they land together; a `batch` there flushes nothing either. Everywhere else (handlers, timers, promise callbacks) every write flushes on its own; wrap several in `batch`.
 - Do not depend on a parent effect having run when a child effect runs; communicate through signals.
 

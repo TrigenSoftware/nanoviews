@@ -1,6 +1,6 @@
 ---
 name: nanoviews-testing
-description: "Conventions and API for unit-testing nanoviews views with @nanoviews/testing-library and Vitest: the happy-dom setup and cleanup entry, the render forms (function or [Component, props] tuple), what container is, driving value$/checked$/selected$ bindings with fireEvent, synchronous assertions after signal writes, awaiting resolved/query/onMount data, overriding dependency injection with context and provide, and rendering composed stories. Apply when writing or editing *.spec.ts files for nanoviews components, effect attributes, blocks or stores wired into views."
+description: "Conventions and API for unit-testing nanoviews views with @nanoviews/testing-library and Vitest: the happy-dom setup and cleanup entry, the render forms (function or [Component, props] tuple), what container is, driving value and checked bindings with fireEvent, synchronous assertions after signal writes, awaiting resolved/query/onMount data, overriding dependency injection with context and provide, and rendering composed stories. Apply when writing or editing *.spec.ts files for nanoviews components, blocks or stores wired into views."
 license: MIT
 compatibility:
   - Claude Code
@@ -54,7 +54,7 @@ import '@testing-library/jest-dom/vitest'    // optional matchers
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@nanoviews/testing-library'
 import { signal } from 'nanoviews/store'
-import { input, value$ } from 'nanoviews'
+import { input } from 'nanoviews'
 import { Counter } from './Counter.js' // component$((props: { count: WritableSignal<number> }) => ...)
 
 describe('components', () => {
@@ -72,7 +72,7 @@ describe('components', () => {
     it('should bind a text input', () => {
       const value = signal('a')
 
-      render(() => input({ type: 'text', [value$]: value }))
+      render(() => input({ type: 'text', value }))
 
       const box = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -91,8 +91,10 @@ describe('components', () => {
 
 ## Driving bindings
 
-- `fireEvent.input(box, { target: { value } })` drives `value$`; a bare `change` does not write it.
-- `fireEvent.change(box, { target: { checked: true } })` drives `checked$`, `fireEvent.change(select, { target: { value } })` drives `selected$`, `fireEvent.change` with `files` drives `files$`. `fireEvent.click` on a checkbox or radio also works because it fires `change`; a click on a `select` changes nothing.
+- `fireEvent.input(box, { target: { value } })` drives `value`; a bare `change` does not write it.
+- `fireEvent.change(box, { target: { checked: true } })` drives `checked`, `fireEvent.change(select, { target: { value } })` drives the `value` of a `select`. `fireEvent.click` on a checkbox or radio also works because it fires `change`; a click on a `select` changes nothing. There is no file binding: `fireEvent.change(input, { target: { files } })` reaches an `onChange` handler.
+- A `select` given a plain `value`, and options that land after mount, are selected by a MutationObserver a microtask later: `await Promise.resolve()` before asserting `select.value`. A signal `value` is applied at mount and on write, synchronously.
+- happy-dom has no `defaultSelected` on an option, and its form reset looks for the `selected` attribute; a test of `defaultValue` on a `select` needs the property shimmed in the setup file, the way the nanoviews package does it in `test/setup.ts`.
 - `fireEvent.click`, `fireEvent.keyDown(el, { key: 'Enter' })`, `fireEvent.dblClick` and `fireEvent.submit(form)` reach `on*` handlers as native events. `userEvent.setup()` plus `await user.click(...)` works as usual.
 - Writing a signal the view is bound to updates the DOM before the next line runs; assert right after the write, without `await`.
 - A row hidden by `show_` is detached from the document: `queryBy*` returns `null`, `toBeVisible` is not needed. A branch replaced by `if_` is gone with its state.

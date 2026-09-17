@@ -226,115 +226,127 @@ const $class = classList('button', () => $primary() && 'primary')
 $class() // 'button primary'
 ```
 
-## Effect attributes
+## Element bindings
 
-Effect attributes are special attributes that can control element's behavior.
+A few attributes are bound to the element rather than written as attributes.
 
-### ref$
+### ref
 
-`ref$` is an effect attribute that can provide a reference to the DOM node.
+`ref` receives the DOM node once it is built, and `null` once it is unmounted. It takes a callback or a writable signal.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { div, ref$ } from 'nanoviews'
+import { div } from 'nanoviews'
 
 const $ref = signal(null)
 
 div({
-  [ref$]: $ref
+  ref: $ref
 })(
   'Target element'
 )
+
+div({
+  ref: element => element?.scrollIntoView()
+})(
+  'Scrolled into view'
+)
 ```
 
-### style$
+Both are checked against the element: a `signal<HTMLButtonElement | null>` fits a `button`, a wider `HTMLElement | null` or `Element | null` fits any element, and a signal of another element is a type error.
 
-`style$` is an effect attribute that manages the style of the element.
+### style
+
+`style` takes an object of camelCased CSS properties, or an accessor of one to follow. A property the new object no longer names is dropped.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { button, style$ } from 'nanoviews'
+import { button } from 'nanoviews'
 
 const $color = signal('white')
 
 button({
-  [style$]: {
-    color: $color,
+  style: () => ({
+    color: $color(),
     backgroundColor: 'black'
-  }
+  })
 })(
   'Click me'
 )
 ```
 
-### autoFocus$
+Custom properties go through the same object: `style: { '--gap': '4px' }`.
 
-`autoFocus$` is an effect attribute that sets the auto focus on the element.
+### autoFocus
+
+`autoFocus: true` focuses the element once it is in the document. The `autofocus` attribute is not written: the browser honours it once per page load, so an element built later would never take the focus.
 
 ```js
-import { input, autoFocus$ } from 'nanoviews'
+import { input } from 'nanoviews'
 
 input({
   type: 'text',
-  [autoFocus$]: true
+  autoFocus: true
 })
 ```
 
-### value$
+## Form controls
 
-`value$` is an effect attribute that manages the value of text inputs.
+`input`, `textarea` and `select` bind their state through the DOM properties, not the attributes, so what the user does and what the signal holds stay one thing. A plain value is set once, an accessor is followed, and a writable signal also receives the user's input.
+
+### value
 
 ```js
 import { signal } from 'nanoviews/store'
-import { textarea, value$ } from 'nanoviews'
+import { input, textarea } from 'nanoviews'
 
+const $name = signal('')
 const $review = signal('')
+
+input({
+  type: 'text',
+  value: $name
+})
 
 textarea({
   name: 'review',
-  [value$]: $review
-})(
-  'Write your review here'
-)
+  value: $review
+})
 ```
 
-A read-only accessor, such as a computed, works too: the control follows it, and what the user types stays in the control. The same goes for `checked$` and `selected$`.
+`textarea` takes no children: its text is its `value`. A read-only accessor, such as a computed, only drives the control, and what the user types stays in it. A value rewritten under the user, by a formatter say, keeps the caret where it was.
 
-### checked$
+### checked
 
-`checked$` is an effect attribute that manages the checked state of checkboxes and radio buttons.
+`checked` binds a checkbox or a radio button the same way. The `Indeterminate` symbol is the [third state](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox#indeterminate_state_checkboxes) of a checkbox:
 
 ```js
 import { signal } from 'nanoviews/store'
-import { input, checked$, Indeterminate } from 'nanoviews'
+import { input, Indeterminate } from 'nanoviews'
 
 const $checked = signal(false)
 
 input({
   type: 'checkbox',
-  [checked$]: $checked
+  checked: $checked
 })
-```
 
-Also you can manage [indeterminate state of checkboxes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox#indeterminate_state_checkboxes):
-
-```js
 $checked(Indeterminate)
 ```
 
-### selected$
+### select
 
-`selected$` is an effect attribute that manages the selected state of select's options.
+`value` on a `select` is the value of the selected option, or the list of them under `multiple`:
 
 ```js
 import { signal } from 'nanoviews/store'
-import { select, option, selected$ } from 'nanoviews'
+import { select, option } from 'nanoviews'
 
 const $selected = signal('mid')
 
 select({
   name: 'player-pos',
-  [selected$]: $selected
+  value: $selected
 })(
   option({
     value: 'carry'
@@ -361,7 +373,8 @@ const $selected = signal(['mid', 'carry'])
 
 select({
   name: 'player-pos',
-  [selected$]: $selected
+  multiple: true,
+  value: $selected
 })(
   option({
     value: 'carry'
@@ -381,63 +394,44 @@ select({
 )
 ```
 
-### files$
+The options follow the value, the ones built later included: options rendered by `for_` or coming with async data are selected once they are in.
 
-`files$` is an effect attribute that can provide the files of file inputs.
+### defaultValue and defaultChecked
 
-```js
-import { signal } from 'nanoviews/store'
-import { input, files$ } from 'nanoviews'
-
-const $files = signal([])
-
-input({
-  type: 'file',
-  [files$]: $files
-})
-```
-
-### createEffectAttribute
-
-The effect attributes above are built with `createEffectAttribute`, and so can yours. It takes an id and a handler that receives the element and the value, and returns the id to use as a computed key. The handler runs inside the element's effect scope, so an `effect$` in it is torn down with the element.
+The default of a control, what a form reset returns it to, is set apart from its value, the React way: `defaultValue` on `input`, `textarea` and `select`, `defaultChecked` on a checkbox or a radio button. They are one way.
 
 ```js
-import { $get } from 'nanoviews/store'
-import { createEffectAttribute, effect$ } from 'nanoviews'
+import { form, input, textarea, select, option, button } from 'nanoviews'
 
-export const title$ = createEffectAttribute('title$', (element, $value) => {
-  effect$(() => {
-    element.title = $get($value)
-  })
-})
-```
-
-To make it typed at the call site, register it by augmenting the `nanoviews` module — `EffectAttributeValues` declares what the attribute accepts, `EffectAttributeTargets` which elements it applies to:
-
-```ts
-declare module 'nanoviews' {
-  interface EffectAttributeValues<Target extends Element> {
-    title$: Signalish<string>
-  }
-
-  interface EffectAttributeTargets {
-    title$: HTMLElement
-  }
-}
-```
-
-```js
-import { signal } from 'nanoviews/store'
-import { div } from 'nanoviews'
-
-const $title = signal('Hello')
-
-div({
-  [title$]: $title
-})(
-  'Hover me'
+form()(
+  input({
+    type: 'text',
+    defaultValue: 'Yatoro'
+  }),
+  input({
+    type: 'checkbox',
+    defaultChecked: true
+  }),
+  textarea({
+    defaultValue: 'Write your review here'
+  }),
+  select({
+    defaultValue: 'mid'
+  })(
+    option({
+      value: 'carry'
+    })('Yatoro'),
+    option({
+      value: 'mid'
+    })('Larl')
+  ),
+  button({
+    type: 'reset'
+  })('Reset')
 )
 ```
+
+Files have no binding: read `event.target.files` in the `onChange` handler of a file input.
 
 ## Components
 

@@ -136,14 +136,14 @@ Every rendered view has to be unmounted after a test, otherwise views leak into 
 import { it, expect } from 'vitest'
 import { render } from '@nanoviews/testing-library'
 import { signal } from 'nanoviews/store'
-import { button, ref$ } from 'nanoviews'
+import { button } from 'nanoviews'
 
 it('should set ref', () => {
   const ref = signal(null)
 
   render(() => (
     button({
-      [ref$]: ref
+      ref
     })(
       'Click me!'
     )
@@ -177,7 +177,7 @@ Reactivity needs no special treatment: a signal write is applied to the DOM sync
 import { it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@nanoviews/testing-library'
 import { signal } from 'nanoviews/store'
-import { input, value$ } from 'nanoviews'
+import { input } from 'nanoviews'
 
 it('should handle value of text input', () => {
   const value = signal('Hello, world!')
@@ -185,7 +185,7 @@ it('should handle value of text input', () => {
   render(() => (
     input({
       type: 'text',
-      [value$]: value
+      value
     })
   ))
 

@@ -17,3 +17,17 @@ export type CrossOrigin = 'anonymous' | 'use-credentials' | '' | EmptyValue
  * truthy strings with spaces, drops the rest, and joins a nested list in place.
  */
 export type ClassValue = Signalish<string | boolean | 0 | EmptyValue | readonly ClassValue[]>
+
+/**
+ * A `ref` value: a callback or a writable signal that receives the element
+ * once it is built, and `null` once it is unmounted. Both are checked against
+ * the element; one of a wider type, that of its tree or `Element`, fits too.
+ * The two members share the parameter, so an untyped arrow is still typed.
+ * The first is the callback: anything it returns is fine, and it has no
+ * `node`, which keeps a signal off it. The second is what a writable signal
+ * fits with its setter; its getter returns the element, and `void | null`
+ * turns it down, so a signal of another element has no way in.
+ */
+export type ElementRef<T> =
+  | (((ref: T | null) => void) & { node?: never })
+  | ((ref: T | null) => void | null)

@@ -3,29 +3,25 @@ import type {
   StoryObj
 } from '@nanoviews/storybook'
 import { fn } from 'storybook/test'
+import { signal } from 'kida'
 import { effect$ } from '../component/effect.js'
-import {
-  input,
-  textarea,
-  select,
-  option
-} from './elements.js'
+import { for_ } from '../flow/for.js'
+import { option } from './elements.js'
 import {
   Indeterminate,
-  value$,
-  checked$,
-  selected$,
-  files$
+  input,
+  textarea,
+  select
 } from './controls.js'
 
 const meta: Meta<{
   value?: string
   values?: string[]
+  options?: string[]
   checked?: boolean | typeof Indeterminate
-  files?: File[]
   onChange?(value: unknown): void
 }> = {
-  title: 'Elements/Effect Attributes/Controls'
+  title: 'Elements/Controls'
 }
 
 export default meta
@@ -52,7 +48,48 @@ export const TextInput: StoryObj<{
     return (
       input({
         type: 'text',
-        [value$]: value
+        value
+      })
+    )
+  }
+}
+
+export const TextInputDefaultValue: StoryObj<{
+  onChange(value: unknown): void
+}> = {
+  args: {
+    onChange: fn()
+  },
+  render({ onChange }) {
+    return (
+      input({
+        type: 'text',
+        onInput: onChange,
+        defaultValue: 'Default Value'
+      })
+    )
+  }
+}
+
+export const TextInputIntercept: StoryObj<{
+  onChange(value: unknown): void
+}> = {
+  args: {
+    onChange: fn()
+  },
+  render({ onChange }) {
+    const $value = signal('0')
+
+    effect$(() => {
+      $value(text => String(parseInt(text)))
+
+      onChange($value())
+    })
+
+    return (
+      input({
+        type: 'text',
+        value: $value
       })
     )
   }
@@ -79,8 +116,62 @@ export const Textarea: StoryObj<{
 
     return (
       textarea({
-        [value$]: value
-      })()
+        value
+      })
+    )
+  }
+}
+
+export const TextareaDefaultValue: StoryObj<{
+  onChange(value: unknown): void
+}> = {
+  args: {
+    onChange: fn()
+  },
+  render({ onChange }) {
+    return (
+      textarea({
+        onInput: onChange,
+        defaultValue: 'Default Value'
+      })
+    )
+  }
+}
+
+export const Checkbox: StoryObj<{
+  checked: boolean | typeof Indeterminate
+  onChange(value: unknown): void
+}> = {
+  argTypes: {
+    checked: {
+      control: 'inline-radio',
+      options: [
+        true,
+        false,
+        Indeterminate
+      ]
+    }
+  },
+  args: {
+    onChange: fn(),
+    checked: true
+  },
+  render({ onChange, checked }) {
+    if (onChange && checked) {
+      effect$((warmup) => {
+        const v = checked()
+
+        if (!warmup) {
+          onChange(v)
+        }
+      })
+    }
+
+    return (
+      input({
+        type: 'checkbox',
+        checked
+      })
     )
   }
 }
@@ -116,7 +207,7 @@ export const Select: StoryObj<{
 
     return (
       select({
-        [selected$]: value
+        value
       })(
         option({
           value: 'red'
@@ -163,7 +254,8 @@ export const MultipleSelect: StoryObj<{
 
     return (
       select({
-        [selected$]: values
+        multiple: true,
+        value: values
       })(
         option({
           value: 'red'
@@ -179,56 +271,50 @@ export const MultipleSelect: StoryObj<{
   }
 }
 
-export const Checkbox: StoryObj<{
-  checked: boolean | typeof Indeterminate
+export const SelectDefaultValue: StoryObj<{
   onChange(value: unknown): void
 }> = {
-  argTypes: {
-    checked: {
-      control: 'inline-radio',
-      options: [
-        true,
-        false,
-        Indeterminate
-      ]
-    }
-  },
   args: {
-    onChange: fn(),
-    checked: true
+    onChange: fn()
   },
-  render({ onChange, checked }) {
-    if (onChange && checked) {
-      effect$((warmup) => {
-        const v = checked()
-
-        if (!warmup) {
-          onChange(v)
-        }
-      })
-    }
-
+  render({ onChange }) {
     return (
-      input({
-        type: 'checkbox',
-        [checked$]: checked
-      })
+      select({
+        onChange,
+        defaultValue: 'green'
+      })(
+        option({
+          value: 'red'
+        })('Red'),
+        option({
+          value: 'green'
+        })('Green'),
+        option({
+          value: 'blue'
+        })('Blue')
+      )
     )
   }
 }
 
-export const Files: StoryObj<{
-  files: File[]
+export const DynamicOptions: StoryObj<{
+  value: string
+  options: string[]
   onChange(value: unknown): void
 }> = {
   args: {
     onChange: fn(),
-    files: []
+    value: 'green',
+    options: [
+      'red',
+      'green',
+      'blue'
+    ]
   },
-  render({ onChange, files }) {
-    if (onChange && files) {
+  render({ onChange, value, options }) {
+    if (onChange && value) {
       effect$((warmup) => {
-        const v = files()
+        const v = value()
 
         if (!warmup) {
           onChange(v)
@@ -237,10 +323,13 @@ export const Files: StoryObj<{
     }
 
     return (
-      input({
-        type: 'file',
-        [files$]: files
-      })
+      select({
+        value
+      })(
+        for_(options)($color => option({
+          value: $color
+        })($color))
+      )
     )
   }
 }
