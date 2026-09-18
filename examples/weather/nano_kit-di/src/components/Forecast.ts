@@ -11,7 +11,6 @@ import {
   select,
   option,
   ul,
-  selected$,
   trackBy,
   inject,
   component$,
@@ -46,7 +45,7 @@ export const Forecast = component$(() => {
         ),
         select({
           class: 'forecast-mode',
-          [selected$]: $mode
+          value: $mode
         })(
           option({
             value: 'hourly'

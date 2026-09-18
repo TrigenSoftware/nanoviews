@@ -6,7 +6,6 @@ import {
   signal
 } from 'nanoviews/store'
 import {
-  value$,
   button,
   div,
   input,
@@ -63,7 +62,7 @@ export const Autocomplete = component$((props: AutocompleteProps) => {
         'name': props.name,
         'role': 'combobox',
         'type': 'text',
-        [value$]: props.$value,
+        'value': props.$value,
         'onBlur': () => $isOpen(false),
         'onFocus': () => $isOpen(true),
         'onInput': () => {

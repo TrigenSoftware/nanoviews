@@ -7,7 +7,8 @@ import type {
   ElementFactory,
   LazyVoidElement,
   LazyElement,
-  EmptyValue
+  EmptyValue,
+  AttributeSetter
 } from '../types/index.js'
 import {
   childToNode,
@@ -33,11 +34,15 @@ export function appendChildren<T extends ParentNode>(target: T, children: Childr
   return target
 }
 
-function createNode<Tag extends ElementName>(tag: Tag, attributes: Attributes<Tag> | undefined) {
+function createNode<Tag extends ElementName>(
+  tag: Tag,
+  attributes: Attributes<Tag> | undefined,
+  attributeSetter?: AttributeSetter<PickElementType<Tag>>
+) {
   const element = document.createElement(tag) as PickElementType<Tag>
 
   if (attributes !== undefined) {
-    setAttributes(element, attributes)
+    setAttributes(element, attributes, attributeSetter)
   }
 
   return element
@@ -52,9 +57,10 @@ function createNode<Tag extends ElementName>(tag: Tag, attributes: Attributes<Ta
 /* @__NO_SIDE_EFFECTS__ */
 export function createVoidElement<Tag extends ElementName>(
   tag: Tag,
-  attributes?: Attributes<Tag>
+  attributes?: Attributes<Tag>,
+  attributeSetter?: AttributeSetter<PickElementType<Tag>>
 ) {
-  return lazyChild(() => createNode(tag, attributes)) as LazyVoidElement<PickElementType<Tag>>
+  return lazyChild(() => createNode(tag, attributes, attributeSetter)) as LazyVoidElement<PickElementType<Tag>>
 }
 
 /**
@@ -80,7 +86,8 @@ export function createVoidElementFactory<Tag extends ElementName>(
 /* @__NO_SIDE_EFFECTS__ */
 export function createElement<Tag extends ElementName>(
   tag: Tag,
-  attributes?: Attributes<Tag>
+  attributes?: Attributes<Tag>,
+  attributeSetter?: AttributeSetter<PickElementType<Tag>>
 ) {
   // The receiver is written out here rather than shared through a helper
   // that takes a build callback: one closure per description instead of two
@@ -94,7 +101,7 @@ export function createElement<Tag extends ElementName>(
       return element
     }
 
-    return appendChildren(createNode(tag, attributes), children)
+    return appendChildren(createNode(tag, attributes, attributeSetter), children)
   }) as LazyElement<PickElementType<Tag>>
 
   return element

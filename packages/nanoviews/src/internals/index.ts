@@ -1,4 +1,4 @@
-export type * from './types/index.js'
+export * from './types/index.js'
 export * from './utils.js'
 export * from './effects.js'
 export * from './elements/index.js'

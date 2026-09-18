@@ -1,195 +1,174 @@
 import {
   type Accessor,
-  type WritableSignal,
-  isWritable,
-  deferEffect
+  $get,
+  deferEffect,
+  isAccessor,
+  isEmpty,
+  isWritable
 } from 'kida'
-import { createEffectAttribute } from '../internals/index.js'
+import {
+  type Attributes,
+  Indeterminate,
+  createVoidElement,
+  createElement,
+  setAttribute
+} from '../internals/index.js'
 
-// https://caniuse.com/?search=oninput onInput doesn't fire an input event when (un)checking a checkbox or radio button, or when changing the selected file(s) of an <input type="file">
+type InputElement = HTMLInputElement | HTMLTextAreaElement
 
-export const Indeterminate = Symbol.for('Indeterminate')
+type InputProperty = 'checked' | 'defaultChecked' | 'value' | 'defaultValue'
 
-type Value = Accessor<string>
+function setInput(
+  input: InputElement,
+  property: InputProperty,
+  next: unknown
+) {
+  if (property === 'checked') {
+    // The third state is a flag of its own: the check underneath is left
+    // alone
+    if (!((input as HTMLInputElement).indeterminate = next === Indeterminate)) {
+      (input as HTMLInputElement).checked = next as boolean
+    }
+  } else if (property === 'defaultChecked') {
+    (input as HTMLInputElement).defaultChecked = next as boolean
+  } else if (property === 'defaultValue') {
+    input.defaultValue = next as string
+  } else if (input.matches(':focus')) {
+    // The user is in the control: the value it already shows is left alone,
+    // for the caret and an IME composition, and a different one is written
+    // with the selection put back, the way React does after a commit. It is
+    // `null` on the types without a selection, `number` or `email` say
+    if (input.value !== next) {
+      const { selectionStart, selectionEnd, selectionDirection } = input
 
-type CheckedPrimitive = boolean | typeof Indeterminate
+      input.value = next as string
 
-type Checked = Accessor<CheckedPrimitive>
+      if (selectionStart !== null) {
+        input.setSelectionRange(selectionStart, selectionEnd, selectionDirection!)
+      }
+    }
+  } else {
+    // Written even when equal: the write sets the dirty flag, which keeps a
+    // default set later from replacing the value
+    input.value = next as string
+  }
+}
 
-type SelectedPrimitive = string | string[]
+function setInputAttribute(
+  input: InputElement,
+  name: string,
+  value: unknown
+) {
+  const isLive = name === 'checked' || name === 'value'
 
-type Selected = Accessor<SelectedPrimitive>
+  // The state of a control and its default are properties, bound through an
+  // accessor or set once by a plain value; every other attribute stays an
+  // attribute
+  if (isLive || name === 'defaultChecked' || name === 'defaultValue') {
+    // The accessor is typed as one of `unknown`: the writer casts the value
+    // to the property it writes
+    if (isAccessor<Accessor<unknown>>(value)) {
+      deferEffect(() => {
+        // An empty value is an empty text, and no check either
+        setInput(input, name, value() ?? '')
+      }, true)
 
-type Files = WritableSignal<File[]>
-
-type TextboxElement = HTMLInputElement | HTMLTextAreaElement
-
-type CheckboxElement = HTMLInputElement
-
-type ComboboxElement = HTMLSelectElement
-
-type FileElement = HTMLInputElement
+      // The state, and the state only, is two-way: the user's input goes to
+      // a writable signal. A read-only accessor, a computed say, only drives
+      // the control
+      if (isLive && isWritable(value)) {
+        input.addEventListener(
+          name === 'checked' ? 'change' : 'input',
+          () => value((input as HTMLInputElement)[name])
+        )
+      }
+    } else if (!isEmpty(value)) {
+      setInput(input, name, value)
+    }
+  } else {
+    setAttribute(input, name, value)
+  }
+}
 
 /* @__NO_SIDE_EFFECTS__ */
-function createElementPropertySetter<E extends Element, V>(
-  eventName: string,
-  getValue: (control: E) => V,
-  setValue: (control: E, value: V) => void
-) {
-  return (
-    control: E,
-    $value: Accessor<V>
-  ): void => {
-    deferEffect(() => {
-      setValue(control, $value())
-    })
+export function input(attributes?: Attributes<'input'>) {
+  return createVoidElement('input', attributes, setInputAttribute)
+}
 
-    // A read-only accessor, a computed say, only drives the control: the
-    // user's input has nowhere to go, so it gets no listener.
-    // The registration dies with the element, so the binding needs no
-    // teardown - and no effect node to carry one. It reads the DOM and writes
-    // a signal, and a write subscribes nobody, so it needs no tracking barrier
-    // either
-    if (isWritable<WritableSignal<V>>($value)) {
-      control.addEventListener(eventName, () => $value(getValue(control)))
-    }
+/* @__NO_SIDE_EFFECTS__ */
+export function textarea(attributes?: Attributes<'textarea'>) {
+  return createVoidElement('textarea', attributes, setInputAttribute)
+}
+
+type SelectedProperty = 'selected' | 'defaultSelected'
+
+// Every option gets the property written: `selected` for the value,
+// `defaultSelected` for the default
+function selectOptions(
+  select: HTMLSelectElement,
+  property: SelectedProperty,
+  values: unknown
+) {
+  const options = select.options
+  const isList = Array.isArray(values)
+
+  for (let i = 0, len = options.length, option: HTMLOptionElement; i < len; i++) {
+    option = options[i]
+    option[property] = isList
+      ? values.includes(option.value)
+      : values === option.value
   }
 }
 
-function setValue(
-  control: TextboxElement,
-  value: string
+function setSelectAttribute(
+  select: HTMLSelectElement,
+  name: string,
+  value: unknown
 ) {
-  control.value = value
-}
+  const isLive = name === 'value'
 
-function getValue(control: TextboxElement) {
-  return control.value
-}
+  if (isLive || name === 'defaultValue') {
+    // A plain empty value has nothing to select
+    if (!isEmpty(value)) {
+      const property: SelectedProperty = isLive ? 'selected' : 'defaultSelected'
+      const apply = () => selectOptions(select, property, $get(value))
 
-/**
- * Effect attribute to set and read text value of input element
- */
-export const value$ = /* @__PURE__ */ createEffectAttribute<'value$', TextboxElement, Value>(
-  'value$',
-  createElementPropertySetter(
-    'input',
-    getValue,
-    setValue
-  )
-)
+      // The options come after the attributes, so a plain value is applied
+      // by the observer, once the children are in. The options built later,
+      // by a `for_` or async data, and an option whose `value` attribute or
+      // text changes come the same way, a microtask later, as in Svelte. The
+      // read is untracked there, the callback runs outside any effect.
+      // `attributeFilter` implies `attributes`
+      new MutationObserver(apply).observe(select, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        attributeFilter: ['value']
+      })
 
-function setChecked(
-  control: CheckboxElement,
-  value: CheckedPrimitive
-) {
-  if (value === Indeterminate) {
-    control.indeterminate = true
-  } else {
-    control.indeterminate = false
-    control.checked = value
-  }
-}
+      if (isAccessor(value)) {
+        // Deferred on purpose: the first run lands at the scope start, once
+        // the tree is in. Tracked, so it follows the accessor
+        deferEffect(apply)
 
-function getChecked(control: CheckboxElement): CheckedPrimitive {
-  return control.indeterminate ? Indeterminate : control.checked
-}
-
-/**
- * Effect attribute to set and read checked value of checkbox or radio button element
- */
-export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, Checked>(
-  'checked$',
-  createElementPropertySetter(
-    'change',
-    getChecked,
-    setChecked
-  )
-)
-
-function setSelected(
-  control: ComboboxElement,
-  values: SelectedPrimitive
-) {
-  const options = control.options
-  const len = options.length
-  const isArray = Array.isArray(values)
-  const test = isArray
-    ? (v: string) => values.includes(v)
-    : (v: string) => values === v
-
-  control.multiple = isArray
-
-  if (len) {
-    for (let i = 0, option: HTMLOptionElement; i < len; i++) {
-      option = options[i]
-      option.selected = test(option.value)
-    }
-  }
-}
-
-function getSelected(control: ComboboxElement): SelectedPrimitive {
-  const isMultiple = control.multiple
-  const options = control.options
-  const len = options.length
-  const values: string[] = []
-
-  if (len) {
-    for (let i = 0, option: HTMLOptionElement; i < len; i++) {
-      option = options[i]
-
-      if (option.selected) {
-        if (isMultiple) {
-          values.push(option.value)
-        } else {
-          return option.value
+        // The signal is written by the user only, on a change
+        if (isLive && isWritable(value)) {
+          // What the user picked: one value, or the list of them under
+          // `multiple`
+          select.addEventListener('change', () => value(
+            select.multiple
+              ? Array.from(select.selectedOptions, option => option.value)
+              : select.value
+          ))
         }
       }
     }
+  } else {
+    setAttribute(select, name, value)
   }
-
-  return values
 }
 
-/**
- * Effect attribute to set and read selected value of combobox element
- */
-export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, Selected>(
-  'selected$',
-  createElementPropertySetter(
-    'change',
-    getSelected,
-    setSelected
-  )
-)
-
-function filesEffectAttribute(
-  control: FileElement,
-  $value: Files
-) {
-  control.addEventListener('change', () => $value(Array.from(control.files!)))
-}
-
-/**
- * Effect attribute to read files of file input element
- */
-export const files$ = /* @__PURE__ */ createEffectAttribute<'files$', FileElement, Files>(
-  'files$',
-  filesEffectAttribute
-)
-
-declare module 'nanoviews' {
-  interface EffectAttributeValues<Target extends Element> {
-    value$: Value
-    checked$: Checked
-    selected$: Selected
-    files$: Files
-  }
-
-  interface EffectAttributeTargets {
-    value$: TextboxElement
-    checked$: CheckboxElement
-    selected$: ComboboxElement
-    files$: FileElement
-  }
+/* @__NO_SIDE_EFFECTS__ */
+export function select(attributes?: Attributes<'select'>) {
+  return createElement('select', attributes, setSelectAttribute)
 }

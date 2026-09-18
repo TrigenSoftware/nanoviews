@@ -1,7 +1,6 @@
 import {
   type PrimitiveAttributeValue,
   type TargetEventHandler,
-  effectAttributes,
   isEventHandler,
   setEventListener,
   setAttribute
@@ -37,11 +36,8 @@ function toAttributeName(name: string) {
 export function setAttributes<A extends object>(element: Element, attributes: A) {
   for (const key in attributes) {
     const value = (attributes as Attributes)[key]
-    const tEffectAttr = effectAttributes?.get(key)
 
-    if (tEffectAttr !== undefined) {
-      tEffectAttr(element, value, attributes as Attributes)
-    } else if (isEventHandler(key, value)) {
+    if (isEventHandler(key, value)) {
       setEventListener(element, key, value)
     } else {
       setAttribute(element, attributeNames[key] ??= toAttributeName(key), value)
