@@ -101,7 +101,7 @@ export function setAttributes<E extends Element, A extends object>(
     if (isEventHandler(key, value)) {
       setEventListener(element, key, value)
     } else {
-      attributeSetter(element, key, value, attributes as AttributeRecord)
+      attributeSetter(element, key, value)
     }
   }
 }

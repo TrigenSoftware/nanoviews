@@ -1,5 +1,6 @@
 export * from './elements.js'
 export * from './controls.js'
+export * from './media.js'
 export * from './fragment.js'
 export * from './innerHtml.js'
 export * from './shadowDom.js'

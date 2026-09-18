@@ -1,5 +1,8 @@
 import type * as CSS from 'csstype'
-import type { Signalish } from 'kida'
+import type {
+  Accessor,
+  Signalish
+} from 'kida'
 import type { EmptyValue } from '../common.js'
 import type {
   Booleanish,
@@ -17,13 +20,17 @@ import type {
   PictureInPictureEventHandler
 } from './events.js'
 
+/**
+ * The third state of a checkbox, for `checked`
+ */
+export const Indeterminate = Symbol.for('Indeterminate')
+
 export type AttributeRecord = Record<string, unknown>
 
 export type AttributeSetter<E extends Element> = (
   element: E,
   name: string,
-  value: unknown,
-  attributes: AttributeRecord
+  value: unknown
 ) => void
 
 export interface CSSProperties extends CSS.Properties<string | number> {
@@ -419,7 +426,7 @@ export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
    * accessor is followed, and a writable signal also receives what the user picks. The
    * `Indeterminate` symbol is the third state of a checkbox
    */
-  checked?: Signalish<boolean | symbol | EmptyValue>
+  checked?: Signalish<boolean | typeof Indeterminate | EmptyValue>
   /**
    * The initial check of the control, what a form reset returns it to. Set through the DOM property,
    * one way
@@ -459,9 +466,9 @@ export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
   type?: Signalish<HTMLInputTypeAttribute | EmptyValue>
   /**
    * The value of the control, set through the DOM property: a plain value is set once, an accessor
-   * is followed, and a writable signal also receives what the user types
+   * is followed, and a writable signal also receives what the user types, a string
    */
-  value?: Signalish<string | readonly string[] | number | EmptyValue>
+  value?: Signalish<string | EmptyValue> | number
   width?: Signalish<number | string | EmptyValue>
 
   onChange?: ChangeEventHandler<T> | undefined
@@ -509,6 +516,11 @@ export interface MediaHTMLAttributes<T extends HTMLElement> extends HTMLAttribut
   crossOrigin?: Signalish<CrossOrigin>
   disableRemotePlayback?: Signalish<boolean | EmptyValue>
   loop?: Signalish<boolean | EmptyValue>
+  /**
+   * Whether the media is muted, set through the DOM property: a plain value is set once, an accessor
+   * is followed, and a writable signal also receives what the user does with the controls. The
+   * attribute is only a default the browser reads when it creates the element
+   */
   muted?: Signalish<boolean | EmptyValue>
   playsInline?: Signalish<boolean | EmptyValue>
   preload?: Signalish<string | EmptyValue>
@@ -597,26 +609,74 @@ export interface ScriptHTMLAttributes<T extends HTMLElement> extends HTMLAttribu
   type?: Signalish<string | EmptyValue>
 }
 
-export interface SelectHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
+interface SelectHTMLAttributesBase<T extends HTMLElement> extends HTMLAttributes<T> {
   autoComplete?: Signalish<string | EmptyValue>
   disabled?: Signalish<boolean | EmptyValue>
   form?: Signalish<string | EmptyValue>
-  multiple?: Signalish<boolean | EmptyValue>
   name?: Signalish<string | EmptyValue>
   required?: Signalish<boolean | EmptyValue>
   size?: Signalish<number | EmptyValue>
+  onChange?: ChangeEventHandler<T> | undefined
+}
+
+/**
+ * A select with one selected option: `value` is its value
+ */
+export interface SingleSelectHTMLAttributes<T extends HTMLElement> extends SelectHTMLAttributesBase<T> {
+  multiple?: false | EmptyValue
   /**
-   * The value of the selected option, or the list of them under `multiple`: a plain value is set
-   * once, an accessor is followed, and a writable signal also receives the user's choice. The
-   * options follow it, the ones built later included
+   * The value of the selected option: a plain value is set once, an accessor is followed, and a
+   * writable signal also receives the user's choice. The options follow it, the ones built later
+   * included
+   */
+  value?: Signalish<string | EmptyValue>
+  /**
+   * The initial selection, what a form reset returns it to. One way
+   */
+  defaultValue?: Signalish<string | EmptyValue>
+}
+
+/**
+ * A select with any number of selected options: `value` lists their values
+ */
+export interface MultipleSelectHTMLAttributes<T extends HTMLElement> extends SelectHTMLAttributesBase<T> {
+  /**
+   * Whether more than one option may be selected. It decides the shape of `value`, so it is static
+   */
+  multiple: true
+  /**
+   * The values of the selected options: a plain list is set once, an accessor is followed, and a
+   * writable signal also receives the user's choice. The options follow it, the ones built later
+   * included
+   */
+  value?: Signalish<readonly string[] | EmptyValue>
+  /**
+   * The initial selection, what a form reset returns it to. One way
+   */
+  defaultValue?: Signalish<readonly string[] | EmptyValue>
+}
+
+/**
+ * A select whose `multiple` follows an accessor: `value` takes either shape
+ */
+export interface ReactiveMultipleSelectHTMLAttributes<T extends HTMLElement> extends SelectHTMLAttributesBase<T> {
+  multiple: Accessor<boolean | EmptyValue>
+  /**
+   * The value of the selected option, or the list of them while `multiple` holds: a plain value is
+   * set once, an accessor is followed, and a writable signal also receives the user's choice, in
+   * the shape the select has at that moment
    */
   value?: Signalish<string | readonly string[] | EmptyValue>
   /**
    * The initial selection, what a form reset returns it to. One way
    */
   defaultValue?: Signalish<string | readonly string[] | EmptyValue>
-  onChange?: ChangeEventHandler<T> | undefined
 }
+
+export type SelectHTMLAttributes<T extends HTMLElement> =
+  | SingleSelectHTMLAttributes<T>
+  | MultipleSelectHTMLAttributes<T>
+  | ReactiveMultipleSelectHTMLAttributes<T>
 
 export interface SourceHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   height?: Signalish<number | string | EmptyValue>
@@ -681,7 +741,7 @@ export interface TextareaHTMLAttributes<T extends HTMLElement> extends HTMLAttri
    * The text of the control, set through the DOM property: a plain value is set once, an accessor
    * is followed, and a writable signal also receives what the user types
    */
-  value?: Signalish<string | readonly string[] | number | EmptyValue>
+  value?: Signalish<string | EmptyValue> | number
   wrap?: Signalish<string | EmptyValue>
 
   onChange?: ChangeEventHandler<T> | undefined

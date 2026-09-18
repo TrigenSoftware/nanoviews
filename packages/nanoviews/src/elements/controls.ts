@@ -8,15 +8,11 @@ import {
 } from 'kida'
 import {
   type Attributes,
+  Indeterminate,
   createVoidElement,
   createElement,
   setAttribute
 } from '../internals/index.js'
-
-/**
- * The third state of a checkbox, for `checked`
- */
-export const Indeterminate = Symbol.for('Indeterminate')
 
 type InputElement = HTMLInputElement | HTMLTextAreaElement
 
@@ -27,26 +23,34 @@ function setInput(
   property: InputProperty,
   next: unknown
 ) {
-  if (property === 'checked' || property === 'defaultChecked') {
+  if (property === 'checked') {
     // The third state is a flag of its own: the check underneath is left
     // alone
     if (!((input as HTMLInputElement).indeterminate = next === Indeterminate)) {
-      (input as HTMLInputElement)[property] = next as boolean
+      (input as HTMLInputElement).checked = next as boolean
     }
+  } else if (property === 'defaultChecked') {
+    (input as HTMLInputElement).defaultChecked = next as boolean
   } else if (property === 'defaultValue') {
     input.defaultValue = next as string
-  } else if (input.value !== next) {
-    // The browser moves the caret to the end when a different value is
-    // written, so the selection is put back, the way React does after a
-    // commit. It is `null` on the types without a selection, `number` or
-    // `email` say
-    const { selectionStart, selectionEnd } = input
+  } else if (input.matches(':focus')) {
+    // The user is in the control: the value it already shows is left alone,
+    // for the caret and an IME composition, and a different one is written
+    // with the selection put back, the way React does after a commit. It is
+    // `null` on the types without a selection, `number` or `email` say
+    if (input.value !== next) {
+      const { selectionStart, selectionEnd, selectionDirection } = input
 
-    input.value = next as string
+      input.value = next as string
 
-    if (selectionStart !== null) {
-      input.setSelectionRange(selectionStart, selectionEnd)
+      if (selectionStart !== null) {
+        input.setSelectionRange(selectionStart, selectionEnd, selectionDirection!)
+      }
     }
+  } else {
+    // Written even when equal: the write sets the dirty flag, which keeps a
+    // default set later from replacing the value
+    input.value = next as string
   }
 }
 
@@ -98,13 +102,6 @@ export function textarea(attributes?: Attributes<'textarea'>) {
 
 type SelectedProperty = 'selected' | 'defaultSelected'
 
-// What the user picked: one value, or the list of them under `multiple`
-function getSelected(select: HTMLSelectElement) {
-  return select.multiple
-    ? Array.from(select.selectedOptions, option => option.value)
-    : select.value
-}
-
 // Every option gets the property written: `selected` for the value,
 // `defaultSelected` for the default
 function selectOptions(
@@ -138,13 +135,14 @@ function setSelectAttribute(
 
       // The options come after the attributes, so a plain value is applied
       // by the observer, once the children are in. The options built later,
-      // by a `for_` or async data, and an option whose `value` attribute
-      // changes come the same way, a microtask later, as in Svelte. The read
-      // is untracked there, the callback runs outside any effect
+      // by a `for_` or async data, and an option whose `value` attribute or
+      // text changes come the same way, a microtask later, as in Svelte. The
+      // read is untracked there, the callback runs outside any effect.
+      // `attributeFilter` implies `attributes`
       new MutationObserver(apply).observe(select, {
         childList: true,
         subtree: true,
-        attributes: true,
+        characterData: true,
         attributeFilter: ['value']
       })
 
@@ -155,7 +153,13 @@ function setSelectAttribute(
 
         // The signal is written by the user only, on a change
         if (isLive && isWritable(value)) {
-          select.addEventListener('change', () => value(getSelected(select)))
+          // What the user picked: one value, or the list of them under
+          // `multiple`
+          select.addEventListener('change', () => value(
+            select.multiple
+              ? Array.from(select.selectedOptions, option => option.value)
+              : select.value
+          ))
         }
       }
     }

@@ -130,6 +130,26 @@ describe('nanoviews', () => {
             expect(container.querySelector('input')!.value).toBe('')
           })
 
+          it('should keep an empty value from a default set later', () => {
+            const { container } = render(() => fragment(
+              input({
+                value: signal(''),
+                defaultValue: 'fallback'
+              }),
+              textarea({
+                value: '',
+                defaultValue: 'fallback'
+              })
+            ))
+            const textbox = container.querySelector('input')!
+            const textarea_ = container.querySelector('textarea')!
+
+            expect(textbox.value).toBe('')
+            expect(textbox.defaultValue).toBe('fallback')
+            expect(textarea_.value).toBe('')
+            expect(textarea_.defaultValue).toBe('fallback')
+          })
+
           it('should keep the caret in place when the value is rewritten', () => {
             const $value = signal('abc')
             const { container } = render(() => input({
@@ -138,13 +158,16 @@ describe('nanoviews', () => {
             }))
             const textbox = container.querySelector('input')!
 
+            textbox.focus()
             textbox.value = 'abxc'
-            textbox.setSelectionRange(3, 3)
+            textbox.setSelectionRange(1, 3, 'backward')
             fireEvent.input(textbox)
 
             expect($value()).toBe('ABXC')
             expect(textbox.value).toBe('ABXC')
-            expect(textbox.selectionStart).toBe(3)
+            expect(textbox.selectionStart).toBe(1)
+            expect(textbox.selectionEnd).toBe(3)
+            expect(textbox.selectionDirection).toBe('backward')
           })
 
           it('should set a plain value', () => {
@@ -282,6 +305,24 @@ describe('nanoviews', () => {
 
             expect(checkbox.checked).toBe(false)
             expect($checked).not.toHaveBeenCalledWith(false)
+          })
+
+          it('should keep the indeterminate state under a default', () => {
+            const $default = signal(true)
+            const { container } = render(() => input({
+              type: 'checkbox',
+              checked: Indeterminate,
+              defaultChecked: $default
+            }))
+            const checkbox = container.querySelector('input')!
+
+            expect(checkbox.indeterminate).toBe(true)
+            expect(checkbox.defaultChecked).toBe(true)
+
+            $default(false)
+
+            expect(checkbox.indeterminate).toBe(true)
+            expect(checkbox.defaultChecked).toBe(false)
           })
 
           it('should set the indeterminate state by a plain value', () => {
@@ -527,6 +568,26 @@ describe('nanoviews', () => {
           expect($default()).toBe('green')
         })
 
+        it('should follow the text of an option without a value', async () => {
+          const $label = signal('red')
+          const { container } = render(() => select({
+            value: 'blue'
+          })(
+            option()('green'),
+            option()($label)
+          ))
+          const combobox = container.querySelector('select')!
+
+          await tick()
+
+          expect(combobox.value).toBe('green')
+
+          $label('blue')
+          await tick()
+
+          expect(combobox.value).toBe('blue')
+        })
+
         it('should build a select without a value', () => {
           const onChange = vi.fn()
           const { container } = render(() => select({
@@ -549,6 +610,60 @@ describe('nanoviews', () => {
 
           expect(onChange).toHaveBeenCalledTimes(1)
           expect(combobox.value).toBe('b')
+        })
+      })
+
+      describe('types', () => {
+        it('should tie the shape of the value to the control', () => {
+          input({
+            value: 'text'
+          })
+          input({
+            type: 'number',
+            value: 5
+          })
+          input({
+            type: 'number',
+            // @ts-expect-error what the user types is a string
+            value: signal(5)
+          })
+          input({
+            type: 'checkbox',
+            checked: Indeterminate
+          })
+          input({
+            type: 'checkbox',
+            // @ts-expect-error only the Indeterminate symbol is the third state
+            checked: Symbol('other')
+          })
+          textarea({
+            // @ts-expect-error what the user types is a string
+            value: signal(5)
+          })
+          select({
+            value: signal('a')
+          })
+          select({
+            multiple: true,
+            value: signal(['a'])
+          })
+          select({
+            // @ts-expect-error a single select holds one value
+            value: signal(['a'])
+          })
+          select({
+            multiple: true,
+            // @ts-expect-error a multiple select holds a list
+            value: signal('a')
+          })
+          select({
+            multiple: signal(true),
+            value: signal<string | readonly string[]>('a')
+          })
+          select({
+            multiple: () => false,
+            value: ['a']
+          })
         })
       })
 

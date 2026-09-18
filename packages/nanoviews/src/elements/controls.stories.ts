@@ -6,9 +6,9 @@ import { fn } from 'storybook/test'
 import { signal } from 'kida'
 import { effect$ } from '../component/effect.js'
 import { for_ } from '../flow/for.js'
+import { Indeterminate } from '../internals/index.js'
 import { option } from './elements.js'
 import {
-  Indeterminate,
   input,
   textarea,
   select

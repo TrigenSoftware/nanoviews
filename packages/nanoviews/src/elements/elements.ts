@@ -19,7 +19,6 @@ export const address = /* @__PURE__ */ createElementFactory('address')
 export const area = /* @__PURE__ */ createVoidElementFactory('area')
 export const article = /* @__PURE__ */ createElementFactory('article')
 export const aside = /* @__PURE__ */ createElementFactory('aside')
-export const audio = /* @__PURE__ */ createElementFactory('audio')
 export const b = /* @__PURE__ */ createElementFactory('b')
 export const base = /* @__PURE__ */ createVoidElementFactory('base')
 export const bdi = /* @__PURE__ */ createElementFactory('bdi')
@@ -124,5 +123,4 @@ const htmlVar = /* @__PURE__ */ createElementFactory('var')
 
 export { htmlVar as var }
 
-export const video = /* @__PURE__ */ createElementFactory('video')
 export const wbr = /* @__PURE__ */ createVoidElementFactory('wbr')

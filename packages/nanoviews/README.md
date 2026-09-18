@@ -75,7 +75,9 @@ mount(App, document.querySelector('#app'))
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#basic-markup">Basic markup</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#effect-attributes">Effect attributes</a>
+<a href="#element-bindings">Element bindings</a>
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+<a href="#form-controls">Form controls</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#components">Components</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
@@ -236,7 +238,7 @@ A few attributes are bound to the element rather than written as attributes.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { div } from 'nanoviews'
+import { div, canvas } from 'nanoviews'
 
 const $ref = signal(null)
 
@@ -246,11 +248,17 @@ div({
   'Target element'
 )
 
-div({
-  ref: element => element?.scrollIntoView()
-})(
-  'Scrolled into view'
-)
+canvas({
+  ref: element => element?.getContext('2d').fillRect(0, 0, 10, 10)
+})()
+```
+
+The callback runs while the element is built, before it is in the document. Work that needs the document, measuring or scrolling say, goes to an [`effect$`](#effect) that reads the signal:
+
+```js
+effect$(() => {
+  $ref()?.scrollIntoView()
+})
 ```
 
 Both are checked against the element: a `signal<HTMLButtonElement | null>` fits a `button`, a wider `HTMLElement | null` or `Element | null` fits any element, and a signal of another element is a type error.
@@ -290,6 +298,23 @@ input({
 })
 ```
 
+### muted
+
+`muted` on `audio` and `video` is the live state of the element, bound through the DOM property: the attribute is only a default the browser reads when it creates the element, so it would do nothing on an element built later. A writable signal also receives what the user does with the controls.
+
+```js
+import { signal } from 'nanoviews/store'
+import { video } from 'nanoviews'
+
+const $muted = signal(true)
+
+video({
+  src: 'clip.mp4',
+  controls: true,
+  muted: $muted
+})
+```
+
 ## Form controls
 
 `input`, `textarea` and `select` bind their state through the DOM properties, not the attributes, so what the user does and what the signal holds stay one thing. A plain value is set once, an accessor is followed, and a writable signal also receives the user's input.
@@ -313,6 +338,8 @@ textarea({
   value: $review
 })
 ```
+
+Attributes are applied in the order of the keys, and for a control the order can matter. A `range` input clamps its value to the bounds that are there at the moment it is written, so `min`, `max` and `step` go before `value` and `defaultValue`. A handler for the event a binding listens to, `onInput` for `value`, sees the new value in the signal only when it stands after the binding.
 
 `textarea` takes no children: its text is its `value`. A read-only accessor, such as a computed, only drives the control, and what the user types stays in it. A value rewritten under the user, by a formatter say, keeps the caret where it was.
 
@@ -394,7 +421,7 @@ select({
 )
 ```
 
-The options follow the value, the ones built later included: options rendered by `for_` or coming with async data are selected once they are in.
+The options follow the value, the ones built later included: options rendered by `for_` or coming with async data are selected once they are in, and an option whose `value` or text changes is looked at again.
 
 ### defaultValue and defaultChecked
 
