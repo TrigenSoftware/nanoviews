@@ -218,7 +218,7 @@ button({
 
 A list may hold another list, so a component folds the `class` it received into its own, as the [`props$`](#props) example does. The list itself is read once, when the element is built: the class changes through the accessors in it. Lists work the same way on the SVG elements from `nanoviews/svg`.
 
-`classList` builds the same accessor away from an element:
+`classList` builds the same class away from an element. With an accessor among the parts it returns an accessor, otherwise a plain string:
 
 ```js
 import { classList } from 'nanoviews'
