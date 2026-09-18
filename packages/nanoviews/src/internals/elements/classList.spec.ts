@@ -1,12 +1,20 @@
 import {
   describe,
   it,
-  expect
+  expect,
+  expectTypeOf
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
-import { signal } from 'kida'
-import type { Attributes } from '../types/index.js'
+import {
+  type Accessor,
+  type Signalish,
+  signal
+} from 'kida'
+import type {
+  Attributes,
+  ClassValue
+} from '../types/index.js'
 import {
   svg,
   path
@@ -28,15 +36,13 @@ describe('nanoviews', () => {
     describe('elements', () => {
       describe('classList', () => {
         describe('cx', () => {
-          it('should join the truthy string parts', () => {
-            const $class = cx(['button', false, null, 'button_primary', ''])
-
-            expect($class()).toBe('button button_primary')
+          it('should join the truthy string parts into a string', () => {
+            expect(cx(['button', false, null, 'button_primary', ''])).toBe('button button_primary')
           })
 
           it('should follow accessor parts', () => {
             const primary = signal(true)
-            const $class = cx(['button', () => primary() && 'button_primary'])
+            const $class = cx(['button', () => primary() && 'button_primary']) as Accessor<string>
 
             expect($class()).toBe('button button_primary')
 
@@ -46,13 +52,14 @@ describe('nanoviews', () => {
           })
 
           it('should give an empty class for an empty list', () => {
-            expect(cx([])()).toBe('')
+            expect(cx([])).toBe('')
           })
 
           it('should join nested lists in place', () => {
-            const $class = cx(['card', ['card_wide', false], () => ['card_dark']])
+            const $class = cx(['card', ['card_wide', false], () => ['card_dark']]) as Accessor<string>
 
             expect($class()).toBe('card card_wide card_dark')
+            expect(cx(['card', ['card_wide', ['card_dark']]])).toBe('card card_wide card_dark')
           })
         })
 
@@ -61,6 +68,30 @@ describe('nanoviews', () => {
             const { container } = render(StaticValue())
 
             expect(container.innerHTML).toBe('<div><div class="class1 class3">Hello, world!</div></div>')
+          })
+
+          it('should join a list with no accessors once, without an effect', () => {
+            // built by hand, outside a scope: an effect would have nowhere to
+            // live and would throw
+            const element = div({
+              class: ['card', false, ['card_wide', null, ['card_dark']]]
+            })()
+
+            expect(element.className).toBe('card card_wide card_dark')
+          })
+
+          it('should follow an accessor deep in a nested list', () => {
+            const $dark = signal(false)
+            const { container } = render(() => div({
+              class: ['card', ['card_wide', [() => $dark() && 'card_dark']]]
+            })())
+            const element = container.querySelector('.card')!
+
+            expect(element.className).toBe('card card_wide')
+
+            $dark(true)
+
+            expect(element.className).toBe('card card_wide card_dark')
           })
 
           it('should render reactive class list', () => {
@@ -151,6 +182,17 @@ describe('nanoviews', () => {
             dark(true)
 
             expect(container.innerHTML).toBe('<div><div class="card card_wide card_dark">Card</div></div>')
+          })
+
+          it('should type and return a string, an accessor or either', () => {
+            const primary = signal(true)
+            const parts: ClassValue[] = ['button']
+
+            expectTypeOf(classList('button', false)).toEqualTypeOf<string>()
+            expectTypeOf(classList('button', primary)).toEqualTypeOf<Accessor<string>>()
+            expectTypeOf(classList('button', parts)).toEqualTypeOf<Signalish<string>>()
+            expect(classList('button', false, 'button_primary')).toBe('button button_primary')
+            expect(classList('button', () => primary() && 'button_primary')()).toBe('button button_primary')
           })
 
           it('should take a class list accessor', () => {

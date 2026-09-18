@@ -1,5 +1,11 @@
-import type { Signalish } from 'kida'
-import type { EmptyValue } from '../common.js'
+import type {
+  Accessor,
+  Signalish
+} from 'kida'
+import type {
+  AnyFn,
+  EmptyValue
+} from '../common.js'
 
 /**
  * Used to represent DOM API's where users can either pass
@@ -17,6 +23,16 @@ export type CrossOrigin = 'anonymous' | 'use-credentials' | '' | EmptyValue
  * truthy strings with spaces, drops the rest, and joins a nested list in place.
  */
 export type ClassValue = Signalish<string | boolean | 0 | EmptyValue | readonly ClassValue[]>
+
+/**
+ * What `classList` returns for the given parts: an accessor when one of them is an accessor for
+ * sure, a string when none can be one or hold one, and either otherwise.
+ */
+export type ClassList<V extends readonly unknown[]> = true extends { [K in keyof V]: [V[K]] extends [AnyFn] ? true : false }[number]
+  ? Accessor<string>
+  : Extract<V[number], AnyFn | readonly unknown[]> extends never
+    ? string
+    : Signalish<string>
 
 /**
  * A `ref` value: a callback or a writable signal that receives the element
