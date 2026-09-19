@@ -360,8 +360,8 @@ const stop = effect((warmup) => {
 - `SignalishValue<T>` unwraps a `Signalish<T>` type.
 - `isAccessor(x)` is `typeof x === 'function'`; `isSignal(x)` also requires a signal node; `isWritable($x)`, `isMountable($x)`, `isEmpty(x)` (`null`/`undefined` only).
 - `toAccessor(x)` returns a function as is, wraps a value in `() => x`. `toSignal(x)` returns a signal as is, wraps a plain function in `computed`, a value in `signal`.
-- Cheap uncached accessors, exported by kida but absent from its README: `not`, `is`, `isNot`, `and`, `or`, `some`, `every`, `gt`, `gte`, `lt`, `lte`, `when($cond, then, else?)`. They cost no graph node and recompute on every read; an inline arrow does the same with no import, and `computed` caches when the value is shared or expensive.
-- Cached derivations: `length($arr)`, `boolean($x)`, `concat(...parts)`.
+- Cheap uncached accessors, exported by kida but absent from its README: `not`, `is`, `isNot`, `and`, `or`, `some`, `every`, `gt`, `gte`, `lt`, `lte`, `when($cond, then, else?)`, `pick(collection, $key)` and the template tag ``f`Toggle ${$label}` ``. They cost no graph node and recompute on every read; with no accessor among the operands they return the plain result instead of an accessor. An inline arrow does the same with no import, and `computed` caches when the value is shared or expensive.
+- Cached derivations: `length($arr)`, `boolean($x)`.
 - `selector($source)` returns `(key) => boolean` that wakes only the readers whose key changed; `selector($source, (key, value) => R)` customises the answer.
 
 ### Records, arrays, objects

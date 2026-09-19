@@ -27,8 +27,8 @@ overrides:
   # the same prerelease so examples get one kida instance shared with nanoviews.
   # agera is pinned too: a `^2.0.0-prerelease` range would otherwise resolve
   # to a snapshot, which sorts above a prerelease
-  '@nano_kit/platform-web@*': 2.0.0-prerelease.20260913103613
-  '@nano_kit/query@*': 2.0.0-prerelease.20260913103613
-  '@nano_kit/store@*': 2.0.0-prerelease.20260913103613
-  'kida@*': 2.0.0-prerelease.20260913103613
-  'agera@*': 2.0.0-prerelease.20260913103613
+  '@nano_kit/platform-web@*': 2.0.0-prerelease.20260919114914
+  '@nano_kit/query@*': 2.0.0-prerelease.20260919114914
+  '@nano_kit/store@*': 2.0.0-prerelease.20260919114914
+  'kida@*': 2.0.0-prerelease.20260919114914
+  'agera@*': 2.0.0-prerelease.20260919114914

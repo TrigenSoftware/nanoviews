@@ -51,11 +51,11 @@ catalogs:
 
 overrides:
   nanoviews@*: workspace:^
-  '@nano_kit/platform-web@*': 2.0.0-prerelease.20260913103613
-  '@nano_kit/query@*': 2.0.0-prerelease.20260913103613
-  '@nano_kit/store@*': 2.0.0-prerelease.20260913103613
-  kida@*: 2.0.0-prerelease.20260913103613
-  agera@*: 2.0.0-prerelease.20260913103613
+  '@nano_kit/platform-web@*': 2.0.0-prerelease.20260919114914
+  '@nano_kit/query@*': 2.0.0-prerelease.20260919114914
+  '@nano_kit/store@*': 2.0.0-prerelease.20260919114914
+  kida@*: 2.0.0-prerelease.20260919114914
+  agera@*: 2.0.0-prerelease.20260919114914
 
 importers:
 
@@ -197,14 +197,14 @@ importers:
   examples/weather/common:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20260913103613
-        version: 2.0.0-prerelease.20260913103613(@nano_kit/store@2.0.0-prerelease.20260913103613)
+        specifier: 2.0.0-prerelease.20260919114914
+        version: 2.0.0-prerelease.20260919114914(@nano_kit/store@2.0.0-prerelease.20260919114914)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20260913103613
-        version: 2.0.0-prerelease.20260913103613(@nano_kit/store@2.0.0-prerelease.20260913103613)
+        specifier: 2.0.0-prerelease.20260919114914
+        version: 2.0.0-prerelease.20260919114914(@nano_kit/store@2.0.0-prerelease.20260919114914)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20260913103613
-        version: 2.0.0-prerelease.20260913103613
+        specifier: 2.0.0-prerelease.20260919114914
+        version: 2.0.0-prerelease.20260919114914
       '@nanostores/persistent':
         specifier: ^1.3.5
         version: 1.3.5(nanostores@1.5.2)
@@ -231,14 +231,14 @@ importers:
   examples/weather/nano_kit:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20260913103613
-        version: 2.0.0-prerelease.20260913103613(@nano_kit/store@2.0.0-prerelease.20260913103613)
+        specifier: 2.0.0-prerelease.20260919114914
+        version: 2.0.0-prerelease.20260919114914(@nano_kit/store@2.0.0-prerelease.20260919114914)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20260913103613
-        version: 2.0.0-prerelease.20260913103613(@nano_kit/store@2.0.0-prerelease.20260913103613)
+        specifier: 2.0.0-prerelease.20260919114914
+        version: 2.0.0-prerelease.20260919114914(@nano_kit/store@2.0.0-prerelease.20260919114914)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20260913103613
-        version: 2.0.0-prerelease.20260913103613
+        specifier: 2.0.0-prerelease.20260919114914
+        version: 2.0.0-prerelease.20260919114914
       nanoviews:
         specifier: workspace:^
         version: link:../../../packages/nanoviews
@@ -253,14 +253,14 @@ importers:
   examples/weather/nano_kit-di:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20260913103613
-        version: 2.0.0-prerelease.20260913103613(@nano_kit/store@2.0.0-prerelease.20260913103613)
+        specifier: 2.0.0-prerelease.20260919114914
+        version: 2.0.0-prerelease.20260919114914(@nano_kit/store@2.0.0-prerelease.20260919114914)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20260913103613
-        version: 2.0.0-prerelease.20260913103613(@nano_kit/store@2.0.0-prerelease.20260913103613)
+        specifier: 2.0.0-prerelease.20260919114914
+        version: 2.0.0-prerelease.20260919114914(@nano_kit/store@2.0.0-prerelease.20260919114914)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20260913103613
-        version: 2.0.0-prerelease.20260913103613
+        specifier: 2.0.0-prerelease.20260919114914
+        version: 2.0.0-prerelease.20260919114914
       nanoviews:
         specifier: workspace:^
         version: link:../../../packages/nanoviews
@@ -275,8 +275,8 @@ importers:
   packages/nanoviews:
     dependencies:
       kida:
-        specifier: 2.0.0-prerelease.20260913103613
-        version: 2.0.0-prerelease.20260913103613
+        specifier: 2.0.0-prerelease.20260919114914
+        version: 2.0.0-prerelease.20260919114914
     devDependencies:
       '@nanoviews/storybook':
         specifier: workspace:^
@@ -945,20 +945,20 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@nano_kit/platform-web@2.0.0-prerelease.20260913103613':
-    resolution: {integrity: sha512-2Z4XpmeNjr0aRFMQXuCoqO/zR7wrqNv8/EE+9/GMdh3Qojo19/piMR5Cb6AizjmmO0WEIM0iGa8DFDipnbsNlg==}
+  '@nano_kit/platform-web@2.0.0-prerelease.20260919114914':
+    resolution: {integrity: sha512-p5Ye75Lzk28TDqx00zWdhgsvG6zSWFIGzTSBoSAxXR7WiuhzZqogkx3rtS1ui89NYsUf81ng+WNO4aRRgvQkaA==}
     engines: {node: '>=20'}
     peerDependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20260913103613
+      '@nano_kit/store': 2.0.0-prerelease.20260919114914
 
-  '@nano_kit/query@2.0.0-prerelease.20260913103613':
-    resolution: {integrity: sha512-NSrg6Elb5CWP4E5IfoKwMUG8MfmZlaIjKVbw1uV6qWEwxHQ2+ZDq84kZr66NxBJI87qZ2Mv2y6XUqLl45COcPg==}
+  '@nano_kit/query@2.0.0-prerelease.20260919114914':
+    resolution: {integrity: sha512-dN0lAy0oGpT37Zdl7USbeUqHDQAP0zHWJ9YmZsrd5ET3Mb7nLWtVZ8SDImISf7F1WAb3eQ8g66R+CXnDm2BEsg==}
     engines: {node: '>=20'}
     peerDependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20260913103613
+      '@nano_kit/store': 2.0.0-prerelease.20260919114914
 
-  '@nano_kit/store@2.0.0-prerelease.20260913103613':
-    resolution: {integrity: sha512-32ssRAJPl27ib3CbyMn4SEUddeXQHMZ/bj0AU3USBj3R5YWvXsNgMlufT8bhIU0wz2+JjvilNG3d/6cRU+BaPA==}
+  '@nano_kit/store@2.0.0-prerelease.20260919114914':
+    resolution: {integrity: sha512-L5S8kJwIshEizQ6y/afEinxdPf6uE7UzeLhewXK+wwdNRX1Dd5zFS8Q1CKois21nHsNXU8JDysSrWKZHX/POVg==}
     engines: {node: '>=20'}
 
   '@nanostores/persistent@1.3.5':
@@ -1842,8 +1842,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  agera@2.0.0-prerelease.20260913103613:
-    resolution: {integrity: sha512-yJ/PM4FlmOr9FV4O+1hLC9B63QqOSRfbZ/ZMvmMr/7Bc40gBxzEmr2cFm4V0KO3bDDKD3t+CAq0rlgKXiRPthg==}
+  agera@2.0.0-prerelease.20260919114914:
+    resolution: {integrity: sha512-dVaGJfBphcBv7ZGWh43rNxNDhWJXNDiGzd32Pr8s0CzvZ80ram39knaFMGel0kjULRs9dBqLOYDyV5dpKmqkaw==}
     engines: {node: '>=20'}
 
   ajv@8.17.1:
@@ -2533,8 +2533,8 @@ packages:
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
-  kida@2.0.0-prerelease.20260913103613:
-    resolution: {integrity: sha512-8PoDD9CUgV/T12eAOwBAplBcwdNGh1VOOhDg8p/5E8AIMrdJ6o3Fdu/BuMZYC0W1kMoQYYPNTB/YrV91G1M3Sw==}
+  kida@2.0.0-prerelease.20260919114914:
+    resolution: {integrity: sha512-gFBsTsehurmFU92DEbQdp53Q51SUm60e/dpGufKYL+GbUpAmIbbRUnl3BDQTOW9iKSP8wxdBsSWPc9F+DZ1ABg==}
     engines: {node: '>=20'}
 
   lightningcss-android-arm64@1.33.0:
@@ -3876,17 +3876,17 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@nano_kit/platform-web@2.0.0-prerelease.20260913103613(@nano_kit/store@2.0.0-prerelease.20260913103613)':
+  '@nano_kit/platform-web@2.0.0-prerelease.20260919114914(@nano_kit/store@2.0.0-prerelease.20260919114914)':
     dependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20260913103613
+      '@nano_kit/store': 2.0.0-prerelease.20260919114914
 
-  '@nano_kit/query@2.0.0-prerelease.20260913103613(@nano_kit/store@2.0.0-prerelease.20260913103613)':
+  '@nano_kit/query@2.0.0-prerelease.20260919114914(@nano_kit/store@2.0.0-prerelease.20260919114914)':
     dependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20260913103613
+      '@nano_kit/store': 2.0.0-prerelease.20260919114914
 
-  '@nano_kit/store@2.0.0-prerelease.20260913103613':
+  '@nano_kit/store@2.0.0-prerelease.20260919114914':
     dependencies:
-      kida: 2.0.0-prerelease.20260913103613
+      kida: 2.0.0-prerelease.20260919114914
 
   '@nanostores/persistent@1.3.5(nanostores@1.5.2)':
     dependencies:
@@ -4500,7 +4500,7 @@ snapshots:
 
   acorn@8.17.0: {}
 
-  agera@2.0.0-prerelease.20260913103613: {}
+  agera@2.0.0-prerelease.20260919114914: {}
 
   ajv@8.17.1:
     dependencies:
@@ -5186,9 +5186,9 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
-  kida@2.0.0-prerelease.20260913103613:
+  kida@2.0.0-prerelease.20260919114914:
     dependencies:
-      agera: 2.0.0-prerelease.20260913103613
+      agera: 2.0.0-prerelease.20260919114914
 
   lightningcss-android-arm64@1.33.0:
     optional: true
