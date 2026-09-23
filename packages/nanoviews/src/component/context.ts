@@ -9,6 +9,7 @@ import {
 } from 'kida'
 import {
   type Child,
+  type LazyChild,
   childToNode,
   lazyChild
 } from '../internals/index.js'
@@ -27,8 +28,20 @@ export {
  * @param providers - The values to provide.
  * @returns Function that accepts the child.
  */
+export function context$(...providers: InjectionProvider[]): (child: Child) => LazyChild
+
+/**
+ * Build a child within the given injection context. The context is used as
+ * it is: the child sees its values and those of the parent it was created
+ * with, not the current context, and what the child resolves is kept in it,
+ * so code that holds the instance shares the same dependencies.
+ * @param context - The injection context to build the child within.
+ * @returns Function that accepts the child.
+ */
+export function context$(context: InjectionContext): (child: Child) => LazyChild
+
 /* @__NO_SIDE_EFFECTS__ */
-export function context$(...providers: InjectionProvider[]) {
+export function context$(...providers: InjectionProvider[] | [InjectionContext]) {
   return (child: Child) => lazyChild(() => {
     const currentContext = getContext()
 
@@ -38,7 +51,9 @@ export function context$(...providers: InjectionProvider[]) {
     return !providers.length && currentContext !== undefined
       ? child
       : unsafeRun(
-        new InjectionContext(providers, currentContext),
+        providers[0] instanceof InjectionContext
+          ? providers[0]
+          : new InjectionContext(providers as InjectionProvider[], currentContext),
         childToNode,
         child
       )

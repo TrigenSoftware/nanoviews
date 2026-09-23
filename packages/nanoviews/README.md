@@ -678,6 +678,21 @@ App() // <div>Current theme: dark</div>
 
 `context$()` with no providers opens the root context an app needs before any `inject`. A component provides to its own children the same way: `context$(provide(Value$, $value))(div()(...children))`.
 
+`context$` also takes an `InjectionContext` instance in place of the providers. The child is built within that very context: it sees the values of the instance and of the parent the instance was created with, not those of the current context, and what the child resolves stays in the instance. This is how a context made outside the view is handed to it, so the view and the code around it share the same dependencies:
+
+```js
+import { InjectionContext, signal, provide, inject } from 'nanoviews/store'
+import { context$, mount } from 'nanoviews'
+
+const context = new InjectionContext([
+  provide(ThemeContext, signal('dark'))
+])
+
+mount(() => context$(context)(Themed()), document.querySelector('#app'))
+
+inject(ThemeContext, context)('light') // <div>Current theme: light</div>
+```
+
 > [!NOTE]
 > Nanoviews contexts are based on [Kida's dependency injection system](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/kida#dependency-injection).
 

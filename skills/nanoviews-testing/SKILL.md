@@ -122,6 +122,7 @@ it('should use the provided theme', () => {
 ```
 
 - `context$(...providers)(child)` with no current context builds the child under the root context with those providers; `context$()` inside `App` then reuses it.
+- To reach what the view resolved, make the root context in the test and hand it in: `const context = new InjectionContext()`, `render(() => context$(context)(App()))`, then `inject(Store$, context)` is the very store the view uses.
 - A provided signal must have exactly the factory's return type (`signal<Theme>('dark')`, not `signal('dark')`).
 - `inject` outside a context throws; `expect(() => render(ComponentThatInjects)).toThrow()` is the test for a missing root context.
 
