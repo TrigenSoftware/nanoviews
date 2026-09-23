@@ -5,16 +5,16 @@ import {
   vi
 } from 'vitest'
 import { render } from '@nanoviews/testing-library'
-import { signal } from 'kida'
+import {
+  signal,
+  provide,
+  inject
+} from 'kida'
 import {
   createElement,
   lazyChild
 } from '../elements/index.js'
-import {
-  provide,
-  context$,
-  inject
-} from '../../component/context.js'
+import { context$ } from '../../component/context.js'
 import { swap } from './swap.js'
 
 describe('nanoviews', () => {

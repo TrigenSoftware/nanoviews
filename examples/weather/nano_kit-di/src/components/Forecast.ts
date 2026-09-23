@@ -2,7 +2,8 @@
 import {
   signal,
   computed,
-  length
+  length,
+  inject
 } from 'nanoviews/store'
 import {
   section,
@@ -12,7 +13,6 @@ import {
   option,
   ul,
   trackBy,
-  inject,
   component$,
   for_,
   if_

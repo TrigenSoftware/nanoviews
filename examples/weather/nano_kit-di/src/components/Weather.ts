@@ -1,11 +1,13 @@
-import { record } from 'nanoviews/store'
+import {
+  record,
+  inject
+} from 'nanoviews/store'
 import {
   div,
   h3,
   img,
   p,
   br,
-  inject,
   component$,
   if_
 } from 'nanoviews'
