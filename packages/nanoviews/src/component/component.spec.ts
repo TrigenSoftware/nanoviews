@@ -1,7 +1,8 @@
 import {
   describe,
   it,
-  expect
+  expect,
+  expectTypeOf
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
 import {
@@ -12,6 +13,8 @@ import {
 import { signal } from 'kida'
 import type {
   Attributes,
+  Child,
+  Component,
   LazyElement
 } from '../internals/types/index.js'
 import { div } from '../elements/index.js'
@@ -94,6 +97,33 @@ describe('nanoviews', () => {
         })('Hello')() as LazyElement<HTMLDivElement>
 
         expect(rendered().outerHTML).toBe('<div class="box">Hello</div>')
+      })
+
+      it('should take no children when the render has no children parameter', () => {
+        const NoParameters = component$(() => div()('Hello'))
+        const PropsOnly = component$((props: Attributes<'div'>) => div(props)('Hello'))
+
+        expectTypeOf(NoParameters).toEqualTypeOf<Component<object, []>>()
+        expectTypeOf(PropsOnly).toEqualTypeOf<Component<Attributes<'div'>, []>>()
+
+        // @ts-expect-error a component that takes no children is not called with them
+        NoParameters()('Hello')
+      })
+
+      it('should take children when the render has the children parameter', () => {
+        const Untyped = component$((_, children) => div()(...children))
+        const Typed = component$((props: Attributes<'div'>, [item]: [item: (index: number) => Child]) => div(props)(item(0)))
+
+        expectTypeOf(Untyped).toEqualTypeOf<Component<object>>()
+        expectTypeOf(Typed).toEqualTypeOf<Component<Attributes<'div'>, [item: (index: number) => Child]>>()
+      })
+
+      it('should keep the declared children when the type arguments are written out', () => {
+        const Declared = component$<Attributes<'div'>>(props => div(props)('Hello'))
+        const DeclaredNone = component$<Attributes<'div'>, []>(props => div(props)('Hello'))
+
+        expectTypeOf(Declared).toEqualTypeOf<Component<Attributes<'div'>>>()
+        expectTypeOf(DeclaredNone).toEqualTypeOf<Component<Attributes<'div'>, []>>()
       })
     })
   })

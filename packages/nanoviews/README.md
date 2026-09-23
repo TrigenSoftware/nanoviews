@@ -613,6 +613,19 @@ List({ items: ['chopper', 'magixx'] })(item => b()('Player: ', item))
 // <ul><li><b>Player: chopper</b></li><li><b>Player: magixx</b></li></ul>
 ```
 
+A render with no `children` parameter makes a component that takes none, so children passed to it are a type error rather than lost. The same goes for `slot$`:
+
+```ts
+import { hr, component$ } from 'nanoviews'
+
+const Divider = component$((props: { class?: string }) => hr(props))
+
+Divider({ class: 'wide' })
+Divider()('Hello') // type error: Expected 0 arguments, but got 1
+```
+
+That is read off the render itself, so it needs the types inferred. With the type arguments written out, `component$<Props>(...)`, the children stay allowed; `component$<Props, []>(...)` turns them off.
+
 ### slots$
 
 A slot is a component made with `slot$`: its instances name the component and keep their props, so a layout can pick them out of its children. `slots$` gives the layout's render the declared slots in order, an instance or `undefined` each, and the rest of the children last; `component$` turns the result into a component.
