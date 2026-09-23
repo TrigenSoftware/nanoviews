@@ -4,38 +4,38 @@
     "gzip": true,
     "path": "dist/index.js",
     "import": "*",
-    "limit": "7.20 kB"
+    "limit": "7.05 kB"
   },
   {
     "name": "All publics (Brotli)",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "6.55 kB"
+    "limit": "6.40 kB"
   },
   {
     "name": "Average usage (Gzip)",
     "gzip": true,
     "path": "dist/index.js",
     "import": "{ fragment, div, form, input, button, label, if_, for_, component$, effect$ }",
-    "limit": "4.25 kB"
+    "limit": "4.15 kB"
   },
   {
     "name": "Average usage (Brotli)",
     "path": "dist/index.js",
     "import": "{ fragment, div, form, input, button, label, if_, for_, component$, effect$ }",
-    "limit": "3.95 kB"
+    "limit": "3.80 kB"
   },
   {
     "name": "SVG usage (Gzip)",
     "gzip": true,
     "path": "dist/svg.js",
     "import": "{ svg, path, circle }",
-    "limit": "1.80 kB"
+    "limit": "1.70 kB"
   },
   {
     "name": "SVG usage (Brotli)",
     "path": "dist/svg.js",
     "import": "{ svg, path, circle }",
-    "limit": "1.65 kB"
+    "limit": "1.60 kB"
   }
 ]
