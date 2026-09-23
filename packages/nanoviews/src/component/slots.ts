@@ -2,6 +2,7 @@ import {
   type Child,
   type Children,
   type Render,
+  type RenderChildren,
   type SlotInstance,
   type SlotComponent,
   type AnySlotInstance,
@@ -14,18 +15,21 @@ import {
 
 /**
  * Create a slot component: a component whose instances name it, so a `slots$`
- * layout can pick them out of its children
+ * layout can pick them out of its children. A render with no `children`
+ * parameter makes a slot that takes none
  * @param render - Function to render the slot with props and children
  * @returns The slot component
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function slot$<
   P extends object = object,
-  C extends unknown[] = Children
->(render: Render<P, C>) {
+  C extends unknown[] = Children,
+  // The render as it is written, see `component$`
+  R = unknown
+>(render: R & Render<P, C>) {
   const slot = ((props: P = {} as P) => {
     let children: C | undefined
-    const instance: SlotInstance<P, C> = lazyChild((...args: C) => {
+    const instance: SlotInstance<P, RenderChildren<R, C>> = lazyChild((...args: C) => {
       if (args.length) {
         children = args
 
@@ -33,12 +37,12 @@ export function slot$<
       }
 
       return render(props, (children ?? []) as C)
-    }) as SlotInstance<P, C>
+    }) as SlotInstance<P, RenderChildren<R, C>>
 
     instance.f = slot
 
     return instance
-  }) as SlotComponent<P, C>
+  }) as SlotComponent<P, RenderChildren<R, C>>
 
   return slot
 }

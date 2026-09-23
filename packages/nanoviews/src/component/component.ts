@@ -1,6 +1,7 @@
 import {
   type Children,
   type Render,
+  type RenderChildren,
   type Component,
   type ComponentInstance,
   lazyChild
@@ -9,15 +10,19 @@ import {
 /**
  * Create a component. An instance takes its children in one call and renders
  * in the call with no arguments, the one the parent makes on build, so the
- * parent's injection context and scope are in place when the render runs
+ * parent's injection context and scope are in place when the render runs.
+ * A render with no `children` parameter makes a component that takes none
  * @param render - Function to render the component with props and children
  * @returns The component
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function component$<
   P extends object = object,
-  C extends unknown[] = Children
->(render: Render<P, C>) {
+  C extends unknown[] = Children,
+  // The render as it is written: `P` and `C` say what it is given, and only
+  // the function itself says whether it has the parameter for the children
+  R = unknown
+>(render: R & Render<P, C>) {
   return ((props: P = {} as P) => {
     let children: C | undefined
     const instance: ComponentInstance<C> = lazyChild((...args: C) => {
@@ -31,5 +36,5 @@ export function component$<
     }) as ComponentInstance<C>
 
     return instance
-  }) as Component<P, C>
+  }) as Component<P, RenderChildren<R, C>>
 }

@@ -1,10 +1,17 @@
 import {
   describe,
   it,
-  expect
+  expect,
+  expectTypeOf
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
+import type {
+  Attributes,
+  SlotComponent
+} from '../internals/types/index.js'
+import { header } from '../elements/index.js'
+import { slot$ } from './slots.js'
 import * as Stories from './slots.stories.js'
 
 const {
@@ -72,6 +79,21 @@ describe('nanoviews', () => {
           const { container } = render(StandaloneSlot())
 
           expect(container.innerHTML).toBe('<div><div><header class="alone">Alone</header></div></div>')
+        })
+
+        it('should take no children when the render has no children parameter', () => {
+          const Title = slot$((props: Attributes<'header'>) => header(props)('Title'))
+
+          expectTypeOf(Title).toEqualTypeOf<SlotComponent<Attributes<'header'>, []>>()
+
+          // @ts-expect-error a slot that takes no children is not called with them
+          Title()('Hello')
+        })
+
+        it('should take children when the render has the children parameter', () => {
+          const Title = slot$((props: Attributes<'header'>, children) => header(props)(...children))
+
+          expectTypeOf(Title).toEqualTypeOf<SlotComponent<Attributes<'header'>>>()
         })
       })
     })

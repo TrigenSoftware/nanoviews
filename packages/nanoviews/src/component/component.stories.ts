@@ -68,7 +68,7 @@ interface GreetingProps extends Attributes<'p'> {
   excited?: boolean
 }
 
-const Greeting = component$<GreetingProps>((props) => {
+const Greeting = component$((props: GreetingProps) => {
   const {
     $name,
     $excited = () => false,
