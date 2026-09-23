@@ -6,8 +6,8 @@ import type {
   LazyChild,
   MaybeDestroy
 } from '../types/index.js'
-import { isEmpty } from '../utils.js'
 import {
+  isEmptyChild,
   createTextNode,
   createTextNodeFromAccessor
 } from './text.js'
@@ -42,8 +42,8 @@ export function childToNode(child: Child) {
     child = child()
   }
 
-  return isEmpty(child)
-    ? child
+  return isEmptyChild(child)
+    ? undefined
     : typeof child === 'object'
       ? child
       : createTextNode(child)

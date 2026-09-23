@@ -278,6 +278,19 @@ describe('nanoviews', () => {
 
           expect(container.innerHTML).toBe('<div><div><hr>^ hr, br &gt;<br>^ br, hr &gt;<hr></div></div>')
         })
+
+        it('should render no nodes for empty and boolean children, but keep zero', () => {
+          const { container } = render(() => createElement('div')(
+            null,
+            undefined,
+            true,
+            false,
+            0
+          ))
+
+          expect(container.innerHTML).toBe('<div><div>0</div></div>')
+          expect(container.firstChild!.childNodes.length).toBe(1)
+        })
       })
     })
   })

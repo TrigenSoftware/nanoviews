@@ -142,13 +142,24 @@ Child can be another description, a DOM node, primitive value (string, number, b
 import { signal } from 'nanoviews/store'
 import { ul, li } from 'nanoviews'
 
-const $boolean = signal(true)
+const $count = signal(0)
 const list = ul({ class: 'list' })(
   li()('String value'),
   li()('Number value', 42),
-  li()('Boolean value', $boolean)
+  li()('Signal value', $count)
 )
 // `list` describes the list, `list()` builds the HTMLUListElement
+```
+
+`null`, `undefined`, `true` and `false` render nothing, the way they do in React, so a static condition needs no `: null`. `0` is a number and renders as text:
+
+```js
+import { ul, li } from 'nanoviews'
+
+const list = ul()(
+  li()('Profile'),
+  isAdmin && li()('Settings')
+)
 ```
 
 A DOM node made elsewhere is a child too and goes into the tree as is, so vanilla code needs no wrapping:

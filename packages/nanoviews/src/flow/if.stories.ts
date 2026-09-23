@@ -33,7 +33,7 @@ export const ReactiveValue: Story = {
   render({ value }) {
     return (
       if_(value)(
-        $val => b()('True: ', $val),
+        $val => b()('True: ', () => String($val())),
         () => 'False'
       )
     )
@@ -47,7 +47,7 @@ export const ReactiveValueThenOnly: Story = {
   render({ value }) {
     return (
       if_(value)(
-        $val => b()('True: ', $val)
+        $val => b()('True: ', () => String($val()))
       )
     )
   }
