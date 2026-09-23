@@ -10,11 +10,14 @@ import {
   screen
 } from '@nanoviews/testing-library'
 import {
+  type ReadableSignal,
   type WritableSignal,
+  ExternalModesBase,
   signal,
   computed,
   untracked,
   isWritable,
+  onSignal,
   record
 } from 'kida'
 import { effect$ } from '../component/effect.js'
@@ -568,6 +571,35 @@ describe('nanoviews', () => {
         ))
 
         expect(writable).toBe(false)
+      })
+
+      it('should keep the other modes of a read-only row', () => {
+        // A mode set as the node is created, the way `uninspected` marks the
+        // nodes the devtools keep out of their graph
+        const ExternalMode = 1 << ExternalModesBase
+        const items = computed(() => [createPlayer(1)])
+        let marking = true
+        let modes = 0
+
+        onSignal(($signal) => {
+          if (marking) {
+            $signal.node.modes |= ExternalMode
+          }
+        })
+
+        render(() => ul()(
+          for_(items, trackById)(
+            (item) => {
+              modes = (item as ReadableSignal<Player>).node.modes
+
+              return li()(record(item).$name)
+            }
+          )
+        ))
+
+        marking = false
+
+        expect(modes & ExternalMode).toBe(ExternalMode)
       })
 
       it('should remove a run of rows from the end', () => {
