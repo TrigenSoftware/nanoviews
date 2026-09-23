@@ -30,7 +30,7 @@
     "gzip": true,
     "path": "dist/svg.js",
     "import": "{ svg, path, circle }",
-    "limit": "1.75 kB"
+    "limit": "1.80 kB"
   },
   {
     "name": "SVG usage (Brotli)",

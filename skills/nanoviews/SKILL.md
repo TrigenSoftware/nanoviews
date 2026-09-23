@@ -64,7 +64,7 @@ p({ class: 'note', title: () => `${$count()} items`, hidden: $done })(
 )
 ```
 
-- Children: descriptions (`span()` alone is fine), component instances, nodes, strings, numbers, signals and accessors (live text nodes). `null`/`undefined` render nothing; `true`, `false` and `0` render as text, so gate with `cond ? x : null` or a block. A bare array throws: spread it.
+- Children: descriptions (`span()` alone is fine), component instances, nodes, strings, numbers, signals and accessors (live text nodes). `null`, `undefined`, `true` and `false` render nothing, static or read from an accessor, so `cond && x` gates a static child like in React; `0` renders as text, so gate a count with `count > 0 && x`. A condition that changes needs a block. A bare array throws: spread it.
 - Call components: `div()(Counter())`. An uncalled component is a type error (untyped, it would be read as an accessor and its return stringified). A description inserted twice is built twice; build it by hand and insert the node to share it.
 - Attribute names follow the type definitions: HTML spelling for single words (`class`, `for`, `hidden`), camelCase for multi-word names (`tabIndex`, `readOnly`, `autoComplete`; lowercase `tabindex` is a type error), quoted dashed names (`'aria-expanded'`, `'data-id'`; `data-*` is typed on HTML elements only).
 - Attribute values are static or accessors. `null`, `undefined` and `false` remove the attribute, so `disabled: $busy` toggles like in React. `aria-*`, `data-*`, `draggable`, `contentEditable` and `spellCheck` are the exception: `false` is written as the string `"false"`, so pass a boolean signal or accessor to them directly (a `string` accessor is rejected on `aria-*`).

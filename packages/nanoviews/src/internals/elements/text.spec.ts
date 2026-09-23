@@ -37,7 +37,7 @@ describe('nanoviews', () => {
           expect(container.textContent).toBe('Hello, nanoviews!')
         })
 
-        it('should render empty value as empty string, but keep falsy ones', () => {
+        it('should render empty value as empty string, but keep zero', () => {
           const value = signal<Primitive>(null)
           const { container } = render(ReactiveValue({
             value
@@ -53,11 +53,24 @@ describe('nanoviews', () => {
 
           expect(container.textContent).toBe('0')
 
-          value(false)
-
-          expect(container.textContent).toBe('false')
-
           value('')
+
+          expect(container.textContent).toBe('')
+        })
+
+        it('should render boolean value as empty string', () => {
+          const value = signal<Primitive>(true)
+          const { container } = render(ReactiveValue({
+            value
+          }))
+
+          expect(container.textContent).toBe('')
+
+          value('Hello, world!')
+
+          expect(container.textContent).toBe('Hello, world!')
+
+          value(false)
 
           expect(container.textContent).toBe('')
         })
