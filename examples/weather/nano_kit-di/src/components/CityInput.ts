@@ -1,7 +1,5 @@
-import {
-  inject,
-  component$
-} from 'nanoviews'
+import { inject } from 'nanoviews/store'
+import { component$ } from 'nanoviews'
 import {
   LocationSearch$,
   CitySuggestions$

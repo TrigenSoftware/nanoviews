@@ -268,11 +268,11 @@ portal(() => document.body, div({ class: 'modal' })('in the body'))
 
 ## Dependency injection in depth
 
-`inject(Factory$)` runs the factory once per context and caches the instance; parent contexts are searched first, so a value resolved at the root is shared by every child context. `provide(Factory$, value)` returns a provider tuple for `context$(...)` and short-circuits the factory. A factory's return value is the default, so contexts have defaults for free.
+`inject`, `provide` and `InjectionContext` come from `nanoviews/store`, `context$` and `isolate$` from `nanoviews`. `inject(Factory$)` runs the factory once per context and caches the instance; parent contexts are searched first, so a value resolved at the root is shared by every child context. `provide(Factory$, value)` returns a provider tuple for `context$(...)` and short-circuits the factory. A factory's return value is the default, so contexts have defaults for free.
 
 ```ts
-import { signal, computed, mountable, onMount, Injectable$ } from 'nanoviews/store'
-import { main, button, component$, context$, isolate$, provide, inject } from 'nanoviews'
+import { signal, computed, mountable, onMount, Injectable$, provide, inject } from 'nanoviews/store'
+import { main, button, component$, context$, isolate$ } from 'nanoviews'
 
 type Theme = 'light' | 'dark'
 

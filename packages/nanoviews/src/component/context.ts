@@ -2,10 +2,7 @@ import {
   type InjectionProvider,
   InjectionContext,
   getContext,
-  run,
-  unsafeRun,
-  provide,
-  inject
+  unsafeRun
 } from 'kida'
 import {
   type Child,
@@ -13,13 +10,6 @@ import {
   childToNode,
   lazyChild
 } from '../internals/index.js'
-
-export {
-  getContext,
-  run,
-  provide,
-  inject
-}
 
 /**
  * Provide dependencies to a child: it is built within a child injection

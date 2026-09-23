@@ -46,7 +46,7 @@ import '@testing-library/jest-dom/vitest'    // optional matchers
 
 - Dev dependencies: `vitest`, `happy-dom`, `@nanoviews/testing-library`, `@testing-library/dom`; optional `@testing-library/jest-dom`, `@testing-library/user-event`.
 - Importing the package root without Vitest globals registers no cleanup; the `/vitest` entry or a manual `afterEach(cleanup)` is required. `@nanoviews/testing-library/pure` registers nothing.
-- Inside the nanoviews monorepo specs import signals from `kida`; consumer tests import from `nanoviews/store`.
+- Inside the nanoviews monorepo specs import signals, `provide` and `inject` from `kida`; consumer tests import them from `nanoviews/store`.
 
 ## Rendering
 

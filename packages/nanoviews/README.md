@@ -657,11 +657,11 @@ A slot the caller did not pass is `undefined` and renders nothing, the same slot
 
 ### context$
 
-`context$` provides values to a child. The child is built within the context, so every `inject` in it, however deep, sees the values.
+`context$` provides values to a child. The child is built within the context, so every `inject` in it, however deep, sees the values. `provide`, `inject` and the rest of Kida's dependency injection come from `nanoviews/store`.
 
 ```js
-import { signal } from 'nanoviews/store'
-import { div, component$, context$, provide, inject } from 'nanoviews'
+import { signal, provide, inject } from 'nanoviews/store'
+import { div, component$, context$ } from 'nanoviews'
 
 function ThemeContext() {
   return signal('light') // default value
@@ -714,8 +714,8 @@ inject(ThemeContext, context)('light') // <div>Current theme: light</div>
 `isolate$` builds a child outside the surrounding injection context, so nothing above it is reachable. `inject` inside a bare `isolate$` throws — the point is to start a fresh provider tree with `context$` that inherits nothing, rather than to fall back to defaults.
 
 ```js
-import { signal } from 'nanoviews/store'
-import { div, component$, context$, isolate$, provide, inject } from 'nanoviews'
+import { signal, provide, inject } from 'nanoviews/store'
+import { div, component$, context$, isolate$ } from 'nanoviews'
 
 function ThemeContext() {
   return signal('light')

@@ -2,13 +2,15 @@ import type {
   Meta,
   StoryObj
 } from '@nanoviews/storybook'
+import {
+  provide,
+  inject
+} from 'kida'
 import { createElement } from '../elements/index.js'
 import { component$ } from './component.js'
 import {
-  provide,
   context$,
-  isolate$,
-  inject
+  isolate$
 } from './context.js'
 
 const meta: Meta = {
