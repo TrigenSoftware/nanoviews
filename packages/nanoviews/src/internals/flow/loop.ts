@@ -4,7 +4,6 @@ import {
   type WritableSignal,
   type NewValue,
   type DeferredScope,
-  NoneFlag,
   WritableMode,
   signal,
   deferEffect,
@@ -214,8 +213,10 @@ function reconcile(
       } else {
         // A read-only items array has nothing to write back to, so the row is
         // the bare value signal - and it must not answer that it is writable,
-        // or a child of it would be handed a setter that writes nowhere
-        $value.node.modes = NoneFlag
+        // or a child of it would be handed a setter that writes nowhere. Only
+        // that mode goes: the node keeps the ones it was created with, such as
+        // the mark that keeps it out of the devtools
+        $value.node.modes &= ~WritableMode
       }
 
       row.d = deferScope(() => {
