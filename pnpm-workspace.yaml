@@ -21,6 +21,11 @@ catalog:
   typescript: ^7.0.2
   vite: ^8.2.2
   vitest: ^5.0.0
+# Prereleases of nano_kit are taken right after they are published, younger than the day pnpm waits by default
+minimumReleaseAgeExclude:
+  - kida
+  - agera
+  - '@nano_kit/*'
 overrides:
   'nanoviews@*': workspace:^
   # Temporary until the kida 2.0 release line ships: keep the whole graph on
