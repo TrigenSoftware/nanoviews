@@ -28,7 +28,7 @@
     "test:types": "pnpm -r --parallel --if-present --filter './packages/*' test:types",
     "test": "run -p lint test:unit test:types",
     "examples:sync": "pnpm -r --parallel --if-present --filter './examples/*/common' sync",
-    "examples:test": "pnpm -r --sequential --if-present --filter './examples/*/common' test",
+    "examples:test": "pnpm -r --sequential --if-present --filter './examples/*/common' run test",
     "commit": "cz",
     "updateGitHooks": "simple-git-hooks"
   },
