@@ -155,12 +155,15 @@ Button({ label: 'Send' })(' now')  // props and children
 | `show_` | toggle visibility, keep state and DOM | `show_($cond, () => view)` |
 | `switch_` | one primitive value, several cases | `switch_($tab)(case_('a', () => ...), default_(() => ...))` |
 | `match_` | first truthy condition wins | `match_(when_($loading, () => ...), when_($error, $error => ...), default_(() => ...))` |
+| `show_switch_` | `switch_` that keeps every case alive | `show_switch_($tab)(case_('a', () => ...), default_(() => ...))` |
+| `show_match_` | `match_` that keeps every case alive | `show_match_(when_($loading, () => ...), default_(() => ...))` |
 | `swap_` | custom mapping value to view | `swap_($value, value => view)` |
 | `for_` | reactive list | `for_($items, trackById)(($item, $index, key) => row, () => emptyView)` |
 
 - `if_` and `when_` pass the narrowed signal to the branch: `if_($post)($post => b()(() => $post().title), () => 'none')`. `if_` rebuilds only when truthiness flips (inner state resets); a new object in the same branch updates in place.
 - `show_` builds once and parks the tree while hidden: detached from the document, state kept, bindings still updating, effects stopped (cleanup run) and restarted on show. No else branch. Keep `portal` and `ref` out of it: `portal(() => document.body, show_($open, () => Modal()))`, and `if_` for a subtree that needs `ref` (details under "Raw HTML, shadow DOM, portals").
 - `switch_` matches by strict equality against plain case values; `match_` stops at the first truthy case and `default_` is shared by both. `batch` writes to several `match_` conditions or the frame in between shows.
+- `show_switch_` and `show_match_` are `switch_` and `match_` built on `show_`: every case is built once, up front, and the cases that do not hold are parked the way `show_` parks, so the `show_` rules on `portal` and `ref` hold for every case. A `show_match_` case child takes no value, since it lives while its case does not hold: `when_($post, () => ...)` there, and `when_($post, $post => ...)` is a type error.
 - `for_`: give a tracker (`trackById`, `trackBy('key')`, `item => item.id`) whenever items are objects or rows hold state; without one rows are positions and a reorder rewrites values into existing rows. A repeated key is not detected: its row is silently dropped.
 - Each row gets `$item` (a signal; for a `WritableSignal<T[]>` it is writable: `$item(next)` and `record($item).$done(true)` write a new item and array back, so computeds recompute; a list typed `T[] | null` gets read-only rows, so keep list signals non-nullable), `$index` (a signal) and the plain key. Read only `$item()`/`$index()` inside a row: `$items()` there re-runs every row on every change. Per-row selection: one `const $isSelected = selector($selectedId)` outside the loop, then `class: () => $isSelected(key) ? 'active' : ''` in each row.
 - A computed list gives read-only rows. To filter or sort while keeping rows editable, iterate the writable source and gate each row: `$item => show_(() => keep($item()), () => Row({ $item }))`.
@@ -313,10 +316,10 @@ isolate$(context$(provide(Theme$, $inner))(Settings()))     // fresh tree, inher
 
 ## Effect ordering guarantees
 
-- A signal-driven `if_`, `swap_`, `match_`/`switch_` branch or `for_` row is its own scope and its effects start before the effects of the scope that contains it, innermost first. `show_` is the exception: its content effects are started by the toggle effect, in the containing scope's creation order. A block with a static condition is rendered inline and has no scope of its own.
+- A signal-driven `if_`, `swap_`, `match_`/`switch_` branch or `for_` row is its own scope and its effects start before the effects of the scope that contains it, innermost first. `show_`, `show_switch_` and `show_match_` are the exception: their content effects are started by the toggle effect, in the containing scope's creation order. A block with a static condition is rendered inline and has no scope of its own.
 - Effects in the same scope start in creation order. A `component$` child renders when the parent's returned tree is built, after the parent's render has finished, so every effect of the parent's render precedes the effects of its component children; a plain function child runs, and creates its effects, where it is called.
 - On a swap the old branch's cleanups run while its DOM is still attached, the DOM is removed, the new branch is rendered, then its effects start. Removed rows are destroyed before new rows start.
-- Under a hidden `show_`, `effect$` effects have run their cleanup and re-run on show with `warmup === true` again; text, attribute and `style` bindings keep updating the parked DOM.
+- Under a hidden `show_` and a parked case of `show_switch_` or `show_match_`, `effect$` effects have run their cleanup and re-run on show with `warmup === true` again; text, attribute and `style` bindings keep updating the parked DOM.
 - Writes made during render and during unmount are batched by `mount`. Writes made inside a running effect are queued onto the flush already running, so they land together; a `batch` there flushes nothing either. Everywhere else (handlers, timers, promise callbacks) every write flushes on its own; wrap several in `batch`.
 - Do not depend on a parent effect having run when a child effect runs; communicate through signals.
 
