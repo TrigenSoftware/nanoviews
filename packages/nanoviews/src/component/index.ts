@@ -1,5 +1,4 @@
 export * from './effect.js'
-export * from './props.js'
 export * from './component.js'
 export * from './slots.js'
 export * from './context.js'

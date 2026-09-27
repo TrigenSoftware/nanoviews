@@ -45,7 +45,7 @@ describe('nanoviews', () => {
         expect(container.innerHTML).toBe('<div><div><div class="card">empty</div></div></div>')
       })
 
-      it('should read props through props$', () => {
+      it('should keep the render bound to a signal prop', () => {
         const name = signal('world')
         const { container } = render(Props({
           name
