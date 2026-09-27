@@ -9,22 +9,30 @@ import type {
 import { swap_ } from './swap.js'
 import { default_ } from './switch.js'
 
-export type MatchCase<T> = readonly [T, (value: TruthySignalish<T>) => Child]
+export type MatchCase<
+  T,
+  R extends (value: TruthySignalish<T>) => Child = (value: TruthySignalish<T>) => Child
+> = readonly [T, R]
 
 // oxlint-disable-next-line typescript/no-explicit-any
 export type AnyMatchCase = MatchCase<any>
 
 /**
- * Case of `match_`: a value to test and the child to render when it holds
+ * Case of `match_` and `show_match_`: a value to test and the child to render
+ * when it holds. The case keeps the type of its child, so `show_match_` can
+ * turn away a child that takes the value
  * @param $value - Static value or store
  * @param then_ - Function that returns child when the value is truthy
- * @returns Case to pass to `match_`
+ * @returns Case to pass to `match_`, or to `show_match_` when the child takes no value
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function when_<T>(
+export function when_<
+  T,
+  R extends (value: TruthySignalish<T>) => Child = (value: TruthySignalish<T>) => Child
+>(
   $value: T,
-  then_: (value: TruthySignalish<T>) => Child
-): MatchCase<T> {
+  then_: R
+): MatchCase<T, R> {
   return [$value, then_]
 }
 

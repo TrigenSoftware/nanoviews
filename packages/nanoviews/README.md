@@ -858,6 +858,56 @@ match_(
 )
 ```
 
+### show_switch_
+
+`show_switch_` is `switch_` built on `show_` instead of `swap_`: every case is built once, up front, and the cases that do not match are parked, so a case comes back exactly as it was left. It takes the same `case_` and `default_`.
+
+```js
+import { signal } from 'nanoviews/store'
+import { show_switch_, case_, default_, button, b } from 'nanoviews'
+
+const $tab = signal('counter')
+
+show_switch_($tab)(
+  case_('counter', () => {
+    const $count = signal(0)
+
+    return (
+      button({
+        onClick() {
+          $count($count() + 1)
+        }
+      })(
+        'Count: ', $count
+      )
+    )
+  }),
+  default_(() => b()('Settings'))
+)
+```
+
+The counter keeps its count while another tab is open: with `switch_` it would start from zero every time its tab comes back.
+
+### show_match_
+
+`show_match_` is `match_` built on `show_`: the first case that holds is shown and every other case is parked. It takes the same `when_` and `default_` and walks the cases the same way, so cases that move together are worth a `batch` here too.
+
+```js
+import { signal } from 'nanoviews/store'
+import { show_match_, when_, default_, b, i } from 'nanoviews'
+
+const $loading = signal(true)
+const $error = signal(false)
+
+show_match_(
+  when_($loading, () => i()('Loading')),
+  when_($error, () => b()('Error')),
+  default_(() => 'Ready')
+)
+```
+
+A case child takes no value. It is built before its case holds and lives on, parked, after the case stops holding, so a value narrowed to the truthy side would not hold for it, and TypeScript turns away a child like `$post => b()(() => $post().title)`.
+
 ### swap_
 
 `swap_` is the method `if_`, `switch_` and `match_` are built on: it renders a child decided by a value. Unlike a binding, which updates content in place, the child is built anew every time the value changes.
