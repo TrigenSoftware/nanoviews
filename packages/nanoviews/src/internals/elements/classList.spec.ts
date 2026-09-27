@@ -19,7 +19,6 @@ import {
   svg,
   path
 } from '../../svg/index.js'
-import { props$ } from '../../component/props.js'
 import { component$ } from '../../component/component.js'
 import { div } from '../../elements/elements.js'
 import { classList } from '../../elements/classList.js'
@@ -155,20 +154,16 @@ describe('nanoviews', () => {
           })
 
           it('should fold the class a component received into its own', () => {
-            const Card = component$((props: Attributes<'div'>) => {
-              const {
-                $class,
-                ...restProps
-              } = props$(props)
-
-              return div({
-                ...restProps,
-                class: [
-                  'card',
-                  $class
-                ]
-              })('Card')
-            })
+            const Card = component$(({
+              class: className,
+              ...props
+            }: Attributes<'div'>) => div({
+              ...props,
+              class: [
+                'card',
+                className
+              ]
+            })('Card'))
             const dark = signal(false)
             const { container } = render(() => Card({
               class: [

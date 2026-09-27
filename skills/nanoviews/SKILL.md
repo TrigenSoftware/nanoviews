@@ -1,6 +1,6 @@
 ---
 name: nanoviews
-description: "Rules for writing user interfaces with nanoviews, a tiny Direct DOM view library on kida signals: the element call shape `div({ attrs })(...children)`, signals and accessors as the only reactive values, components with `component$` and `props$`, blocks (`if_`, `show_`, `for_`, `match_`, `switch_`), form bindings (`value`, `checked`, `defaultValue`), effects, slots, dependency injection and the kida store API. Apply when creating or editing components, views, forms, lists or stores wired into views in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. Tests and stories have their own skills, nanoviews-testing and nanoviews-storybook."
+description: "Rules for writing user interfaces with nanoviews, a tiny Direct DOM view library on kida signals: the element call shape `div({ attrs })(...children)`, signals and accessors as the only reactive values, components with `component$`, blocks (`if_`, `show_`, `for_`, `match_`, `switch_`), form bindings (`value`, `checked`, `defaultValue`), effects, slots, dependency injection and the kida store API. Apply when creating or editing components, views, forms, lists or stores wired into views in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. Tests and stories have their own skills, nanoviews-testing and nanoviews-storybook."
 license: MIT
 compatibility:
   - Claude Code
@@ -51,7 +51,7 @@ const unmount = mount(Counter, document.querySelector('#app')!)
 - A reactive value is an *accessor*: a signal `$x` or an arrow `() => ...`. Pass it to bind, call it to read now. Every function child or non-`on*` attribute is treated as an accessor and tracked.
 - A static value renders once; anything that must change later has to be a signal or an accessor. Ternaries and `.map()` run once at build time; reactive conditions and lists need blocks.
 - No hooks, no dependency arrays, no re-render: `effect$` can go anywhere in the build, once.
-- Naming: signals and accessors `$name`; helpers end with `$` where a plain name would shadow a common one (`component$`, `context$`, `props$`, `effect$`); flow blocks end with `_` (`if_`, `for_`); injectable factories `Name$`.
+- Naming: signals and accessors `$name`; helpers end with `$` where a plain name would shadow a common one (`component$`, `context$`, `effect$`); flow blocks end with `_` (`if_`, `for_`); injectable factories `Name$`.
 
 ## Elements, children, attributes, events
 
@@ -67,10 +67,10 @@ p({ class: 'note', title: () => `${$count()} items`, hidden: $done })(
 - Children: descriptions (`span()` alone is fine), component instances, nodes, strings, numbers, signals and accessors (live text nodes). `null`, `undefined`, `true` and `false` render nothing, static or read from an accessor, so `cond && x` gates a static child like in React; `0` renders as text, so gate a count with `count > 0 && x`. A condition that changes needs a block. A bare array throws: spread it.
 - Call components: `div()(Counter())`. An uncalled component is a type error (untyped, it would be read as an accessor and its return stringified). A description inserted twice is built twice; build it by hand and insert the node to share it.
 - Attribute names follow the type definitions: HTML spelling for single words (`class`, `for`, `hidden`), camelCase for multi-word names (`tabIndex`, `readOnly`, `autoComplete`; lowercase `tabindex` is a type error), quoted dashed names (`'aria-expanded'`, `'data-id'`; `data-*` is typed on HTML elements only).
-- Attribute values are static or accessors. `null`, `undefined` and `false` remove the attribute, so `disabled: $busy` toggles like in React. `aria-*`, `data-*`, `draggable`, `contentEditable` and `spellCheck` are the exception: `false` is written as the string `"false"`, so pass a boolean signal or accessor to them directly (a `string` accessor is rejected on `aria-*`).
+- Attribute values are static or accessors, so a `Signalish` prop goes in as it is: `'aria-label': label`. `null`, `undefined` and `false` remove the attribute, so `disabled: $busy` toggles like in React. `aria-*`, `data-*`, `draggable`, `contentEditable` and `spellCheck` are the exception: `false` is written as the string `"false"`, so pass a boolean signal or accessor to them directly (a `string` accessor is rejected on `aria-*`).
 - `value` and `checked` of a control, and `value` of a `select`, are its live state, bound through the DOM properties (see "Forms"); every other attribute goes through `setAttribute`.
-- `class` takes a string, an accessor or a list: `class: ['btn', () => $active() && 'btn_active']` joins the truthy strings and drops the rest, nested lists included, so a component folds the `class` it received into its own with `class: ['card', $class]`. The list is read once at build; the class changes through the accessors in it. `classList(...parts)` builds the same class away from an element: an accessor when a part is an accessor, a plain string otherwise. A list with no accessor in it costs no effect.
-- `style` takes an object of camelCased properties, or an accessor of one: `style: () => ({ color: $color(), '--gap': '4px' })`. A property the next object no longer names is dropped. No style strings.
+- `class` takes a string, an accessor or a list: `class: ['btn', () => $active() && 'btn_active']` joins the truthy strings and drops the rest, nested lists included, so a component folds the `class` it received into its own with `class: ['card', className]`, and a conditional class from a `Signalish` prop is `when(active, 'btn_active')`. The list is read once at build; the class changes through the accessors in it. `classList(...parts)` builds the same class away from an element: an accessor when a part is an accessor, a plain string otherwise. A list with no accessor in it costs no effect.
+- `style` takes an object of camelCased properties, or an accessor of one: `style: () => ({ color: $color(), '--gap': '4px' })`. A property the next object no longer names is dropped. No style strings. The values in the object are plain, so a `Signalish` prop goes in through the accessor: `style: () => ({ '--columns': $get(columns) })`.
 - `ref: $element` or `ref: element => ...` receives the element on build and `null` on unmount. `autoFocus: true` focuses the element once it is in the document.
 - `muted` on `audio`/`video` is the live property, two-way with a writable signal through `volumechange`; the attribute would only be the default the browser reads at creation.
 - Events: `on` + PascalCase DOM event name (`onClick`, `onInput`, `onKeyDown`, `onDblClick`, `onPointerDown`), `Capture` suffix for the capture phase. The handler gets the native event with a typed `target`; reads inside are untracked and writes are not batched. A writable signal given as a handler receives the event.
@@ -118,9 +118,8 @@ const [$post, $error, $pending] = resolved(() => fetchPost($id())) // async: sta
 ## Components
 
 ```ts
-import type { Signalish } from 'nanoviews/store'
-import type { ClassValue } from 'nanoviews'
-import { button, effect$, component$, props$ } from 'nanoviews'
+import { type Signalish, text } from 'nanoviews/store'
+import { type ClassValue, button, effect$, component$ } from 'nanoviews'
 
 interface ButtonProps {
   label: Signalish<string>
@@ -129,20 +128,18 @@ interface ButtonProps {
   onSelect?: () => void
 }
 
-const Button = component$((props: ButtonProps, children) => {
-  const { $label, $size = () => 'm', $class, onSelect, ...rest } = props$(props)
-
+const Button = component$(({ label, size = 'm', class: className, onSelect, ...props }: ButtonProps, children) => {
   effect$(() => () => console.log('unmounted')) // effect with no reads: mount/unmount hook
 
-  return button({ class: ['btn', () => `btn_${$size()}`, $class], onClick: onSelect, ...rest })($label, ...children)
+  return button({ class: ['btn', text`btn_${size}`, className], onClick: onSelect, ...props })(label, ...children)
 })
 
 Button({ label: 'Send' })          // props only
 Button({ label: 'Send' })(' now')  // props and children
 ```
 
-- Props are plain values or signals. Type them `Signalish<T>` when either is fine, `Accessor<T>` for read-only reactive input, `WritableSignal<T>` for two-way state (name those `$value`). Reading `props.$x()` at build time freezes that value.
-- `props$(props)` adds a `$name` accessor twin per prop (the signal itself, a wrapper for a static value, a function as is, `undefined` when absent so destructuring defaults apply). Taking `$name` removes the prop from `...rest`, which then holds only the keys not taken as `$name`; take every non-attribute prop out before spreading `rest` onto an element. A component that takes arbitrary element attributes types them `Attributes<'div'>`.
+- Props are plain values or signals. Type them `Signalish<T>` when either is fine, `Accessor<T>` for read-only reactive input, `WritableSignal<T>` for two-way state (name those `$value`). Calling a signal prop at build time freezes that value.
+- Destructure the props and hand them on as they came: an attribute, a child and a class list part take a plain value and a signal alike, and so do the kida operators, which return a plain value when no operand is an accessor: `when(active, 'btn_active')` for a conditional class, `is(align, 'end')` for a comparison, `pick(styles, tone)` for a lookup, ``text`btn_${size}` `` for a string. An expression they do not cover reads the prop with `$get` inside an accessor, `() => formatDate($get(date))`, and `$get(prop)` is also how an effect or a handler reads it. `style` is the one place a prop does not go in as it is: `style: () => ({ '--columns': $get(columns) })`. Take every non-attribute prop out before spreading `...props` onto an element. A component that takes arbitrary element attributes types them `Attributes<'div'>` and folds the `class` it got into its own: `class: ['card', className]`.
 - `component$((props: Props, children) => view)` makes the component callable as `Card(props)('text', b()('bold'))` and as `Card(props)` alone; `children` is always an array, `props` is optional when every prop is. Type the props on the parameter, not as a generic. The render runs when the instance is built into its parent; an instance called with no arguments renders by hand and returns what the render returned. The children are typed on the second parameter the same way: `[render]: [render: (item: T) => Child]` makes a render prop, `children: ComponentInstance[]` takes instances only. A render with no `children` parameter (`component$((props: Props) => view)`, and `slot$` alike) makes a component that takes none: `Card(props)('text')` is a type error. That is read off the render, so it needs the types inferred, one more reason not to write the generic: `component$<Props>(...)` keeps children allowed, `component$<Props, []>(...)` turns them off. Named slots are under "Slots" below.
 - `effect$` in a component first runs once the whole tree is appended, so measuring and focusing are safe on the first run. It belongs to the scope of the view being built, so it works only under `mount`: at module level it throws, and a store uses `effect`.
 - Dependency injection: `App` opens the root context once (`return context$()(main()(...))`); a component calls `inject(Theme$)` during render and closes over the result for its handlers and effects (`inject` inside a handler or effect throws). A component provides to its children with `context$(provide(Theme$, $theme))(div()(...children))`: the children are built inside. Details under "Dependency injection in depth".
@@ -215,8 +212,7 @@ form({ onSubmit: event => { event.preventDefault(); save($name()) } })(
 A slot is a component made with `slot$`; a layout declares the slots it takes with `slots$` and gets them as positional arguments after `props`, in declaration order, with the rest of the children last:
 
 ```ts
-import type { Attributes } from 'nanoviews'
-import { main, header, footer, component$, slot$, slots$ } from 'nanoviews'
+import { type Attributes, main, header, footer, component$, slot$, slots$ } from 'nanoviews'
 
 const LayoutHeader = slot$<Attributes<'header'>>((props, children) => header(props)(...children))
 const LayoutFooter = slot$<Attributes<'footer'>>((props, children) => footer(props)(...children))

@@ -6,7 +6,8 @@ import {
   type Signalish,
   signal,
   provide,
-  inject
+  inject,
+  when
 } from 'kida'
 import type {
   Attributes,
@@ -20,7 +21,6 @@ import {
   ul,
   li
 } from '../elements/index.js'
-import { props$ } from './props.js'
 import { component$ } from './component.js'
 import { context$ } from './context.js'
 
@@ -65,22 +65,18 @@ export const WithoutChildren: Story = {
 
 interface GreetingProps extends Attributes<'p'> {
   name: Signalish<string>
-  excited?: boolean
+  excited?: Signalish<boolean>
 }
 
-const Greeting = component$((props: GreetingProps) => {
-  const {
-    $name,
-    $excited = () => false,
-    ...rest
-  } = props$(props)
-
-  return (
-    p(rest)(
-      'Hello, ', $name, () => ($excited() ? '!' : '.')
-    )
-  )
-})
+// The props go on as they came: a child takes a plain value and a signal
+// alike, and so does `when`, which returns a plain value for plain operands
+const Greeting = component$(({
+  name,
+  excited,
+  ...props
+}: GreetingProps) => p(props)(
+  'Hello, ', name, when(excited, '!', '.')
+))
 
 export const Props: Story = {
   args: {

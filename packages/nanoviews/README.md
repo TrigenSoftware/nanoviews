@@ -227,7 +227,7 @@ button({
 // <button class="button primary">Click me</button>
 ```
 
-A list may hold another list, so a component folds the `class` it received into its own, as the [`props$`](#props) example does. The list itself is read once, when the element is built: the class changes through the accessors in it. Lists work the same way on the SVG elements from `nanoviews/svg`.
+A list may hold another list, so a component folds the `class` it received into its own, as the [`component$`](#component) example does. The list itself is read once, when the element is built: the class changes through the accessors in it. Lists work the same way on the SVG elements from `nanoviews/svg`.
 
 `classList` builds the same class away from an element. With an accessor among the parts it returns an accessor, otherwise a plain string:
 
@@ -483,36 +483,6 @@ const MyComponent = component$(() => (
 ))
 ```
 
-### props$
-
-`props$` is a method that adds a `$`-prefixed accessor twin to every prop. `title` is the prop as it arrived, `$title` is the same prop in accessor form: the prop itself when it already is a signal or an accessor, a wrapper when it is a static value, and `undefined` when the prop is not set, so a destructuring default can fill it in.
-
-A prop read as `$title` leaves the rest, so `...restProps` carries exactly the props the component did not take, in the form they arrived in, straight onto an element:
-
-```js
-import { button, component$, props$ } from 'nanoviews'
-
-const Button = component$((props) => {
-  const {
-    $class,
-    $size = () => 'm',
-    ...restProps
-  } = props$(props)
-
-  return (
-    button({
-      ...restProps,
-      class: ['button', () => `button_${$size()}`, $class]
-    })(
-      'Send'
-    )
-  )
-})
-
-Button({ title: 'Send it', size: 's', id: 'send', class: 'wide' })
-// <button title="Send it" id="send" class="button button_s wide">Send</button>
-```
-
 ### effect$
 
 `effect$` is a method that adds effects to the component. The effect first runs once `mount` has appended the tree, re-runs when a signal it read changes, and is stopped on unmount. It belongs to the scope of the view being built, so it is called while a view is built under `mount` and nowhere else. `effect` from `nanoviews/store` is the store effect: it runs at once wherever it is called and returns a function to stop it.
@@ -577,41 +547,44 @@ MyComponent() // <div>My component children: empty</div>
 MyComponent({ class: 'my' })('Hello, Nanoviews!') // <div class="my">My component children: Hello, Nanoviews!</div>
 ```
 
-`children` is always an array. The props are optional when every prop is optional, and `props$` turns them into accessors:
+`children` is always an array, and the props are optional when every prop is. A prop may be a plain value or a signal, and the render passes it on without telling the two apart: bindings, children and class lists take either one, and so do the operators of `nanoviews/store` such as `text` and `when`, which return a plain value when no operand is a signal:
 
 ```ts
-import type { Attributes } from 'nanoviews'
-import { button, component$, props$ } from 'nanoviews'
+import { type Signalish, text } from 'nanoviews/store'
+import { type Attributes, button, component$ } from 'nanoviews'
 
 interface ButtonProps extends Attributes<'button'> {
-  size?: 's' | 'm'
+  size?: Signalish<'s' | 'm'>
 }
 
-const Button = component$((props: ButtonProps, children) => {
-  const {
-    $class,
-    $size = () => 'm',
-    ...restProps
-  } = props$(props)
-
-  return (
-    button({
-      ...restProps,
-      class: ['button', () => `button_${$size()}`, $class]
-    })(
-      ...children
-    )
+const Button = component$((
+  {
+    size = 'm',
+    class: className,
+    ...props
+  }: ButtonProps,
+  children
+) => (
+  button({
+    class: ['button', text`button_${size}`, className],
+    ...props
+  })(
+    ...children
   )
-})
+))
+
+Button({ size: 's', id: 'send', class: 'wide' })('Send')
+// <button id="send" class="button button_s wide">Send</button>
 ```
+
+Where the current value of such a prop is needed, in a handler or an effect, `$get(size)` reads it in either form.
 
 An instance called with no arguments renders: `MyComponent()()` is what the render returned, the `div(...)` description here, and the parent builds it on insertion.
 
 The children are typed on the second parameter. A tuple with a function makes a render prop:
 
 ```ts
-import type { Child } from 'nanoviews'
-import { ul, li, b, component$ } from 'nanoviews'
+import { type Child, ul, li, b, component$ } from 'nanoviews'
 
 const List = component$((
   { items }: { items: string[] },
