@@ -83,7 +83,7 @@
     }
   },
   "dependencies": {
-    "kida": "2.0.0-prerelease.20260927130800"
+    "kida": "2.0.0-prerelease.20261004191528"
   },
   "devDependencies": {
     "@nanoviews/storybook": "workspace:^",

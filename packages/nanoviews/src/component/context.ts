@@ -23,8 +23,8 @@ export function context$(...providers: InjectionProvider[]): (child: Child) => L
 /**
  * Build a child within the given injection context. The context is used as
  * it is: the child sees its values and those of the parent it was created
- * with, not the current context, and what the child resolves is kept in it,
- * so code that holds the instance shares the same dependencies.
+ * with, not the current context, so code that holds the instance shares the
+ * same dependencies.
  * @param context - The injection context to build the child within.
  * @returns Function that accepts the child.
  */
