@@ -1,0 +1,41 @@
+[
+  {
+    "name": "All publics (Gzip)",
+    "gzip": true,
+    "path": "dist/index.js",
+    "import": "*",
+    "limit": "1.40 kB"
+  },
+  {
+    "name": "All publics (Brotli)",
+    "path": "dist/index.js",
+    "import": "*",
+    "limit": "1.30 kB"
+  },
+  {
+    "name": "Basic usage (Gzip)",
+    "gzip": true,
+    "path": "dist/index.js",
+    "import": "{ router, pageView }",
+    "limit": "250 B"
+  },
+  {
+    "name": "Basic usage (Brotli)",
+    "path": "dist/index.js",
+    "import": "{ router, pageView }",
+    "limit": "200 B"
+  },
+  {
+    "name": "DI usage (Gzip)",
+    "gzip": true,
+    "path": "dist/index.js",
+    "import": "{ router, App, Link }",
+    "limit": "500 B"
+  },
+  {
+    "name": "DI usage (Brotli)",
+    "path": "dist/index.js",
+    "import": "{ router, App, Link }",
+    "limit": "500 B"
+  }
+]

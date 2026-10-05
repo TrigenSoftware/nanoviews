@@ -1,0 +1,87 @@
+{
+  "name": "@nanoviews/router",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Nanoviews integration for @nano_kit/router.",
+  "author": "dangreen",
+  "license": "MIT",
+  "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/router#readme",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nanoviews.git",
+    "directory": "packages/router"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
+  },
+  "keywords": [
+    "router",
+    "routing",
+    "navigation",
+    "ui",
+    "view",
+    "dom",
+    "reactive",
+    "signal",
+    "nanoviews",
+    "nano_kit"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear:dist": "del ./dist",
+    "clear": "del ./package ./dist ./coverage",
+    "prepublishOnly": "run build clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "emitDeclarations": "tsc -p ./tsconfig.build.json --emitDeclarationOnly",
+    "build:dist": "run -p emitDeclarations [ vite build ]",
+    "build": "run clear:dist build:dist",
+    "lint": "oxlint",
+    "format": "oxlint --fix",
+    "test:unit": "vitest run --coverage",
+    "test:unit:watch": "vitest watch",
+    "test:size": "size-limit",
+    "test:types": "tsc --noEmit",
+    "test": "run -p lint test:unit test:types"
+  },
+  "peerDependencies": {
+    "@nano_kit/router": "^2.0.0-prerelease.20261004191528",
+    "nanoviews": "workspace:^"
+  },
+  "devDependencies": {
+    "@nano_kit/router": "2.0.0-prerelease.20261004191528",
+    "@nano_kit/store": "2.0.0-prerelease.20261004191528",
+    "@nanoviews/testing-library": "workspace:^",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@testing-library/dom": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "happy-dom": "catalog:",
+    "nanoviews": "workspace:^",
+    "size-limit": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

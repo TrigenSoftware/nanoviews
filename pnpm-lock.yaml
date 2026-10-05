@@ -53,6 +53,7 @@ overrides:
   nanoviews@*: workspace:^
   '@nano_kit/platform-web@*': 2.0.0-prerelease.20261004191528
   '@nano_kit/query@*': 2.0.0-prerelease.20261004191528
+  '@nano_kit/router@*': 2.0.0-prerelease.20261004191528
   '@nano_kit/store@*': 2.0.0-prerelease.20261004191528
   kida@*: 2.0.0-prerelease.20261004191528
   agera@*: 2.0.0-prerelease.20261004191528
@@ -317,6 +318,47 @@ importers:
       storybook:
         specifier: 'catalog:'
         version: 10.5.10(react@19.2.8)
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vite:
+        specifier: 'catalog:'
+        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+    linkDirectory: false
+    publishDirectory: package
+
+  packages/router:
+    devDependencies:
+      '@nano_kit/router':
+        specifier: 2.0.0-prerelease.20261004191528
+        version: 2.0.0-prerelease.20261004191528(@nano_kit/store@2.0.0-prerelease.20261004191528)
+      '@nano_kit/store':
+        specifier: 2.0.0-prerelease.20261004191528
+        version: 2.0.0-prerelease.20261004191528
+      '@nanoviews/testing-library':
+        specifier: workspace:^
+        version: link:../testing-library
+      '@size-limit/preset-small-lib':
+        specifier: 'catalog:'
+        version: 14.0.0(size-limit@14.0.0)
+      '@testing-library/dom':
+        specifier: 'catalog:'
+        version: 10.4.1
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 5.0.0(vitest@5.0.0)
+      happy-dom:
+        specifier: 'catalog:'
+        version: 20.8.9
+      nanoviews:
+        specifier: workspace:^
+        version: link:../nanoviews
+      size-limit:
+        specifier: 'catalog:'
+        version: 14.0.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -957,6 +999,12 @@ packages:
 
   '@nano_kit/query@2.0.0-prerelease.20261004191528':
     resolution: {integrity: sha512-eaC37/+HurVsGxYd6R5VfiN860oueI2BIvbVlTYf3Y2Tpwh5BUlc1j0XCQl77jDJhp2v7aQnZZ47TB1WDUz7WQ==}
+    engines: {node: '>=24'}
+    peerDependencies:
+      '@nano_kit/store': 2.0.0-prerelease.20261004191528
+
+  '@nano_kit/router@2.0.0-prerelease.20261004191528':
+    resolution: {integrity: sha512-FcnISly9y//Q3wYwKOTxuxVhuc3SoKnexBSTllwdgEZ4rkXA4iFEivAlWx2XbBBI94PyEbVp6fsHgLpgQyBJ5A==}
     engines: {node: '>=24'}
     peerDependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261004191528
@@ -3979,6 +4027,10 @@ snapshots:
       '@nano_kit/store': 2.0.0-prerelease.20261004191528
 
   '@nano_kit/query@2.0.0-prerelease.20261004191528(@nano_kit/store@2.0.0-prerelease.20261004191528)':
+    dependencies:
+      '@nano_kit/store': 2.0.0-prerelease.20261004191528
+
+  '@nano_kit/router@2.0.0-prerelease.20261004191528(@nano_kit/store@2.0.0-prerelease.20261004191528)':
     dependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261004191528
 
