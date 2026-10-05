@@ -1,27 +1,30 @@
 {
-  "name": "nanoviews",
+  "name": "@nanoviews/router",
   "type": "module",
-  "version": "1.0.0-alpha.9",
-  "description": "A small Direct DOM library for building user interfaces.",
+  "version": "1.0.0",
+  "description": "Nanoviews integration for @nano_kit/router.",
   "author": "dangreen",
   "license": "MIT",
-  "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/nanoviews#readme",
+  "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/router#readme",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",
     "url": "https://github.com/TrigenSoftware/nanoviews.git",
-    "directory": "packages/nanoviews"
+    "directory": "packages/router"
   },
   "bugs": {
     "url": "https://github.com/TrigenSoftware/nanoviews/issues"
   },
   "keywords": [
+    "router",
+    "routing",
+    "navigation",
     "ui",
     "view",
     "dom",
-    "direct-dom",
     "reactive",
     "signal",
+    "nanoviews",
     "nano_kit"
   ],
   "engines": {
@@ -30,9 +33,7 @@
   "sideEffects": false,
   "exports": {
     "./package.json": "./package.json",
-    ".": "./src/index.ts",
-    "./store": "./src/store.ts",
-    "./svg": "./src/svg/index.ts"
+    ".": "./src/index.ts"
   },
   "publishConfig": {
     "exports": {
@@ -40,14 +41,6 @@
       ".": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
-      },
-      "./store": {
-        "types": "./dist/store.d.ts",
-        "default": "./dist/store.js"
-      },
-      "./svg": {
-        "types": "./dist/svg/index.d.ts",
-        "default": "./dist/svg.js"
       }
     },
     "directory": "package",
@@ -71,34 +64,22 @@
     "test:unit:watch": "vitest watch",
     "test:size": "size-limit",
     "test:types": "tsc --noEmit",
-    "test": "run -p lint test:unit test:types",
-    "storybook": "storybook dev -p 6006 --no-open"
+    "test": "run -p lint test:unit test:types"
   },
   "peerDependencies": {
-    "csstype": "^3.1.3"
-  },
-  "peerDependenciesMeta": {
-    "csstype": {
-      "optional": true
-    }
-  },
-  "dependencies": {
-    "kida": "2.0.0-prerelease.20261004191528"
+    "@nano_kit/router": "^2.0.0-prerelease.20261004191528",
+    "nanoviews": "workspace:^"
   },
   "devDependencies": {
-    "@nanoviews/storybook": "workspace:^",
-    "@nanoviews/storybook-vite": "workspace:^",
+    "@nano_kit/router": "2.0.0-prerelease.20261004191528",
+    "@nano_kit/store": "2.0.0-prerelease.20261004191528",
     "@nanoviews/testing-library": "workspace:^",
     "@size-limit/preset-small-lib": "catalog:",
     "@testing-library/dom": "catalog:",
-    "@testing-library/user-event": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "csstype": "^3.1.3",
     "happy-dom": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
+    "nanoviews": "workspace:^",
     "size-limit": "catalog:",
-    "storybook": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

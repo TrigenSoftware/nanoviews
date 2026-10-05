@@ -5,6 +5,7 @@ A small Direct DOM library for building user interfaces.
 | Package | Description | Version |
 |---------|-------------|---------|
 | [`nanoviews`](packages/nanoviews#readme) | A small Direct DOM library for building user interfaces. | [![NPM version][nanoviews-npm]][nanoviews-npm-url] |
+| [`@nanoviews/router`](packages/router#readme) | Nanoviews integration for @nano_kit/router. | [![NPM version][router-npm]][router-npm-url] |
 | [`@nanoviews/storybook`](packages/storybook#readme) | Nanoviews storybook renderer. | [![NPM version][storybook-npm]][storybook-npm-url] |
 | [`@nanoviews/storybook-vite`](packages/storybook-vite#readme) | Nanoviews + Vite framework for storybook. | [![NPM version][storybook-vite-npm]][storybook-vite-npm-url] |
 | [`@nanoviews/testing-library`](packages/testing-library#readme) | Nanoviews testing utilities. | [![NPM version][testing-library-npm]][testing-library-npm-url] |
@@ -30,6 +31,11 @@ npx skills add TrigenSoftware/nanoviews --skill nanoviews
 
 [nanoviews-npm]: https://img.shields.io/npm/v/nanoviews.svg
 [nanoviews-npm-url]: https://npmjs.com/package/nanoviews
+
+<!-- @nanoviews/router -->
+
+[router-npm]: https://img.shields.io/npm/v/@nanoviews/router.svg
+[router-npm-url]: https://npmjs.com/package/@nanoviews/router
 
 <!-- @nanoviews/storybook -->
 
