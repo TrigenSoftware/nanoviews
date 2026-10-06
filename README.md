@@ -17,6 +17,7 @@ Universal agent skills for AI coding agents live in the [skills](skills) directo
 - [`nanoviews`](skills/nanoviews)
 - [`nanoviews-testing`](skills/nanoviews-testing)
 - [`nanoviews-storybook`](skills/nanoviews-storybook)
+- [`nanoviews-router`](skills/nanoviews-router)
 
 Install a skill with either package runner:
 

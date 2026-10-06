@@ -1,6 +1,6 @@
 ---
 name: nanoviews
-description: "Rules for writing user interfaces with nanoviews, a tiny Direct DOM view library on kida signals: the element call shape `div({ attrs })(...children)`, signals and accessors as the only reactive values, components with `component$`, blocks (`if_`, `show_`, `for_`, `match_`, `switch_`), form bindings (`value`, `checked`, `defaultValue`), effects, slots, dependency injection and the kida store API. Apply when creating or editing components, views, forms, lists or stores wired into views in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. Tests and stories have their own skills, nanoviews-testing and nanoviews-storybook."
+description: "Rules for writing user interfaces with nanoviews, a tiny Direct DOM view library on kida signals: the element call shape `div({ attrs })(...children)`, signals and accessors as the only reactive values, components with `component$`, blocks (`if_`, `show_`, `for_`, `match_`, `switch_`), form bindings (`value`, `checked`, `defaultValue`), effects, slots, dependency injection and the kida store API. Apply when creating or editing components, views, forms, lists or stores wired into views in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. Tests, stories and routing have their own skills: nanoviews-testing, nanoviews-storybook and nanoviews-router."
 license: MIT
 compatibility:
   - Claude Code
@@ -208,7 +208,7 @@ form({ onSubmit: event => { event.preventDefault(); save($name()) } })(
 
 ## Unsupported
 
-- No SSR, hydration, router or error boundaries in nanoviews itself. Routing comes from `@nanoviews/router`, the nanoviews integration of the `@nano_kit/router` core (the core is in the nano-kit-react-router skill, the integration in the package README): `router($location, pages)` with `pageView($page)`, `Outlet` in layouts, `linkComponent(navigation, paths)`, `listenNavigationLinks$(navigation)` and `syncPageHead$($page)`, or under DI `App`, `Link`, `listenLinks$()` and `syncHead$()`.
+- No SSR, hydration, router or error boundaries in nanoviews itself. Routing comes from `@nanoviews/router`, the nanoviews integration of the `@nano_kit/router` core: the nanoviews-router skill.
 - Exported but internal, do not use: `deferScope`, `boundDeferScope`, `startScope`, `stopScope`, `pauseScope`, `resumeScope`, `unsafeRun`, `createSignal`, `computedOper`, `nextValue`, `signalNextValue`, `assignIndex`, `assignKey`, `onSignal`, `unsafeMark*`, node and flag constants, and `createElement`/`createVoidElement`/`create*Factory` beyond known tag names.
 
 ## Slots
@@ -423,5 +423,5 @@ onMountEffect($weather, () => { void refresh($city()) })   // an effect alive on
 
 ## Related
 
-- Unit tests for views: the nanoviews-testing skill. Stories: the nanoviews-storybook skill.
+- Unit tests for views: the nanoviews-testing skill. Stories: the nanoviews-storybook skill. Routing: the nanoviews-router skill.
 - Nano Kit packages have their own skills: nano-kit-store (`@nano_kit/store`: kida plus `paced`, storage-backed signals, hydration), nano-kit-query (remote data), nano-kit-platform-web (browser API signals), nano-kit-intl (internationalization), nano-kit-react-router (the `@nano_kit/router` core). Docs: https://nano-kit.js.org. One kida instance must serve the whole graph: if `@nano_kit/*` resolves a different kida than nanoviews, override `kida` and `agera` to one version.
