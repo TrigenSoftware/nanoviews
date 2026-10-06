@@ -36,7 +36,7 @@ overrides:
   '@nano_kit/intl@*': 2.0.0-prerelease.20261004191528
   '@nano_kit/platform-web@*': 2.0.0-prerelease.20261004191528
   '@nano_kit/query@*': 2.0.0-prerelease.20261004191528
-  '@nano_kit/router@*': 2.0.0-prerelease.20261004191528
+  '@nano_kit/router@*': 2.0.0-snapshot.20260830203546
   '@nano_kit/store@*': 2.0.0-prerelease.20261004191528
   'kida@*': 2.0.0-prerelease.20261004191528
   'agera@*': 2.0.0-prerelease.20261004191528
