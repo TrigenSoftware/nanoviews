@@ -1,0 +1,21 @@
+{
+  "name": "rick-and-morty-common",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sync": "node ../../../scripts/examples-sync.js . ..",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nano_kit/query": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*"
+  },
+  "devDependencies": {
+    "playwright": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
