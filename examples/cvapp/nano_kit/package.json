@@ -1,0 +1,31 @@
+{
+  "name": "cvapp-nano_kit",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@12.6.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:sprite": "node ./scripts/svg-sprite.js",
+    "build": "tsc && vite build",
+    "build:only": "vite build",
+    "preview": "vite preview",
+    "test:types": "tsc"
+  },
+  "dependencies": {
+    "@nano_kit/query": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*",
+    "@nanoviews/router": "*",
+    "modern-normalize": "^3.0.1",
+    "nanoid": "^5.1.6",
+    "nanoviews": "*"
+  },
+  "devDependencies": {
+    "@types/svg-sprite": "^0.0.39",
+    "postcss-custom-media": "^11.0.6",
+    "svg-sprite": "^2.0.4",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1"
+  }
+}

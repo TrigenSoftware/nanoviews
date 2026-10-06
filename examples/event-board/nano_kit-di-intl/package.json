@@ -1,0 +1,32 @@
+{
+  "name": "event-board-nano_kit-di-intl",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@12.6.0",
+  "type": "module",
+  "imports": {
+    "#src/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:only": "vite build",
+    "preview": "vite preview",
+    "test:types": "tsc"
+  },
+  "dependencies": {
+    "@nano_kit/intl": "*",
+    "@nano_kit/platform-web": "*",
+    "@nano_kit/query": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*",
+    "@nanoviews/router": "*",
+    "nanoviews": "*"
+  },
+  "devDependencies": {
+    "@hono/node-server": "^1.19.9",
+    "hono": "^4.12.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1"
+  }
+}
