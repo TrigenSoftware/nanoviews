@@ -55,17 +55,17 @@ import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@nanoviews/testing-library'
 import { signal } from 'nanoviews/store'
 import { input } from 'nanoviews'
-import { Counter } from './Counter.js' // component$((props: { count: WritableSignal<number> }) => ...)
+import { Counter } from './Counter.js' // component$((props: { $count: WritableSignal<number> }) => ...)
 
 describe('components', () => {
   describe('Counter', () => {
     it('should increment count on click', () => {
-      const count = signal(0)
-      const { container } = render([Counter, { count }])
+      const $count = signal(0)
+      const { container } = render([Counter, { $count }])
 
       fireEvent.click(screen.getByRole('button'))
 
-      expect(count()).toBe(1)
+      expect($count()).toBe(1)
       expect(container.innerHTML).toBe('<div><button>count is 1</button></div>') // the wrapper div is the mount target
     })
 
@@ -85,7 +85,7 @@ describe('components', () => {
 })
 ```
 
-- `render` takes a function returning a view (`render(App)`, `render(() => Card({ id }))`) or a `[Component, ...args]` tuple. A `component$` instance is a function too, so `render(Counter({ count }))` builds it under `mount`. Building by hand outside `render` (`Counter({ count })()`) throws at the first `effect$` (`Cannot read properties of undefined (reading 'depsTail')`), and passing a built node throws `Invalid block creator. Expected a function.`.
+- `render` takes a function returning a view (`render(App)`, `render(() => Card({ id }))`) or a `[Component, ...args]` tuple. A `component$` instance is a function too, so `render(Counter({ $count }))` builds it under `mount`. Building by hand outside `render` (`Counter({ $count })()`) throws at the first `effect$` (`Cannot read properties of undefined (reading 'depsTail')`), and passing a built node throws `Invalid block creator. Expected a function.`.
 - It mounts into a fresh `<div>` appended to `document.body`; `container` is `document.body` and the mount wrapper is `container.firstElementChild`, so `container.innerHTML` starts with that `<div>` and a portalled node is a sibling of the wrapper. Queries are bound to the container; `screen` sees the same DOM.
 - The result also has `destroy()` (early unmount, idempotent) and `debug()`. `RenderOptions` are `{ target?, container?, queries? }`; cleanup removes only targets sitting directly in `document.body`, a custom `container` is the test's to remove.
 
