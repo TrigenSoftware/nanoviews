@@ -1,6 +1,6 @@
 ---
 name: nanoviews
-description: "Rules for writing user interfaces with nanoviews, a tiny Direct DOM view library on kida signals: the element call shape `div({ attrs })(...children)`, signals and accessors as the only reactive values, components with `component$`, blocks (`if_`, `show_`, `for_`, `match_`, `switch_`), form bindings (`value`, `checked`, `defaultValue`), effects, slots, dependency injection and the kida store API. Apply when creating or editing components, views, forms, lists or stores wired into views in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. Tests and stories have their own skills, nanoviews-testing and nanoviews-storybook."
+description: "Rules for writing user interfaces with nanoviews, a tiny Direct DOM view library on kida signals: the element call shape `div({ attrs })(...children)`, signals and accessors as the only reactive values, components with `component$`, blocks (`if_`, `show_`, `for_`, `match_`, `switch_`), form bindings (`value`, `checked`, `defaultValue`), effects, slots, dependency injection and the kida store API. Apply when creating or editing components, views, forms, lists or stores wired into views in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. Tests, stories and routing have their own skills: nanoviews-testing, nanoviews-storybook and nanoviews-router."
 license: MIT
 compatibility:
   - Claude Code
@@ -50,13 +50,14 @@ const unmount = mount(Counter, document.querySelector('#app')!)
 - A component is `component$((props, children) => view)`, never a plain function: an instance takes children like an element and renders when it is built into the parent, after the parent's own render, so the parent's `context$` and scope are in place; a plain function would run where it is called, before they exist. State lives in signals and the DOM follows through bindings. Build only under `mount` (or a test `render`): a bare `App()()` throws at the first binding or `effect$`, which need the scope `mount` opens.
 - A reactive value is an *accessor*: a signal `$x` or an arrow `() => ...`. Pass it to bind, call it to read now. Every function child or non-`on*` attribute is treated as an accessor and tracked.
 - A static value renders once; anything that must change later has to be a signal or an accessor. Ternaries and `.map()` run once at build time; reactive conditions and lists need blocks.
+- A binding that a kida operator covers takes the operator instead of an arrow, for a signal as for a prop: `not($agree)`, `and($active, 'btn_active')`, `when($saving, 'Saving...', 'Save')`, `is($tab, 'home')`, `gt($count, 0)`, `pick($user, 'name')`, `pick($items, 'length')`, ``text`${$count} items` ``. An arrow is for what they do not cover: a call, arithmetic, an optional chain (`pick` throws on a `null` collection).
 - No hooks, no dependency arrays, no re-render: `effect$` can go anywhere in the build, once.
 - Naming: signals and accessors `$name`; helpers end with `$` where a plain name would shadow a common one (`component$`, `context$`, `effect$`); flow blocks end with `_` (`if_`, `for_`); injectable factories `Name$`.
 
 ## Elements, children, attributes, events
 
 ```ts
-p({ class: 'note', title: () => `${$count()} items`, hidden: $done })(
+p({ class: 'note', title: text`${$count} items`, hidden: $done })(
   'Hello, ', $name, '!',            // reactive text: separate children, never a template string
   ' ', b()(() => $count() * 2),     // arrow child: derived reactive text
   br(), fragment('a', 'b'),
@@ -64,12 +65,13 @@ p({ class: 'note', title: () => `${$count()} items`, hidden: $done })(
 )
 ```
 
+- In a source file a call is laid out as a block: the attributes one per line, then `})(`, or `()(` with no attributes, ends the line, the children follow indented, one per line or a short run on one line like `'Feels like ', $temp`, and `)` closes on its own line. Component instances and the curried calls of blocks take the same shape: `if_($x)(` and `for_($items, trackById)(` end their line too. The one-line calls in this skill are kept short for reading only.
 - Children: descriptions (`span()` alone is fine), component instances, nodes, strings, numbers, signals and accessors (live text nodes). `null`, `undefined`, `true` and `false` render nothing, static or read from an accessor, so `cond && x` gates a static child like in React; `0` renders as text, so gate a count with `count > 0 && x`. A condition that changes needs a block. A bare array throws: spread it.
 - Call components: `div()(Counter())`. An uncalled component is a type error (untyped, it would be read as an accessor and its return stringified). A description inserted twice is built twice; build it by hand and insert the node to share it.
 - Attribute names follow the type definitions: HTML spelling for single words (`class`, `for`, `hidden`), camelCase for multi-word names (`tabIndex`, `readOnly`, `autoComplete`; lowercase `tabindex` is a type error), quoted dashed names (`'aria-expanded'`, `'data-id'`; `data-*` is typed on HTML elements only).
 - Attribute values are static or accessors, so a `Signalish` prop goes in as it is: `'aria-label': label`. `null`, `undefined` and `false` remove the attribute, so `disabled: $busy` toggles like in React. `aria-*`, `data-*`, `draggable`, `contentEditable` and `spellCheck` are the exception: `false` is written as the string `"false"`, so pass a boolean signal or accessor to them directly (a `string` accessor is rejected on `aria-*`).
 - `value` and `checked` of a control, and `value` of a `select`, are its live state, bound through the DOM properties (see "Forms"); every other attribute goes through `setAttribute`.
-- `class` takes a string, an accessor or a list: `class: ['btn', () => $active() && 'btn_active']` joins the truthy strings and drops the rest, nested lists included, so a component folds the `class` it received into its own with `class: ['card', className]`, and a conditional class from a `Signalish` prop is `when(active, 'btn_active')`. The list is read once at build; the class changes through the accessors in it. `classList(...parts)` builds the same class away from an element: an accessor when a part is an accessor, a plain string otherwise. A list with no accessor in it costs no effect.
+- `class` takes a string, an accessor or a list: `class: ['btn', and($active, 'btn_active')]` joins the truthy strings and drops the rest, nested lists included, so a component folds the `class` it received into its own with `class: ['card', className]`, and the operator takes a `Signalish` prop just the same: `and(active, 'btn_active')`. The list is read once at build; the class changes through the accessors in it. `classList(...parts)` builds the same class away from an element: an accessor when a part is an accessor, a plain string otherwise. A list with no accessor in it costs no effect, but it is still joined on every build: fixed parts are one string, `'btn btn_wide'` or `` `${styles.root} ${mixins.focus}` ``, and a list is for a class with an accessor or a received `class` in it.
 - `style` takes an object of camelCased properties, or an accessor of one: `style: () => ({ color: $color(), '--gap': '4px' })`. A property the next object no longer names is dropped. No style strings. The values in the object are plain, so a `Signalish` prop goes in through the accessor: `style: () => ({ '--columns': $get(columns) })`.
 - `ref: $element` or `ref: element => ...` receives the element on build and `null` on unmount. `autoFocus: true` focuses the element once it is in the document.
 - `muted` on `audio`/`video` is the live property, two-way with a writable signal through `volumechange`; the attribute would only be the default the browser reads at creation.
@@ -110,9 +112,9 @@ const $user = record($userSignal)    // $user.$name, $user.$age: child signals, 
 const [$post, $error, $pending] = resolved(() => fetchPost($id())) // async: stale value kept while pending
 ```
 
-- Types from `nanoviews/store`: `Signalish<T>` = `T | Accessor<T>`, `Accessor<T>` = `() => T`, `ReadableSignal<T>`, `WritableSignal<T>`. Read a signalish with `$get(value)` (tracked) or `get(value)` (untracked). `effect$` is the component effect and comes from `nanoviews`; `effect` and `effectScope` come from `nanoviews/store` and are the store effects: they run at once and are never deferred or paused. `Signalish`, `Accessor`, `WritableSignal`, `ReadableSignal` are exported only from `nanoviews/store`.
+- Types from `nanoviews/store`: `Signalish<T>` = `T | Accessor<T>`, `Accessor<T>` = `() => T`, `ReadableSignal<T>`, `WritableSignal<T>`. Read a signalish with `$get(value)` (tracked) or `get(value)` (untracked, which matters only inside an effect, a computed or an accessor: a component body is not tracked). `effect$` is the component effect and comes from `nanoviews`; `effect` and `effectScope` come from `nanoviews/store` and are the store effects: they run at once and are never deferred or paused. `Signalish`, `Accessor`, `WritableSignal`, `ReadableSignal` are exported only from `nanoviews/store`.
 - Writing an equal value (same reference) is a no-op, so an object mutated in place does not notify. Write a new array or object, or use `push`, `setIndex`, `deleteIndex`, `setKey`, `updateArray`.
-- Inline arrow in a view = one binding recomputed when its dependencies change. `computed` = cached and shareable. Use the arrow for a single use, `computed` for a value read in several places; `length($arr)` and `boolean($x)` are ready-made computeds.
+- Inline arrow in a view = one binding recomputed when its dependencies change. `computed` = cached and shareable. Use an operator, or an arrow where none fits, for a single use, `computed` for a value read in several places; `length($arr)` and `boolean($x)` are ready-made computeds.
 - The full store API (records, arrays, lazy `mountable` stores, subscriptions, `selector`, tasks, DI) is under "Signals in depth" below.
 
 ## Components
@@ -138,7 +140,8 @@ Button({ label: 'Send' })          // props only
 Button({ label: 'Send' })(' now')  // props and children
 ```
 
-- Props are plain values or signals. Type them `Signalish<T>` when either is fine, `Accessor<T>` for read-only reactive input, `WritableSignal<T>` for two-way state (name those `$value`). Calling a signal prop at build time freezes that value.
+- Props are plain values or signals. Type them `Signalish<T>` when either is fine, `Accessor<T>` for read-only reactive input, `WritableSignal<T>` for two-way state. A prop typed as an accessor or a signal is always reactive, so its name takes the `$`: `$items: Accessor<Item[]>`, `$value: WritableSignal<string>`; a `Signalish` prop keeps a plain name. Calling a signal prop at build time freezes that value.
+- A component that renders the element its caller picks takes the element factory, not a tag name: `as = button` in the render, `Button({ as: a, href })` at the call. Type the prop `as?: ElementFactory<T>` next to `Attributes<T>`, write the render for the default element, and cast the component to `<T extends ElementName = 'button'>(props?: ButtonProps<T>) => ComponentInstance`, so `as: a` brings the attributes of a link.
 - Destructure the props and hand them on as they came: an attribute, a child and a class list part take a plain value and a signal alike, and so do the kida operators, which return a plain value when no operand is an accessor: `when(active, 'btn_active')` for a conditional class, `is(align, 'end')` for a comparison, `pick(styles, tone)` for a lookup, ``text`btn_${size}` `` for a string. An expression they do not cover reads the prop with `$get` inside an accessor, `() => formatDate($get(date))`, and `$get(prop)` is also how an effect or a handler reads it. `style` is the one place a prop does not go in as it is: `style: () => ({ '--columns': $get(columns) })`. Take every non-attribute prop out before spreading `...props` onto an element. A component that takes arbitrary element attributes types them `Attributes<'div'>` and folds the `class` it got into its own: `class: ['card', className]`.
 - `component$((props: Props, children) => view)` makes the component callable as `Card(props)('text', b()('bold'))` and as `Card(props)` alone; `children` is always an array, `props` is optional when every prop is. Type the props on the parameter, not as a generic. The render runs when the instance is built into its parent; an instance called with no arguments renders by hand and returns what the render returned. The children are typed on the second parameter the same way: `[render]: [render: (item: T) => Child]` makes a render prop, `children: ComponentInstance[]` takes instances only. A render with no `children` parameter (`component$((props: Props) => view)`, and `slot$` alike) makes a component that takes none: `Card(props)('text')` is a type error. That is read off the render, so it needs the types inferred, one more reason not to write the generic: `component$<Props>(...)` keeps children allowed, `component$<Props, []>(...)` turns them off. Named slots are under "Slots" below.
 - `effect$` in a component first runs once the whole tree is appended, so measuring and focusing are safe on the first run. It belongs to the scope of the view being built, so it works only under `mount`: at module level it throws, and a store uses `effect`.
@@ -181,7 +184,7 @@ form({ onSubmit: event => { event.preventDefault(); save($name()) } })(
   textarea({ value: $note }),
   input({ type: 'checkbox', checked: $agree }),
   select({ value: $plan })(option({ value: 'free' })('Free'), option({ value: 'pro' })('Pro')),
-  button({ type: 'submit', disabled: () => !$agree() })('Save')
+  button({ type: 'submit', disabled: not($agree) })('Save')
 )
 ```
 
@@ -192,19 +195,20 @@ form({ onSubmit: event => { event.preventDefault(); save($name()) } })(
 - `defaultValue` (`input`, `textarea`, `select`) and `defaultChecked` set the default a form reset returns to; one way, a plain value or an accessor. A bound `value` leaves the default alone.
 - A `select` follows its value into the options built later (`for_`, async data) and into an option whose `value` attribute or text changes; they are selected a microtask after they land, and so is a plain `value`. A signal `value` is applied at mount and on write, synchronously.
 - No file binding: read `event.target.files` in `onChange`.
-- `ref`: a callback `element => ...` or a `signal<HTMLInputElement | null>(null)` gets the element from build to unmount, then `null`. Both are typed by the element: a wider `HTMLElement | null` or `Element | null` fits, another element is a type error.
+- `ref`: a callback `element => ...` or a `signal<HTMLInputElement | null>(null)` gets the element from build to unmount, then `null`. Both are typed by the element: a wider `HTMLElement | null` or `Element | null` fits, another element is a type error. A component that needs its own element takes it through `ref` and works with it in an `effect$` that reads the signal, `effect$(() => { $input()?.setCustomValidity(...) })`; it never builds its description by hand to get the node.
 - `style`: `style: () => ({ backgroundColor: $color(), fontSize: '12px', '--gap': '4px' })`, camelCase keys, units spelled out; a property missing from the next object is removed; on `HTMLElement` and `SVGElement`. `autoFocus: true` focuses once the element is in the document; an accessor is read once, at build; dynamic focus goes through `ref`.
 
 ## Differences from React, Solid and Svelte
 
 - Type errors: `className`, `htmlFor`, `key`, `onDoubleClick` (use `class`, `for`, a tracker, `onDblClick`). `value`/`checked` are the live state and `defaultValue`/`defaultChecked` the reset defaults, as in React; there is no `files` binding.
 - Do not unwrap a signal at build time (`const count = $count()`) for anything the view shows: it freezes. Pass `$count` or `() => ...`.
+- A component body is not tracked: a call there reads the current value once and nothing follows it, so a read at build time needs no `get` or `untracked`. That is how a value that never changes in the view is read, such as the id of a row tracked by id: `Link({ to: 'user', params: { id: $user().id } })`. `get` and `untracked` are for a read inside an effect, a computed or an accessor that must not be followed.
 - Do not `.map` a signal array or `if` on a signal at build time; use `for_`, `if_`, `match_`. Do not interpolate a signal into a template string child.
 - A function argument to a signal is a reducer; store a function as `$fn(() => handler)`.
 
 ## Unsupported
 
-- No SSR, hydration, router or error boundaries in nanoviews itself; routing comes from the `@nano_kit/router` core (see the nano-kit-react-router skill, there is no nanoviews adapter yet).
+- No SSR, hydration, router or error boundaries in nanoviews itself. Routing comes from `@nanoviews/router`, the nanoviews integration of the `@nano_kit/router` core: the nanoviews-router skill.
 - Exported but internal, do not use: `deferScope`, `boundDeferScope`, `startScope`, `stopScope`, `pauseScope`, `resumeScope`, `unsafeRun`, `createSignal`, `computedOper`, `nextValue`, `signalNextValue`, `assignIndex`, `assignKey`, `onSignal`, `unsafeMark*`, node and flag constants, and `createElement`/`createVoidElement`/`create*Factory` beyond known tag names.
 
 ## Slots
@@ -305,6 +309,7 @@ isolate$(context$(provide(Theme$, $inner))(Settings()))     // fresh tree, inher
 - The child is built inside the context, not the call that describes it: `Segment()` created as an argument of `SegmentedControl()(...)` still injects what `SegmentedControl` provides, because its render runs on build. A plain function called in place would run early, which is why components are always `component$`.
 - A provided value must have exactly the factory's return type. `signal('dark')` infers `WritableSignal<string>` and `signal<'dark'>('dark')` is a `WritableSignal<'dark'>`; signals are invariant, so neither satisfies a `WritableSignal<'light' | 'dark'>` factory. Annotate with the factory's type: `signal<Theme>('dark')`.
 - `inject` works only synchronously during render. Inside an effect, an event handler, a promise callback or a timer there is no current context and it throws: inject everything a component needs in its body and close over it. `getContext` and `run` are library-author tools, not application code, and `InjectionContext` is only for a context made outside the view, handed in with `context$(context)`. A factory may throw `DependencyNotFound('Name$')` for a dependency it refuses to default.
+- An injected object of signals and actions is destructured where it is injected, `const { $users, $count } = inject(Users$)`, and the view uses the signals like any other; an instance whose methods use `this`, such as `Api$` above, stays whole.
 - Blocks remember their context: a branch rendered later by `if_`, a row created later by `for_`, and the tracker function all resolve `inject` correctly.
 - A factory uses the store `effect`, never `effect$`: its effects run immediately and are never stopped by unmount; give a store lazy work through `mountable` plus `onMount` (see "Lazy stores").
 - Two sibling child contexts asking for a factory nobody resolved above get two instances. Resolve shared services at the root first.
@@ -360,7 +365,7 @@ const stop = effect((warmup) => {
 - `SignalishValue<T>` unwraps a `Signalish<T>` type.
 - `isAccessor(x)` is `typeof x === 'function'`; `isSignal(x)` also requires a signal node; `isWritable($x)`, `isMountable($x)`, `isEmpty(x)` (`null`/`undefined` only).
 - `toAccessor(x)` returns a function as is, wraps a value in `() => x`. `toSignal(x)` returns a signal as is, wraps a plain function in `computed`, a value in `signal`.
-- Cheap uncached accessors, exported by kida but absent from its README: `not`, `is`, `isNot`, `and`, `or`, `some`, `every`, `gt`, `gte`, `lt`, `lte`, `when($cond, then, else?)`, `pick(collection, $key)` and the template tag ``text`Toggle ${$label}` ``. They cost no graph node and recompute on every read; with no accessor among the operands they return the plain result instead of an accessor. An inline arrow does the same with no import, and `computed` caches when the value is shared or expensive.
+- Cheap uncached accessors, exported by kida but absent from its README: `not`, `is`, `isNot`, `and`, `or`, `some`, `every`, `gt`, `gte`, `lt`, `lte`, `when($cond, then, else?)`, `pick(collection, $key)` and the template tag ``text`Toggle ${$label}` ``. They cost no graph node and recompute on every read; with no accessor among the operands they return the plain result instead of an accessor. They replace an inline arrow wherever they cover the expression, and `computed` caches when the value is shared or expensive.
 - Cached derivations: `length($arr)`, `boolean($x)`.
 - `selector($source)` returns `(key) => boolean` that wakes only the readers whose key changed; `selector($source, (key, value) => R)` customises the answer.
 
@@ -377,6 +382,7 @@ updateArray($list, list => { list.sort() })  // mutates a copy, writes it back
 setKey($map, 'k', v); deleteKey($map, 'k')
 ```
 
+- A view that takes a record of an object binds its fields through the children, and takes a `deepRecord` when it reads a nested field: `$character.$origin.$name`, `$character.$episode.$length`, not `pick($character.$origin, 'name')` or an arrow over a child. The record takes the `$` name and the accessor it wraps a plain one: `for_($events, trackById)(event => { const $event = record(event); ... })`, `({ $user: user }) => { const $user = deepRecord(user); ... }`.
 - Child signals are writable when the parent is a writable signal; writing one writes a shallow copy into the parent. Children of a `computed` are read-only and a forced write is ignored.
 - `record` and `deepRecord` share one cached proxy per source: the first call decides the shape, so never call `deepRecord` on a signal already passed to `record` (or the reverse).
 - A child of a `null`/`undefined` parent reads `undefined`; writing it throws. Guard with `if_($parent)` or write the whole parent.
@@ -417,5 +423,5 @@ onMountEffect($weather, () => { void refresh($city()) })   // an effect alive on
 
 ## Related
 
-- Unit tests for views: the nanoviews-testing skill. Stories: the nanoviews-storybook skill.
+- Unit tests for views: the nanoviews-testing skill. Stories: the nanoviews-storybook skill. Routing: the nanoviews-router skill.
 - Nano Kit packages have their own skills: nano-kit-store (`@nano_kit/store`: kida plus `paced`, storage-backed signals, hydration), nano-kit-query (remote data), nano-kit-platform-web (browser API signals), nano-kit-intl (internationalization), nano-kit-react-router (the `@nano_kit/router` core). Docs: https://nano-kit.js.org. One kida instance must serve the whole graph: if `@nano_kit/*` resolves a different kida than nanoviews, override `kida` and `agera` to one version.
