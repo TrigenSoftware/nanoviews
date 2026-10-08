@@ -97,7 +97,7 @@ export function insertChildBeforeAnchor(
 
 export function remove(start: ChildNode, end: Node): void {
   if (start === end) {
-    start.remove()
+    start?.remove()
     return
   }
 
