@@ -1,9 +1,14 @@
 import {
   describe,
   it,
-  expect
+  expect,
+  afterEach
 } from 'vitest'
-import { composeStories } from '@nanoviews/storybook'
+import {
+  composeStories,
+  composeStory,
+  setProjectAnnotations
+} from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
 import {
   InjectionContext,
@@ -76,6 +81,38 @@ describe('nanoviews', () => {
         inject(Count$, context)(1)
 
         expect(container.innerHTML).toBe('<div><div>1</div></div>')
+      })
+
+      describe('stories', () => {
+        afterEach(() => {
+          setProjectAnnotations([])
+        })
+
+        it('should provide a context from a decorator of the project annotations', () => {
+          const Theme$ = () => 'light'
+          const Theme = component$(() => div()(
+            'Theme: ', inject(Theme$)
+          ))
+
+          setProjectAnnotations({
+            decorators: [
+              story => context$(
+                provide(Theme$, 'dark')
+              )(
+                story()
+              )
+            ]
+          })
+
+          const Story = composeStory({
+            render: () => context$()(
+              Theme()
+            )
+          }, {})
+          const { container } = render(Story())
+
+          expect(container.innerHTML).toBe('<div><div>Theme: dark</div></div>')
+        })
       })
     })
 
