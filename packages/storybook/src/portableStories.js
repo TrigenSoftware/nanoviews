@@ -12,7 +12,7 @@ export function setProjectAnnotations(projectAnnotations) {
 }
 
 export function composeStory(story, componentAnnotations, projectAnnotations, exportsName) {
-  return originalComposeStory(story, componentAnnotations, projectAnnotations, defaultProjectAnnotations, exportsName)
+  return originalComposeStory(story, componentAnnotations, projectAnnotations, globalThis.globalProjectAnnotations ?? defaultProjectAnnotations, exportsName)
 }
 
 export function composeStories(csfExports, projectAnnotations) {
