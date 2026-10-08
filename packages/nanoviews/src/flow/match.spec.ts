@@ -2,6 +2,7 @@ import {
   describe,
   it,
   expect,
+  expectTypeOf,
   vi
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
@@ -160,6 +161,39 @@ describe('nanoviews', () => {
         ))
 
         expect(container.innerHTML).toBe('<div>first</div>')
+      })
+
+      it('should narrow value type of union signal in case child', () => {
+        const $post = signal<{ title: string } | null>(null)
+
+        match_(
+          when_($post, ($truthy) => {
+            expectTypeOf($truthy()).toEqualTypeOf<{ title: string }>()
+            return null
+          })
+        )
+      })
+
+      it('should narrow boolean signal value to literal in case child', () => {
+        const $value = signal(true)
+
+        match_(
+          when_($value, ($truthy) => {
+            expectTypeOf($truthy()).toEqualTypeOf<true>()
+            return null
+          })
+        )
+      })
+
+      it('should narrow static union value in case child', () => {
+        const value = 'truthy' as string | null
+
+        match_(
+          when_(value, (truthy) => {
+            expectTypeOf(truthy).toEqualTypeOf<string>()
+            return null
+          })
+        )
       })
     })
   })

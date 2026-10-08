@@ -32,7 +32,9 @@ export function when_<
 >(
   $value: T,
   then_: R
-): MatchCase<T, R> {
+  // Not inferred from where the case stands: the cases of `match_` are
+  // `MatchCase<any>`, which would type the value of the child as `any`
+): NoInfer<MatchCase<T, R>> {
   return [$value, then_]
 }
 
