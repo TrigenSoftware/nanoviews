@@ -74,15 +74,8 @@
     "test": "run -p lint test:unit test:types",
     "storybook": "storybook dev -p 6006 --no-open"
   },
-  "peerDependencies": {
-    "csstype": "^3.1.3"
-  },
-  "peerDependenciesMeta": {
-    "csstype": {
-      "optional": true
-    }
-  },
   "dependencies": {
+    "csstype": "^3.1.3",
     "kida": "2.0.0-prerelease.20261004191528"
   },
   "devDependencies": {
@@ -93,7 +86,6 @@
     "@testing-library/dom": "catalog:",
     "@testing-library/user-event": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "csstype": "^3.1.3",
     "happy-dom": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
