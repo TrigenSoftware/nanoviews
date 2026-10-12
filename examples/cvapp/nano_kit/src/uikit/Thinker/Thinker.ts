@@ -1,3 +1,4 @@
+import type { Signalish } from 'nanoviews/store'
 import {
   type Attributes,
   div,
@@ -6,7 +7,7 @@ import {
 import styles from './Thinker.module.css'
 
 export interface ThinkerProps extends Attributes<'div'> {
-  label: string
+  label: Signalish<string>
 }
 
 export const Thinker = component$(({

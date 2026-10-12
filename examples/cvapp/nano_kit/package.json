@@ -10,7 +10,8 @@
     "build": "tsc && vite build",
     "build:only": "vite build",
     "preview": "vite preview",
-    "test:types": "tsc"
+    "test:types": "tsc",
+    "storybook": "storybook dev -p 6006 --no-open"
   },
   "dependencies": {
     "@nano_kit/query": "*",
@@ -22,8 +23,11 @@
     "nanoviews": "*"
   },
   "devDependencies": {
+    "@nanoviews/storybook": "*",
+    "@nanoviews/storybook-vite": "*",
     "@types/svg-sprite": "^0.0.39",
     "postcss-custom-media": "^11.0.6",
+    "storybook": "^10.5.10",
     "svg-sprite": "^2.0.4",
     "typescript": "^7.0.2",
     "vite": "^8.2.1"

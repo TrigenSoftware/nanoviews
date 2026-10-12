@@ -37,6 +37,7 @@
   "include": [
     "src",
     "scripts",
+    ".storybook/**/*.ts",
     "*.js",
     "*.ts"
   ]

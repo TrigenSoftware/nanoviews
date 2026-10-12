@@ -1,6 +1,7 @@
 import {
   type Signalish,
   lt,
+  pick,
   when
 } from 'nanoviews/store'
 import {
@@ -13,7 +14,7 @@ import styles from './Steps.module.css'
 export interface StepsProps extends Attributes<'div'> {
   value: Signalish<number>
   max: number
-  size?: 'md' | 'lg'
+  size?: Signalish<'md' | 'lg'>
 }
 
 export const Steps = component$(({
@@ -25,7 +26,7 @@ export const Steps = component$(({
 }: StepsProps) => div({
   'class': [
     styles.root,
-    styles[size],
+    pick(styles, size),
     className
   ],
   'aria-hidden': 'true',

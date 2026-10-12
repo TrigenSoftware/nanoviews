@@ -1,7 +1,9 @@
 import {
   type EmptyValue,
   type Signalish,
-  or
+  $get,
+  or,
+  when
 } from 'nanoviews/store'
 import {
   type Attributes,
@@ -12,9 +14,9 @@ import mixins from '../mixins.module.css'
 import styles from './LetterCard.module.css'
 
 export interface LetterCardContentProps extends Attributes<'div'> {
-  placeholder?: string
+  placeholder?: Signalish<string>
   value?: Signalish<string | EmptyValue>
-  maxLines?: number
+  maxLines?: Signalish<number>
 }
 
 export const LetterCardContent = component$(({
@@ -26,13 +28,13 @@ export const LetterCardContent = component$(({
 }: LetterCardContentProps) => div({
   class: [
     styles.content,
-    maxLines && styles.maxLines,
+    when(maxLines, styles.maxLines),
     mixins.focusOutline,
     className
   ],
-  style: {
-    '--countLinesMax': maxLines
-  },
+  style: () => ({
+    '--countLinesMax': $get(maxLines)
+  }),
   ...props
 })(
   // One text node: the styles break its lines
