@@ -1,7 +1,8 @@
 import {
   type EmptyValue,
   type Signalish,
-  pick
+  pick,
+  when
 } from 'nanoviews/store'
 import {
   type ComponentInstance,
@@ -22,11 +23,11 @@ import styles from './Button.module.css'
 
 interface BaseButtonProps {
   variant?: Signalish<'default' | 'primary' | 'subtle'>
-  size?: 'sm' | 'md' | 'lg'
-  color?: 'danger'
-  block?: boolean
+  size?: Signalish<'sm' | 'md' | 'lg'>
+  color?: Signalish<'danger' | EmptyValue>
+  block?: Signalish<boolean>
   icon?: Signalish<IconName | EmptyValue>
-  iconAlign?: 'left' | 'right'
+  iconAlign?: Signalish<'left' | 'right'>
 }
 
 export type ButtonProps<T extends ElementName = 'button'> = BaseButtonProps & AsElementProps<T>
@@ -50,18 +51,21 @@ export const Button = component$((
   class: [
     styles.root,
     pick(styles, variant),
-    styles[size],
-    color && styles[color],
-    block && styles.block,
+    pick(styles, size),
+    pick(styles, color),
+    when(block, styles.block),
     typography.text,
-    typography[size],
+    pick(typography, size),
     mixins.focusOutline,
     className
   ],
   ...props
 })(
   swap_(icon, name => name && span({
-    class: `${styles.icon} ${styles[iconAlign]}`
+    class: [
+      styles.icon,
+      pick(styles, iconAlign)
+    ]
   })(
     Icon({
       name

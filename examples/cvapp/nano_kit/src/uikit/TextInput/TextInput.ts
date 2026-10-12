@@ -1,3 +1,4 @@
+import type { Signalish } from 'nanoviews/store'
 import {
   type Attributes,
   input,
@@ -8,7 +9,7 @@ import mixins from '../mixins.module.css'
 import styles from './TextInput.module.css'
 
 export interface TextInputProps extends Attributes<'input'> {
-  type?: 'text' | 'email' | 'password' | 'tel' | 'url' | 'search'
+  type?: Signalish<'text' | 'email' | 'password' | 'tel' | 'url' | 'search'>
 }
 
 export const TextInput = component$(({

@@ -29,6 +29,8 @@ minimumReleaseAgeExclude:
 overrides:
   'nanoviews@*': workspace:^
   '@nanoviews/router@*': workspace:^
+  '@nanoviews/storybook@*': workspace:^
+  '@nanoviews/storybook-vite@*': workspace:^
   # Temporary until the kida 2.0 release line ships: keep the whole graph on
   # the same prerelease so examples get one kida instance shared with nanoviews.
   # agera is pinned too: a `^2.0.0-prerelease` range would otherwise resolve

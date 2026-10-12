@@ -14,7 +14,7 @@ import mixins from '../mixins.module.css'
 import styles from './TextArea.module.css'
 
 export interface TextAreaProps extends Attributes<'textarea'> {
-  maxLength?: number
+  maxLength?: Signalish<number>
   value?: Signalish<string>
 }
 
@@ -29,8 +29,10 @@ export const TextArea = component$(({
   // Unlike the `maxlength` attribute, which cuts a longer text short, the
   // limit lets it in and makes the control invalid
   effect$(() => {
+    const max = $get(maxLength)
+
     $textarea()?.setCustomValidity(
-      $get(value).length > maxLength ? `Maximum length is ${maxLength} characters` : ''
+      $get(value).length > max ? `Maximum length is ${max} characters` : ''
     )
   })
 

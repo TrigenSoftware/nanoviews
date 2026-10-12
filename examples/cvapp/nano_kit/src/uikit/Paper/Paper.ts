@@ -1,4 +1,9 @@
 import {
+  type EmptyValue,
+  type Signalish,
+  pick
+} from 'nanoviews/store'
+import {
   type ComponentInstance,
   component$,
   div
@@ -10,7 +15,7 @@ import styles from './Paper.module.css'
 type PaperElement = 'div' | 'section' | 'article' | 'aside'
 
 export type PaperProps<T extends PaperElement = 'div'> = AsElementProps<T> & {
-  color?: 'success'
+  color?: Signalish<'success' | EmptyValue>
 }
 
 // The render is typed for the default element, the signature for the element
@@ -26,7 +31,7 @@ export const Paper = component$((
 ) => as({
   class: [
     styles.root,
-    color && styles[color],
+    pick(styles, color),
     typography.text,
     typography.lg,
     className
