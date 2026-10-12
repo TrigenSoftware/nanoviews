@@ -9,6 +9,7 @@ import { mount } from 'nanoviews'
 const signalsByDomElement = new WeakMap()
 const unmountsByDomElement = new WeakMap()
 const globalsByDomElement = new WeakMap()
+const argsByDomElement = new WeakMap()
 
 // Storybook rebuilds the globals object on every render but keeps the identity of each value that did
 // not change, so a shallow compare is what tells an args update apart from a globals update.
@@ -27,13 +28,19 @@ function toSignals(props, canvasElement) {
   const signals = canvasElement && signalsByDomElement.get(canvasElement)
 
   if (signals) {
+    const prevProps = argsByDomElement.get(canvasElement)
+
+    // Only the args that changed are written: a value the story wrote into its own arg signal stays
+    // until a control changes that arg
     Object.entries(props).forEach(([key, value]) => {
       const target = signals[key]
 
-      if (isSignal(target) && !isSignal(value)) {
+      if (isSignal(target) && !isSignal(value) && !Object.is(value, prevProps[key])) {
         target(value)
       }
     })
+
+    argsByDomElement.set(canvasElement, props)
 
     return signals
   }
@@ -51,6 +58,7 @@ function toSignals(props, canvasElement) {
 
   if (canvasElement) {
     signalsByDomElement.set(canvasElement, newSignals)
+    argsByDomElement.set(canvasElement, props)
   }
 
   return newSignals

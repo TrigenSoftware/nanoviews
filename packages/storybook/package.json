@@ -41,7 +41,8 @@
     "linkDirectory": false
   },
   "files": [
-    "src"
+    "src",
+    "!src/**/*.spec.js"
   ],
   "scripts": {
     "clear:package": "del ./package",
@@ -50,7 +51,8 @@
     "postpublish": "pnpm clear:package",
     "lint": "oxlint",
     "format": "oxlint --fix",
-    "test": "run lint"
+    "test:unit": "vitest run",
+    "test": "run -p lint test:unit"
   },
   "peerDependencies": {
     "nanoviews": "workspace:^",
@@ -60,7 +62,9 @@
     "type-fest": "^5.9.0"
   },
   "devDependencies": {
+    "happy-dom": "catalog:",
     "nanoviews": "workspace:^",
-    "storybook": "catalog:"
+    "storybook": "catalog:",
+    "vitest": "catalog:"
   }
 }

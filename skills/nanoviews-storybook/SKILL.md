@@ -94,7 +94,7 @@ export const Reactive: Story = {
 
 ## Args are signals
 
-On the first render of a canvas the renderer wraps every plain arg in `signal()` and mounts the story once. Every later render (a control edited, an arg changed from the URL) writes the new plain values into the same signals: no re-render, the bindings that depend on the arg update. A toolbar (globals) change and `forceRemount` unmount and mount again, which resets component-local signals.
+On the first render of a canvas the renderer wraps every plain arg in `signal()` and mounts the story once. Every later render (a control edited) writes the args that changed into their signals: no re-render, the bindings that depend on the arg update, and a value the story wrote into an arg signal stays until that arg changes or the story remounts. A toolbar (globals) change and `forceRemount` unmount and mount again, which resets component-local signals.
 
 ## Portable stories
 

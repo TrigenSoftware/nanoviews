@@ -214,7 +214,7 @@ A story with neither a `render` nor a `component` to fall back to fails to rende
 
 An arg has two ends: the story declares it as a plain value, and the view receives it as a writable signal. Everything between the two is the renderer.
 
-On the first render of a canvas element every plain arg is wrapped in a `signal()`, and the story is mounted once with that map of signals. On every next render — a control edited, an arg changed from the URL — the new plain values are **written into the same signals** instead of being passed to a new component instance. There is no re-render: the signal updates exactly the bindings that depend on it. Only `forceRemount` unmounts the tree and mounts it again.
+On the first render of a canvas element every plain arg is wrapped in a `signal()`, and the story is mounted once with that map of signals. On every next render, such as after a control is edited, the args that changed are **written into their signals** instead of being passed to a new component instance, so a value the story itself wrote into an arg signal stays until that arg changes. There is no re-render: the signal updates exactly the bindings that depend on it. Only `forceRemount` and a change of the globals unmount the tree and mount it again.
 
 Args that are already signals, and args that are functions (action args like `fn()` from `storybook/test`), are passed through untouched.
 
