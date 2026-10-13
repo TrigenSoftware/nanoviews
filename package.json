@@ -44,7 +44,7 @@
     "@types/node": "catalog:",
     "clean-publish": "^5.0.0",
     "commitizen": "^4.2.4",
-    "del-cli": "^7.0.0",
+    "del-cli": "^8.0.0",
     "nano-staged": "^1.0.0",
     "nanoviews": "workspace:^",
     "oxlint": "^1.68.0",
