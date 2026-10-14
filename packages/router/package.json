@@ -71,8 +71,8 @@
     "nanoviews": "workspace:^"
   },
   "devDependencies": {
-    "@nano_kit/router": "2.0.0-prerelease.20261008124401",
-    "@nano_kit/store": "2.0.0-prerelease.20261008124401",
+    "@nano_kit/router": "2.0.0-prerelease.20261014204046",
+    "@nano_kit/store": "2.0.0-prerelease.20261014204046",
     "@nanoviews/testing-library": "workspace:^",
     "@size-limit/preset-small-lib": "catalog:",
     "@testing-library/dom": "catalog:",
