@@ -57,7 +57,7 @@ overrides:
   '@nano_kit/intl@*': 2.0.0-prerelease.20261014204046
   '@nano_kit/platform-web@*': 2.0.0-prerelease.20261014204046
   '@nano_kit/query@*': 2.0.0-prerelease.20261014204046
-  '@nano_kit/router@*': 2.0.0-prerelease.20261014204046
+  '@nano_kit/router@*': 2.0.0-snapshot.20260830203546
   '@nano_kit/store@*': 2.0.0-prerelease.20261014204046
   kida@*: 2.0.0-prerelease.20261014204046
   agera@*: 2.0.0-prerelease.20261014204046
@@ -155,8 +155,8 @@ importers:
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0-snapshot.20260830203546
+        version: 2.0.0-snapshot.20260830203546(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046
@@ -210,8 +210,8 @@ importers:
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0-snapshot.20260830203546
+        version: 2.0.0-snapshot.20260830203546(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046
@@ -244,8 +244,8 @@ importers:
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0-snapshot.20260830203546
+        version: 2.0.0-snapshot.20260830203546(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046
@@ -275,8 +275,8 @@ importers:
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0-snapshot.20260830203546
+        version: 2.0.0-snapshot.20260830203546(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046
@@ -300,8 +300,8 @@ importers:
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0-snapshot.20260830203546
+        version: 2.0.0-snapshot.20260830203546(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046
@@ -507,8 +507,8 @@ importers:
   packages/router:
     devDependencies:
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0-snapshot.20260830203546
+        version: 2.0.0-snapshot.20260830203546(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046
@@ -1068,9 +1068,9 @@ packages:
     peerDependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/router@2.0.0-prerelease.20261014204046':
-    resolution: {integrity: sha512-s43iYBgmscPTWfW2GvVn046WpvfmMRWLIjz/nSDRbVdLbSslfE7gqzt0xRWnrjJpbdubCPgN2rENMDQbToM88Q==}
-    engines: {node: '>=24'}
+  '@nano_kit/router@2.0.0-snapshot.20260830203546':
+    resolution: {integrity: sha512-ElC5KLuFnedDELCHcVyWFv+E0gzGVPbV2sN+uDp5tpp7uLuEJ+PsrgVmImY5gERDe3jfu3i1Uolkgy75cw2zLg==}
+    engines: {node: '>=20'}
     peerDependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
@@ -4373,7 +4373,7 @@ snapshots:
     dependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/router@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
+  '@nano_kit/router@2.0.0-snapshot.20260830203546(@nano_kit/store@2.0.0-prerelease.20261014204046)':
     dependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
