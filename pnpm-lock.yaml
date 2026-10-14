@@ -54,13 +54,13 @@ overrides:
   '@nanoviews/router@*': workspace:^
   '@nanoviews/storybook@*': workspace:^
   '@nanoviews/storybook-vite@*': workspace:^
-  '@nano_kit/intl@*': 2.0.0-prerelease.20261008124401
-  '@nano_kit/platform-web@*': 2.0.0-prerelease.20261008124401
-  '@nano_kit/query@*': 2.0.0-prerelease.20261008124401
-  '@nano_kit/router@*': 2.0.0-prerelease.20261008124401
-  '@nano_kit/store@*': 2.0.0-prerelease.20261008124401
-  kida@*: 2.0.0-prerelease.20261008124401
-  agera@*: 2.0.0-prerelease.20261008124401
+  '@nano_kit/intl@*': 2.0.0-prerelease.20261014204046
+  '@nano_kit/platform-web@*': 2.0.0-prerelease.20261014204046
+  '@nano_kit/query@*': 2.0.0-prerelease.20261014204046
+  '@nano_kit/router@*': 2.0.0-prerelease.20261014204046
+  '@nano_kit/store@*': 2.0.0-prerelease.20261014204046
+  kida@*: 2.0.0-prerelease.20261014204046
+  agera@*: 2.0.0-prerelease.20261014204046
 
 importers:
 
@@ -152,14 +152,14 @@ importers:
   examples/cvapp/nano_kit:
     dependencies:
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046
       '@nanoviews/router':
         specifier: workspace:^
         version: link:../../../packages/router
@@ -204,17 +204,17 @@ importers:
         specifier: ^1.19.9
         version: 1.19.17(hono@4.13.13)
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046
       hono:
         specifier: ^4.12.1
         version: 4.13.13
@@ -235,20 +235,20 @@ importers:
   examples/event-board/nano_kit-di-intl:
     dependencies:
       '@nano_kit/intl':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046
       '@nanoviews/router':
         specifier: workspace:^
         version: link:../../../packages/router
@@ -272,14 +272,14 @@ importers:
   examples/rick-and-morty/common:
     dependencies:
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046
     devDependencies:
       playwright:
         specifier: 'catalog:'
@@ -297,14 +297,14 @@ importers:
   examples/rick-and-morty/nano_kit:
     dependencies:
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046
       '@nanoviews/router':
         specifier: workspace:^
         version: link:../../../packages/router
@@ -372,14 +372,14 @@ importers:
   examples/weather/common:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046
       '@nanostores/persistent':
         specifier: ^1.3.5
         version: 1.3.5(nanostores@1.5.2)
@@ -406,14 +406,14 @@ importers:
   examples/weather/nano_kit:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046
       nanoviews:
         specifier: workspace:^
         version: link:../../../packages/nanoviews
@@ -428,14 +428,14 @@ importers:
   examples/weather/nano_kit-di:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046
       nanoviews:
         specifier: workspace:^
         version: link:../../../packages/nanoviews
@@ -453,8 +453,8 @@ importers:
         specifier: ^3.1.3
         version: 3.2.3
       kida:
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046
     devDependencies:
       '@nanoviews/storybook':
         specifier: workspace:^
@@ -507,11 +507,11 @@ importers:
   packages/router:
     devDependencies:
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261008124401
-        version: 2.0.0-prerelease.20261008124401
+        specifier: 2.0.0-prerelease.20261014204046
+        version: 2.0.0-prerelease.20261014204046
       '@nanoviews/testing-library':
         specifier: workspace:^
         version: link:../testing-library
@@ -1050,32 +1050,32 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@nano_kit/intl@2.0.0-prerelease.20261008124401':
-    resolution: {integrity: sha512-iv1CXgWzYD688/KgfNnc3DULDRIj2fNwlK3pc7JCfwsXenRX0tbhtpWM/hMzO1jskV8DN+5d28PF0zhCLeWU5Q==}
+  '@nano_kit/intl@2.0.0-prerelease.20261014204046':
+    resolution: {integrity: sha512-GQ8lPWeS/Uha1v5TAtaSGdWMCaEUQz4hQ2Ee0N/jh2Ms6SYd6GR57yY70E0hfHMaarJjj9t5+ct44g95FLL5nA==}
     engines: {node: '>=24'}
     peerDependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261008124401
+      '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/platform-web@2.0.0-prerelease.20261008124401':
-    resolution: {integrity: sha512-KhOY2ENFod7uNC0L2oT0M36m+paqJPW78fs3qtgH9+lUJQ4H4MPn0/qDs4QFfHIc15DROFP0iuPF/Z3jLhRH8A==}
+  '@nano_kit/platform-web@2.0.0-prerelease.20261014204046':
+    resolution: {integrity: sha512-4eBtyHNPKfyHjfOZU8MvvClN3DpVjEEHnQ40deDQ1vGDdhCrThqzwIboC2S2LymIjoCq/PhbJKbH1SEHxDbd3w==}
     engines: {node: '>=24'}
     peerDependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261008124401
+      '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/query@2.0.0-prerelease.20261008124401':
-    resolution: {integrity: sha512-rrTMHn/rbtUl+4gLL6iQO8OsrV6WAlGjVRCXbB0vbGN75TLKKyFtyx4EbgXk+M94CdqOqvMRChGgjdcnoCzxEQ==}
+  '@nano_kit/query@2.0.0-prerelease.20261014204046':
+    resolution: {integrity: sha512-b3Sw8R7rAwQBAuMX3NQftoP8T7ghvL4VhrpnSd1hDBOUx1Hzu6Vwur6/omwnwgjrX6LAXmvgLtnCl9IC/mxPjw==}
     engines: {node: '>=24'}
     peerDependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261008124401
+      '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/router@2.0.0-prerelease.20261008124401':
-    resolution: {integrity: sha512-8EhMNg3Y7NcIbgFhbgRvfzXPFwnS8b8FNdWteQxabMkUCot369B1tnM4XAYK3dvx45qMnQ1EWTeni4+1mroKng==}
+  '@nano_kit/router@2.0.0-prerelease.20261014204046':
+    resolution: {integrity: sha512-s43iYBgmscPTWfW2GvVn046WpvfmMRWLIjz/nSDRbVdLbSslfE7gqzt0xRWnrjJpbdubCPgN2rENMDQbToM88Q==}
     engines: {node: '>=24'}
     peerDependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261008124401
+      '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/store@2.0.0-prerelease.20261008124401':
-    resolution: {integrity: sha512-u4MmTuStxIJLiUjBCc8pNx5k0Z2CQVHBTTyptCwnkwbAHxAEUweElAYL0yPnYKPcE5R+qduBjxzInqZIAzLBig==}
+  '@nano_kit/store@2.0.0-prerelease.20261014204046':
+    resolution: {integrity: sha512-7jfNe1UZjaAbssZ4YU1EeCyd5w1BkikrZiFL1dlRIE/elKjyTGN+oaKqxknGFzAalGKjhYUtx0frI1G069aXug==}
     engines: {node: '>=24'}
 
   '@nanostores/persistent@1.3.5':
@@ -2157,8 +2157,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  agera@2.0.0-prerelease.20261008124401:
-    resolution: {integrity: sha512-9B0BKkJLUTAsW448o2OyXSXwqLl/gxWu1oJyeF7wSw5D7L+tkJ2OUwJJ+NXdY7ORq+Z7a5drOitQxsCIgRRR+A==}
+  agera@2.0.0-prerelease.20261014204046:
+    resolution: {integrity: sha512-XMNW1O+eUacJyYMEPoZ1kuFwbkEcCjGDs03ijPDOeFH6t5vihgzy07zQ9Q95Eq505EHcwnLUamFWcV4Hw8DLeQ==}
     engines: {node: '>=24'}
 
   ajv@8.17.1:
@@ -2944,8 +2944,8 @@ packages:
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
-  kida@2.0.0-prerelease.20261008124401:
-    resolution: {integrity: sha512-3O+JDtEkrD2MoJ8vzfPZxVs4tU7wXzvX4CQrn0wEO8El5EKDYkxqa2mTPEJk5OO9MGuJaTgT5zglIbEJrzLy/A==}
+  kida@2.0.0-prerelease.20261014204046:
+    resolution: {integrity: sha512-kF6RV1fCL+P3c/153ghM4gxIUbV1eoNY/K0LNRGDlwzqW3Aa+7BbhpcgtVnTZvu9t6DtUVfxwiJYNEfVNa606g==}
     engines: {node: '>=24'}
 
   kuler@2.0.0:
@@ -4361,25 +4361,25 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@nano_kit/intl@2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)':
+  '@nano_kit/intl@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
     dependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261008124401
+      '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/platform-web@2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)':
+  '@nano_kit/platform-web@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
     dependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261008124401
+      '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/query@2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)':
+  '@nano_kit/query@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
     dependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261008124401
+      '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/router@2.0.0-prerelease.20261008124401(@nano_kit/store@2.0.0-prerelease.20261008124401)':
+  '@nano_kit/router@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
     dependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261008124401
+      '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/store@2.0.0-prerelease.20261008124401':
+  '@nano_kit/store@2.0.0-prerelease.20261014204046':
     dependencies:
-      kida: 2.0.0-prerelease.20261008124401
+      kida: 2.0.0-prerelease.20261014204046
 
   '@nanostores/persistent@1.3.5(nanostores@1.5.2)':
     dependencies:
@@ -5112,7 +5112,7 @@ snapshots:
 
   acorn@8.17.0: {}
 
-  agera@2.0.0-prerelease.20261008124401: {}
+  agera@2.0.0-prerelease.20261014204046: {}
 
   ajv@8.17.1:
     dependencies:
@@ -5865,9 +5865,9 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
-  kida@2.0.0-prerelease.20261008124401:
+  kida@2.0.0-prerelease.20261014204046:
     dependencies:
-      agera: 2.0.0-prerelease.20261008124401
+      agera: 2.0.0-prerelease.20261014204046
 
   kuler@2.0.0: {}
 
