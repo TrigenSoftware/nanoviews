@@ -56,8 +56,24 @@ function toSignals(props, canvasElement) {
   return newSignals
 }
 
+// The story a decorator gets: `story()` hands it back unbuilt, as a child that renders once the
+// element or the `context$` it goes into builds it, inside whatever that opened - the way a
+// component renders inside its parent
+function lazyStory(story) {
+  return (update) => {
+    const child = () => story(update)
+
+    child.c = true
+
+    return child
+  }
+}
+
 export function applyDecorators(storyFn, decorators) {
-  const decorated = defaultDecorateStory(storyFn, decorators)
+  const decorated = defaultDecorateStory(
+    storyFn,
+    decorators.map(decorator => (story, context) => decorator(lazyStory(story), context))
+  )
 
   return context => [
     props => decorated({

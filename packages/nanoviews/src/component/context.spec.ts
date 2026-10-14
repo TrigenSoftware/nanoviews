@@ -113,6 +113,49 @@ describe('nanoviews', () => {
 
           expect(container.innerHTML).toBe('<div><div>Theme: dark</div></div>')
         })
+
+        it('should render a story inside the context its decorator opens', () => {
+          const Theme$ = () => 'light'
+          const Story = composeStory({
+            render: () => div()(
+              'Theme: ', inject(Theme$)
+            ),
+            decorators: [
+              story => context$(
+                provide(Theme$, 'dark')
+              )(
+                story()
+              )
+            ]
+          }, {})
+          const { container } = render(Story())
+
+          expect(container.innerHTML).toBe('<div><div>Theme: dark</div></div>')
+        })
+
+        it('should run a decorator inside the context an outer decorator opens', () => {
+          const Theme$ = () => 'light'
+          const Story = composeStory({
+            render: () => div()(
+              'Story'
+            ),
+            decorators: [
+              story => div({
+                class: inject(Theme$)
+              })(
+                story()
+              ),
+              story => context$(
+                provide(Theme$, 'dark')
+              )(
+                story()
+              )
+            ]
+          }, {})
+          const { container } = render(Story())
+
+          expect(container.innerHTML).toBe('<div><div class="dark"><div>Story</div></div></div>')
+        })
       })
     })
 
