@@ -4,6 +4,10 @@ import {
   type RenderChildren,
   type Component,
   type ComponentInstance,
+  type PolymorphicTarget,
+  type PolymorphicComponent,
+  type PolymorphicOwnProps,
+  type PolymorphicTargets,
   lazyChild
 } from '../internals/index.js'
 
@@ -38,3 +42,24 @@ export function component$<
     return instance
   }) as Component<P, RenderChildren<R, C>>
 }
+
+/**
+ * Create a polymorphic component, one that renders the element or the
+ * component its caller gives in `as`. The render is that of `component$`,
+ * written for the default target: its props extend `PolymorphicProps` of
+ * that target, and it sets the default of `as`. The component takes its own
+ * props and those of the target in `as`, the default one without it, and
+ * only the targets that `PolymorphicProps` allows
+ * @param render - Function to render the component with props and children
+ * @returns The polymorphic component
+ */
+export const polymorphic$ = component$ as <
+  P extends { as?: PolymorphicTarget },
+  C extends unknown[] = Children,
+  R = unknown
+>(render: R & Render<P, C>) => PolymorphicComponent<
+  NonNullable<P['as']>,
+  PolymorphicOwnProps<P>,
+  RenderChildren<R, C>,
+  PolymorphicTargets<P>
+>

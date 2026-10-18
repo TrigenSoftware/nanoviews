@@ -4,6 +4,7 @@ import {
   lt
 } from 'nanoviews/store'
 import {
+  type Attributes,
   a,
   aside,
   h2,
@@ -18,16 +19,13 @@ import {
   $location
 } from '~/stores/router'
 import { GOAL_APPLICATIONS } from '~/constants'
-import {
-  type PaperProps,
-  Paper
-} from '~/uikit/Paper'
+import { Paper } from '~/uikit/Paper'
 import { Button } from '~/uikit/Button'
 import { Steps } from '~/uikit/Steps'
 import typography from '~/uikit/typography.module.css'
 import styles from './CallToAction.module.css'
 
-export interface CallToActionProps extends Omit<PaperProps<'aside'>, 'color' | 'as'> {}
+export interface CallToActionProps extends Omit<Attributes<'aside'>, 'color'> {}
 
 export const CallToAction = component$(({
   class: className,

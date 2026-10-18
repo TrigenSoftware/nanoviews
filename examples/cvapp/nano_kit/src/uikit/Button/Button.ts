@@ -5,14 +5,12 @@ import {
   when
 } from 'nanoviews/store'
 import {
-  type ComponentInstance,
-  type ElementName,
+  type PolymorphicProps,
   button,
   span,
-  component$,
+  polymorphic$,
   swap_
 } from 'nanoviews'
-import type { AsElementProps } from '../types'
 import {
   type IconName,
   Icon
@@ -21,7 +19,7 @@ import typography from '../typography.module.css'
 import mixins from '../mixins.module.css'
 import styles from './Button.module.css'
 
-interface BaseButtonProps {
+export interface ButtonProps extends PolymorphicProps<'button'> {
   variant?: Signalish<'default' | 'primary' | 'subtle'>
   size?: Signalish<'sm' | 'md' | 'lg'>
   color?: Signalish<'danger' | EmptyValue>
@@ -30,11 +28,7 @@ interface BaseButtonProps {
   iconAlign?: Signalish<'left' | 'right'>
 }
 
-export type ButtonProps<T extends ElementName = 'button'> = BaseButtonProps & AsElementProps<T>
-
-// The render is typed for the default element, the signature for the element
-// a caller passes in `as`, with its attributes
-export const Button = component$((
+export const Button = polymorphic$((
   {
     as = button,
     class: className,
@@ -74,4 +68,4 @@ export const Button = component$((
   // The children stand in the flex row as they are: a text gets a box of its
   // own while it is not empty, and an element is there for the styles to reach
   ...children
-)) as <T extends ElementName = 'button'>(props?: ButtonProps<T>) => ComponentInstance
+))
