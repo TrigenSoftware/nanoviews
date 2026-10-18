@@ -4,23 +4,18 @@ import {
   pick
 } from 'nanoviews/store'
 import {
-  type ComponentInstance,
-  component$,
-  div
+  type PolymorphicProps,
+  div,
+  polymorphic$
 } from 'nanoviews'
-import type { AsElementProps } from '../types'
 import typography from '../typography.module.css'
 import styles from './Paper.module.css'
 
-type PaperElement = 'div' | 'section' | 'article' | 'aside'
-
-export type PaperProps<T extends PaperElement = 'div'> = AsElementProps<T> & {
+export interface PaperProps extends PolymorphicProps<'div', 'section' | 'article' | 'aside'> {
   color?: Signalish<'success' | EmptyValue>
 }
 
-// The render is typed for the default element, the signature for the element
-// a caller passes in `as`, with its attributes
-export const Paper = component$((
+export const Paper = polymorphic$((
   {
     as = div,
     class: className,
@@ -39,4 +34,4 @@ export const Paper = component$((
   ...props
 })(
   ...children
-)) as <T extends PaperElement = 'div'>(props?: PaperProps<T>) => ComponentInstance
+))

@@ -1,14 +1,12 @@
 import {
+  type Attributes,
   article,
   component$
 } from 'nanoviews'
-import {
-  type PaperProps,
-  Paper
-} from '../Paper'
+import { Paper } from '../Paper'
 import styles from './LetterCard.module.css'
 
-export interface LetterCardProps extends Omit<PaperProps<'article'>, 'color' | 'as'> {}
+export interface LetterCardProps extends Omit<Attributes<'article'>, 'color'> {}
 
 export const LetterCard = component$((
   {

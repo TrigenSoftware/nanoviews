@@ -15,10 +15,20 @@ import type {
   Attributes,
   Child,
   Component,
-  LazyElement
+  LazyElement,
+  PolymorphicProps
 } from '../internals/types/index.js'
-import { div } from '../elements/index.js'
-import { component$ } from './component.js'
+import {
+  div,
+  a,
+  span,
+  button,
+  article
+} from '../elements/index.js'
+import {
+  component$,
+  polymorphic$
+} from './component.js'
 import * as Stories from './component.stories.js'
 
 const {
@@ -124,6 +134,164 @@ describe('nanoviews', () => {
 
         expectTypeOf(Declared).toEqualTypeOf<Component<Attributes<'div'>>>()
         expectTypeOf(DeclaredNone).toEqualTypeOf<Component<Attributes<'div'>, []>>()
+      })
+    })
+
+    describe('polymorphic$', () => {
+      interface ButtonProps extends PolymorphicProps<'button'> {
+        variant?: 'primary' | 'secondary'
+      }
+
+      const Button = polymorphic$((
+        {
+          as = button,
+          variant = 'primary',
+          class: className,
+          ...props
+        }: ButtonProps,
+        children
+      ) => as({
+        class: ['button', `button_${variant}`, className],
+        ...props
+      })(
+        ...children
+      ))
+      const Link = component$((
+        {
+          to,
+          ...props
+        }: { to: string } & Attributes<'a'>,
+        children
+      ) => a({
+        href: to,
+        ...props
+      })(
+        ...children
+      ))
+
+      it('should render the default target without `as`', () => {
+        const { container } = render(Button({
+          type: 'submit'
+        })(
+          'Save'
+        ))
+
+        expect(container.innerHTML).toBe('<div><button class="button button_primary" type="submit">Save</button></div>')
+      })
+
+      it('should render the element given in `as`', () => {
+        const { container } = render(Button({
+          as: a,
+          href: '/docs/'
+        })(
+          'Docs'
+        ))
+
+        expect(container.innerHTML).toBe('<div><a class="button button_primary" href="/docs/">Docs</a></div>')
+      })
+
+      it('should render the component given in `as`', () => {
+        const { container } = render(Button({
+          as: Link,
+          to: '/home',
+          variant: 'secondary'
+        })(
+          'Home'
+        ))
+
+        expect(container.innerHTML).toBe('<div><a href="/home" class="button button_secondary">Home</a></div>')
+      })
+
+      it('should type the props by the target in `as`', () => {
+        Button()
+        Button({
+          as: a,
+          href: '/docs/'
+        })
+        Button({
+          as: Link,
+          to: '/home'
+        })
+
+        Button({
+          // @ts-expect-error a button has no `href`
+          href: '/docs/'
+        })
+        // @ts-expect-error the link takes its `to`
+        Button({
+          as: Link
+        })
+        Button({
+          // @ts-expect-error an own prop keeps its type
+          variant: 'tertiary'
+        })
+      })
+
+      it('should keep the type of an own prop named after an attribute', () => {
+        interface BadgeProps extends PolymorphicProps<'span'> {
+          color?: 'danger' | 'success'
+        }
+
+        const Badge = polymorphic$(({ as = span, color, ...props }: BadgeProps, children) => as({
+          class: color,
+          ...props
+        })(
+          ...children
+        ))
+        const { container } = render(Badge({
+          as: a,
+          href: '/alerts/',
+          color: 'danger'
+        })(
+          'Alerts'
+        ))
+
+        expect(container.innerHTML).toBe('<div><a class="danger" href="/alerts/">Alerts</a></div>')
+
+        Badge({
+          // @ts-expect-error the own `color` keeps its type
+          color: 'red'
+        })
+        Badge({
+          as: a,
+          // @ts-expect-error with any target
+          color: 'red'
+        })
+      })
+
+      it('should take only the targets the props allow', () => {
+        const Paper = polymorphic$(({ as = div, ...props }: PolymorphicProps<'div', 'section' | 'article'>, children) => as(props)(...children))
+        const { container } = render(Paper({
+          as: article
+        })(
+          'Letter'
+        ))
+
+        expect(container.innerHTML).toBe('<div><article>Letter</article></div>')
+
+        Paper()
+        Paper({
+          // @ts-expect-error a span is not among the targets
+          as: span
+        })
+      })
+
+      it('should require the props when the default target requires some', () => {
+        const NavLink = polymorphic$(({ as = Link, ...props }: PolymorphicProps<typeof Link>, children) => as(props)(...children))
+
+        NavLink({
+          to: '/home'
+        })
+
+        // @ts-expect-error the default link takes its `to`
+        NavLink()
+      })
+
+      it('should take no children when the render has no children parameter', () => {
+        const Divider = polymorphic$(({ as = span, ...props }: PolymorphicProps<'span'>) => as(props)('—'))
+
+        // @ts-expect-error a component that takes no children is not called with them
+        Divider()('Hello')
       })
     })
   })
