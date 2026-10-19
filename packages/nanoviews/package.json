@@ -5,7 +5,7 @@
   "description": "A small Direct DOM library for building user interfaces.",
   "author": "dangreen",
   "license": "MIT",
-  "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/nanoviews#readme",
+  "homepage": "https://nanoviews.js.org/getting-started/",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",

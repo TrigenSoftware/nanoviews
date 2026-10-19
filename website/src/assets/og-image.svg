@@ -1,0 +1,46 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="95"/>
+    </filter>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix type="saturate" values="0" result="desaturatedNoise"/>
+      <feComponentTransfer result="adjustedNoise">
+        <feFuncA type="linear" slope="2.5"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="adjustedNoise" mode="overlay"/>
+    </filter>
+    <path id="logo-star" d="M400.00 3.00 L419.55 306.60 C421.95 343.90 439.77 373.37 462.26 377.17 L680.00 400.00 L462.26 422.83 C439.77 426.63 421.95 456.10 419.55 493.40 L400.00 797.00 L380.45 493.40 C378.05 456.10 360.23 426.63 337.74 422.83 L120.00 400.00 L337.74 377.17 C360.23 373.37 378.05 343.90 380.45 306.60 Z"/>
+    <!-- The crescent with a gap around the star, so the star lies over it -->
+    <mask id="logo-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="800" height="800">
+      <path d="M653.80 259.70 A290 290 0 1 0 653.80 540.30 A264.03 264.03 0 1 1 653.80 259.70Z" fill="white"/>
+      <use href="#logo-star" fill="black" stroke="black" stroke-width="16" stroke-linejoin="round"/>
+      <use href="#logo-star" fill="white"/>
+    </mask>
+  </defs>
+
+  <!-- Background gradient -->
+  <g filter="url(#grain)">
+    <rect width="1200" height="630" fill="#F5F5FA"/>
+
+    <g filter="url(#blur)">
+      <!-- Cyan/Sky -->
+      <ellipse cx="200" cy="150" rx="450" ry="450" fill="#B3E5FC" opacity="0.9"/>
+      <!-- Lavender -->
+      <ellipse cx="1000" cy="480" rx="450" ry="450" fill="#D1C4E9" opacity="0.9"/>
+      <!-- Soft Pink -->
+      <ellipse cx="600" cy="315" rx="400" ry="400" fill="#F8BBD0" opacity="0.8"/>
+      <!-- Mint -->
+      <ellipse cx="1000" cy="100" rx="350" ry="350" fill="#C8E6C9" opacity="0.8"/>
+      <!-- Peach -->
+      <ellipse cx="200" cy="500" rx="350" ry="350" fill="#FFE0B2" opacity="0.8"/>
+    </g>
+  </g>
+
+  <!-- The logo in the center with #414141 -->
+  <g transform="translate(600, 315) scale(0.4)">
+    <!-- Move the 800x800 logo to center at 0,0 -->
+    <rect width="800" height="800" fill="#414141" mask="url(#logo-mask)" transform="translate(-400, -400)"/>
+  </g>
+</svg>

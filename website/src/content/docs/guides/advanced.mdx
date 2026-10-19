@@ -1,0 +1,242 @@
+---
+title: Advanced
+description: Use raw HTML, shadow DOM and portals, write element behaviors of your own, and learn the order of effects, the batching rules, the TypeScript types and the limits of Nanoviews.
+sidebar:
+  order: 9
+next:
+  label: Router
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+## `dangerouslySetInnerHtml`
+
+`dangerouslySetInnerHtml` describes an element whose inner HTML is set from a string once the element is built. It takes the description of the element and the HTML, a static string or an accessor to follow:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { div, dangerouslySetInnerHtml } from 'nanoviews'
+
+const $html = signal('<p>Some text</p>')
+
+dangerouslySetInnerHtml(
+  div({
+    class: 'markdown'
+  }),
+  $html
+)
+// <div class="markdown"><p>Some text</p></div>
+```
+
+A new string in the signal replaces the content. The result describes the element and takes no children call: the HTML is its content. The element may come from any function that returns one, `() => document.createElement('x-markdown')` say, for a tag that has no factory.
+
+<Aside type='caution'>
+  The HTML is inserted as it is. Markup from a source that is not trusted, such as user input, must be sanitized before it gets here.
+</Aside>
+
+## `shadow`
+
+`shadow` describes a host element with a [shadow root](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM). It takes the host the way `dangerouslySetInnerHtml` takes its element, the options of [`attachShadow`](https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow), and then the children like an element. On build it attaches the root and puts the children into it:
+
+```ts
+import { div, style, shadow } from 'nanoviews'
+
+shadow(
+  div({
+    id: 'card'
+  }),
+  {
+    mode: 'open'
+  }
+)(
+  style()(':host { display: block; padding: 1rem }'),
+  'Rendered in the shadow root'
+)
+// <div id="card"></div>
+```
+
+The host stays empty in the document, and the children, bindings and blocks included, live in its shadow root, where the `style` element applies to them alone. The host must be an element that allows a shadow root: a custom element, `article`, `aside`, `blockquote`, `body`, `div`, `footer`, `h1` to `h6`, `header`, `main`, `nav`, `p`, `section` or `span`. On any other element `attachShadow` throws a `NotSupportedError` when the host is built. A custom element comes from a function: `shadow(() => document.createElement('user-card'), { mode: 'open' })`.
+
+## `portal`
+
+`portal` renders a child in another place in the DOM. It describes an empty child: on build it calls the target function and mounts the child into the node it returns, so the target must exist by then. The child is removed with the part of the view that built the portal: the `if_` branch or `for_` row that holds it, or the whole view on unmount. A component that only portals returns `portal(...)`:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { div, portal, if_, component$ } from 'nanoviews'
+
+const Toast = component$(() => (
+  portal(
+    () => document.body,
+    div({
+      class: 'toast'
+    })(
+      'Saved'
+    )
+  )
+))
+
+const $saved = signal(false)
+
+div({
+  class: 'editor'
+})(
+  if_($saved)(
+    () => Toast()
+  )
+)
+```
+
+While `$saved` holds, the toast is the last child of `body`, and the editor has nothing in its place. Once `$saved` is false again, the toast is removed.
+
+### Inside `show_`
+
+[`show_`](/guides/control-flow/#show_) parks its content instead of destroying it, and that does not suit a portal: hiding runs the removal, and showing again does not append the child back. Toggle a portalled tree the other way round, with `show_` inside the portal:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { portal, show_ } from 'nanoviews'
+
+const $open = signal(false)
+
+portal(
+  () => document.body,
+  show_($open, () => Modal())
+)
+```
+
+While `$open` is false, the parked tree is out of the target, and it comes back with its state on show.
+
+The same goes for `ref` under `show_`: the element is handed over once, when it is built, and hiding hands over `null`, so after the first hide the ref stays `null`. Use `if_` for a subtree whose `ref` matters: every build hands the new element over.
+
+## Batching
+
+A write to a signal flushes at once: the effects and bindings that depend on it run before the write returns. Some writes are held instead, so what depends on them runs once, after all of them:
+
+- `mount` batches the writes made while the view is built, while its effects first run and while it unmounts.
+- A write made by an effect that runs from a flush joins that flush: what it wakes runs after the effect returns, a single time for all its writes, and a `batch` there flushes nothing. Every re-run of an effect runs from a flush, and so does the first run of the effects a write brings in with a new branch or row.
+- Everywhere else every write flushes on its own: in event handlers, timers and promise callbacks, and in the first run of a store `effect` created outside a flush or a batch, at module level say. Wrap several writes in `batch`.
+
+```ts
+import { signal, batch } from 'nanoviews/store'
+import { button, component$, effect$ } from 'nanoviews'
+
+const Rename = component$(() => {
+  const $firstName = signal('John')
+  const $lastName = signal('Doe')
+
+  effect$(() => {
+    console.log(`${$firstName()} ${$lastName()}`)
+  })
+
+  return (
+    button({
+      onClick() {
+        batch(() => {
+          $firstName('Jane')
+          $lastName('Smith')
+        })
+      }
+    })(
+      'Rename'
+    )
+  )
+})
+```
+
+A click logs `Jane Smith` once. Without `batch`, it would log `Jane Doe` first. Cases of a [`match_`](/guides/control-flow/#match_) that move together are worth a `batch` for the same reason: without one, every write swaps the content.
+
+## TypeScript Types
+
+`nanoviews` exports the types of its API. These are the ones application code reaches for. `Signalish`, `Accessor`, `ReadableSignal` and `WritableSignal` come from `nanoviews/store` (see [Reactivity](/guides/reactivity/#types)), and `nanoviews/svg` exports `Attributes`, `ElementName`, `PickElementType`, `ElementFactory` and `VoidElementFactory` for SVG elements under the same names (see [SVG](/guides/svg/)).
+
+```ts
+import { type Attributes, type KeyboardEvent, input, component$ } from 'nanoviews'
+
+interface SearchFieldProps extends Attributes<'input'> {
+  onEnter(query: string): void
+}
+
+const SearchField = component$(({ onEnter, ...props }: SearchFieldProps) => {
+  function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Enter') {
+      onEnter(event.target.value)
+    }
+  }
+
+  return (
+    input({
+      type: 'search',
+      ...props,
+      onKeyDown
+    })
+  )
+})
+```
+
+### Elements and Attributes
+
+| Type | Description |
+| --- | --- |
+| `Attributes<Tag>` | The attributes the factory of a tag takes: `Attributes<'button'>`. |
+| `HTMLAttributes<T>` | The attributes every HTML element takes; the attributes of each element extend it, like `InputHTMLAttributes<T>`. |
+| `AriaAttributes`, `AriaRole` | The `aria-*` attributes and the values of `role`. |
+| `ElementName` | The tag names that have a factory. |
+| `PickElementType<Tag>` | The DOM element of a tag: `PickElementType<'input'>` is `HTMLInputElement`. |
+| `ElementFactory<Tag>` | An element factory, such as `div`: the type of a prop that takes one. |
+| `VoidElementFactory<Tag>` | A factory of a void element, such as `input`. |
+| `LazyElement<T, C>` | A description of an element: called with children it keeps them, called with none it builds `T`. |
+| `LazyVoidElement<T>` | A description of a void element: the call builds `T`. |
+| `ClassValue` | A value of `class`: a string, an accessor, or a list of parts. |
+| `ClassList<V>` | What `classList` returns for the parts `V`: an accessor, a string, or either. |
+| `StyleValue` | A value of `style`: an object of properties, or an accessor of one. |
+| `CSSProperties` | The object of `style`: camelCased properties and `--custom` properties. |
+| `ElementRef<T>` | A value of `ref`: a callback or a writable signal that receives `T` or `null`. |
+| `Booleanish` | `boolean \| 'true' \| 'false'`, for attributes like `draggable`. |
+
+### Children and Components
+
+| Type | Description |
+| --- | --- |
+| `Child` | Anything a parent takes as a child: a description, a node, a primitive, or an accessor of a primitive. |
+| `Children` | A list of children: `Child[]`. |
+| `LazyChild<T>` | A description: a function its parent builds instead of reading it as an accessor. |
+| `Component<P, C>` | What `component$` returns: it takes the props `P`, then the children `C`. |
+| `ComponentInstance<C>` | An instance of a component, what `Component(props)` returns: a call with children keeps them, a call with none renders. |
+| `Render<P, C>` | The render a component is made from: `(props, children) => Child`. |
+| `SlotComponent<P, C>` | What `slot$` returns. |
+| `SlotInstance<P, C>` | An instance of a slot: a `slots$` render gets one, or `undefined`, for each declared slot. |
+| `SlotsRender<P, D>` | The render `slots$` takes: the props, the declared slots in order, then the rest of the children. |
+
+### Control Flow
+
+| Type | Description |
+| --- | --- |
+| `SwitchCase<T>` | A case of `switch_` and `show_switch_`, made by `case_` or `default_`. |
+| `MatchCase<T, R>` | A case of `match_`, made by `when_`. |
+| `AnyMatchCase` | A case of `match_` for any value, the type of its parameters: a list of cases built ahead is an `AnyMatchCase[]`. |
+| `ShowMatchCase` | A case of `show_match_`: its child takes no value. |
+| `TruthySignalish<T>`, `FalsySignalish<T>` | The value `if_` hands to its branches, narrowed to its truthy or its falsy side. |
+| `TruthyAccessor<T>`, `FalsyAccessor<T>` | The same narrowing for a value that has to be an accessor: anything else gives `never`. |
+
+### Events
+
+| Type | Description |
+| --- | --- |
+| `Event<T>`, `MouseEvent<T>`, `KeyboardEvent<T>`, `PointerEvent<T>`, `FocusEvent<T>`, `ChangeEvent<T>`, `FormEvent<T>`... | The native event with `target` typed as `T`. Importing one hides the DOM type of the same name in that module. |
+| `EventHandler<E>`, `MouseEventHandler<T>`, `KeyboardEventHandler<T>`... | The type of an `on*` handler. |
+| `DOMAttributes<T>` | The `on*` handlers every element takes. |
+| `ModifierKey` | The key names `getModifierState` takes. |
+
+### Values
+
+| Type | Description |
+| --- | --- |
+| `Primitive` | `string \| number \| boolean \| EmptyValue`: what a text child and an attribute hold. |
+| `EmptyValue` | `undefined \| null \| void`. |
+| `FalsyValue` | `EmptyValue \| false \| '' \| 0`. |
+| `NonEmptyValue<T>` | `T` without its empty values. |
+| `AccessibleProps<T>` | `T` with every prop optional and `Signalish`. |
+| `Destroy`, `MaybeDestroy` | A cleanup function, and a cleanup function or nothing. |
+| `EffectCallback` | The body of an effect: `(warmup?: true) => MaybeDestroy`. |
+| `AnyFn`, `AnyObject` | Any function, any object. |

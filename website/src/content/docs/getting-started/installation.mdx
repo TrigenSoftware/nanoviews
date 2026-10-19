@@ -1,0 +1,158 @@
+---
+title: Installation
+description: Install nanoviews, start a project on Vite and build a first app.
+sidebar:
+  order: 2
+---
+
+import { Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components'
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add nanoviews' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add nanoviews' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install nanoviews' />
+  </TabItem>
+</Tabs>
+
+## Create a Project
+
+Nanoviews needs no compiler, JSX transform or bundler plugin: a view is plain TypeScript. A new project can start from the `vanilla-ts` template of [Vite](https://vite.dev/):
+
+<Steps>
+
+1. **Create the project**
+
+    <Tabs syncKey='pkg'>
+      <TabItem label='pnpm' icon='pnpm'>
+        <Code frame='none' lang='bash' code='pnpm create vite my-app --template vanilla-ts' />
+      </TabItem>
+      <TabItem label='Yarn' icon='seti:yarn'>
+        <Code frame='none' lang='bash' code='yarn create vite my-app --template vanilla-ts' />
+      </TabItem>
+      <TabItem label='npm' icon='seti:npm'>
+        <Code frame='none' lang='bash' code='npm create vite@latest my-app -- --template vanilla-ts' />
+      </TabItem>
+    </Tabs>
+
+    When it asks whether to install and start now, answer no: the next steps do both.
+
+2. **Install Nanoviews**
+
+    Go into the `my-app` folder and install `nanoviews` there with the command above.
+
+3. **Write the app**
+
+    The template's `index.html` already holds the container the app mounts into, and loads `src/main.ts` as a module script:
+
+    ```html
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+    ```
+
+    Replace the content of `src/main.ts` with the [Quick Start](#quick-start) below. The rest of `src/` is the template's own demo and can go.
+
+4. **Start the dev server**
+
+    <Tabs syncKey='pkg'>
+      <TabItem label='pnpm' icon='pnpm'>
+        <Code frame='none' lang='bash' code='pnpm dev' />
+      </TabItem>
+      <TabItem label='Yarn' icon='seti:yarn'>
+        <Code frame='none' lang='bash' code='yarn dev' />
+      </TabItem>
+      <TabItem label='npm' icon='seti:npm'>
+        <Code frame='none' lang='bash' code='npm run dev' />
+      </TabItem>
+    </Tabs>
+
+    Then open the URL it prints.
+
+</Steps>
+
+The template needs no Vite config, and its `tsconfig.json` stays as it is. The [Vite Demo](/examples/vite-demo/) is a complete project of this kind.
+
+## Without a Bundler
+
+With no compiler to run, Nanoviews works without a bundler too, straight in the browser. A CDN that serves npm packages as ES modules, such as [esm.sh](https://esm.sh/), loads it, and an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap) keeps the imports the same as in a project, `nanoviews/` covering `nanoviews/store` and `nanoviews/svg`. The code is plain JavaScript then:
+
+```html
+<div id="app"></div>
+<script type="importmap">
+  {
+    "imports": {
+      "nanoviews": "https://esm.sh/nanoviews",
+      "nanoviews/": "https://esm.sh/nanoviews/"
+    }
+  }
+</script>
+<script type="module">
+  import { signal } from 'nanoviews/store'
+  import { button, component$, mount } from 'nanoviews'
+
+  const Counter = component$(() => {
+    const $count = signal(0)
+
+    return (
+      button({
+        onClick() {
+          $count(count => count + 1)
+        }
+      })(
+        'count is ', $count
+      )
+    )
+  })
+
+  mount(Counter, document.querySelector('#app'))
+</script>
+```
+
+## Quick Start
+
+Here is a minimal app: a counter component, mounted into the page.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { main, h1, button, component$, mount } from 'nanoviews'
+
+const Counter = component$(() => {
+  const $count = signal(0)
+
+  return (
+    button({
+      onClick() {
+        $count(count => count + 1)
+      }
+    })(
+      'count is ', $count
+    )
+  )
+})
+
+const App = component$(() => (
+  main()(
+    h1()('Hello, Nanoviews!'),
+    Counter()
+  )
+))
+
+mount(App, document.querySelector('#app')!)
+// <main><h1>Hello, Nanoviews!</h1><button>count is 0</button></main>
+```
+
+## Entry Points
+
+| Entry point | Exports |
+| --- | --- |
+| `nanoviews` | HTML element factories, components (`component$`, `slot$`, `slots$`), `effect$`, `context$` and `isolate$`, blocks (`if_`, `show_`, `switch_`, `match_`, `for_`...), `mount`, helpers (`fragment`, `classList`, `portal`, `shadow`, `dangerouslySetInnerHtml`) and their types. |
+| `nanoviews/store` | Signals, computeds, effects, operators, records, async data and dependency injection. |
+| `nanoviews/svg` | SVG element factories (`svg`, `path`, `circle`...) and their types. |
+
+`nanoviews/store` re-exports the reactive core of [Nano Kit](https://nano-kit.js.org/), the one `@nano_kit/store` extends, so the signals of Nano Kit packages bind in views as they are, as long as a single copy of the core is installed: see [Nanoviews and Nano Kit](/getting-started/#nanoviews-and-nano-kit).

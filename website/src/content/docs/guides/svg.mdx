@@ -1,0 +1,181 @@
+---
+title: SVG
+description: Draw SVG with the factories of the nanoviews/svg entry point.
+sidebar:
+  order: 7
+---
+
+SVG elements live in the `nanoviews/svg` entry point, so their code stays out of the bundle of an app that never draws one. `nanoviews` itself has no SVG factories.
+
+## Elements
+
+Every SVG tag has a factory in `nanoviews/svg`, with the same call shape as the HTML ones: the attributes in the first call, the children in the second. The elements are created in the SVG namespace, and signals and accessors bind the way they do in HTML:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { svg, circle, path } from 'nanoviews/svg'
+
+const $radius = signal(10)
+
+svg({
+  viewBox: '0 0 24 24',
+  width: 24,
+  height: 24
+})(
+  circle({
+    cx: 12,
+    cy: 12,
+    r: $radius,
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 2
+  }),
+  path({
+    d: 'M8 12l3 3 5-6',
+    fill: 'none',
+    stroke: 'currentColor'
+  })
+)
+// <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M8 12l3 3 5-6" fill="none" stroke="currentColor"></path></svg>
+```
+
+Shapes and leaves are void: one call, no children. These are `circle`, `ellipse`, `line`, `path`, `polygon`, `polyline`, `rect`, `image`, `use`, `mpath` and the animation elements `animate`, `animateMotion`, `animateTransform` and `set`. Children passed to them are a type error.
+
+## Attributes
+
+Attribute names are camelCase, as in React. Presentation attributes, the ones that double as CSS properties, reach the DOM hyphenated: `strokeWidth` as `stroke-width`, `fillOpacity` as `fill-opacity`, `textAnchor` as `text-anchor`, `clipPath` as `clip-path`. The rest keep their SVG spelling: `viewBox`, `preserveAspectRatio`, `gradientUnits`, and the camelCase names that share a prefix with presentation ones, such as `markerWidth`, `textLength` and `clipPathUnits`. `tabIndex` and `crossOrigin` are written in lowercase, as in HTML.
+
+The camelCase name is the only spelling: a dashed key such as `'stroke-width'` is a type error. References use `href`, which replaces `xlinkHref`:
+
+```ts
+import { svg, defs, symbol, path, use } from 'nanoviews/svg'
+
+svg({
+  viewBox: '0 0 48 24',
+  width: 48,
+  height: 24
+})(
+  defs()(
+    symbol({
+      id: 'check',
+      viewBox: '0 0 24 24'
+    })(
+      path({
+        d: 'M5 12l5 5 9-10',
+        fill: 'none',
+        stroke: 'currentColor',
+        strokeWidth: 2,
+        strokeLinecap: 'round'
+      })
+    )
+  ),
+  use({
+    href: '#check',
+    width: 24,
+    height: 24
+  }),
+  use({
+    href: '#check',
+    x: 24,
+    width: 24,
+    height: 24
+  })
+)
+// <svg viewBox="0 0 48 24" width="48" height="24"><defs><symbol id="check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></symbol></defs><use href="#check" width="24" height="24"></use><use href="#check" x="24" width="24" height="24"></use></svg>
+```
+
+The SVG 1.1 font, glyph and color profile attributes are not typed. ARIA attributes keep their dashed names, `'aria-label'` say, as on HTML elements, while `data-*` is typed on HTML elements only.
+
+## HTML in `foreignObject`
+
+HTML inside `foreignObject` comes from `nanoviews`: an HTML factory creates an HTML element wherever it is inserted.
+
+```ts
+import { div } from 'nanoviews'
+import { svg, foreignObject } from 'nanoviews/svg'
+
+svg({
+  viewBox: '0 0 200 100'
+})(
+  foreignObject({
+    x: 0,
+    y: 0,
+    width: 200,
+    height: 100
+  })(
+    div({
+      class: 'note'
+    })(
+      'HTML inside'
+    )
+  )
+)
+// <svg viewBox="0 0 200 100"><foreignObject x="0" y="0" width="200" height="100"><div class="note">HTML inside</div></foreignObject></svg>
+```
+
+## Bindings and Events
+
+`ref`, `style` objects, `autoFocus` and `class` lists work on SVG elements the way they do on HTML ones, and so do event handlers (see [Core Concepts](/guides/core-concepts/)):
+
+```ts
+import { signal, when } from 'nanoviews/store'
+import { svg, path } from 'nanoviews/svg'
+
+const $active = signal(false)
+const $icon = signal<SVGSVGElement | null>(null)
+
+svg({
+  ref: $icon,
+  viewBox: '0 0 24 24',
+  class: ['icon', when($active, 'icon_active')],
+  style: {
+    color: 'tomato'
+  },
+  onClick() {
+    $active(active => !active)
+  }
+})(
+  path({
+    d: 'M4 12h16',
+    stroke: 'currentColor'
+  })
+)
+// <svg viewBox="0 0 24 24" class="icon" style="color: tomato;"><path d="M4 12h16" stroke="currentColor"></path></svg>
+```
+
+A `ref` is checked against the element here too: `$icon` fits `svg`, and a signal of another element is a type error.
+
+## Types
+
+`nanoviews/svg` exports its types under the same names as the HTML ones in `nanoviews`: `Attributes<'circle'>` for the attributes of an element, `ElementName` for the tag names, `PickElementType<'circle'>` for the element, `IntrinsicElements` for the map of tags to elements, `ElementFactory` and `VoidElementFactory` for the factories. A component that passes attributes on to an SVG element types them the same way:
+
+```ts
+import { component$ } from 'nanoviews'
+import { type Attributes, svg, path } from 'nanoviews/svg'
+
+interface IconProps extends Attributes<'svg'> {
+  d: string
+}
+
+const Icon = component$(({ d, ...props }: IconProps) => (
+  svg({
+    viewBox: '0 0 24 24',
+    width: 24,
+    height: 24,
+    ...props
+  })(
+    path({
+      d,
+      fill: 'currentColor'
+    })
+  )
+))
+
+Icon({
+  d: 'M4 4h16v16H4z',
+  class: 'icon'
+})
+// <svg viewBox="0 0 24 24" width="24" height="24" class="icon"><path d="M4 4h16v16H4z" fill="currentColor"></path></svg>
+```
+
+In a module that imports the HTML types too, alias one of them: `import type { Attributes as SvgAttributes } from 'nanoviews/svg'`.

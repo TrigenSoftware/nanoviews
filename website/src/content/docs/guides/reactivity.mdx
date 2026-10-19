@@ -1,0 +1,378 @@
+---
+title: Reactivity
+description: "Use the signals, computeds, operators and effects of nanoviews/store in views."
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+`nanoviews/store` is the reactive half of Nanoviews: it re-exports the signals that [Nano Kit](https://nano-kit.js.org/) is built on. A view is built once and never re-renders. It binds signals into its text, attributes and blocks, and each binding updates its own piece of the DOM when a signal it reads changes.
+
+```ts
+import { signal, computed } from 'nanoviews/store'
+import { button, component$ } from 'nanoviews'
+
+const Counter = component$(() => {
+  const $count = signal(0)
+  const $double = computed(() => $count() * 2)
+
+  return (
+    button({
+      onClick() {
+        $count(count => count + 1)
+      }
+    })(
+      $count, ' doubled is ', $double
+    )
+  )
+})
+
+Counter()
+// <button>0 doubled is 0</button>
+// after a click: <button>1 doubled is 2</button>
+```
+
+`@nano_kit/store` is built on the same core, so the [Nano Kit store docs](https://nano-kit.js.org/store/core-concepts/) cover these primitives in more depth. This page shows them the way a view uses them.
+
+## Signals
+
+`signal` creates a writable signal with an initial value. Call it with no arguments to read the value, and with one argument to write it. A function passed as the new value is a reducer: it receives the current value and returns the next one.
+
+```ts
+import { signal } from 'nanoviews/store'
+
+const $count = signal(0)
+
+$count() // 0
+$count(5)
+$count(count => count + 1)
+$count() // 6
+```
+
+A view takes the signal itself, not its value. A signal child is a text node that follows the signal, and a signal attribute keeps the attribute in sync:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { div, button, span, component$ } from 'nanoviews'
+
+const Stepper = component$(() => {
+  const $value = signal(1)
+
+  return (
+    div({
+      'data-value': $value
+    })(
+      button({
+        onClick() {
+          $value(value => value - 1)
+        }
+      })(
+        '-'
+      ),
+      span()($value),
+      button({
+        onClick() {
+          $value(value => value + 1)
+        }
+      })(
+        '+'
+      )
+    )
+  )
+})
+
+Stepper()
+// <div data-value="1"><button>-</button><span>1</span><button>+</button></div>
+```
+
+A click on `+` writes `2`, and both follow: `data-value="2"` and `<span>2</span>`. Called while the view is built, `span()($value())` would read the value once and show `1` forever. Blocks take signals the same way: [`if_`](/guides/control-flow/#if_), [`show_`](/guides/control-flow/#show_) and [`for_`](/guides/control-flow/#for_) follow the signal they are given.
+
+`signal<T>()` without an initial value holds `undefined` and is typed `WritableSignal<T | undefined>`. The initial value is stored as it is, a function included, but a function written later is always a reducer, so a signal that holds a callback is written as `$onSave(() => save)`.
+
+## Accessors
+
+An accessor is any function that returns a value, `() => T`. A signal is an accessor, and so is an arrow that reads signals. A view treats every function child that is not a description or a component instance, and every function given to an attribute other than an `on*` handler, `ref` and `autoFocus`, as an accessor: a binding calls it, remembers the signals the call read, and calls it again when one of them changes.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { p, b, component$ } from 'nanoviews'
+
+const Total = component$(() => {
+  const $quantity = signal(3)
+  const $price = signal(4.5)
+
+  return (
+    p({
+      title: () => `${$quantity()} items`
+    })(
+      'Total: ', b()(() => ($quantity() * $price()).toFixed(2))
+    )
+  )
+})
+
+Total() // <p title="3 items">Total: <b>13.50</b></p>
+```
+
+An accessor is not cached: each binding runs it on its own, and again on every change of what it read. That suits an expression used once. A value read in several places, or costly to compute, belongs in a [computed](#computeds), and an expression that an [operator](#operators) covers takes the operator.
+
+A component prop that may be static or reactive is typed `Signalish<T>`, which is `T | Accessor<T>`. Children, attributes, class lists and [operators](#operators) take both forms, so a component hands such a prop on as it came. Where it needs the value itself, `$get(value)` reads either form and tracks an accessor. The Components page shows both under [Handing Props On](/guides/components/#handing-props-on), along with `style`, the one place where a prop does not go in as it came.
+
+`get(value)` reads the same way as `$get`, without tracking. That matters only inside an effect, a computed or an accessor: a component body is not tracked, so a read there, `$user().id` say, happens once and nothing follows it.
+
+## Computeds
+
+`computed` derives a value from other signals and caches it. The body does not run until the computed is read, and runs again only when it is read after a dependency changed. While a binding or an effect follows it, it is kept up to date and notifies its readers only when its result changes.
+
+```ts
+import { signal, computed } from 'nanoviews/store'
+import { p, component$ } from 'nanoviews'
+
+interface Todo {
+  title: string
+  done: boolean
+}
+
+const $todos = signal<Todo[]>([
+  { title: 'Write docs', done: false },
+  { title: 'Ship it', done: false }
+])
+const $left = computed(() => $todos().filter(todo => !todo.done).length)
+
+const Footer = component$(() => (
+  p()(
+    $left, ' left'
+  )
+))
+
+Footer() // <p>2 left</p>
+```
+
+Renaming a todo writes a new array, so `$left` runs again, but its result is still `2` and the text node is left alone. Checking a todo off makes it `1`, and the text follows: `<p>1 left</p>`.
+
+A computed is read-only: writing it is a type error. Keep its body pure, with no writes and no effects: it runs when something reads it, and the development build warns about an effect created inside it.
+
+### `selector`
+
+In a list that marks one row, the selected one say, a `computed` per row over the selected id would wake every row on each change, for two of them to change. `selector` turns this around: it reads the source once and wakes only the readers whose answer changed.
+
+```ts
+import { signal, selector, record } from 'nanoviews/store'
+import { ul, li, for_, trackById } from 'nanoviews'
+
+const $folders = signal([
+  { id: 1, name: 'Inbox' },
+  { id: 2, name: 'Drafts' },
+  { id: 3, name: 'Sent' }
+])
+const $selectedId = signal(1)
+const $isSelected = selector($selectedId)
+
+ul()(
+  for_($folders, trackById)(
+    ($folder, $index, id) => li({
+      class: () => $isSelected(id) && 'selected',
+      onClick() {
+        $selectedId(id)
+      }
+    })(
+      record($folder).$name
+    )
+  )
+)
+// <ul><li class="selected">Inbox</li><li>Drafts</li><li>Sent</li></ul>
+```
+
+`selector($selectedId)` returns a function of a key. Called in a binding, an effect or a computed, `$isSelected(id)` subscribes the caller to that key alone: a click on `Sent` wakes the `Inbox` row, which loses the selection, and the `Sent` row, which gets it, and leaves `Drafts` alone. Called anywhere else, it just answers.
+
+A second argument replaces the `key === value` test with any derivation: `selector($source, (key, value) => result)`. Such a selector asks every live key on each change, while the default test moves at most two, so keep the default where it fits.
+
+## Operators
+
+Most bindings are a short expression over a signal: a negation, a comparison, a fallback, a class that is there or not. The operators write such an expression without an arrow, and take static values and accessors alike. With an accessor among the operands an operator returns an accessor, which a view binds; with none it returns the plain result, which costs no binding at all.
+
+```ts
+import { type Signalish, signal, is } from 'nanoviews/store'
+
+const $tab = signal('home')
+
+is($tab, 'home') // Accessor<boolean>, follows $tab
+is('home', 'home') // true
+
+function isHome(tab: Signalish<string>) {
+  return is(tab, 'home') // Signalish<boolean>
+}
+```
+
+The result type, `Fop`, follows the same rule: an accessor when an operand is an accessor, the plain value when none can be, and `Signalish` when an operand may be either, like a `Signalish` prop. So a component hands its props to the operators as they came:
+
+```ts
+import { type Signalish, signal, gt, is, pick, text, when } from 'nanoviews/store'
+import { span, component$ } from 'nanoviews'
+
+const tones = {
+  info: 'badge_info',
+  alert: 'badge_alert'
+}
+
+interface BadgeProps {
+  count: Signalish<number>
+  tone?: Signalish<keyof typeof tones>
+}
+
+const Badge = component$(({ count, tone = 'info' }: BadgeProps) => (
+  span({
+    class: ['badge', pick(tones, tone), when(gt(count, 99), 'badge_wide')],
+    hidden: is(count, 0),
+    'aria-label': text`${count} unread`
+  })(
+    when(gt(count, 99), '99+', count)
+  )
+))
+
+const $unread = signal(120)
+
+Badge({
+  count: 5
+})
+// <span class="badge badge_info" aria-label="5 unread">5</span>
+
+Badge({
+  count: $unread,
+  tone: 'alert'
+})
+// <span class="badge badge_alert badge_wide" aria-label="120 unread">99+</span>
+```
+
+The first badge got static props only: every operator returned a plain value, and the span holds no binding. The second follows `$unread`.
+
+| Operator | Same as |
+| --- | --- |
+| `not(a)` | `!a` |
+| `and(a, b)` | `a && b` |
+| `or(a, b)` | `a \|\| b` |
+| `every(a, b, ...)` | `a && b && ...` |
+| `some(a, b, ...)` | `a \|\| b \|\| ...` |
+| `is(a, b)` | `a === b` |
+| `isNot(a, b)` | `a !== b` |
+| `gt(a, b)`, `gte(a, b)` | `a > b`, `a >= b` |
+| `lt(a, b)`, `lte(a, b)` | `a < b`, `a <= b` |
+| `when(a, b, c)` | `a ? b : c` |
+| `pick(a, b)` | `a[b]` |
+| ``text`a${b}` `` | `` `a${b}` `` |
+
+- `and`, `or`, `every` and `some` return an operand, not a boolean, the way `&&` and `||` do: `and($active, 'active')` is `'active'` or the falsy value. A class that a condition switches on reads better as `when($active, 'active')`.
+- `gt`, `gte`, `lt` and `lte` compare numbers.
+- `when` without its third operand gives `undefined` for a falsy condition, which removes an attribute and drops a class list part. Passed straight as a child, it takes the third operand, `when($done, 'Done', null)`: without one, TypeScript rejects the call.
+- `pick` reads a key of an object or an index of an array; an empty key, `null` or `undefined`, picks `undefined`, which suits an optional prop. A `null` collection throws: read a nullable object through a [record](#other-exports), whose children read `undefined`, or an arrow with `?.`.
+- `text` builds a string from strings, numbers, booleans and bigints; `null` and `undefined` add nothing. A template string in a view reads its signals once, while the view is built, and `text` keeps the string bound.
+
+An operator's accessor is not cached: it runs on every read, like an arrow. Wrap it in `computed` when the value is shared or costly: `computed(and(gt($age, 17), $hasLicense))`.
+
+## Effects
+
+Nanoviews has two effects with the same body. `effect` from `nanoviews/store` is the store effect: it runs at once, wherever it is called, and returns a function that stops it. `effect$` from `nanoviews` is the component effect: it belongs to the view being built, first runs once its tree is in the document, and stops when its part of the view is removed. [Components](/guides/components/#effect) covers `effect$` in full.
+
+```ts
+import { signal, effect } from 'nanoviews/store'
+import { div, component$, effect$ } from 'nanoviews'
+
+const $theme = signal('light')
+
+// A store effect: runs now and on every change of $theme, until stop()
+const stop = effect(() => {
+  document.documentElement.dataset.theme = $theme()
+})
+
+const Panel = component$(() => {
+  const $panel = signal<HTMLDivElement | null>(null)
+
+  // A component effect: first runs once the panel is in the document
+  effect$(() => {
+    console.log('Panel width:', $panel()?.offsetWidth)
+  })
+
+  return (
+    div({
+      ref: $panel
+    })(
+      'Panel'
+    )
+  )
+})
+```
+
+| | `effect` | `effect$` |
+| --- | --- | --- |
+| Imported from | `nanoviews/store` | `nanoviews` |
+| Called | anywhere | while a view is built under `mount` |
+| First run | at once | once the tree is in the document |
+| Under a hidden `show_` | keeps running | cleaned up, runs again on show |
+| Stopped by | the returned function, or the removal of the part of the view it was created in | the removal of its part of the view |
+
+Use `effect$` in components and `effect` in stores: module-level code and the factories of [dependency injection](/guides/dependency-injection/) run outside the scope of any view, and `effect$` throws there. For the same reason, an `effect` in a factory is tied to no view, even when a render injected the factory, and no unmount stops it (see [Factories Use `effect`](/guides/dependency-injection/#factories-use-effect)). An `effect` in a component works too, with the differences the table shows: it runs before anything is in the document, and a hidden `show_` does not pause it.
+
+## Other Exports
+
+The exports below work the same in a view as anywhere else. Nano Kit's store docs cover them in depth:
+
+| Export | What it does | Nano Kit docs |
+| --- | --- | --- |
+| `batch(fn)` | holds the flush until `fn` returns, so several writes update the view once | [Batching Updates](https://nano-kit.js.org/store/core-concepts/#batching-updates) |
+| `trigger(fn)`, `trigger($x)` | notifies the readers with no new value, after an array or an object was changed in place | [Manual Trigger](https://nano-kit.js.org/store/core-concepts/#manual-trigger) |
+| `untracked(fn)` | runs `fn` without subscribing the caller to what it reads | [Using `untracked`](https://nano-kit.js.org/store/core-concepts/#using-untracked) |
+| `action(fn)` | wraps a function so that everything it reads is untracked | [Actions](https://nano-kit.js.org/store/core-concepts/#actions) |
+| `effectScope(fn)` | groups the effects created in `fn` and returns one function that stops them all | [Effect Scope](https://nano-kit.js.org/store/advanced/#effect-scope) |
+| `composeDestroys(...fns)` | merges several cleanups into one | [Cleanup Composition](https://nano-kit.js.org/store/advanced/#cleanup-composition) |
+| `subscribe`, `listen`, `observe`, `subscribeAny` | low-level effects that hand the value to a callback | [Subscribe, Listen, and Observe](https://nano-kit.js.org/store/advanced/#subscribe-listen-and-observe) |
+| `length($x)`, `boolean($x)` | cached computeds of the length and of the truthiness; they take an accessor only, `pick(items, 'length')` takes either | [Computed Properties](https://nano-kit.js.org/store/advanced/#computed-properties) |
+| `push`, `pop`, `shift`, `unshift`, `setIndex`, `deleteIndex`, `updateArray` | write a changed copy of an array and return what the array method returns | [Array Operations](https://nano-kit.js.org/store/advanced/#array-operations) |
+| `record($x)`, `deepRecord($x)` | a child signal for every property of an object signal, at the top level or at every depth | [Record](https://nano-kit.js.org/store/advanced/#record), [Deep Record](https://nano-kit.js.org/store/advanced/#deep-record) |
+| `atIndex($list, index)` | a writable child signal at an index, which may be a signal | [Array Operations](https://nano-kit.js.org/store/advanced/#array-operations) |
+| `setKey`, `deleteKey` | write a changed copy of an object | [Object Operations](https://nano-kit.js.org/store/advanced/#object-operations) |
+| `atKey($map, key)` | a writable child signal at a key, which may be a signal | [Object Operations](https://nano-kit.js.org/store/advanced/#object-operations) |
+| `child` | the low-level form of `atIndex` and `atKey` | [Child Signals](https://nano-kit.js.org/store/low-level/#child-signals) |
+| `resolved(source)` | the result, the error and the pending flag of a promise | [Async State](https://nano-kit.js.org/store/advanced/#async-state) |
+| `task($x, work)`, `waitTasks($x)` | attach async work to a signal, and wait until it settles | [Waiting for Async Operations](https://nano-kit.js.org/store/testing/#waiting-for-async-operations) |
+| `mountable($x)`, `onMount($x, fn)` | a lazy store: `fn` runs when the first reader arrives, and what it returns runs after the last one is gone | [Mountable Stores](https://nano-kit.js.org/store/core-concepts/#mountable-stores) |
+| `STORE_UNMOUNT_DELAY` | the delay before a lazy store unmounts | [Debounced Unmounting](https://nano-kit.js.org/store/core-concepts/#debounced-unmounting) |
+| `onMountEffect`, `onMountEffectScope` | an effect or an effect scope that runs only while a signal is mounted | [onMountEffect and onMountEffectScope](https://nano-kit.js.org/store/advanced/#onmounteffect-and-onmounteffectscope) |
+| `onStart`, `onStop`, `onMounted` | the mount events of a mountable signal, without the delay of `onMount` | [Lifecycle Hooks](https://nano-kit.js.org/store/low-level/#lifecycle-hooks) |
+| `start($x)`, `exec($x)` | mount a signal by hand and keep it mounted, or mount it for one read | [Triggering Mount Events](https://nano-kit.js.org/store/testing/#triggering-mount-events) |
+| `isMounted($x)` | whether a mountable signal is mounted now | — |
+| `isAccessor`, `isSignal`, `isEmpty`, `isFunction` | type checks of a value | [Type Checking](https://nano-kit.js.org/store/advanced/#type-checking) |
+| `isWritable`, `isMountable` | type checks of a signal | [Type Checking](https://nano-kit.js.org/store/low-level/#type-checking) |
+| `toSignal`, `toAccessor`, `toAccessorOrSignal` | conversions of a value or an accessor to a signal or an accessor | [Value Extraction](https://nano-kit.js.org/store/advanced/#value-extraction) |
+| `noop`, `identity` | shared helper functions | [Reusable Helpers](https://nano-kit.js.org/store/advanced/#reusable-helpers) |
+
+## Dependency Injection
+
+`inject`, `provide`, `provideAs`, `InjectionContext`, `Injectable$` and `DependencyNotFound` come from `nanoviews/store` as well: dependency injection is how views share stores. A view opens a context with `context$`, and its components inject stores from it during render. [Dependency Injection](/guides/dependency-injection/) covers it.
+
+## Types
+
+Import these types from `nanoviews/store`: `nanoviews` itself does not export `Accessor`, `ReadableSignal`, `WritableSignal` or `Signalish`.
+
+| Type | What it is |
+| --- | --- |
+| `Accessor<T>` | `() => T`: a signal, a computed or a plain function |
+| `ReadableSignal<T>` | a signal that can be read: a computed, a child of a computed |
+| `WritableSignal<T>` | a signal that can be written as well |
+| `Signalish<T>` | `T \| Accessor<T>`: a static value or an accessor, the type of a prop |
+| `SignalishValue<S>` | the value type of a `Signalish` |
+| `EmptyValue` | `undefined \| null \| void` |
+| `FalsyValue` | `EmptyValue \| false \| '' \| 0` |
+| `Destroy` | `() => void`: a stop or a cleanup function |
+| `EffectCallback` | the body of an effect: `(warmup?: true) => Destroy \| void` |
+| `Mountable<S>` | a signal marked with `mountable` |
+| `Resolved<T>` | the tuple `resolved` returns |
+| `Injectable<T>` | a factory or a class for `inject` |
+| `Fop<Operands, R>` | what an operator returns for its operands |
+
+A prop typed `Accessor<T>` or `WritableSignal<T>` is always reactive, so its name takes the `$`, like `$items: Accessor<Item[]>`; a `Signalish<T>` prop keeps a plain name.
+
+## Beyond `nanoviews/store`
+
+`nanoviews/store` is the reactive core alone. [`@nano_kit/store`](https://nano-kit.js.org/store/) re-exports the same core and adds rate limiting (`pace`, `paced`, `debounce`, `throttle`), `previous`, `latest`, `interval`, `SignalsMap`, codecs, storage-backed signals and SSR hydration. Its signals are those of `nanoviews/store`, so a view binds them like its own: install `@nano_kit/store` next to `nanoviews` and import the extras from it.
+
+<Aside type='caution'>Nanoviews and the `@nano_kit/*` packages have to share one copy of this core. [Nanoviews and Nano Kit](/getting-started/#nanoviews-and-nano-kit) says what breaks with two copies and how to merge them.</Aside>

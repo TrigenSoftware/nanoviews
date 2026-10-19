@@ -1,6 +1,6 @@
 ---
 name: nanoviews
-description: "Rules for writing user interfaces with nanoviews, a tiny Direct DOM view library on kida signals: the element call shape `div({ attrs })(...children)`, signals and accessors as the only reactive values, components with `component$`, blocks (`if_`, `show_`, `for_`, `match_`, `switch_`), form bindings (`value`, `checked`, `defaultValue`), effects, slots, dependency injection and the kida store API. Apply when creating or editing components, views, forms, lists or stores wired into views in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. Tests, stories and routing have their own skills: nanoviews-testing, nanoviews-storybook and nanoviews-router."
+description: "Rules for writing user interfaces with nanoviews, a tiny Direct DOM view library on signals: the element call shape `div({ attrs })(...children)`, signals and accessors as the only reactive values, components with `component$`, blocks (`if_`, `show_`, `for_`, `match_`, `switch_`), form bindings (`value`, `checked`, `defaultValue`), effects, slots, dependency injection and the store API of `nanoviews/store`. Apply when creating or editing components, views, forms, lists or stores wired into views in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. Tests, stories and routing have their own skills: nanoviews-testing, nanoviews-storybook and nanoviews-router."
 license: MIT
 compatibility:
   - Claude Code
@@ -23,405 +23,144 @@ metadata:
     - ui
     - dom
     - signals
-    - kida
     - typescript
+  docs:
+    paths:
+      - getting-started/installation.mdx
+      - guides
 ---
 
 # Nanoviews
 
-Nanoviews builds real DOM directly: no JSX, no virtual DOM, no re-render. A view is a tree of element calls; kida signals bind into text, attributes and blocks. Import only what a view uses: bundle size is the point. Signatures and JSDoc live in `node_modules/nanoviews/dist/*.d.ts` and `node_modules/kida/dist/*.d.ts`; this skill covers what the types do not say.
+Nanoviews builds real DOM directly: no JSX, no virtual DOM, no re-render. A view is a tree of element calls that `mount` builds once, and the signals bound into it update their own piece of the DOM. Bundle size is the point, so a view imports only what it uses: from `nanoviews` the HTML element factories, components, blocks, `effect$`, `context$` and `mount`; from `nanoviews/store` the reactive core (signals, operators, effects, records, async data, dependency injection) and the types `Signalish`, `Accessor`, `ReadableSignal` and `WritableSignal`, which `nanoviews` does not export; from `nanoviews/svg` the SVG factories.
 
-```ts
-import { signal } from 'nanoviews/store' // kida re-export: signal, computed, effect, batch, record...
-import { button, component$, mount } from 'nanoviews'
+## Reference
 
-const Counter = component$(() => {
-  const $count = signal(0)
-
-  return button({ onClick: () => $count(n => n + 1) })('count is ', $count)
-})
-
-const unmount = mount(Counter, document.querySelector('#app')!)
-```
+`DOCS.md` next to this file is the documentation of the released package as published on https://nanoviews.js.org, generated from the site sources. Read its relevant sections for exact signatures, options and examples before writing code. This skill adds only what the documentation leaves open: conventions, which tool to pick for which job, and pitfalls. The types are in the `.d.ts` files of `node_modules/nanoviews/dist`. Those of `nanoviews/store` are re-exports: follow them into the `dist` of the packages they come from, which pnpm keeps under `node_modules/.pnpm` rather than in the root `node_modules`.
 
 ## Mental model
 
-- `tag(attrs?)` describes the element; the second call `(...children)` keeps the children and is optional, so `div({ class: 'x' })` alone is a valid child. The node is built when the description is inserted into its parent, or by hand with a call with no arguments: `div()('x')()` is an `HTMLDivElement`. Void tags have no children call: `input({ type: 'text' })`, `img({ src })`, `br()`.
-- A component is `component$((props, children) => view)`, never a plain function: an instance takes children like an element and renders when it is built into the parent, after the parent's own render, so the parent's `context$` and scope are in place; a plain function would run where it is called, before they exist. State lives in signals and the DOM follows through bindings. Build only under `mount` (or a test `render`): a bare `App()()` throws at the first binding or `effect$`, which need the scope `mount` opens.
-- A reactive value is an *accessor*: a signal `$x` or an arrow `() => ...`. Pass it to bind, call it to read now. Every function child or non-`on*` attribute is treated as an accessor and tracked.
-- A static value renders once; anything that must change later has to be a signal or an accessor. Ternaries and `.map()` run once at build time; reactive conditions and lists need blocks.
-- A binding that a kida operator covers takes the operator instead of an arrow, for a signal as for a prop: `not($agree)`, `and($active, 'btn_active')`, `when($saving, 'Saving...', 'Save')`, `is($tab, 'home')`, `gt($count, 0)`, `pick($user, 'name')`, `pick($items, 'length')`, ``text`${$count} items` ``. An arrow is for what they do not cover: a call, arithmetic, an optional chain (`pick` throws on a `null` collection).
-- No hooks, no dependency arrays, no re-render: `effect$` can go anywhere in the build, once.
-- Naming: signals and accessors `$name`; helpers end with `$` where a plain name would shadow a common one (`component$`, `context$`, `effect$`); flow blocks end with `_` (`if_`, `for_`); injectable factories `Name$`.
+- `div(attributes)(...children)` is a description: a function that builds its node when its parent is built. `mount` builds the whole tree once, top-down, and nothing re-renders afterwards: a signal or an accessor given to a child, an attribute or a block is a binding that updates its own text node, attribute or block.
+- An accessor is a signal, a computed, an operator over an accessor or an arrow `() => ...`: pass it to bind it, call it to read now. A function child that is not a description, a component instance or a block becomes live text; a function attribute is an accessor, except `on*` handlers, `ref` and `autoFocus`.
+- Whatever is read at build time is read once: `$count()` in a render, a ternary, a `.map()`, a template string. A value that changes later goes in as a signal or an accessor, and a condition or a list that changes is a block.
+- A component is always `component$((props, children) => view)`. Calling it returns an instance, and its render runs when the parent builds the instance, after the parent's own render, inside the `context$` and the scope the instance is placed in. A plain function that returns a view runs at the call, before those exist.
+- A view is built under `mount` only, or `render` in tests: the build belongs to the scope it opens, which bindings, `ref`, `effect$` and blocks need. Never build a description by hand, static or not: outside `mount` a binding throws when it is built, and `App()()`, which only runs the render, throws for an `effect$` in it.
 
-## Elements, children, attributes, events
+## Code layout
 
-```ts
-p({ class: 'note', title: text`${$count} items`, hidden: $done })(
-  'Hello, ', $name, '!',            // reactive text: separate children, never a template string
-  ' ', b()(() => $count() * 2),     // arrow child: derived reactive text
-  br(), fragment('a', 'b'),
-  ...items.map(item => i()(item))   // static list: spread a plain array
-)
-```
-
-- In a source file a call is laid out as a block: the attributes one per line, then `})(`, or `()(` with no attributes, ends the line, the children follow indented, one per line or a short run on one line like `'Feels like ', $temp`, and `)` closes on its own line. Component instances and the curried calls of blocks take the same shape: `if_($x)(` and `for_($items, trackById)(` end their line too. The one-line calls in this skill are kept short for reading only.
-- Children: descriptions (`span()` alone is fine), component instances, nodes, strings, numbers, signals and accessors (live text nodes). `null`, `undefined`, `true` and `false` render nothing, static or read from an accessor, so `cond && x` gates a static child like in React; `0` renders as text, so gate a count with `count > 0 && x`. A condition that changes needs a block. A bare array throws: spread it.
-- Call components: `div()(Counter())`. An uncalled component is a type error (untyped, it would be read as an accessor and its return stringified). A description inserted twice is built twice; build it by hand and insert the node to share it.
-- Attribute names follow the type definitions: HTML spelling for single words (`class`, `for`, `hidden`), camelCase for multi-word names (`tabIndex`, `readOnly`, `autoComplete`; lowercase `tabindex` is a type error), quoted dashed names (`'aria-expanded'`, `'data-id'`; `data-*` is typed on HTML elements only).
-- Attribute values are static or accessors, so a `Signalish` prop goes in as it is: `'aria-label': label`. `null`, `undefined` and `false` remove the attribute, so `disabled: $busy` toggles like in React. `aria-*`, `data-*`, `draggable`, `contentEditable` and `spellCheck` are the exception: `false` is written as the string `"false"`, so pass a boolean signal or accessor to them directly (a `string` accessor is rejected on `aria-*`).
-- `value` and `checked` of a control, and `value` of a `select`, are its live state, bound through the DOM properties (see "Forms"); every other attribute goes through `setAttribute`.
-- `class` takes a string, an accessor or a list: `class: ['btn', and($active, 'btn_active')]` joins the truthy strings and drops the rest, nested lists included, so a component folds the `class` it received into its own with `class: ['card', className]`, and the operator takes a `Signalish` prop just the same: `and(active, 'btn_active')`. The list is read once at build; the class changes through the accessors in it. `classList(...parts)` builds the same class away from an element: an accessor when a part is an accessor, a plain string otherwise. A list with no accessor in it costs no effect, but it is still joined on every build: fixed parts are one string, `'btn btn_wide'` or `` `${styles.root} ${mixins.focus}` ``, and a list is for a class with an accessor or a received `class` in it.
-- `style` takes an object of camelCased properties, or an accessor of one: `style: () => ({ color: $color(), '--gap': '4px' })`. A property the next object no longer names is dropped. No style strings. The values in the object are plain, so a `Signalish` prop goes in through the accessor: `style: () => ({ '--columns': $get(columns) })`.
-- `ref: $element` or `ref: element => ...` receives the element on build and `null` on unmount. `autoFocus: true` focuses the element once it is in the document.
-- `muted` on `audio`/`video` is the live property, two-way with a writable signal through `volumechange`; the attribute would only be the default the browser reads at creation.
-- Events: `on` + PascalCase DOM event name (`onClick`, `onInput`, `onKeyDown`, `onDblClick`, `onPointerDown`), `Capture` suffix for the capture phase. The handler gets the native event with a typed `target`; reads inside are untracked and writes are not batched. A writable signal given as a handler receives the event.
-- `fragment(...children)` describes a `DocumentFragment`, which empties into the parent on insertion. `mount(app, target)` builds the tree `app` returns and returns the unmount function, which stops effects and removes the nodes.
-- Factories share names with globals: `style` and `slot` are elements (`style` the attribute is the binding), `title`, `map`, `data`, `object` exist too; `var` is imported as `{ var as htmlVar }`. Alias on collision.
-
-## SVG (`nanoviews/svg`)
+Every call in view code is a block: the attributes one per line, then `})(`, or `()(` with no attributes, ends the line, the children follow indented, one per line, or all on one line when they are a short run of text and signals like `'Feels like ', $temp`, and `)` closes on its own line. Component instances and the curried calls of blocks take the same shape: `if_($x)(`, `for_($items, trackById)(`, `when_($loading, () => Spinner()(`, `context$(provide(Theme$, $theme))(`. Never close a children call on the line that opens it, as in `h2()($character.$name)`, even where DOCS.md does so for brevity (`p()('Done')`). The reference style is the [weather example](https://github.com/TrigenSoftware/nanoviews/tree/main/examples/weather/nano_kit).
 
 ```ts
-import { div } from 'nanoviews'
-import { svg, circle, path, foreignObject } from 'nanoviews/svg'
+import { type Accessor, type Signalish, type WritableSignal, record, when } from 'nanoviews/store'
+import { section, h2, ul, li, label, input, p, trackById, component$, for_, if_ } from 'nanoviews'
 
-svg({ viewBox: '0 0 24 24', width: 24, height: 24 })(
-  circle({ cx: 12, cy: 12, r: $radius, fill: 'none', stroke: 'currentColor', strokeWidth: 2 }),
-  path({ d: 'M8 12l3 3 5-6' }),
-  foreignObject({ x: 0, y: 0, width: 24, height: 24 })(div()('HTML inside'))
-)
+interface Todo {
+  id: number
+  title: string
+  done: boolean
+}
+
+interface TodoListProps {
+  title: Signalish<string>
+  $todos: WritableSignal<Todo[]>
+  $left: Accessor<number>
+}
+
+export const TodoList = component$(({ title, $todos, $left }: TodoListProps) => section({
+  class: 'todos'
+})(
+  h2()(
+    title
+  ),
+  ul()(
+    for_($todos, trackById)(
+      (todo) => {
+        const $todo = record(todo)
+
+        return (
+          li({
+            class: ['todo', when($todo.$done, 'todo_done')]
+          })(
+            label()(
+              input({
+                type: 'checkbox',
+                checked: $todo.$done
+              }),
+              $todo.$title
+            )
+          )
+        )
+      },
+      () => li()(
+        'Nothing to do'
+      )
+    )
+  ),
+  if_($left)(
+    () => p()(
+      $left, ' left'
+    )
+  )
+))
 ```
 
-- Every SVG tag is a factory in `nanoviews/svg` with the same call shape, created in the SVG namespace; `nanoviews` itself has no SVG factories. Shapes and leaves (`circle`, `rect`, `path`, `line`, `ellipse`, `polygon`, `polyline`, `image`, `use`, `animate`, `animateMotion`, `animateTransform`, `set`, `mpath`) are void: one call, no children. HTML inside `foreignObject` comes from `nanoviews`.
-- Attribute names are camelCase as in React: `viewBox`, `preserveAspectRatio`, `strokeWidth`, `fillOpacity`, `textAnchor`, `tabIndex`. Presentation attributes reach the DOM hyphenated (`stroke-width`), the rest keep their SVG spelling; a dashed key like `'stroke-width'` is a type error. `href` replaces `xlinkHref`; the SVG 1.1 font, glyph and color-profile attributes are not typed.
-- `a`, `title`, `style` and `script` exist in both entries, and `switch` is imported as `{ switch as svgSwitch }`; alias on collision. `ref`, `style` objects, `autoFocus` and `class` lists work on SVG elements too.
-- `Attributes<'circle'>`, `ElementName` and the factory types come from `nanoviews/svg` under the same names as the HTML ones in `nanoviews`.
+## Naming
 
-## Reactivity (`nanoviews/store`)
-
-```ts
-const $count = signal(0)             // read $count(), write $count(1) or $count(n => n + 1)
-const $double = computed(() => $count() * 2) // lazy, cached, read-only
-effect$(() => {                      // from 'nanoviews', in a component: first run once the tree is appended
-  document.title = `${$count()}`     // re-runs on tracked change
-  return () => {}                    // cleanup: before each re-run and on unmount; return nothing else
-})
-const stop = effect(() => {})        // store effect: runs at once wherever it is called, returns the stop
-batch(() => { $a(1); $b(2) })        // one flush for several writes; handlers, timers and callbacks never batch
-const $user = record($userSignal)    // $user.$name, $user.$age: child signals, writable when the parent is
-const [$post, $error, $pending] = resolved(() => fetchPost($id())) // async: stale value kept while pending
-```
-
-- Types from `nanoviews/store`: `Signalish<T>` = `T | Accessor<T>`, `Accessor<T>` = `() => T`, `ReadableSignal<T>`, `WritableSignal<T>`. Read a signalish with `$get(value)` (tracked) or `get(value)` (untracked, which matters only inside an effect, a computed or an accessor: a component body is not tracked). `effect$` is the component effect and comes from `nanoviews`; `effect` and `effectScope` come from `nanoviews/store` and are the store effects: they run at once and are never deferred or paused. `Signalish`, `Accessor`, `WritableSignal`, `ReadableSignal` are exported only from `nanoviews/store`.
-- Writing an equal value (same reference) is a no-op, so an object mutated in place does not notify. Write a new array or object, or use `push`, `setIndex`, `deleteIndex`, `setKey`, `updateArray`.
-- Inline arrow in a view = one binding recomputed when its dependencies change. `computed` = cached and shareable. Use an operator, or an arrow where none fits, for a single use, `computed` for a value read in several places; `length($arr)` and `boolean($x)` are ready-made computeds.
-- The full store API (records, arrays, lazy `mountable` stores, subscriptions, `selector`, tasks, DI) is under "Signals in depth" below.
+- `$name` for signals, computeds, accessors and records. A prop typed `Signalish<T>`, which takes a plain value and a signal alike, keeps a plain name (`title` above); a prop typed `Accessor<T>`, for read-only reactive input, or `WritableSignal<T>`, for state the component writes back, is always reactive and takes the `$` (`$todos`, `$left`).
+- A record kept whole takes the `$` name and the signal it wraps a plain one: the row `todo` and its record `$todo` above, or `({ $user: user }) => { const $user = deepRecord(user) ... }` for a prop.
+- A function that must run while a view is built, because it calls `inject` or `effect$`, ends with `$`, the way `effect$`, `context$` and `component$` do: `syncHead$`, `listenNavigationLinks$` and helpers of your own. A factory callable anywhere keeps a plain name: `pageView`, `linkComponent`.
+- Blocks end with `_` (`if_`, `for_`, `show_match_`), dependency injection factories and tokens are PascalCase with `$` (`Theme$`, `Api$`), and components are PascalCase.
 
 ## Components
 
-```ts
-import { type Signalish, text } from 'nanoviews/store'
-import { type ClassValue, button, effect$, component$ } from 'nanoviews'
+- Type the props on the parameter of the render, never as a type argument of `component$`: whether the component takes children is read off the render, and `component$<Props>(...)` keeps them allowed.
+- Hand props on as they came: attributes, children, class list parts and the operators take a plain value and a signal alike, and `$get(prop)` reads either inside an accessor, a handler or an effect. The values of a `style` object are plain, so a prop goes in through an accessor of the whole object: `style: () => ({ '--columns': $get(columns) })`.
+- A component that forwards element attributes types its props `Attributes<'tag'>` extended with its own, takes every prop that is not an attribute out before spreading `...props` (one left in is written as an attribute), and folds the `class` it got into its own list: `class: ['card', className]`.
+- A component that renders the element or the component its caller picks is `polymorphic$`: its props extend `PolymorphicProps<'button'>`, or `PolymorphicProps<typeof Link>` for a component, and the render sets the default, `as = button`; a second type argument, `PolymorphicProps<'div', 'section' | 'article'>`, limits `as` to those targets besides the default. Never a cast to a generic signature. A prop of its own that takes an attribute name, such as a kit's `color`, keeps its type when declared again; a wrapper that spreads attributes into it omits that name, `Omit<Attributes<'aside'>, 'color'>`.
+- Content goes in as children. Data for the caller's markup goes through a render function child, `[render]: [render: (item: T) => Child]`; several named places are slots (`slot$`, `slots$`); data for slots and deep children goes down through `context$`. A component that renders the element its caller picks takes the factory, `as = button`, not a tag name.
 
-interface ButtonProps {
-  label: Signalish<string>
-  size?: Signalish<'s' | 'm'>
-  class?: ClassValue
-  onSelect?: () => void
-}
+## Which tool for which job
 
-const Button = component$(({ label, size = 'm', class: className, onSelect, ...props }: ButtonProps, children) => {
-  effect$(() => () => console.log('unmounted')) // effect with no reads: mount/unmount hook
-
-  return button({ class: ['btn', text`btn_${size}`, className], onClick: onSelect, ...props })(label, ...children)
-})
-
-Button({ label: 'Send' })          // props only
-Button({ label: 'Send' })(' now')  // props and children
-```
-
-- Props are plain values or signals. Type them `Signalish<T>` when either is fine, `Accessor<T>` for read-only reactive input, `WritableSignal<T>` for two-way state. A prop typed as an accessor or a signal is always reactive, so its name takes the `$`: `$items: Accessor<Item[]>`, `$value: WritableSignal<string>`; a `Signalish` prop keeps a plain name. Calling a signal prop at build time freezes that value.
-- A component that renders the element or the component its caller picks is `polymorphic$`: its props extend `PolymorphicProps<'button'>`, or `PolymorphicProps<typeof Link>` for a component, the render sets the default, `as = button`, and `Button({ as: a, href })` at the call brings the attributes of a link. A second type argument, `PolymorphicProps<'div', 'section' | 'article'>`, limits `as` to those targets besides the default. Never a cast to a generic signature. A prop of its own that takes an attribute name, such as a kit's `color`, keeps its type when declared again; a wrapper that spreads attributes into it omits that name, `Omit<Attributes<'aside'>, 'color'>`.
-- Destructure the props and hand them on as they came: an attribute, a child and a class list part take a plain value and a signal alike, and so do the kida operators, which return a plain value when no operand is an accessor: `when(active, 'btn_active')` for a conditional class, `is(align, 'end')` for a comparison, `pick(styles, tone)` for a lookup, ``text`btn_${size}` `` for a string. An expression they do not cover reads the prop with `$get` inside an accessor, `() => formatDate($get(date))`, and `$get(prop)` is also how an effect or a handler reads it. `style` is the one place a prop does not go in as it is: `style: () => ({ '--columns': $get(columns) })`. Take every non-attribute prop out before spreading `...props` onto an element. A component that takes arbitrary element attributes types them `Attributes<'div'>` and folds the `class` it got into its own: `class: ['card', className]`.
-- `component$((props: Props, children) => view)` makes the component callable as `Card(props)('text', b()('bold'))` and as `Card(props)` alone; `children` is always an array, `props` is optional when every prop is. Type the props on the parameter, not as a generic. The render runs when the instance is built into its parent; an instance called with no arguments renders by hand and returns what the render returned. The children are typed on the second parameter the same way: `[render]: [render: (item: T) => Child]` makes a render prop, `children: ComponentInstance[]` takes instances only. A render with no `children` parameter (`component$((props: Props) => view)`, and `slot$` alike) makes a component that takes none: `Card(props)('text')` is a type error. That is read off the render, so it needs the types inferred, one more reason not to write the generic: `component$<Props>(...)` keeps children allowed, `component$<Props, []>(...)` turns them off. Named slots are under "Slots" below.
-- `effect$` in a component first runs once the whole tree is appended, so measuring and focusing are safe on the first run. It belongs to the scope of the view being built, so it works only under `mount`: at module level it throws, and a store uses `effect`.
-- Dependency injection: `App` opens the root context once (`return context$()(main()(...))`); a component calls `inject(Theme$)` during render and closes over the result for its handlers and effects (`inject` inside a handler or effect throws). A component provides to its children with `context$(provide(Theme$, $theme))(div()(...children))`: the children are built inside. Details under "Dependency injection in depth".
-
-## Control flow
-
-| Block | Use when | Shape |
-| --- | --- | --- |
-| `if_` | branch, rebuilt on every flip | `if_($cond)(v => thenView, () => elseView)` |
-| `show_` | toggle visibility, keep state and DOM | `show_($cond, () => view)` |
-| `switch_` | one primitive value, several cases | `switch_($tab)(case_('a', () => ...), default_(() => ...))` |
-| `match_` | first truthy condition wins | `match_(when_($loading, () => ...), when_($error, $error => ...), default_(() => ...))` |
-| `show_switch_` | `switch_` that keeps every case alive | `show_switch_($tab)(case_('a', () => ...), default_(() => ...))` |
-| `show_match_` | `match_` that keeps every case alive | `show_match_(when_($loading, () => ...), default_(() => ...))` |
-| `swap_` | custom mapping value to view | `swap_($value, value => view)` |
-| `for_` | reactive list | `for_($items, trackById)(($item, $index, key) => row, () => emptyView)` |
-
-- `if_` and `when_` pass the narrowed signal to the branch: `if_($post)($post => b()(() => $post().title), () => 'none')`. `if_` rebuilds only when truthiness flips (inner state resets); a new object in the same branch updates in place.
-- `show_` builds once and parks the tree while hidden: detached from the document, state kept, bindings still updating, effects stopped (cleanup run) and restarted on show. No else branch. Keep `portal` and `ref` out of it: `portal(() => document.body, show_($open, () => Modal()))`, and `if_` for a subtree that needs `ref` (details under "Raw HTML, shadow DOM, portals").
-- `switch_` matches by strict equality against plain case values; `match_` stops at the first truthy case and `default_` is shared by both. `batch` writes to several `match_` conditions or the frame in between shows.
-- `show_switch_` and `show_match_` are `switch_` and `match_` built on `show_`: every case is built once, up front, and the cases that do not hold are parked the way `show_` parks, so the `show_` rules on `portal` and `ref` hold for every case. A `show_match_` case child takes no value, since it lives while its case does not hold: `when_($post, () => ...)` there, and `when_($post, $post => ...)` is a type error.
-- `for_`: give a tracker (`trackById`, `trackBy('key')`, `item => item.id`) whenever items are objects or rows hold state; without one rows are positions and a reorder rewrites values into existing rows. A repeated key is not detected: its row is silently dropped.
-- Each row gets `$item` (a signal; for a `WritableSignal<T[]>` it is writable: `$item(next)` and `record($item).$done(true)` write a new item and array back, so computeds recompute; a list typed `T[] | null` gets read-only rows, so keep list signals non-nullable), `$index` (a signal) and the plain key. Read only `$item()`/`$index()` inside a row: `$items()` there re-runs every row on every change. Per-row selection: one `const $isSelected = selector($selectedId)` outside the loop, then `class: () => $isSelected(key) ? 'active' : ''` in each row.
-- A computed list gives read-only rows. To filter or sort while keeping rows editable, iterate the writable source and gate each row: `$item => show_(() => keep($item()), () => Row({ $item }))`.
-- `as_(record, ($item, $index, key) => ...)` applies a transform to every row and keeps writes bound. The second argument of the row call renders the empty state, for `[]` and for `null`. A static array takes no tracker: `for_(list)((item, index) => ...)` renders once; a static condition renders once with no block.
-- `throw_(new Error('...'))` throws inside an expression.
-
-## Forms
-
-```ts
-const $name = signal('')
-const $note = signal('')
-const $agree = signal(false)
-const $plan = signal('pro')
-
-form({ onSubmit: event => { event.preventDefault(); save($name()) } })(
-  label({ for: 'name' })('Name'),
-  input({ id: 'name', type: 'text', value: $name, autoFocus: true }),
-  textarea({ value: $note }),
-  input({ type: 'checkbox', checked: $agree }),
-  select({ value: $plan })(option({ value: 'free' })('Free'), option({ value: 'pro' })('Pro')),
-  button({ type: 'submit', disabled: not($agree) })('Save')
-)
-```
-
-- `value` (text inputs, `textarea`; `input` event), `checked` (checkbox, radio; `change`; the `Indeterminate` symbol is the third state) and `value` of a `select` (`change`; `multiple: true` with a `string[]` signal) are bound through the DOM properties: a plain value is set once, an accessor is followed, a writable signal is two-way. A read-only accessor, a computed say, only drives the control.
-- Attributes are applied in key order, and on a control it matters: put `value` before an `onInput` key that reads or rewrites the signal, and on a `range` input put `min`, `max` and `step` before `value` and `defaultValue`, since the browser clamps the value to the bounds that are there when it is written.
-- A value rewritten under the user keeps the caret: a formatter in `onInput` or an `effect$` writing the signal back is fine.
-- `textarea` is void: no children call, its text is `value` or `defaultValue`.
-- `defaultValue` (`input`, `textarea`, `select`) and `defaultChecked` set the default a form reset returns to; one way, a plain value or an accessor. A bound `value` leaves the default alone.
-- A `select` follows its value into the options built later (`for_`, async data) and into an option whose `value` attribute or text changes; they are selected a microtask after they land, and so is a plain `value`. A signal `value` is applied at mount and on write, synchronously.
-- No file binding: read `event.target.files` in `onChange`.
-- `ref`: a callback `element => ...` or a `signal<HTMLInputElement | null>(null)` gets the element from build to unmount, then `null`. Both are typed by the element: a wider `HTMLElement | null` or `Element | null` fits, another element is a type error. A component that needs its own element takes it through `ref` and works with it in an `effect$` that reads the signal, `effect$(() => { $input()?.setCustomValidity(...) })`; it never builds its description by hand to get the node.
-- `style`: `style: () => ({ backgroundColor: $color(), fontSize: '12px', '--gap': '4px' })`, camelCase keys, units spelled out; a property missing from the next object is removed; on `HTMLElement` and `SVGElement`. `autoFocus: true` focuses once the element is in the document; an accessor is read once, at build; dynamic focus goes through `ref`.
+- A binding: an operator where one covers the expression (`not`, `and`, `or`, `when`, `is`, `gt`, `pick`, ``text`...` ``), an arrow for the rest (a call, arithmetic, `?.`), a `computed` for a value read in several places or costly to compute. `length` and `boolean` are ready-made computeds, and "is this row the selected one" is one `selector` outside the list.
+- Fields of an object signal: bind the child signals of its `record` (`deepRecord` for nested objects), `$user.$name`, not `pick` or an arrow over the whole object.
+- A condition: `if_` rebuilds its branch on every flip, so its state resets; `switch_` compares one value with cases, and `match_` takes the first condition that holds; `show_`, `show_switch_` and `show_match_` build every case once and park the hidden ones with their state; `swap_` maps a value to a view. A plain value, in a block or in `cond && child`, decides once at build.
+- A list: `for_` with a tracker (`trackById`, `trackBy('key')`, `item => item.path`) whenever the items are objects or the rows hold state. A filtered `computed` list has read-only rows: to filter editable rows, iterate the writable list and gate each row with `if_`.
+- An effect: `effect$` from `nanoviews` in views, `effect` from `nanoviews/store` in stores and dependency injection factories, where `effect$` throws. Work that should run only while a view shows a store goes into `mountable` with `onMount` or `onMountEffect`.
+- An element: the element of a component is a `ref` signal read in an `effect$`, never its description built by hand, and a behavior of your own on any element is a `ref` callback that opens an `effect$`, since there are no custom attributes. A custom element has no factory: build it by hand in a component and bind its attributes with a store `effect`.
+- Async data: loaded by a store, a factory `Name$` the view injects, never by the render, like the rest of the business logic; `resolved` for a one-off promise, `@nano_kit/query` for caching, deduplication and mutations.
+- Shared state: a factory `Name$` injected in renders, under one root `context$()` at the top of the app; a subtree overrides it with `context$(provide(Name$, value))(...)`.
 
 ## Differences from React, Solid and Svelte
 
-- Type errors: `className`, `htmlFor`, `key`, `onDoubleClick` (use `class`, `for`, a tracker, `onDblClick`). `value`/`checked` are the live state and `defaultValue`/`defaultChecked` the reset defaults, as in React; there is no `files` binding.
-- Do not unwrap a signal at build time (`const count = $count()`) for anything the view shows: it freezes. Pass `$count` or `() => ...`.
-- A component body is not tracked: a call there reads the current value once and nothing follows it, so a read at build time needs no `get` or `untracked`. That is how a value that never changes in the view is read, such as the id of a row tracked by id: `Link({ to: 'user', params: { id: $user().id } })`. `get` and `untracked` are for a read inside an effect, a computed or an accessor that must not be followed.
-- Do not `.map` a signal array or `if` on a signal at build time; use `for_`, `if_`, `match_`. Do not interpolate a signal into a template string child.
-- A function argument to a signal is a reducer; store a function as `$fn(() => handler)`.
+- A render runs once and nothing re-renders, so there are no rules of hooks and no dependency arrays: an effect tracks what it reads, and `effect$` may be called in a branch, a row or a helper, as long as a view is being built.
+- Never unwrap a signal at build time for what the view shows, `const count = $count()`, `` `${$count()} items` `` or `$items().map(...)`: it freezes. Reactive text is a separate child, `'Total: ', $total`, never a template string.
+- A render is not tracked: a read there is a one-off and needs no `untracked`. That is how a value fixed for the life of the view is read, such as the id of a row tracked by id. `get`, `untracked` and `action` are for reads inside an effect, a computed or an accessor that must not subscribe it.
+- Habits that are type errors: `className`, `htmlFor`, `key`, `onDoubleClick`, a lowercase `tabindex`, a `style` string (write `class`, `for`, a `for_` tracker, `onDblClick`, `tabIndex`, a style object). A number in `style` gets no `px`. `value` and `checked` are the live state and `defaultValue` and `defaultChecked` the reset defaults, as in React; files have no binding.
+- `false`, `null`, `undefined` and `true` render nothing, so `cond && child` works, but `0` renders as text: gate a count with `count > 0 && child`. A bare array child throws. A list is a `for_` block even when it is static: a plain array takes no tracker and renders once. Spreading `.map()` into the call works but is not the way; `...children` is spread as it is.
+- No deep reactivity: a write of the same reference notifies nothing, so an array or an object changed in place is not seen. Write a new value, or use `push`, `setIndex`, `setKey`, `updateArray` and the other helpers.
+- A function written to a signal is a reducer, called untracked with the latest value: store a callback as `$onSave(() => save)`.
 
-## Unsupported
+## Effects and batching
 
-- No SSR, hydration, router or error boundaries in nanoviews itself. Routing comes from `@nanoviews/router`, the nanoviews integration of the `@nano_kit/router` core: the nanoviews-router skill.
-- Exported but internal, do not use: `deferScope`, `boundDeferScope`, `startScope`, `stopScope`, `pauseScope`, `resumeScope`, `unsafeRun`, `createSignal`, `computedOper`, `nextValue`, `signalNextValue`, `assignIndex`, `assignKey`, `onSignal`, `unsafeMark*`, node and flag constants, and `createElement`/`createVoidElement`/`create*Factory` beyond known tag names.
+- Bindings (text, attributes, `style`, the state of `input` and `textarea`) apply their first value at build, before the element is in the document, and keep a hidden `show_` up to date. `effect$` first runs once the tree, or the new content of a block, is in the document, is cleaned up while a `show_` hides it and runs again on show with `warmup` set; a bound `value` or `defaultValue` of a `select` waits the same way. A store `effect` runs at once and keeps running under a hidden `show_`.
+- Start order: the effects of a signal-driven `if_`, `switch_`, `match_` or `swap_` branch and of a `for_` row run before the effects around the block, innermost first; `show_`, `show_switch_` and `show_match_` start their content in the creation order of the scope around them; a block given a plain value is inline. Within a scope effects start in creation order, so the effects of a parent's render precede those of its `component$` children.
+- On a swap the cleanups of the old branch run while its DOM is still attached, then the new branch is built and started; removed `for_` rows are destroyed before new rows start. Never rely on a parent effect having run when a child effect runs: pass data through signals.
+- A write flushes at once, with two exceptions. `mount` holds the writes of the render, of the first effect runs and of the unmount. An effect that runs from a flush (every re-run, and the first run of what a write brings in with a new branch or row) holds its writes until it returns, so a `batch` there flushes nothing. Everywhere else every write flushes on its own: event handlers, timers, promise callbacks, and the first run of a store `effect` created outside a flush or a `batch`, at module level say. Wrap writes that belong together in `batch`, above all writes to several conditions of one `match_`.
 
-## Slots
+## Pitfalls
 
-A slot is a component made with `slot$`; a layout declares the slots it takes with `slots$` and gets them as positional arguments after `props`, in declaration order, with the rest of the children last:
+- `show_`, `show_switch_` and `show_match_` run the cleanups of a `portal` and of a `ref` on hide and restore neither on show. Put the `show_` inside the portal, `portal(() => document.body, show_($open, () => Modal()))`, and a subtree whose `ref` matters under `if_`.
+- `for_` keys must be unique: a repeated key renders a row short, or makes the write throw and leaves the old rows on screen. Track by an id, or give no tracker when values repeat.
+- In a `for_` row, read `$item()` and `$index()`, never `$items()`, which wakes every row on every change of the list. A list typed `T[] | null` has read-only rows: keep an edited list non-nullable, `[]` for no items.
+- `record` and `deepRecord` share one cached record per signal, shaped by the first call: use one of them per signal. `pick` throws on a `null` collection, while the children of a record read `undefined`.
+- `inject` works only synchronously while a view is built: inject in the component body and close over the result in handlers and effects. A provided signal has the exact type the factory returns: `provide(Theme$, signal<Theme>('dark'))`.
+- Keys apply in order: a handler for the event of a binding, `onInput` for `value`, sees the new value in the signal only when it stands after the binding, and a `range` input takes `min` and `max` before `value` and `defaultValue`.
+- A checkbox signal that holds the third state is typed with it, `signal<boolean | typeof Indeterminate>(false)`: `signal(false)` rejects `Indeterminate`.
+- A `computed` that reads its previous value takes a type argument, `computed<string>((last = '') => ...)`, or it is typed `unknown`.
+- Nanoviews has no SSR, hydration or error boundaries: keep an expected failure in a signal and render it with a block. The exports DOCS.md lists under Internal Exports are not for application code.
 
-```ts
-import { type Attributes, main, header, footer, component$, slot$, slots$ } from 'nanoviews'
+## Related skills
 
-const LayoutHeader = slot$<Attributes<'header'>>((props, children) => header(props)(...children))
-const LayoutFooter = slot$<Attributes<'footer'>>((props, children) => footer(props)(...children))
-
-const Layout = component$(slots$([LayoutHeader, LayoutFooter], (props: Attributes<'main'>, headerSlot, footerSlot, children) => main(props)(
-  headerSlot, ...children, footerSlot
-)))
-
-Layout()(LayoutHeader({})('Top'), 'Body', LayoutFooter({})('Bottom'))
-```
-
-- A slot the caller did not pass arrives as `undefined` and renders nothing; slots are typed `SlotInstance<Props, Children> | undefined`.
-- An instance of a slot component the layout did not declare throws `Slot is not declared in slots$` at the layout's render. Declare every slot a caller may pass.
-- Passing the same slot twice keeps the last one.
-- A slot instance without the children call, `LayoutHeader(props)`, is a slot with no children; a slot instance outside a `slots$` layout renders as an ordinary component.
-- A slot renders inside the layout's tree: the layout hands it data with `context$` (`context$(provide(Draft$, $draft))(footerSlot)`) and the slot injects it; a function child, `slot$<Props, [render: (draft: WritableSignal<string>) => Child]>`, is how a caller passes a render function.
-- `getSlots(defs, children)` is the splitter behind `slots$`, for a component that wants its children raw.
-
-## Own bindings
-
-There are no custom attributes: an element behaviour of your own is a `ref` callback that opens an `effect$`. The callback runs while the element is built, so the effect belongs to the enclosing block and is torn down with it; it gets `null` on unmount, so guard.
-
-```ts
-import { $get, type Signalish } from 'nanoviews/store'
-import { div, effect$ } from 'nanoviews'
-
-const withTitle = ($title: Signalish<string>) => (element: HTMLElement | null) => {
-  if (element) {
-    effect$(() => {
-      element.title = $get($title)
-    })
-  }
-}
-
-div({ ref: withTitle($title) })('text')
-```
-
-- Built-in bindings (`style`, text, attributes, `value`) apply their first value synchronously through an internal non-deferred effect; `effect$` runs after mount and pauses while a `show_` is hidden. The store `effect` runs at build time, like the built-in bindings, and keeps running while hidden.
-
-## Raw HTML, shadow DOM, portals
-
-```ts
-dangerouslySetInnerHtml(div({ class: 'md' }), $html) // takes the uncalled div({...}), returns the element
-shadow(div({ id: 'host' }), { mode: 'open' })(style()(':host { display: block }'), 'inside')
-portal(() => document.body, div({ class: 'modal' })('in the body'))
-```
-
-- `dangerouslySetInnerHtml(factory, html)` takes an uncalled description or any `() => Element` and accepts a static string or a signal; it describes the element and sets `innerHTML` on build, so no children call follows.
-- `shadow(factory, init)` describes the host element and takes the children like an element; on build it attaches the shadow root and puts the children into it. Hosts must allow a shadow root (`div`, `span`, custom elements).
-- `portal(target, child)` describes an empty child; on build it calls `target()` and mounts the child there, so the target must exist by then. Removal is registered on the enclosing scope, so a portal inside a component or an `if_` branch is removed with it. A component that only portals returns `portal(...)`.
-- Never put a `portal` inside `show_`: hiding runs the removal and showing again does not re-append. Toggle a portalled tree the other way round, `portal(() => document.body, show_($open, () => Modal()))`: while hidden the parked DOM leaves the target and comes back with its state on show. The same applies to `ref` under `show_`, which stays `null` after the first hide; use `if_` there.
-
-## Dependency injection in depth
-
-`inject`, `provide` and `InjectionContext` come from `nanoviews/store`, `context$` and `isolate$` from `nanoviews`. `inject(Factory$)` runs the factory once and keeps the instance in the deepest context that provides something the factory read, or in the top context when it read nothing provided: every context below shares it, and a context that overrides what it read gets its own. `provide(Factory$, value)` returns a provider tuple for `context$(...)` and short-circuits the factory. A factory's return value is the default, so contexts have defaults for free.
-
-```ts
-import { signal, computed, mountable, onMount, Injectable$, provide, inject } from 'nanoviews/store'
-import { main, button, component$, context$, isolate$ } from 'nanoviews'
-
-type Theme = 'light' | 'dark'
-
-function Theme$() { return signal<Theme>('light') }
-
-function Users$() {
-  const $users = mountable(signal<User[]>([]))            // User, api, $inner: placeholders
-  onMount($users, () => { void api.list().then($users) }) // starts on the first view subscription
-  return { $users, $count: computed(() => $users().length) }
-}
-
-class Api$ extends Injectable$ {                          // class form: new'd once per context
-  $theme = inject(Theme$)
-  save() { return api.save({ theme: this.$theme() }) }
-}
-
-const Settings = component$(() => {
-  const $theme = inject(Theme$)                           // inject during render, close over the result
-  const api = inject(Api$)
-  return button({ onClick: () => api.save() })('Save (', $theme, ')')
-})
-
-export const App = component$(() => context$()(main()(Settings()))) // root context: required before any inject
-
-context$(provide(Theme$, signal<Theme>('dark')))(Settings()) // child context with an override
-isolate$(context$(provide(Theme$, $inner))(Settings()))     // fresh tree, inherits nothing
-```
-
-- `context$(...providers)(child)` describes the child built within a context: a child context with the providers, the root one when none exists yet, and the current one when there are no providers to add. The child is one description, so several children go under an element: `context$(provide(X$, x))(div()(...children))`.
-- `context$(context)(child)` with an `InjectionContext` instance (from `nanoviews/store`) builds the child within that very instance: it sees the instance's values and those of the parent it was created with, not the current context. This is how a context made outside the view is handed in, so the view and the code around it share instances: `const context = new InjectionContext([provide(Theme$, $theme)])`, `mount(() => context$(context)(App()), root)`, then `inject(Store$, context)` outside is the store the view uses.
-- The child is built inside the context, not the call that describes it: `Segment()` created as an argument of `SegmentedControl()(...)` still injects what `SegmentedControl` provides, because its render runs on build. A plain function called in place would run early, which is why components are always `component$`.
-- A provided value must have exactly the factory's return type. `signal('dark')` infers `WritableSignal<string>` and `signal<'dark'>('dark')` is a `WritableSignal<'dark'>`; signals are invariant, so neither satisfies a `WritableSignal<'light' | 'dark'>` factory. Annotate with the factory's type: `signal<Theme>('dark')`.
-- `inject` works only synchronously during render. Inside an effect, an event handler, a promise callback or a timer there is no current context and it throws: inject everything a component needs in its body and close over it. `getContext` and `run` are library-author tools, not application code, and `InjectionContext` is only for a context made outside the view, handed in with `context$(context)`. A factory may throw `DependencyNotFound('Name$')` for a dependency it refuses to default.
-- An injected object of signals and actions is destructured where it is injected, `const { $users, $count } = inject(Users$)`, and the view uses the signals like any other; an instance whose methods use `this`, such as `Api$` above, stays whole.
-- Blocks remember their context: a branch rendered later by `if_`, a row created later by `for_`, and the tracker function all resolve `inject` correctly.
-- A factory uses the store `effect`, never `effect$`: its effects run immediately and are never stopped by unmount; give a store lazy work through `mountable` plus `onMount` (see "Lazy stores").
-- Two sibling child contexts asking for a factory nobody resolved above get two instances. Resolve shared services at the root first.
-- `isolate$(child)` builds the child without any injection context: nothing above is reachable and a bare `inject` inside throws. Open a fresh tree inside it with `context$`.
-
-## Effect ordering guarantees
-
-- A signal-driven `if_`, `swap_`, `match_`/`switch_` branch or `for_` row is its own scope and its effects start before the effects of the scope that contains it, innermost first. `show_`, `show_switch_` and `show_match_` are the exception: their content effects are started by the toggle effect, in the containing scope's creation order. A block with a static condition is rendered inline and has no scope of its own.
-- Effects in the same scope start in creation order. A `component$` child renders when the parent's returned tree is built, after the parent's render has finished, so every effect of the parent's render precedes the effects of its component children; a plain function child runs, and creates its effects, where it is called.
-- On a swap the old branch's cleanups run while its DOM is still attached, the DOM is removed, the new branch is rendered, then its effects start. Removed rows are destroyed before new rows start.
-- Under a hidden `show_` and a parked case of `show_switch_` or `show_match_`, `effect$` effects have run their cleanup and re-run on show with `warmup === true` again; text, attribute and `style` bindings keep updating the parked DOM.
-- Writes made during render and during unmount are batched by `mount`. Writes made inside a running effect are queued onto the flush already running, so they land together; a `batch` there flushes nothing either. Everywhere else (handlers, timers, promise callbacks) every write flushes on its own; wrap several in `batch`.
-- Do not depend on a parent effect having run when a child effect runs; communicate through signals.
-
-## Signals in depth
-
-`nanoviews/store` is `export * from 'kida'`, and kida re-exports the signal core `agera`. The same primitives, plus the `@nano_kit/store` extras, are covered in depth by the nano-kit-store skill.
-
-### Signals and computeds
-
-```ts
-const $count = signal(0)        // WritableSignal<number>; signal<T>() is WritableSignal<T | undefined>
-$count(n => n + 1)              // reducer: gets the pending value, runs untracked
-const $log = computed((prev = '') => prev + $event()) // a computed receives its previous value
-```
-
-- Equality is strict `!==`: writing an equal primitive or the same object reference is a no-op and notifies nothing (a `NaN` write always notifies). After an in-place mutation, `trigger(() => $x())` forces propagation, but prefer new values.
-- The initial value of `signal(fn)` is stored as is; only a written function is a reducer.
-- Writing to a `computed` is a type error and, forced through, does nothing. `readonly($s)` marks the signal itself non-writable and returns it typed `ReadableSignal` (`isWritable` flips, a forced write still lands); children created after the call are read-only, children obtained before it stay writable, so call it before handing out children.
-- `computed` is lazy and cached: the body does not run until read, re-runs only when read after a dependency changed, and is eager only while an effect or binding subscribes to it. It notifies only when the result changed. Keep it pure: no writes, no effects inside.
-
-### Effects and subscriptions
-
-```ts
-const stop = effect((warmup) => {
-  const id = setInterval(tick, $period())      // tracked
-  const other = untracked($other)              // read without tracking; get($x) does the same
-  if (!warmup) report($period())               // warmup is true on the first run only
-  return () => clearInterval(id)               // cleanup: before each re-run and on stop or unmount
-})
-```
-
-- `effect` is the store effect: it runs immediately wherever it is called, at module level, in a factory or in a component, and returns the stop. In a component it is still stopped by unmount, but it is neither deferred until the tree is appended nor paused by `show_`: that is `effect$` from `nanoviews`, which takes the same body and returns nothing.
-- Return a cleanup function or nothing. An `async` body is a type error (a `Promise` is not a cleanup) and, forced through, the promise is called as the cleanup and throws: keep the body synchronous and write `void refresh()` inside it.
-- The cleanup runs with the signals already holding their new values; capture what it needs in the run's closure.
-- `effectScope(fn)` groups effects created in `fn` and returns one stop. `composeDestroys(a, b)` merges several cleanups into one.
-- Ordinary code uses `effect`; `subscribe`, `listen`, `observe` and `subscribeAny` are low-level variants.
-- `action(fn)` wraps a function so reads inside never subscribe the caller: use it for store methods called from effects.
-- `batch(fn)` flushes once at the end of the outermost batch and returns `fn`'s result; inside a running effect it flushes nothing, the writes join the flush already running.
-
-### Values in and out
-
-- `SignalishValue<T>` unwraps a `Signalish<T>` type.
-- `isAccessor(x)` is `typeof x === 'function'`; `isSignal(x)` also requires a signal node; `isWritable($x)`, `isMountable($x)`, `isEmpty(x)` (`null`/`undefined` only).
-- `toAccessor(x)` returns a function as is, wraps a value in `() => x`. `toSignal(x)` returns a signal as is, wraps a plain function in `computed`, a value in `signal`.
-- Cheap uncached accessors, exported by kida but absent from its README: `not`, `is`, `isNot`, `and`, `or`, `some`, `every`, `gt`, `gte`, `lt`, `lte`, `when($cond, then, else?)`, `pick(collection, $key)` and the template tag ``text`Toggle ${$label}` ``. They cost no graph node and recompute on every read; with no accessor among the operands they return the plain result instead of an accessor. They replace an inline arrow wherever they cover the expression, and `computed` caches when the value is shared or expensive.
-- Cached derivations: `length($arr)`, `boolean($x)`.
-- `selector($source)` returns `(key) => boolean` that wakes only the readers whose key changed; `selector($source, (key, value) => R)` customises the answer.
-
-### Records, arrays, objects
-
-```ts
-const $user = record($userSignal)     // $user.$name, $user.$age; cached per source, stable identity
-const $city = deepRecord($profile).$address.$city  // nested records; one of record/deepRecord per source
-const $first = atIndex($list, 0)      // or atIndex($list, $indexSignal)
-const $byId = atKey($map, $id)
-push($list, item); pop($list); shift($list); unshift($list, item)
-setIndex($list, 2, item); deleteIndex($list, 2)
-updateArray($list, list => { list.sort() })  // mutates a copy, writes it back
-setKey($map, 'k', v); deleteKey($map, 'k')
-```
-
-- A view that takes a record of an object binds its fields through the children, and takes a `deepRecord` when it reads a nested field: `$character.$origin.$name`, `$character.$episode.$length`, not `pick($character.$origin, 'name')` or an arrow over a child. The record takes the `$` name and the accessor it wraps a plain one: `for_($events, trackById)(event => { const $event = record(event); ... })`, `({ $user: user }) => { const $user = deepRecord(user); ... }`.
-- Child signals are writable when the parent is a writable signal; writing one writes a shallow copy into the parent. Children of a `computed` are read-only and a forced write is ignored.
-- `record` and `deepRecord` share one cached proxy per source: the first call decides the shape, so never call `deepRecord` on a signal already passed to `record` (or the reverse).
-- A child of a `null`/`undefined` parent reads `undefined`; writing it throws. Guard with `if_($parent)` or write the whole parent.
-- `record(plainObject)` creates a new signal each call; create it once and share it.
-
-### Async data and tasks
-
-```ts
-const [$post, $error, $pending] = resolved(() => fetchPost($id()))
-
-if_($pending)(
-  () => 'Loading',
-  () => if_($error)($error => fragment('Failed: ', () => String($error())), () => record($post).$title)
-)
-```
-
-- `resolved` accepts a promise, a value or an accessor returning either. A new promise keeps the stale result while pending and ignores results of superseded promises. An accessor source is lazy until first read.
-- `task($signal, promise)` attaches work to a signal; `await waitTasks($signal)` waits for the tasks of that signal and of every signal it currently depends on. A `computed`, including the `resolved` tuple, links its dependencies only once read or rendered: read or render it before `waitTasks`, or wait on the signal the task was attached to.
-- Remote data with caching, deduplication and mutations lives in `@nano_kit/query`: the nano-kit-query skill.
-
-### Lazy stores
-
-```ts
-const $weather = mountable(signal<Weather | null>(null))
-onMount($weather, () => {              // first subscriber arrives
-  const id = setInterval(refresh, 60_000)
-  return () => clearInterval(id)       // one second after the last subscriber leaves
-})
-onMountEffect($weather, () => { void refresh($city()) })   // an effect alive only while mounted
-```
-
-- A signal is mounted while an effect or a binding subscribes to it: a text or attribute child, `if_($x)`, `show_($x)`, `for_($items)`. Reading it in a component body does not mount it. `start($x)` mounts it by hand and returns a stop; `exec($x)` starts it, stops it at once and then reads the value.
-- `onMount`, `onStart`, `onStop`, `onMounted`, `onMountEffect`, `onMountEffectScope` take a `Mountable` signal: wrap with `mountable($x)` first, the types require it. `onStart` and `onStop` fire without the one-second delay; `STORE_UNMOUNT_DELAY` is exported for tests.
-
-### Types
-
-- Worth importing: `Accessor`, `ReadableSignal`, `WritableSignal`, `Signalish`, `SignalishValue`, `EmptyValue`, `FalsyValue`, `Destroy`, `EffectCallback`, `Mountable`, `Injectable`, `Resolved`.
-
-## Related
-
-- Unit tests for views: the nanoviews-testing skill. Stories: the nanoviews-storybook skill. Routing: the nanoviews-router skill.
-- Nano Kit packages have their own skills: nano-kit-store (`@nano_kit/store`: kida plus `paced`, storage-backed signals, hydration), nano-kit-query (remote data), nano-kit-platform-web (browser API signals), nano-kit-intl (internationalization), nano-kit-react-router (the `@nano_kit/router` core). Docs: https://nano-kit.js.org. One kida instance must serve the whole graph: if `@nano_kit/*` resolves a different kida than nanoviews, override `kida` and `agera` to one version.
+- nanoviews-testing: unit tests of views with `@nanoviews/testing-library` and Vitest. nanoviews-storybook: stories with `@nanoviews/storybook-vite`. nanoviews-router: routing with `@nanoviews/router`.
+- Nano Kit packages bind into views as they are, and have skills of their own: nano-kit-store (`@nano_kit/store`: all of `nanoviews/store` plus `paced`, `previous`, `latest`, storage-backed signals and hydration, and the store conventions), nano-kit-query (remote data), nano-kit-platform-web (browser API signals), nano-kit-intl (internationalization), nano-kit-react-router (the `@nano_kit/router` core). Docs: https://nano-kit.js.org.
+- One copy of the reactive core must serve the whole app: a view does not follow a signal of another copy, and `inject` of another copy does not see the context that `context$` opens. If the lockfile holds two, merge them with `pnpm dedupe` (`npm dedupe`, `yarn dedupe`), or override the dependencies of `nanoviews` to the versions `@nano_kit/store` uses (`overrides` in npm and pnpm, `resolutions` in Yarn).

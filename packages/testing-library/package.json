@@ -5,7 +5,7 @@
   "description": "Nanoviews testing utilities.",
   "author": "dangreen",
   "license": "MIT",
-  "homepage": "https://github.com/TrigenSoftware/nanoviews/tree/main/packages/testing-library#readme",
+  "homepage": "https://nanoviews.js.org/testing/",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",

@@ -1,0 +1,590 @@
+---
+title: Core Concepts
+description: Learn how Nanoviews describes elements, builds them and binds signals to the DOM.
+sidebar:
+  order: 1
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Nanoviews builds real DOM directly: there is no JSX, no virtual DOM and no re-render. A view is a tree of element calls, built once, and signals bind into its text, attributes and blocks.
+
+## Descriptions
+
+Nanoviews exports a factory for each HTML element, named after its tag: `div`, `button`, `input` and so on. A factory describes an element in two calls, `tag(attributes)(...children)`: the first call takes the attributes, the second one the children.
+
+```ts
+import { div, h1, p } from 'nanoviews'
+
+div({
+  class: 'card'
+})(
+  h1()('Nanoviews'),
+  p()('A small Direct DOM library.')
+)
+// <div class="card"><h1>Nanoviews</h1><p>A small Direct DOM library.</p></div>
+```
+
+The attributes are optional, and so is the children call: `h1()('Nanoviews')` has no attributes, and `div({ class: 'spacer' })` alone is an empty `div`.
+
+Void elements have no children call at all: `input({ type: 'text' })`, `img({ src, alt })`, `br()`. These are `area`, `base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `source`, `track` and `wbr`, plus `textarea`, whose text is its `value` (see [Forms](/guides/forms/)). Children passed to them are a type error.
+
+### When Nodes Are Built
+
+A description is a function, not a node. Called with children, it keeps them and returns itself; called with no arguments, it builds the node. The parent makes that call when it is built itself, so `mount` builds the whole tree top-down, in one pass. A component renders at that moment too, when its instance is built into the parent (see [Components](/guides/components/)).
+
+A description is built under [`mount`](#mount) only, never by hand, static or not: the build belongs to the scope that `mount` opens. A component that needs its element gets it through [`ref`](#ref).
+
+Every build makes a new node, so a description inserted twice is built twice:
+
+```ts
+import { p, span } from 'nanoviews'
+
+const star = span({
+  class: 'star'
+})(
+  '★'
+)
+
+p()(
+  star, ' Favorites ', star
+)
+// <p><span class="star">★</span> Favorites <span class="star">★</span></p>
+```
+
+A DOM node, on the other hand, is inserted as it is: the same node inserted twice ends up in the last place, the way `appendChild` moves it.
+
+## Children
+
+A child can be:
+
+- a description: `span()`, `b()('bold')`, and also a `fragment` or a block such as `if_`;
+- a component instance: `Counter()`;
+- a DOM node made elsewhere;
+- a string or a number, written as text;
+- a signal or an [accessor](#reactive-values), written as a text node that follows it;
+- `null`, `undefined`, `true` or `false`, which render nothing.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { ul, li, b } from 'nanoviews'
+
+const $count = signal(1)
+
+ul()(
+  li()('String value'),
+  li()(
+    'Number value: ', 42
+  ),
+  li()(
+    'Signal value: ', $count
+  ),
+  li()(
+    'Accessor value: ', () => $count() * 2
+  ),
+  li()(
+    b()('Description')
+  )
+)
+// <ul><li>String value</li><li>Number value: 42</li><li>Signal value: 1</li><li>Accessor value: 2</li><li><b>Description</b></li></ul>
+```
+
+Since `false` renders nothing, a static condition needs no `: null`, as in React:
+
+```ts
+import { ul, li, component$ } from 'nanoviews'
+
+const Menu = component$(({ isAdmin }: { isAdmin: boolean }) => (
+  ul()(
+    li()('Profile'),
+    isAdmin && li()('Settings')
+  )
+))
+
+Menu({
+  isAdmin: false
+})
+// <ul><li>Profile</li></ul>
+```
+
+`0` is a number and renders as text, so a count is gated with `count > 0 && ...`. An accessor that returns `null`, `undefined` or a boolean leaves its text node empty. An accessor child is text only, and a condition written in place is read once, at build time: a condition that changes which elements are shown is a block, such as [`if_`](/guides/control-flow/#if_).
+
+A DOM node made elsewhere goes into the tree as it is, so vanilla code needs no wrapping:
+
+```ts
+import { div } from 'nanoviews'
+
+const canvas = document.createElement('canvas')
+
+canvas.getContext('2d')?.fillRect(0, 0, 10, 10)
+
+div({
+  class: 'chart'
+})(
+  canvas
+)
+```
+
+A child is never an array: a bare array is a type error, and it throws when the parent is built. A list is a [`for_`](/guides/control-flow/#for_) block, a static one too: a plain array takes no tracker and is rendered once (see [Static Arrays](/guides/control-flow/#static-arrays)).
+
+```ts
+import { for_, ul, li } from 'nanoviews'
+
+const players = ['chopper', 'magixx', 'zont1x']
+
+ul()(
+  for_(players)(
+    player => li()(player)
+  )
+)
+// <ul><li>chopper</li><li>magixx</li><li>zont1x</li></ul>
+```
+
+Spreading `...players.map(player => li()(player))` into the call works too, but `for_` is the way to write every list, static or not. A list that changes takes a tracker, which does the job of React's `key`. There is no `key` attribute.
+
+A component is a child once it is called: `div()(Counter())`. Passing `Counter` itself is a type error; untyped, it would be taken for an accessor, and its return value written as text.
+
+## Attributes
+
+Attribute names follow the type definitions:
+
+- A one-word attribute keeps its HTML spelling: `class`, `for`, `id`, `hidden`. React's `className` and `htmlFor` are type errors.
+- A multi-word attribute is camelCase: `tabIndex`, `readOnly`, `autoComplete`, `maxLength`. The lowercase `tabindex` is a type error. HTML attribute names are case-insensitive, so the DOM gets `tabindex`.
+- A dashed attribute is a quoted key: `'aria-describedby'`, `'data-field'`. Any `data-*` name is typed on HTML elements.
+
+```ts
+import { div, label, input } from 'nanoviews'
+
+div({
+  class: 'field'
+})(
+  label({
+    for: 'email'
+  })(
+    'Email'
+  ),
+  input({
+    id: 'email',
+    type: 'email',
+    autoComplete: 'email',
+    maxLength: 64,
+    'aria-describedby': 'email-hint',
+    'data-field': 'email'
+  })
+)
+// <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" maxlength="64" aria-describedby="email-hint" data-field="email"></div>
+```
+
+A value is static or an accessor. A static value is written once; an accessor is followed, so a prop that may be either goes in as it is. `null`, `undefined` and `false` remove the attribute, so a boolean attribute toggles like in React. `true` is written as `"true"`, which a boolean attribute reads as present:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { button } from 'nanoviews'
+
+const $busy = signal(true)
+
+button({
+  type: 'submit',
+  disabled: $busy
+})(
+  'Save'
+)
+// <button type="submit" disabled="true">Save</button>
+
+$busy(false)
+// <button type="submit">Save</button>
+```
+
+`aria-*`, `data-*`, `draggable`, `contentEditable` and `spellCheck` are the exception: for them `"false"` is a value of its own, so `false` is written as the string `"false"`. Pass a boolean signal or accessor to them as it is:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { button } from 'nanoviews'
+
+const $open = signal(false)
+
+button({
+  'aria-expanded': $open,
+  onClick() {
+    $open(open => !open)
+  }
+})(
+  'Details'
+)
+// <button aria-expanded="false">Details</button>
+```
+
+Boolean ARIA states such as `aria-expanded` and `aria-hidden` are typed as a boolean, `'true'` or `'false'`, so a `string` accessor is a type error there.
+
+<Aside>
+
+The state of a form control is not an attribute: `value` of `input`, `textarea` and `select`, `checked` of a checkbox or a radio button, and their defaults `defaultValue` and `defaultChecked` are bound through the DOM properties. See [Forms](/guides/forms/).
+
+</Aside>
+
+## Events
+
+An attribute named `on` plus the PascalCase DOM event name is an event handler: `onClick`, `onInput`, `onKeyDown`, `onPointerDown`. The DOM name is the rest of the key in lowercase, so the double click is `onDblClick`, and React's `onDoubleClick` is a type error. A `Capture` suffix listens in the capture phase: `onClickCapture`.
+
+The handler gets the native event, with `target` typed as the element the handler is set on:
+
+```ts
+import { input } from 'nanoviews'
+
+input({
+  type: 'search',
+  onKeyDown(event) {
+    if (event.key === 'Escape') {
+      event.target.blur()
+    }
+  }
+})
+```
+
+A handler is not tracked: the signals it reads subscribe nothing, so a plain call reads the current value. Its writes are not batched: each write updates the DOM on its own, so writes that belong together go into [`batch`](/guides/advanced/#batching):
+
+```ts
+import { signal, batch } from 'nanoviews/store'
+import { button } from 'nanoviews'
+
+const $first = signal('Ada')
+const $last = signal('Lovelace')
+
+button({
+  onClick() {
+    batch(() => {
+      $first('Grace')
+      $last('Hopper')
+    })
+  }
+})(
+  'Switch'
+)
+```
+
+A writable signal is a function too: given as a handler, it receives the event.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { type KeyboardEvent, div, input, p } from 'nanoviews'
+
+const $lastKey = signal<KeyboardEvent<HTMLInputElement> | null>(null)
+
+div()(
+  input({
+    onKeyDown: $lastKey
+  }),
+  p()(
+    'Last key: ', () => $lastKey()?.key
+  )
+)
+```
+
+## Reactive Values
+
+A value that changes is an accessor: a signal such as `$count`, or an arrow such as `() => $count() * 2`. Pass it to bind it, call it to read the current value. A function child that is not a description or a component instance is taken for an accessor and followed: its text node is updated in place when a signal it read changes. So is a function attribute value, with three exceptions: an `on*` handler is called on each event, `ref` receives the element, and `autoFocus` is read once.
+
+A static value renders once. Anything that must change later has to be a signal or an accessor, so a signal is never unwrapped at build time for something the view shows:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { div, p } from 'nanoviews'
+
+const $count = signal(1)
+
+div()(
+  p()(
+    'Live: ', $count
+  ),
+  p()(
+    'Double: ', () => $count() * 2
+  ),
+  p()(
+    `Frozen: ${$count()}`
+  )
+)
+
+$count(2)
+// <div><p>Live: 2</p><p>Double: 4</p><p>Frozen: 1</p></div>
+```
+
+A signal goes into text as a child of its own, `'Live: ', $count`, never interpolated into a template string. A component's render is not tracked: a call there reads the current value once, and nothing follows it.
+
+Ternaries and `.map()` in a view run once, when it is built. A condition or a list that changes is a block: `if_`, `show_`, `switch_`, `match_` or `for_` (see [Control Flow](/guides/control-flow/)).
+
+```ts
+import { signal } from 'nanoviews/store'
+import { div, p, button, if_, component$ } from 'nanoviews'
+
+const Profile = component$(() => p()('Welcome back'))
+const LoginForm = component$(() => button()('Log in'))
+const $loggedIn = signal(false)
+
+div()(
+  // Read once, at build time: the branch never changes
+  $loggedIn() ? Profile() : LoginForm()
+)
+
+div()(
+  // Follows $loggedIn
+  if_($loggedIn)(
+    () => Profile(),
+    () => LoginForm()
+  )
+)
+```
+
+A binding that an operator covers takes the operator instead of an arrow: `not`, `and`, `or`, `when`, `is`, `gt`, `pick`, `text` and the others from `nanoviews/store`. An operator returns an accessor when one of its operands is an accessor and a plain value otherwise, so it takes a signal and a plain prop alike (see [Reactivity](/guides/reactivity/)):
+
+```ts
+import { signal, not, when, text } from 'nanoviews/store'
+import { button } from 'nanoviews'
+
+const $agree = signal(false)
+const $saving = signal(false)
+const $count = signal(3)
+
+button({
+  disabled: not($agree),
+  title: text`${$count} items`
+})(
+  when($saving, 'Saving...', 'Save')
+)
+// <button disabled="true" title="3 items">Save</button>
+```
+
+## Classes
+
+`class` takes a string, an accessor, or a list of parts. A list joins every truthy string with a space and drops everything else. A part can be an accessor, and the class follows it:
+
+```ts
+import { signal, when } from 'nanoviews/store'
+import { button } from 'nanoviews'
+
+const $primary = signal(true)
+
+button({
+  class: ['button', when($primary, 'button_primary')]
+})(
+  'Click me'
+)
+// <button class="button button_primary">Click me</button>
+```
+
+A list may hold another list, so a component folds the `class` it received into its own:
+
+```ts
+import { signal, when } from 'nanoviews/store'
+import { type Attributes, div, component$ } from 'nanoviews'
+
+const Card = component$((
+  {
+    class: className,
+    ...props
+  }: Attributes<'div'>,
+  children
+) => (
+  div({
+    class: ['card', className],
+    ...props
+  })(
+    ...children
+  )
+))
+
+const $dark = signal(false)
+
+Card({
+  class: ['card_wide', when($dark, 'card_dark')]
+})(
+  'Content'
+)
+// <div class="card card_wide">Content</div>
+
+$dark(true)
+// <div class="card card_wide card_dark">Content</div>
+```
+
+### `classList`
+
+`classList` builds the same class away from an element. With an accessor among the parts it returns an accessor, otherwise a plain string:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { classList } from 'nanoviews'
+
+const $primary = signal(true)
+const $class = classList('button', () => $primary() && 'button_primary')
+
+$class() // 'button button_primary'
+
+classList('button', false, 'button_wide') // 'button button_wide'
+```
+
+## Style
+
+`style` takes an object of camelCased CSS properties, or an accessor of one to follow. A property the new object no longer names is dropped. Custom properties go through the same object:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { div } from 'nanoviews'
+
+const $color = signal('white')
+
+div({
+  style: () => ({
+    color: $color(),
+    backgroundColor: 'black',
+    '--gap': '4px'
+  })
+})(
+  'Hello'
+)
+// <div style="color: white; background-color: black; --gap: 4px;">Hello</div>
+```
+
+There are no style strings. The values in the object are plain: a value that changes makes the whole object an accessor, as above. A number is written as it is, without the `px` React adds, so lengths spell their units: `width: '10px'`.
+
+The properties are typed with [csstype](https://github.com/frenic/csstype), which comes with `nanoviews`.
+
+## Element Bindings
+
+A few attributes are bound to the element rather than written as attributes.
+
+### `ref`
+
+`ref` receives the element once it is built, and `null` once it is unmounted. It takes a callback or a writable signal:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { div, canvas } from 'nanoviews'
+
+const $panel = signal<HTMLDivElement | null>(null)
+
+div()(
+  div({
+    ref: $panel
+  })(
+    'Target element'
+  ),
+  canvas({
+    ref: element => element?.getContext('2d')?.fillRect(0, 0, 10, 10)
+  })
+)
+```
+
+The ref is set while the element is built: before its children are in it, and before it is in the document. Work that needs either, measuring or scrolling say, goes to an [`effect$`](/guides/components/#effect) that reads the signal: it first runs once `mount` has appended the tree.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { div, component$, effect$ } from 'nanoviews'
+
+const Panel = component$(() => {
+  const $panel = signal<HTMLDivElement | null>(null)
+
+  effect$(() => {
+    $panel()?.scrollIntoView()
+  })
+
+  return (
+    div({
+      ref: $panel
+    })(
+      'Target element'
+    )
+  )
+})
+```
+
+Both forms are checked against the element: a `signal<HTMLDivElement | null>` fits a `div`, a wider `HTMLElement | null` or `Element | null` fits any element, and a signal of another element is a type error.
+
+Inside [`show_`](/guides/control-flow/#show_), the first hide sets the ref to `null`, and showing the subtree again does not set it back. A subtree that needs a ref goes into `if_`.
+
+### `autoFocus`
+
+`autoFocus: true` focuses the element once it is in the document. The `autofocus` attribute is not written: the browser honors it once per page load, so an element built later would never take the focus. The value is read once, when the element is built; focus that moves later goes through `ref`.
+
+```ts
+import { input } from 'nanoviews'
+
+input({
+  type: 'text',
+  autoFocus: true
+})
+```
+
+### `muted`
+
+`muted` on `audio` and `video` is the live state of the element, bound through the DOM property: the attribute is only a default the browser reads when it creates the element, so setting the attribute afterwards would not mute it. A writable signal also receives what the user does with the controls.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { video } from 'nanoviews'
+
+const $muted = signal(true)
+
+video({
+  src: 'clip.mp4',
+  controls: true,
+  muted: $muted
+})
+```
+
+## `fragment`
+
+`fragment(...children)` describes a `DocumentFragment`: on insertion its children go into the parent, with no element around them. A component that renders several siblings returns one:
+
+```ts
+import { dl, dt, dd, fragment, component$ } from 'nanoviews'
+
+const Entry = component$(({ term, details }: { term: string, details: string }) => (
+  fragment(
+    dt()(term),
+    dd()(details)
+  )
+))
+
+dl()(
+  Entry({
+    term: 'Size',
+    details: 'Small'
+  }),
+  Entry({
+    term: 'DOM',
+    details: 'Direct'
+  })
+)
+// <dl><dt>Size</dt><dd>Small</dd><dt>DOM</dt><dd>Direct</dd></dl>
+```
+
+## `mount`
+
+`mount(app, target)` builds the tree `app` returns and appends it to `target`; what the target already holds stays. It returns the unmount function, which stops the effects and removes the nodes:
+
+```ts
+import { div, h1, p, component$, mount } from 'nanoviews'
+
+const App = component$(() => (
+  div()(
+    h1()('Nanoviews App'),
+    p()('Hello World!')
+  )
+))
+
+const unmount = mount(App, document.querySelector('#app')!)
+
+// Later: stop the effects and remove the nodes
+unmount()
+```
+
+The build of a view belongs to the scope that `mount` opens, and so do its bindings, `ref`, `effect$` and blocks: a view is built under `mount` only, or under `render` in tests (see [Testing](/testing/)).
+
+## Naming Conventions
+
+A few naming conventions make the reactive parts of the code recognizable:
+
+- `$count`: a signal or an accessor starts with `$`. So does a prop typed as an accessor or a signal: `$items`, `$value`.
+- `component$`, `effect$`, `context$`: a trailing `$` marks a function tied to the view being built. It is called in a render, or makes a component that renders there.
+- `syncTitle$`, `listenResize$`: an effect of your own, the counterpart of a custom hook in React, is camelCase with a trailing `$`: a function that calls `effect$` or `inject` and is called in a render. The effects of [`@nanoviews/router`](/router/), such as `syncHead$` and `listenNavigationLinks$`, are named the same way.
+- `if_`, `for_`, `switch_`: control flow ends with `_`. `if`, `for` and `switch` are keywords, and the other blocks follow them.
+- `Theme$`: PascalCase with a trailing `$` is an injectable factory, a [dependency injection](/guides/dependency-injection/) token.

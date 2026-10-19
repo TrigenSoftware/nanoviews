@@ -1,9 +1,12 @@
 packages:
   - packages/*
+  - scripts/*
+  - website
   - examples/*
   - examples/*/*
 allowBuilds:
   esbuild: true
+  sharp: true
   simple-git-hooks: true
 autoInstallPeers: false
 catalog:

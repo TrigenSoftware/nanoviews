@@ -1,6 +1,6 @@
 ---
 name: nanoviews-testing
-description: "Conventions and API for unit-testing nanoviews views with @nanoviews/testing-library and Vitest: the happy-dom setup and cleanup entry, what render takes (a function returning a view, a component instance among them), what container is, driving value and checked bindings with fireEvent, synchronous assertions after signal writes, awaiting resolved/query/onMount data, overriding dependency injection with context and provide, and rendering composed stories. Apply when writing or editing *.spec.ts files for nanoviews components, blocks or stores wired into views."
+description: "Conventions and API for unit-testing nanoviews views with @nanoviews/testing-library and Vitest: the happy-dom setup and cleanup entry, what render takes (a function returning a view, a component instance among them), what container is, driving value and checked bindings with fireEvent, synchronous assertions after signal writes, awaiting resolved/query/onMount data, overriding dependency injection with context$ and provide, and rendering composed stories. Apply when writing or editing *.spec.ts files for nanoviews components, blocks or stores wired into views."
 license: MIT
 compatibility:
   - Claude Code
@@ -23,130 +23,78 @@ metadata:
     - testing
     - testing-library
     - vitest
+  docs:
+    paths:
+      - testing
 ---
 
 # Nanoviews Testing
 
-`@nanoviews/testing-library` mounts a view into the document and re-exports the whole `@testing-library/dom` API (`screen`, `within`, `fireEvent`, `waitFor`, `findBy*`, `prettyDOM`). Signal writes reach the DOM synchronously, so most tests need no `await`. Describe chains and `it should` titles follow the unit-tests skill; how views are written is the nanoviews skill.
+`@nanoviews/testing-library` mounts a nanoviews view for a test, unmounts it after the test and re-exports the whole `@testing-library/dom` API. Tests run on Vitest in happy-dom; how the views are written is the nanoviews skill.
+
+## Reference
+
+`DOCS.md` next to this file is the documentation of the released package as published on https://nanoviews.js.org, generated from the site sources. Read its relevant sections for the exact setup, render forms, events, waits and DI overrides before writing a test. This skill adds only conventions, choices and pitfalls.
+
+## Conventions
+
+- Spec files, `describe` chains and `it('should ...')` titles follow the unit-tests skill (TrigenSoftware/scripts): a `*.spec.ts` next to the unit, one nested `describe` per segment of its address, `it`, never `test`.
+- `render`, `screen`, `fireEvent` and the rest of DOM Testing Library come from `@nanoviews/testing-library`, signals and DI from `nanoviews/store`. In this monorepo the `nanoviews` package specs take signals and DI from the package `nanoviews/store` re-exports, and views from the relative sources, and render a unit that has a `*.stories.ts` through its composed stories where one covers the case; the `@nanoviews/router` specs import like a consumer.
+- The test owns the state: it creates the signals, hands them in as props or providers, and asserts both the DOM and the signals.
+- Render your own component as an instance, `render(Counter({ $count }))`: `render` builds it under `mount`, and its props are type-checked.
+- A view written in a test takes the block layout and the naming of the nanoviews skill inside `render(() => (` ... `))`: the attributes one per line, `})(` or `()(` ends the line, the children indented, `)` on its own line, and a signal the test makes takes the `$`, `$count`.
+
+## Mental model
+
+- Synchronous: when a signal write or a `fireEvent` call returns, the DOM is updated. Assert on the next line, without `await`; waits are for promises and the `select` cases below.
+- `container` is `document.body` by default, and the view sits in a fresh `<div>` in it: `container.innerHTML` is `'<div>...</div>'`, and a `portal` into the body lands next to that `<div>`.
+- Blocks detach rather than hide: a hidden `show_` child is out of the document, an `if_` branch switched away from is gone with its state. Assert absence with `queryBy*` returning `null`.
 
 ## Setup
 
-```ts
-// vite.config.ts
-import { defineConfig } from 'vitest/config'
-
-export default defineConfig({ test: { environment: 'happy-dom', setupFiles: ['./test/setup.ts'] } })
-```
-
-```ts
-// test/setup.ts
-import '@nanoviews/testing-library/vitest'   // registers afterEach(cleanup) with Vitest's afterEach
-import '@testing-library/jest-dom/vitest'    // optional matchers
-```
-
-- Dev dependencies: `vitest`, `happy-dom`, `@nanoviews/testing-library`, `@testing-library/dom`; optional `@testing-library/jest-dom`, `@testing-library/user-event`.
-- Importing the package root without Vitest globals registers no cleanup; the `/vitest` entry or a manual `afterEach(cleanup)` is required. `@nanoviews/testing-library/pure` registers nothing.
-- Inside the nanoviews monorepo specs import signals, `provide` and `inject` from `kida`; consumer tests import them from `nanoviews/store`.
-
-## Rendering
-
-```ts
-import { describe, it, expect } from 'vitest'
-import { render, screen, fireEvent } from '@nanoviews/testing-library'
-import { signal } from 'nanoviews/store'
-import { input } from 'nanoviews'
-import { Counter } from './Counter.js' // component$((props: { $count: WritableSignal<number> }) => ...)
-
-describe('components', () => {
-  describe('Counter', () => {
-    it('should increment count on click', () => {
-      const $count = signal(0)
-      const { container } = render(Counter({ $count }))
-
-      fireEvent.click(screen.getByRole('button'))
-
-      expect($count()).toBe(1)
-      expect(container.innerHTML).toBe('<div><button>count is 1</button></div>') // the wrapper div is the mount target
-    })
-
-    it('should bind a text input', () => {
-      const value = signal('a')
-
-      render(() => input({ type: 'text', value }))
-
-      const box = screen.getByRole<HTMLInputElement>('textbox')
-
-      value('b')
-      expect(box.value).toBe('b')
-      fireEvent.input(box, { target: { value: 'c' } })
-      expect(value()).toBe('c')
-    })
-  })
-})
-```
-
-- `render` takes a function returning a view (`render(App)`, `render(() => Card({ id }))`). A `component$` instance is such a function, so `render(Counter({ $count }))` builds it under `mount`. Building by hand outside `render` (`Counter({ $count })()`) throws at the first `effect$` (`Cannot read properties of undefined (reading 'depsTail')`), and passing a built node throws a `TypeError`.
-- It mounts into a fresh `<div>` appended to `document.body`; `container` is `document.body` and the mount wrapper is `container.firstElementChild`, so `container.innerHTML` starts with that `<div>` and a portalled node is a sibling of the wrapper. Queries are bound to the container; `screen` sees the same DOM.
-- The result also has `destroy()` (early unmount, idempotent) and `debug()`. `RenderOptions` are `{ target?, container?, queries? }`; cleanup removes only targets sitting directly in `document.body`, a custom `container` is the test's to remove.
+- Under Vitest's default `globals: false` the package root registers no cleanup, and views leak into the next test: import `@nanoviews/testing-library/vitest` in the setup file.
+- happy-dom has no `defaultSelected` on `option`: a test of `defaultValue` on a `select` needs the shim of DOCS.md (A Plain `value` of `select`) in the setup file, as `packages/nanoviews/test/setup.ts` has it.
+- Under Vitest 5 the jest-dom matchers run but are untyped, so `toBeInTheDocument()` is a type error: add the `Matchers` declaration of DOCS.md (Setup) in a file the tsconfig `include` covers.
 
 ## Driving bindings
 
-- `fireEvent.input(box, { target: { value } })` drives `value`; a bare `change` does not write it.
-- `fireEvent.change(box, { target: { checked: true } })` drives `checked`, `fireEvent.change(select, { target: { value } })` drives the `value` of a `select`. `fireEvent.click` on a checkbox or radio also works because it fires `change`; a click on a `select` changes nothing. There is no file binding: `fireEvent.change(input, { target: { files } })` reaches an `onChange` handler.
-- A `select` given a plain `value`, and options that land after mount, are selected by a MutationObserver a microtask later: `await Promise.resolve()` before asserting `select.value`. A signal `value` is applied at mount and on write, synchronously.
-- happy-dom has no `defaultSelected` on an option, and its form reset looks for the `selected` attribute; a test of `defaultValue` on a `select` needs the property shimmed in the setup file, the way the nanoviews package does it in `test/setup.ts`.
-- `fireEvent.click`, `fireEvent.keyDown(el, { key: 'Enter' })`, `fireEvent.dblClick` and `fireEvent.submit(form)` reach `on*` handlers as native events. `userEvent.setup()` plus `await user.click(...)` works as usual.
-- Writing a signal the view is bound to updates the DOM before the next line runs; assert right after the write, without `await`.
-- A row hidden by `show_` is detached from the document: `queryBy*` returns `null`, `toBeVisible` is not needed. A branch replaced by `if_` is gone with its state.
-- A boolean attribute is absent when its value is `false`, `null` or `undefined`: assert with `toBeDisabled()`/`toBeEnabled()` or `hasAttribute`.
+| Binding | Fire |
+| --- | --- |
+| `value` of `input`, `textarea` | `fireEvent.input(el, { target: { value } })`; a bare `change` writes nothing |
+| `checked` | `fireEvent.click(el)` or `fireEvent.change(el, { target: { checked } })` |
+| `value` of `select` | `fireEvent.change(el, { target: { value } })`; a click on it or on an option writes nothing |
+| Files | no binding: `fireEvent.change(el, { target: { files } })` reaches `onChange` |
+
+A `select` picks its option a microtask after the options land: under a plain `value`, and under any `value` for options that `for_` or async data add later. `await Promise.resolve()` before asserting `select.value`.
 
 ## Async data
 
-- Results of `resolved`, `task`, a `@nano_kit/query` query (nano-kit-query skill) or an `onMount` fetch arrive when the promise settles. `await` the promise the test holds (hand the view a fake API that records its promises), or `await waitFor(...)` / `await screen.findBy...`, or `await waitTasks($x)` from `nanoviews/store` on a result signal that has been rendered or read (`resolved` and queries register kida tasks). After that everything is synchronous again.
-- A query fetches only while its `$data` signal is mounted: rendering it mounts it; in a store test use `start($data)` then `await waitTasks($data)`.
-- `onMount` cleanups run one second after the last subscriber leaves: use fake timers with `STORE_UNMOUNT_DELAY`, or assert on `onStop`.
-- Module-level stores keep state between tests; reset them in `beforeEach` with `batch`.
+- Pick the wait by what the test holds, and everything after it is synchronous again: the promise of a fake API it handed in, `await` it; a result signal (`resolved`, a query's `$data`, an injected store's signal), `await waitTasks($signal)` on one the view rendered or the test read; neither, `findBy*` or `waitFor`.
+- A query fetches only while its `$data` is mounted: a test of the store alone calls `start($data)` before `await waitTasks($data)`, otherwise nothing is fetched.
+- An `onMount` cleanup runs `STORE_UNMOUNT_DELAY`, one second, after the last subscriber leaves: advance fake timers by it, or assert on `onStop`, which has no delay.
 
-## Dependency injection
+## Stores and dependency injection
 
-```ts
-it('should use the provided theme', () => {
-  const $theme = signal<Theme>('dark')
-
-  render(() => context$(provide(Theme$, $theme))(App()))  // the root context with the override
-
-  expect(screen.getByTestId('card').className).toContain('card_dark')
-  $theme('light')
-  expect(screen.getByTestId('card').className).toContain('card_light')
-})
-```
-
-- `context$(...providers)(child)` with no current context builds the child under the root context with those providers; `context$()` inside `App` then reuses it.
-- To reach what the view resolved, make the root context in the test and hand it in: `const context = new InjectionContext()`, `render(() => context$(context)(App()))`, then `inject(Store$, context)` is the very store the view uses.
-- A provided signal must have exactly the factory's return type (`signal<Theme>('dark')`, not `signal('dark')`).
-- `inject` outside a context throws; `expect(() => render(ComponentThatInjects)).toThrow()` is the test for a missing root context.
+- Prefer DI stores: a test that opens its own context gets fresh ones. A module-level store keeps its state between tests: reset it in `beforeEach`, in one `batch`.
+- Data is loaded by a store that injects the API, never by the view: fake the API through its DI token, `provide(Api$, fake)`, not by mocking `fetch` or modules or by handing it to the view as a prop.
+- Override with `context$(provide(Token$, value))` around the view. To reach what the view injected, render it under `context$(context)` with an `InjectionContext` the test made, then `inject(Store$, context)`.
+- A provided value has exactly the type the factory returns: `signal<Theme>('dark')`, not `signal('dark')`.
+- An `App` whose root `context$()` has no providers reuses the context of the test, but a token `App` provides itself shadows the override of the test, and a store that reads such a token lives in the context of `App`, where `inject(Store$, context)` does not reach.
 
 ## Stories in tests
 
-`composeStories` from `@nanoviews/storybook` turns a stories module into functions whose result is the story unbuilt, like a component instance, which `render` takes as is:
+Import the stories module as a namespace for `composeStories` from `@nanoviews/storybook`; a called story is the story unbuilt, like a component instance, which `render` takes as it is and a view takes as a child. A signal or a function arg reaches the view as it is, so a signal is the handle of the test; a plain value, and an arg left out that the story or its meta sets, are wrapped in new signals. A story that needs the preview, for a decorator that opens the context say, gets it from `setProjectAnnotations(preview)` in the setup file, or from the call: `composeStories(Stories, preview)`.
 
-```ts
-import { it, expect } from 'vitest'
-import { composeStories } from '@nanoviews/storybook'
-import { render } from '@nanoviews/testing-library'
-import { signal } from 'nanoviews/store'
-import * as Stories from './toggle.stories.js'
+## Pitfalls
 
-const { Reactive } = composeStories(Stories)
+- `render(Counter({ $count })())` runs the render outside `mount`: an `effect$` there throws `Cannot read properties of undefined (reading 'depsTail')`, and without one it mounts but is a type error. As a child, `context$(provide(Theme$, $theme))(Card()())` runs the render before the context is entered, so `inject` throws, and TypeScript lets it through. A built node is not a function and throws a `TypeError`.
+- A view that injects throws `Cannot inject dependency outside of injection context` without a `context$` around it; `context$()` gives it the defaults.
+- A boolean attribute set to `true` is written as `"true"`, not `""`, and `false`, `null` and `undefined` remove it: assert presence (`hasAttribute`, `toBeDisabled()`), not the value. `aria-*`, `data-*`, `draggable`, `contentEditable` and `spellCheck` write `false` as `"false"`.
 
-it('should follow the arg signal', () => {
-  const value = signal(true)
-  const { container } = render(Reactive({ value }))   // plain values or signals, all optional
+## Related skills
 
-  expect(container.innerHTML).toBe('<div><b>on</b></div>')
-  value(false)
-  expect(container.innerHTML).toBe('<div>off</div>')
-})
-```
-
-Import the stories module as a namespace; a plain arg is wrapped in a signal by the renderer, a signal arg is the handle the test drives. Writing stories is the nanoviews-storybook skill.
+- nanoviews: the views, their block layout and naming, `context$` and `provide`.
+- nanoviews-storybook: writing stories, `composeStory` and `setProjectAnnotations`.
+- nanoviews-router: routed views on `virtualNavigation`.
+- nano-kit-store and nano-kit-query: tests of stores and queries without a view (https://nano-kit.js.org/store/testing/, https://nano-kit.js.org/query/testing/).
+- unit-tests (TrigenSoftware/scripts): `describe` chains and `it should` titles.

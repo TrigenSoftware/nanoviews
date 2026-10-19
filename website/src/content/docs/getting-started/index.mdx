@@ -1,0 +1,224 @@
+---
+title: Introduction
+description: An introduction to Nanoviews, a small Direct DOM library for building user interfaces, its packages, how it works and how it relates to Nano Kit.
+sidebar:
+  order: 1
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import { Image } from 'astro:assets'
+import benchmark from '../../../assets/krausest-js-framework-benchmark.png'
+
+Nanoviews is a small Direct DOM library for building user interfaces. A view is a tree of plain function calls that builds real DOM nodes, and the signals bound into it keep the nodes up to date: no JSX, no virtual DOM, no re-render.
+
+- **Small**. Between 3.5 and 7 kB (minified and brotlied), signals included.
+- **Direct DOM**. Less CPU and memory usage compared to a virtual DOM: the DOM is built once, and signals update it in place.
+- **Tree-Shakeable**. Only the code you use is included in your bundle.
+- **TypeScript-first**. Elements, attributes, events and components are typed.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { button, component$, mount } from 'nanoviews'
+
+const Counter = component$(() => {
+  const $count = signal(0)
+
+  return (
+    button({
+      onClick() {
+        $count(count => count + 1)
+      }
+    })(
+      'count is ', $count
+    )
+  )
+})
+
+mount(Counter, document.querySelector('#app')!)
+// <button>count is 0</button>
+```
+
+`component$` makes a component, and `mount` builds it into the container and returns a function that unmounts it. The render runs once: a click writes `$count`, and only the text node bound to it changes, so the button reads `count is 1`.
+
+To run the counter, first [create a project](/getting-started/installation/#create-a-project).
+
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| [nanoviews](/getting-started/installation/) | A small Direct DOM library for building user interfaces. |
+| [@nanoviews/router](/router/) | Nanoviews integration for @nano_kit/router: pages, nested layouts, code splitting, links and head management. |
+| [@nanoviews/testing-library](/testing/) | Testing utilities for Nanoviews, built on Testing Library. |
+| [@nanoviews/storybook](/storybook/) | Storybook renderer for Nanoviews. |
+| [@nanoviews/storybook-vite](/storybook/) | Nanoviews + Vite framework for Storybook. |
+
+## How It Works
+
+### Descriptions
+
+Each HTML element has a factory named after its tag. `div(attributes)` describes a `div`, and the second call, `(...children)`, gives it children. A description is a function: called with no arguments, it builds the DOM node with its children.
+
+```ts
+import { div, h1, p, mount } from 'nanoviews'
+
+const card = div({
+  class: 'card'
+})(
+  h1()('Nanoviews'),
+  p()('Builds real DOM')
+)
+
+mount(() => card, document.querySelector('#app')!)
+// <div class="card"><h1>Nanoviews</h1><p>Builds real DOM</p></div>
+```
+
+`mount` makes that call, and a parent makes it for each child when it is built itself, so the whole tree is built top-down, in one pass. `mount` also opens the scope that bindings and effects belong to, so a description is built under `mount` only, never by hand. A component works the same way: its render runs when its instance is built into the parent, after the parent's own render, so the parent's context and scope are already in place.
+
+[Core Concepts](/guides/core-concepts/) covers descriptions, children and attributes in full, and [Components](/guides/components/) covers components, their props and children.
+
+### Bindings
+
+Besides descriptions and DOM nodes, a child can be a static value or an accessor: a signal, or an arrow function that reads signals, like `() => $count() * 2`. An attribute takes either too, except the `on*` event handlers, which are plain callbacks. A static value is written once. An accessor is bound: the node is created once, and an effect writes the new value into it whenever a signal the accessor read changes. Under the hood, a text binding works something like this:
+
+```ts
+import { signal, effect } from 'nanoviews/store'
+
+const $text = signal('')
+const textNode = document.createTextNode('')
+
+effect(() => {
+  textNode.data = $text()
+})
+```
+
+Attributes are bound the same way. A plain `if` or `.map()` in a render runs once, so a condition or a list that changes is a block, such as [`if_`](/guides/control-flow/#if_) or [`for_`](/guides/control-flow/#for_), which builds and removes its own part of the tree:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { div, button, p, if_, component$, mount } from 'nanoviews'
+
+const Details = component$(() => {
+  const $open = signal(false)
+
+  console.log('render')
+
+  return (
+    div()(
+      button({
+        'aria-expanded': $open,
+        onClick() {
+          $open(open => !open)
+        }
+      })(
+        'Details'
+      ),
+      if_($open)(
+        () => p()('Built on open, removed on close')
+      )
+    )
+  )
+})
+
+mount(Details, document.querySelector('#app')!)
+// <div><button aria-expanded="false">Details</button></div>
+```
+
+A click writes `$open`: `aria-expanded` turns `"true"` and `if_` builds the paragraph. `render` is logged once: there is no re-render and no virtual DOM to diff, only the bindings of `$open` run.
+
+[Reactive Values](/guides/core-concepts/#reactive-values) in Core Concepts covers bindings in full.
+
+## Nanoviews and Nano Kit
+
+Nanoviews gets its reactivity from the core of [Nano Kit](https://nano-kit.js.org/). The `nanoviews/store` entry point re-exports this core, so signals, computeds, effects, records and dependency injection come from one import next to the views. See [Reactivity](/guides/reactivity/), and the [Nano Kit store docs](https://nano-kit.js.org/store/) for depth.
+
+[`@nano_kit/store`](https://nano-kit.js.org/store/) extends the same core, and [`@nano_kit/query`](https://nano-kit.js.org/query/), [`@nano_kit/router`](https://nano-kit.js.org/router/), [`@nano_kit/intl`](https://nano-kit.js.org/intl/) and [`@nano_kit/platform-web`](https://nano-kit.js.org/platform/web/) are built on `@nano_kit/store`. Their signals are the signals of `nanoviews/store`, so a query result, a URL parameter, a translated message or a browser API value binds into a view as it is, with no adapter in between:
+
+```ts
+import { pick } from 'nanoviews/store'
+import { div, button, component$, mount } from 'nanoviews'
+import { localStored } from '@nano_kit/platform-web'
+import styles from './ThemeSwitch.module.css'
+
+const $theme = localStored('theme', 'light')
+
+const ThemeSwitch = component$(() => (
+  div({
+    class: [styles.app, pick(styles, $theme)]
+  })(
+    button({
+      onClick() {
+        $theme(theme => theme === 'light' ? 'dark' : 'light')
+      }
+    })(
+      'Theme: ', $theme
+    )
+  )
+))
+
+mount(ThemeSwitch, document.querySelector('#app')!)
+// <div class="_app_… _light_…"><button>Theme: light</button></div>
+```
+
+`$theme` is kept in `localStorage`: a click writes it, the class and the text follow, and the next visit starts with the stored theme. Only the router has a Nanoviews package of its own, [`@nanoviews/router`](/router/): it re-exports `@nano_kit/router` and adds the parts that render, such as pages, layouts and links.
+
+<Aside type='caution'>
+  Nanoviews and the `@nano_kit/*` packages have to share one copy of their reactive core: a view does not follow a signal made by another copy, and `inject` from another copy does not see the context that `context$` opens. If two copies get installed, merge them with `pnpm dedupe` (`npm dedupe`, `yarn dedupe`), or override the dependencies of `nanoviews` to the versions that `@nano_kit/store` uses (`overrides` in npm and pnpm, `resolutions` in Yarn).
+</Aside>
+
+## Performance
+
+Nanoviews is not the fastest library: Vue Vapor, Solid and Svelte are faster, but its performance is close to theirs, and it is faster than Vue, Preact, Angular and React. In the [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) results below, the weighted geometric mean of the slowdowns, each duration divided by the fastest one of its test, is 1.02 for Vue Vapor and Solid, 1.11 for Nanoviews and 1.36 for React.
+
+<Image src={benchmark} alt='js-framework-benchmark results: durations and memory allocation of Vue Vapor, Solid, Svelte, Nanoviews, Vue, Preact, Angular and React' />
+
+## Bundle Sizes
+
+Each example is compared with the same app built on other stacks, in this repository and in the [Nano Kit examples](https://github.com/TrigenSoftware/nano_kit/tree/main/examples). A size is the sum of the minified JS chunks that `vite build` emits for the browser, raw and with Gzip at its default level. All rows were built with Vite 8, on the same day and with the same toolchain.
+
+### Vite Demo 🎨
+
+Comparison of bundle sizes for the [Vite Demo](/examples/vite-demo/) example and the same app on Solid and Svelte:
+
+| Stack | Raw&nbsp;Size | Gzipped&nbsp;Size |
+|-------|----------|--------------|
+| **Nanoviews** | **8.33&nbsp;kB** | **3.26&nbsp;kB** |
+| Solid | 11.49&nbsp;kB | 4.59&nbsp;kB |
+| Svelte | 26.52&nbsp;kB | 10.64&nbsp;kB |
+
+### Weather App 🌤️
+
+Comparison of bundle sizes for the [Weather App](/examples/weather/) example and its implementations on other stacks:
+
+| Stack | Raw&nbsp;Size | Gzipped&nbsp;Size |
+|-------|----------|--------------|
+| **Nanoviews +&nbsp;Nano&nbsp;Kit** | **27.98&nbsp;kB** | **10.36&nbsp;kB** |
+| **Nanoviews +&nbsp;Nano&nbsp;Kit +&nbsp;DI** | **29.31&nbsp;kB** | **10.82&nbsp;kB** |
+| Solid +&nbsp;Nano&nbsp;Stores | 36.41&nbsp;kB | 13.55&nbsp;kB |
+| Svelte +&nbsp;Nano&nbsp;Stores | 56.08&nbsp;kB | 21.34&nbsp;kB |
+| Svelte +&nbsp;Nano&nbsp;Kit | 61.74&nbsp;kB | 23.12&nbsp;kB |
+| Svelte +&nbsp;Nano&nbsp;Kit +&nbsp;DI | 63.13&nbsp;kB | 23.57&nbsp;kB |
+| React +&nbsp;Nano&nbsp;Stores | 206.71&nbsp;kB | 65.12&nbsp;kB |
+| React +&nbsp;Nano&nbsp;Kit | 211.39&nbsp;kB | 66.49&nbsp;kB |
+| React +&nbsp;Nano&nbsp;Kit +&nbsp;DI | 212.92&nbsp;kB | 67.06&nbsp;kB |
+| React +&nbsp;Reatom | 228.10&nbsp;kB | 72.15&nbsp;kB |
+| React +&nbsp;TanStack&nbsp;Query | 232.56&nbsp;kB | 71.56&nbsp;kB |
+
+### CV Generator 💼
+
+Comparison of bundle sizes for the [CV Generator](/examples/cvapp/) example and its React implementation:
+
+| Stack | Raw&nbsp;Size | Gzipped&nbsp;Size |
+|-------|----------|--------------|
+| **Nanoviews +&nbsp;Nano&nbsp;Kit** | **37.36&nbsp;kB** | **14.41&nbsp;kB** |
+| React +&nbsp;Nano&nbsp;Kit | 221.66&nbsp;kB | 70.24&nbsp;kB |
+
+### Rick and Morty Encyclopedia 🛸
+
+Comparison of bundle sizes for the [Rick and Morty Encyclopedia](/examples/rick-and-morty/) example and its implementations on other stacks:
+
+| Stack | Raw&nbsp;Size | Gzipped&nbsp;Size |
+|-------|----------|--------------|
+| **Nanoviews +&nbsp;Nano&nbsp;Kit Query +&nbsp;Nano&nbsp;Kit Router** | **43.54&nbsp;kB** | **17.75&nbsp;kB** |
+| Svelte +&nbsp;Nano&nbsp;Kit Query +&nbsp;Nano&nbsp;Kit Router | 90.45&nbsp;kB | 36.20&nbsp;kB |
+| React +&nbsp;Nano&nbsp;Kit Query +&nbsp;Nano&nbsp;Kit Router | 229.99&nbsp;kB | 73.70&nbsp;kB |
+| React +&nbsp;TanStack&nbsp;Query +&nbsp;TanStack&nbsp;Router | 330.54&nbsp;kB | 102.34&nbsp;kB |

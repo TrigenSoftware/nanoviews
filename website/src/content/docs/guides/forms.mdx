@@ -1,0 +1,345 @@
+---
+title: Forms
+description: Bind the value, the check and the selection of form controls to signals.
+sidebar:
+  order: 5
+---
+
+`input`, `textarea` and `select` bind their state through the DOM properties, not the attributes, so what the user does and what the signal holds stay one thing. Every binding on this page takes its value in one of three forms:
+
+- A plain value is set once, when the control is built.
+- An accessor is followed: every new value is written to the control.
+- A writable signal is followed as well, and it also receives what the user types or picks.
+
+| Binding | Controls | Writes back on |
+| --- | --- | --- |
+| [`value`](#value) | text inputs, `textarea` | `input` |
+| [`checked`](#checked) | checkbox, radio button | `change` |
+| [`value`](#select) | `select` | `change` |
+| [`defaultValue`](#defaultvalue-and-defaultchecked) | `input`, `textarea`, `select` | never, it is one way |
+| [`defaultChecked`](#defaultvalue-and-defaultchecked) | checkbox, radio button | never, it is one way |
+
+Every other attribute of a control is an attribute, as on any element.
+
+## `value`
+
+`value` of a text input or a `textarea` is the text in the control. A writable signal is two-way: writing it updates the control, and every `input` event writes the text back into it.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { input, textarea } from 'nanoviews'
+
+const $name = signal('')
+const $review = signal('')
+
+input({
+  type: 'text',
+  value: $name
+})
+
+textarea({
+  name: 'review',
+  value: $review
+})
+```
+
+A plain value is written to the property once, when the control is built, and never becomes the `value` attribute. What the user types stays in the control:
+
+```ts
+import { input } from 'nanoviews'
+
+input({
+  type: 'text',
+  value: 'Hello'
+})
+// <input type="text">
+```
+
+A read-only accessor, a computed say, only drives the control: what the user types stays in it until the accessor changes, and nothing is written back.
+
+```ts
+import { signal, computed } from 'nanoviews/store'
+import { input } from 'nanoviews'
+
+const $firstName = signal('Ada')
+const $lastName = signal('Lovelace')
+const $fullName = computed(() => `${$firstName()} ${$lastName()}`)
+
+input({
+  type: 'text',
+  value: $fullName
+})
+```
+
+`null` and `undefined` are an empty text. A plain `value` may also be a number, but a signal or an accessor holds a string, since a string is what the user types: a signal of a number is a type error. For a number, keep the text in the signal and derive the number from it:
+
+```ts
+import { signal, computed } from 'nanoviews/store'
+import { input } from 'nanoviews'
+
+const $ageText = signal('18')
+const $age = computed(() => parseFloat($ageText()))
+
+input({
+  type: 'number',
+  value: $ageText
+})
+```
+
+While the field holds no number yet, empty or a lone `-` the user is typing, its `value` is `''` and `$age` is `NaN`. A number signal fed from `onInput` with `valueAsNumber` instead would turn that moment into `NaN`, and the binding would erase the `-`.
+
+## Key Order
+
+Attributes are applied in the order of the keys, and for a control the order can matter.
+
+A `range` input clamps its value to the `min` and `max` it has at the moment the value is written, so the bounds go before `value` and `defaultValue`:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { input } from 'nanoviews'
+
+const $volume = signal('150')
+
+input({
+  type: 'range',
+  min: 0,
+  max: 200,
+  step: 10,
+  value: $volume
+})
+```
+
+With `value` first, the control would still have the default bounds, 0 and 100, when the value lands, and would show 100 while the signal holds `'150'`.
+
+A handler for the event a binding listens to, `onInput` for `value` and `onChange` for `checked` or a `select`, sees the new value in the signal only when it stands after the binding. In front of the binding the handler runs first, while the signal still holds the previous value. `event.target` has the new value either way.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { input } from 'nanoviews'
+
+const $query = signal('')
+
+input({
+  type: 'search',
+  value: $query,
+  onInput() {
+    search($query()) // the text the user has just typed
+  }
+})
+```
+
+## `textarea`
+
+`textarea` takes no children: its text is its `value`, or its `defaultValue`. Like `input`, it is described in a single call, and a children call is a type error.
+
+```ts
+import { textarea } from 'nanoviews'
+
+textarea({
+  name: 'review',
+  rows: 4,
+  defaultValue: 'Write your review here'
+})
+// <textarea name="review" rows="4">Write your review here</textarea>
+```
+
+## `checked`
+
+`checked` binds a checkbox or a radio button the same way, through the `checked` property. A writable signal receives the check on every `change` event:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { input } from 'nanoviews'
+
+const $agree = signal(false)
+
+input({
+  type: 'checkbox',
+  checked: $agree
+})
+```
+
+### `Indeterminate`
+
+The `Indeterminate` symbol is the [third state](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/checkbox#indeterminate_state_checkboxes) of a checkbox. It sets the `indeterminate` property and leaves the check underneath as it was, and a boolean clears it. A click of the user clears it too, and a writable signal receives the boolean the click left. A signal that holds the third state is typed with the symbol:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { input, Indeterminate } from 'nanoviews'
+
+const $checked = signal<boolean | typeof Indeterminate>(false)
+
+input({
+  type: 'checkbox',
+  checked: $checked
+})
+
+$checked(Indeterminate)
+```
+
+### Radio Buttons
+
+The radio button the user leaves by picking another one in its group gets no `change` event, so a writable signal per button would keep `true` for the button that lost the check. Bind the group to one signal instead: `checked` of every button follows a comparison with [`is`](/guides/reactivity/#operators), and `onChange` writes the pick.
+
+```ts
+import { signal, is } from 'nanoviews/store'
+import { label, input, fragment } from 'nanoviews'
+
+const $plan = signal('free')
+
+fragment(
+  label()(
+    input({
+      type: 'radio',
+      name: 'plan',
+      value: 'free',
+      checked: is($plan, 'free'),
+      onChange() {
+        $plan('free')
+      }
+    }),
+    ' Free'
+  ),
+  label()(
+    input({
+      type: 'radio',
+      name: 'plan',
+      value: 'pro',
+      checked: is($plan, 'pro'),
+      onChange() {
+        $plan('pro')
+      }
+    }),
+    ' Pro'
+  )
+)
+```
+
+## `select`
+
+`value` on a `select` is the value of the selected option. A writable signal receives the pick on every `change` event:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { select, option } from 'nanoviews'
+
+const $position = signal('mid')
+
+select({
+  name: 'position',
+  value: $position
+})(
+  option({
+    value: 'carry'
+  })(
+    'Yatoro'
+  ),
+  option({
+    value: 'mid'
+  })(
+    'Larl'
+  ),
+  option({
+    value: 'offlane'
+  })(
+    'Collapse'
+  )
+)
+```
+
+### `multiple`
+
+Under `multiple: true`, `value` is the list of the selected values, and a writable signal receives the list:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { select, option } from 'nanoviews'
+
+const $positions = signal(['mid', 'carry'])
+
+select({
+  name: 'positions',
+  multiple: true,
+  value: $positions
+})(
+  option({
+    value: 'carry'
+  })(
+    'Yatoro'
+  ),
+  option({
+    value: 'mid'
+  })(
+    'Larl'
+  ),
+  option({
+    value: 'offlane'
+  })(
+    'Collapse'
+  )
+)
+```
+
+`multiple` decides the shape of `value`, so it is written as a plain `true`: a list on a single select, or a single value under `multiple: true`, is a type error. A `multiple` that follows an accessor takes either shape, and a writable signal receives the shape the select has at the moment of the change.
+
+## `defaultValue` and `defaultChecked`
+
+The default of a control, what a form reset returns it to, is set apart from its value, the React way: `defaultValue` on `input`, `textarea` and `select`, `defaultChecked` on a checkbox or a radio button. They are one way: a plain value is set once, an accessor is followed, and what the user does never goes back into it.
+
+```ts
+import { form, input, textarea, select, option, button } from 'nanoviews'
+
+form()(
+  input({
+    type: 'text',
+    defaultValue: 'Yatoro'
+  }),
+  input({
+    type: 'checkbox',
+    defaultChecked: true
+  }),
+  textarea({
+    defaultValue: 'Write your review here'
+  }),
+  select({
+    defaultValue: 'mid'
+  })(
+    option({
+      value: 'carry'
+    })(
+      'Yatoro'
+    ),
+    option({
+      value: 'mid'
+    })(
+      'Larl'
+    )
+  ),
+  button({
+    type: 'reset'
+  })(
+    'Reset'
+  )
+)
+```
+
+On a `select`, `defaultValue` marks its options the way `value` selects them, a plain one a microtask after the build. A bound `value` leaves the default alone. A reset fires no `input` or `change` event, so a writable signal bound to `value` or `checked` keeps what it held while the control goes back to its default.
+
+## Files
+
+Files have no binding: read `event.target.files` in the `onChange` handler of a file input.
+
+```ts
+import { input } from 'nanoviews'
+
+input({
+  type: 'file',
+  accept: 'image/*',
+  multiple: true,
+  onChange(event) {
+    upload(event.target.files)
+  }
+})
+```
+
+`event.target` is typed by the element, so `files` is a `FileList | null` here.

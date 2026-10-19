@@ -1,0 +1,123 @@
+---
+title: Getting Started
+description: "@nanoviews/testing-library mounts Nanoviews views in tests and re-exports the whole DOM Testing Library API."
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
+
+`@nanoviews/testing-library` is a set of testing utilities for [Nanoviews](/getting-started/), built on [Testing Library](https://testing-library.com/docs/dom-testing-library/intro). It mounts a view into the document, hands back the queries to find what the view rendered, and unmounts it after the test.
+
+- **Testing Library**. Re-exports the whole `@testing-library/dom` API, so `render`, `screen` and `fireEvent` come from a single import.
+- **Stories**. A story composed with [`@nanoviews/storybook`](/storybook/) goes straight into `render`, args and all.
+- **TypeScript**-first.
+
+## Installation
+
+Install the package together with DOM Testing Library, Vitest and happy-dom as dev dependencies:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add -D @nanoviews/testing-library @testing-library/dom vitest happy-dom' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add -D @nanoviews/testing-library @testing-library/dom vitest happy-dom' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install -D @nanoviews/testing-library @testing-library/dom vitest happy-dom' />
+  </TabItem>
+</Tabs>
+
+The package is ESM-only. `nanoviews` and `@testing-library/dom` are peer dependencies, and so is `vitest`, an optional one. The setup below runs the tests with [Vitest](https://vitest.dev/) in [happy-dom](https://github.com/capricorn86/happy-dom). If the project has them already, leave them out of the command. [jest-dom](https://github.com/testing-library/jest-dom), for matchers like `toBeInTheDocument`, and [user-event](https://testing-library.com/docs/user-event/intro), for user interactions, are optional and work as usual. Under Vitest 5, jest-dom also needs a declaration file for its types, shown under [Setup](#setup).
+
+## Setup
+
+Point Vitest at happy-dom and at a setup file:
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vitest/config'
+
+export default defineConfig({
+  test: {
+    environment: 'happy-dom',
+    setupFiles: ['./test/setup.ts']
+  }
+})
+```
+
+The setup file runs before every test file:
+
+```ts
+// test/setup.ts
+import '@nanoviews/testing-library/vitest'
+import '@testing-library/jest-dom/vitest'
+```
+
+The first import registers the [auto cleanup](#auto-cleanup). The second adds the jest-dom matchers to `expect`: leave it out when `@testing-library/jest-dom` is not installed. When there is nothing else to set up, the entry goes into the config as it is: `setupFiles: ['@nanoviews/testing-library/vitest']`.
+
+A script runs the tests:
+
+```json title="package.json"
+{
+  "scripts": {
+    "test": "vitest"
+  }
+}
+```
+
+In a terminal, `vitest` keeps watching and reruns the tests on every change; in CI it runs them once. `vitest run` always runs them once.
+
+## Auto Cleanup
+
+Every rendered view has to be unmounted after its test. With `globals: false`, the default of Vitest, import `@nanoviews/testing-library/vitest` in the setup file, as above. With `globals: true` the package registers the cleanup on its own, and the import can be left out.
+
+## First Test
+
+A counter component that takes its count as a writable signal:
+
+```ts
+// Counter.ts
+import type { WritableSignal } from 'nanoviews/store'
+import { button, component$ } from 'nanoviews'
+
+export const Counter = component$(({ $count }: { $count: WritableSignal<number> }) => (
+  button({
+    onClick() {
+      $count(count => count + 1)
+    }
+  })(
+    'count is ', $count
+  )
+))
+```
+
+The test renders it, clicks it and checks both the DOM and the signal:
+
+```ts
+// Counter.spec.ts
+import { it, expect } from 'vitest'
+import { render, screen, fireEvent } from '@nanoviews/testing-library'
+import { signal } from 'nanoviews/store'
+import { Counter } from './Counter.js'
+
+it('should increment count on click', () => {
+  const $count = signal(0)
+
+  render(Counter({
+    $count
+  }))
+
+  const counter = screen.getByRole('button')
+
+  expect(counter.textContent).toBe('count is 0')
+
+  fireEvent.click(counter)
+
+  expect(counter.textContent).toBe('count is 1')
+  expect($count()).toBe(1)
+})
+```
+
+`render` mounts the counter into the document, and `screen` finds the button there. The click handler writes `$count`, and the text node bound to it is updated before `fireEvent.click` returns, so the assertion goes right after the event, with no `await`. The test keeps the signal, so it can check the state as well as the DOM. After the test, the cleanup registered by the setup file unmounts the view.

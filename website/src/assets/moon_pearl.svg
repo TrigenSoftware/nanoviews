@@ -1,0 +1,38 @@
+<svg width="800" height="800" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="light-blur">
+      <feGaussianBlur stdDeviation="70"/>
+    </filter>
+    <filter id="light-grain">
+      <feTurbulence type="fractalNoise" baseFrequency="5" numOctaves="3" stitchTiles="stitch" result="noise"/>
+      <feBlend in="SourceGraphic" in2="noise" mode="overlay"/>
+    </filter>
+    <path id="logo-star" d="M400.00 3.00 L419.55 306.60 C421.95 343.90 439.77 373.37 462.26 377.17 L680.00 400.00 L462.26 422.83 C439.77 426.63 421.95 456.10 419.55 493.40 L400.00 797.00 L380.45 493.40 C378.05 456.10 360.23 426.63 337.74 422.83 L120.00 400.00 L337.74 377.17 C360.23 373.37 378.05 343.90 380.45 306.60 Z"/>
+    <!-- The crescent with a gap around the star, so the star lies over it -->
+    <mask id="logo-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="800" height="800">
+      <path d="M653.80 259.70 A290 290 0 1 0 653.80 540.30 A264.03 264.03 0 1 1 653.80 259.70Z" fill="white"/>
+      <use href="#logo-star" fill="black" stroke="black" stroke-width="16" stroke-linejoin="round"/>
+      <use href="#logo-star" fill="white"/>
+    </mask>
+  </defs>
+  <!-- Main content masked by the crescent and the star -->
+  <g mask="url(#logo-mask)">
+    <g filter="url(#light-grain)">
+      <!-- Lighter base for white background -->
+      <rect width="800" height="800" fill="#F5F5FA"/>
+      <g filter="url(#light-blur)" transform="scale(1.2)">
+        <!-- Light/Day holographic colors -->
+        <!-- Cyan/Sky -->
+        <ellipse cx="100" cy="200" rx="300" ry="300" fill="#B3E5FC" opacity="0.9"/>
+        <!-- Lavender -->
+        <ellipse cx="700" cy="600" rx="300" ry="300" fill="#D1C4E9" opacity="0.9"/>
+        <!-- Soft Pink -->
+        <ellipse cx="400" cy="400" rx="250" ry="250" fill="#F8BBD0" opacity="0.8"/>
+        <!-- Mint -->
+        <ellipse cx="700" cy="100" rx="200" ry="200" fill="#C8E6C9" opacity="0.8"/>
+        <!-- Peach -->
+        <ellipse cx="100" cy="600" rx="200" ry="200" fill="#FFE0B2" opacity="0.8"/>
+      </g>
+    </g>
+  </g>
+</svg>
