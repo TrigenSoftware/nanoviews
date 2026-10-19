@@ -22,8 +22,8 @@ catalogs:
       specifier: ^5.0.0
       version: 5.0.0
     happy-dom:
-      specifier: ^20.0.0
-      version: 20.8.9
+      specifier: ^21.0.0
+      version: 21.0.3
     playwright:
       specifier: ^1.60.0
       version: 1.62.1
@@ -150,7 +150,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   examples/cvapp/nano_kit:
     dependencies:
@@ -233,7 +233,7 @@ importers:
         version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   examples/event-board/nano_kit-di-intl:
     dependencies:
@@ -295,7 +295,7 @@ importers:
         version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   examples/rick-and-morty/nano_kit:
     dependencies:
@@ -349,13 +349,13 @@ importers:
         version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vite-plugin-solid:
         specifier: ^2.11.12
-        version: 2.11.14(@testing-library/jest-dom@6.9.1)(solid-js@1.9.15)(supports-color@7.2.0)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+        version: 2.11.14(@testing-library/jest-dom@6.9.1)(solid-js@1.9.15)(supports-color@7.2.0)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   examples/vite-demo/svelte:
     devDependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^7.0.0
-        version: 7.3.0(svelte@5.57.0(@typescript-eslint/types@8.46.4))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+        version: 7.3.0(svelte@5.57.0(@typescript-eslint/types@8.46.4))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.8
@@ -404,7 +404,7 @@ importers:
         version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   examples/weather/nano_kit:
     dependencies:
@@ -482,7 +482,7 @@ importers:
         version: 5.0.0(vitest@5.0.0)
       happy-dom:
         specifier: 'catalog:'
-        version: 20.8.9
+        version: 21.0.3
       react:
         specifier: 'catalog:'
         version: 19.2.8
@@ -503,7 +503,7 @@ importers:
         version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
     linkDirectory: false
     publishDirectory: package
 
@@ -529,7 +529,7 @@ importers:
         version: 5.0.0(vitest@5.0.0)
       happy-dom:
         specifier: 'catalog:'
-        version: 20.8.9
+        version: 21.0.3
       nanoviews:
         specifier: workspace:^
         version: link:../nanoviews
@@ -544,7 +544,7 @@ importers:
         version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
     linkDirectory: false
     publishDirectory: package
 
@@ -570,7 +570,7 @@ importers:
         version: link:../storybook
       '@storybook/builder-vite':
         specifier: ^10.5.10
-        version: 10.5.10(esbuild@0.28.2)(storybook@10.5.10(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+        version: 10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
     devDependencies:
       storybook:
         specifier: 'catalog:'
@@ -597,7 +597,7 @@ importers:
         version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
     linkDirectory: false
     publishDirectory: package
 
@@ -3095,6 +3095,10 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
+  buffer-image-size@0.6.4:
+    resolution: {integrity: sha512-nEh+kZOPY1w+gcCMobZ6ETUp9WfibndnosbpwB1iJk/8Gt5ZF2bhS6+B6bPYz424KtwsR6Rflc3tCz1/ghX2dQ==}
+    engines: {node: '>=4.0'}
+
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
 
@@ -3775,8 +3779,8 @@ packages:
   h3@1.15.11:
     resolution: {integrity: sha512-L3THSe2MPeBwgIZVSH5zLdBBU90TOxarvhK9d04IDY2AmVS8j2Jz2LIWtwsGOU3lu2I5jCN7FNvVfY2+XyF+mg==}
 
-  happy-dom@20.8.9:
-    resolution: {integrity: sha512-Tz23LR9T9jOGVZm2x1EPdXqwA37G/owYMxRwU0E4miurAtFsPMQ1d2Jc2okUaSjZqAFz2oEn3FLXC5a0a+siyA==}
+  happy-dom@21.0.3:
+    resolution: {integrity: sha512-PesNgu5BnIEmAwzKGewB3K1ORFeznFZJ4JrRz89ea1wkHnxskdpzX9sN/+zb4KO6k8oSMhyJSj/cwXAFrYBBNA==}
     engines: {node: '>=20.0.0'}
 
   has-flag@3.0.0:
@@ -7360,9 +7364,9 @@ snapshots:
       color: 5.0.3
       text-hex: 1.0.0
 
-  '@storybook/builder-vite@10.5.10(esbuild@0.28.2)(storybook@10.5.10(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))':
+  '@storybook/builder-vite@10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
-      '@storybook/csf-plugin': 10.5.10(esbuild@0.28.2)(storybook@10.5.10(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+      '@storybook/csf-plugin': 10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       storybook: 10.5.10(prettier@3.9.10)(react@19.2.8)
       ts-dedent: 2.2.0
       vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
@@ -7371,7 +7375,7 @@ snapshots:
       - rollup
       - webpack
 
-  '@storybook/csf-plugin@10.5.10(esbuild@0.28.2)(storybook@10.5.10(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))':
+  '@storybook/csf-plugin@10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
       storybook: 10.5.10(prettier@3.9.10)(react@19.2.8)
       unplugin: 2.3.11
@@ -7400,14 +7404,14 @@ snapshots:
 
   '@sveltejs/load-config@0.2.3': {}
 
-  '@sveltejs/vite-plugin-svelte@7.3.0(svelte@5.57.0(@typescript-eslint/types@8.46.4))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))':
+  '@sveltejs/vite-plugin-svelte@7.3.0(svelte@5.57.0(@typescript-eslint/types@8.46.4))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
       deepmerge: 4.3.1
       magic-string: 1.2.3
       obug: 2.1.1
       svelte: 5.57.0(@typescript-eslint/types@8.46.4)
       vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
-      vitefu: 1.1.3(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+      vitefu: 1.1.3(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   '@testing-library/dom@10.4.1':
     dependencies:
@@ -7628,7 +7632,7 @@ snapshots:
       obug: 2.2.1
       std-env: 4.2.0
       tinyrainbow: 3.1.1
-      vitest: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      vitest: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   '@vitest/expect@3.2.4':
     dependencies:
@@ -7644,7 +7648,7 @@ snapshots:
     dependencies:
       '@vitest/istanbul-lib-coverage': 1.0.1
 
-  '@vitest/mocker@5.0.0(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))':
+  '@vitest/mocker@5.0.0(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.0
@@ -7998,6 +8002,10 @@ snapshots:
       electron-to-chromium: 1.5.416
       node-releases: 2.0.54
       update-browserslist-db: 1.3.2(browserslist@4.28.8)
+
+  buffer-image-size@0.6.4:
+    dependencies:
+      '@types/node': 24.13.2
 
   buffer@5.7.1:
     dependencies:
@@ -8701,11 +8709,12 @@ snapshots:
       ufo: 1.6.4
       uncrypto: 0.1.3
 
-  happy-dom@20.8.9:
+  happy-dom@21.0.3:
     dependencies:
       '@types/node': 24.13.2
       '@types/whatwg-mimetype': 3.0.2
       '@types/ws': 8.18.1
+      buffer-image-size: 0.6.4
       entities: 7.0.1
       whatwg-mimetype: 3.0.0
       ws: 8.21.3
@@ -10935,7 +10944,7 @@ snapshots:
       remove-trailing-separator: 1.1.0
       replace-ext: 1.0.1
 
-  vite-plugin-solid@2.11.14(@testing-library/jest-dom@6.9.1)(solid-js@1.9.15)(supports-color@7.2.0)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)):
+  vite-plugin-solid@2.11.14(@testing-library/jest-dom@6.9.1)(solid-js@1.9.15)(supports-color@7.2.0)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
     dependencies:
       '@babel/core': 7.29.7(supports-color@7.2.0)
       '@types/babel__core': 7.20.5
@@ -10944,7 +10953,7 @@ snapshots:
       solid-js: 1.9.15
       solid-refresh: 0.6.3(solid-js@1.9.15)(supports-color@7.2.0)
       vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
-      vitefu: 1.1.3(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+      vitefu: 1.1.3(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
     optionalDependencies:
       '@testing-library/jest-dom': 6.9.1
     transitivePeerDependencies:
@@ -10978,7 +10987,7 @@ snapshots:
       jiti: 2.7.0
       yaml: 2.9.1
 
-  vitefu@1.1.3(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)):
+  vitefu@1.1.3(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
     optionalDependencies:
       vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
@@ -10986,10 +10995,10 @@ snapshots:
     optionalDependencies:
       vite: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
-  vitest@5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)):
+  vitest@5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.0(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0))
+      '@vitest/mocker': 5.0.0(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -11005,11 +11014,11 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.13.2
       '@vitest/coverage-v8': 5.0.0(vitest@5.0.0)
-      happy-dom: 20.8.9
+      happy-dom: 21.0.3
     transitivePeerDependencies:
       - msw
 
-  vitest@5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@20.8.9)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
+  vitest@5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/mocker': 5.0.0(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
@@ -11028,7 +11037,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.13.2
       '@vitest/coverage-v8': 5.0.0(vitest@5.0.0)
-      happy-dom: 20.8.9
+      happy-dom: 21.0.3
     transitivePeerDependencies:
       - msw
 
