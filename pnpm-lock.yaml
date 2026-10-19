@@ -54,7 +54,7 @@ overrides:
   '@nanoviews/router@*': workspace:^
   '@nanoviews/storybook@*': workspace:^
   '@nanoviews/storybook-vite@*': workspace:^
-  '@nano_kit/intl@*': 2.0.0-prerelease.20261014204046
+  '@nano_kit/intl@*': 2.0.0-snapshot.20260830203546
   '@nano_kit/platform-web@*': 2.0.0-prerelease.20261014204046
   '@nano_kit/query@*': 2.0.0-prerelease.20261014204046
   '@nano_kit/router@*': 2.0.0-prerelease.20261014204046
@@ -238,8 +238,8 @@ importers:
   examples/event-board/nano_kit-di-intl:
     dependencies:
       '@nano_kit/intl':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0-snapshot.20260830203546
+        version: 2.0.0-snapshot.20260830203546(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/platform-web':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
@@ -1524,9 +1524,9 @@ packages:
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
 
-  '@nano_kit/intl@2.0.0-prerelease.20261014204046':
-    resolution: {integrity: sha512-GQ8lPWeS/Uha1v5TAtaSGdWMCaEUQz4hQ2Ee0N/jh2Ms6SYd6GR57yY70E0hfHMaarJjj9t5+ct44g95FLL5nA==}
-    engines: {node: '>=24'}
+  '@nano_kit/intl@2.0.0-snapshot.20260830203546':
+    resolution: {integrity: sha512-D8vZXw83Wo3ncEwQVTrivEbG2dA3EMM0ih7CxN8MNrAmQ6vjXJl5iLg+PWyWbQCbfJf37D843gBU5V2xFd3mxA==}
+    engines: {node: '>=20'}
     peerDependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
@@ -6759,7 +6759,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nano_kit/intl@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
+  '@nano_kit/intl@2.0.0-snapshot.20260830203546(@nano_kit/store@2.0.0-prerelease.20261014204046)':
     dependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
