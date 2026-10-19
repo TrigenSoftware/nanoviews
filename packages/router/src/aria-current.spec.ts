@@ -129,7 +129,7 @@ describe('router', () => {
           [ariaCurrent($location)]
         )
         const { container } = render(() => Link({
-          'to': 'about',
+          to: 'about',
           'aria-current': 'step'
         })('About'))
 

@@ -132,9 +132,9 @@ const Segment = component$<{
 
   return (
     button({
-      'role': 'tab',
+      role: 'tab',
       'aria-selected': () => $value() === value,
-      'onClick': () => $value(value)
+      onClick: () => $value(value)
     })(
       ...children
     )

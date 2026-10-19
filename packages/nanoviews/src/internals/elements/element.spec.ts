@@ -140,9 +140,9 @@ describe('nanoviews', () => {
         it('should keep false as a string on enumerated and aria attributes', () => {
           const hidden = signal(false)
           const { container } = render(() => createElement('div', {
-            'draggable': false,
-            'contentEditable': false,
-            'spellCheck': false,
+            draggable: false,
+            contentEditable: false,
+            spellCheck: false,
             'aria-hidden': hidden
           })('Text'))
 
