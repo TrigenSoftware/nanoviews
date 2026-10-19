@@ -1,0 +1,124 @@
+---
+title: API
+description: "Reference for @nanoviews/testing-library: render, RenderOptions, cleanup, the entry points and the Testing Library re-exports."
+sidebar:
+  order: 3
+next:
+  label: Storybook
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+This page describes what `@nanoviews/testing-library` exports: `render` with its options and result, `cleanup`, the three entry points and the DOM Testing Library API that comes with them.
+
+## `render`
+
+Mounts a view into the document and returns handles to it, along with all the `@testing-library/dom` queries bound to the container.
+
+### Arguments
+
+The first argument is a function that returns a view, and `render` calls it under `mount`. A component that needs no props, a component instance and a [called composed story](/testing/writing-tests/#stories-in-tests) are such functions too.
+
+The second argument is the optional [`RenderOptions`](#renderoptions).
+
+If mounting throws, a target sitting directly in `document.body` is removed and the error is rethrown, so a test that expects the throw leaves no element behind:
+
+```ts
+import { it, expect } from 'vitest'
+import { render } from '@nanoviews/testing-library'
+import { inject } from 'nanoviews/store'
+import { p, component$ } from 'nanoviews'
+
+function Theme$() {
+  return 'light'
+}
+
+const Label = component$(() => {
+  const theme = inject(Theme$)
+
+  return (
+    p()(
+      theme
+    )
+  )
+})
+
+it('should need an injection context', () => {
+  expect(() => render(Label)).toThrow('Cannot inject dependency outside of injection context')
+  expect(document.body.innerHTML).toBe('')
+})
+```
+
+### Result
+
+The result contains:
+
+- `container`: the element the queries are bound to, `document.body` unless the [`container`](#renderoptions) option was passed. Note that the view is mounted into the target, not directly into the container.
+- `debug(el = container)`: logs the DOM of the element, formatted with `prettyDOM`.
+- `destroy()`: unmounts this view early. It is idempotent, and it leaves the target element in the document; removing the element is the job of `cleanup`.
+- All the [queries](https://testing-library.com/docs/queries/about): `getBy*`, `queryBy*`, `findBy*` and their `*All*` variants, bound to `container`.
+
+```ts
+import { it, expect } from 'vitest'
+import { render } from '@nanoviews/testing-library'
+import { div } from 'nanoviews'
+
+it('should unmount early', () => {
+  const { container, debug, destroy } = render(() => div()('bye'))
+
+  debug() // logs the pretty printed container
+
+  expect(container.innerHTML).toBe('<div><div>bye</div></div>')
+
+  destroy()
+
+  expect(container.innerHTML).toBe('<div></div>')
+})
+```
+
+## `RenderOptions`
+
+The optional second argument of `render`:
+
+- `target`: the element to mount the view into. Defaults to a new `<div>` appended to the container. A given target is used as it is, so it has to be in the container already for the queries to find the view.
+- `container`: the element to bind the queries to and to append the default target to. Defaults to `document.body`.
+- `queries`: a [custom set of queries](https://testing-library.com/docs/dom-testing-library/api-custom-queries) to bind instead of the default ones. The set replaces the defaults, so spread `queries` from the package into it to keep them. The queries of the result are typed after the set.
+
+```ts
+import { it, expect } from 'vitest'
+import { render } from '@nanoviews/testing-library'
+import { div } from 'nanoviews'
+
+it('should mount into the section', () => {
+  const container = document.body.appendChild(document.createElement('main'))
+  const target = container.appendChild(document.createElement('section'))
+  const { getByText } = render(() => div()('x'), { target, container })
+
+  expect(container.innerHTML).toBe('<section><div>x</div></section>')
+  expect(getByText('x').parentElement).toBe(target)
+
+  container.remove()
+})
+```
+
+## `cleanup`
+
+Unmounts every view rendered by `render` and removes the target elements from `document.body`. Views already unmounted with `destroy` are skipped, so calling it more than once is safe. The [auto cleanup](/testing/#auto-cleanup) calls it after every test, and a test can call it by hand to unmount everything it rendered so far.
+
+<Aside>
+Only elements sitting directly in `document.body` are removed. A custom `container`, and the target inside of it, stays in the document, so a test that builds its own container tears it down itself.
+</Aside>
+
+## Entry Points
+
+| Entry point | Exports | Registers `afterEach(cleanup)` |
+| --- | --- | --- |
+| `@nanoviews/testing-library` | `render`, `cleanup`, `RenderOptions` and the `@testing-library/dom` API | With the global `afterEach` of the test runner, when there is one and `NTL_SKIP_AUTO_CLEANUP` is not set |
+| `@nanoviews/testing-library/vitest` | Nothing | Always, with `afterEach` imported from `vitest` |
+| `@nanoviews/testing-library/pure` | The same as the package root | Never |
+
+`vitest` is an optional peer dependency: only the `vitest` entry imports it. [Auto Cleanup](/testing/#auto-cleanup) explains when to use which.
+
+## Testing Library Re-exports
+
+The whole `@testing-library/dom` API is re-exported from the package root, and from the `pure` entry, so there is no need to import it separately: `screen`, `within`, `fireEvent`, `createEvent`, `waitFor`, `waitForElementToBeRemoved`, `prettyDOM`, `logRoles`, `configure`, `queries`, `queryHelpers`, `buildQueries` and everything else, including types. See the [DOM Testing Library docs](https://testing-library.com/docs/dom-testing-library/api) for the full list.

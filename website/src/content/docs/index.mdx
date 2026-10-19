@@ -1,0 +1,47 @@
+---
+title: Nanoviews
+description: A small Direct DOM library for building user interfaces.
+head:
+  - tag: title
+    content: Nanoviews
+template: splash
+editUrl: false
+hero:
+  tagline: A small Direct DOM library for building user interfaces.
+  image:
+    dark: ../../assets/moon_pearl.svg
+    light: ../../assets/moon_pearl.svg
+  actions:
+    - text: Get Started
+      link: ./getting-started/
+      icon: right-arrow
+    - text: Examples
+      link: ./examples/
+      icon: right-arrow
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components'
+
+## Features
+
+<CardGrid stagger>
+  <Card title='Small' icon='seti:maven'>
+    Between 3.5 and 7 kB minified and brotlied, depending on what you import.
+  </Card>
+  <Card title='Direct DOM' icon='seti:html'>
+    Views build real DOM nodes, and the signals bound into them update the nodes in place. No virtual DOM, no re-render.
+  </Card>
+  <Card title='Nano Kit Signals' icon='rocket'>
+    Fine-grained reactivity shared with [Nano Kit](https://nano-kit.js.org/), so its stores, queries, routes and messages bind straight into views.
+  </Card>
+  <Card title='Tree-Shakeable' icon='puzzle'>
+    Every element, block and helper is a separate export: only the code you import ends up in your bundle.
+  </Card>
+  <Card title='TypeScript First' icon='seti:tsconfig'>
+    Attributes, events, props and children are typed: a misspelled attribute or a child passed to a component that takes none is a type error.
+  </Card>
+  <Card title='Developer Tools' icon='setting'>
+    Packages for testing views with [Testing Library](/testing/) and for developing components in [Storybook](/storybook/).
+  </Card>
+</CardGrid>

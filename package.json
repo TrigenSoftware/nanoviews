@@ -27,6 +27,8 @@
     "test:size": "pnpm -r --no-sort --if-present --filter './packages/*' test:size",
     "test:types": "pnpm -r --no-sort --if-present --filter './packages/*' test:types",
     "test": "run -p lint test:unit test:types",
+    "docs:build": "pnpm -r --no-sort --filter './website' build",
+    "skills:docs": "skills-docs --tabs pnpm --drop 'Next Steps'",
     "examples:sync": "pnpm -r --no-sort --if-present --filter './examples/*/common' sync",
     "examples:test": "pnpm -r --sequential --if-present --filter './examples/*/common' run test",
     "commit": "cz",
@@ -51,6 +53,7 @@
     "oxlint-tsgolint": "^7.0.0",
     "playwright": "catalog:",
     "simple-git-hooks": "^2.7.0",
+    "skills-docs": "workspace:*",
     "typescript": "catalog:"
   }
 }

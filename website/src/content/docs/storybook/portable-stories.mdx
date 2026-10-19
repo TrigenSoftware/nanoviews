@@ -1,0 +1,178 @@
+---
+title: Portable Stories
+description: "Compose stories into functions and render them in unit tests with @nanoviews/testing-library."
+sidebar:
+  order: 3
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+`composeStories` applies the meta, the renderer and the project annotations passed to it to every story of a module, so the story becomes a function you can call in a test. Calling a composed story returns the story unbuilt, like a component instance: `render` of `@nanoviews/testing-library` takes it as it is, and a view takes it as a child, so a story goes into a test with no Storybook running. The tests on this page use Vitest, set up as in [Testing](/testing/).
+
+## `composeStories`
+
+The `Elements/Style` stories of [Writing Stories](/storybook/writing-stories/#csf3), composed and rendered:
+
+```ts title="src/style.spec.ts"
+import { describe, it, expect } from 'vitest'
+import { composeStories } from '@nanoviews/storybook-vite'
+import { render } from '@nanoviews/testing-library'
+import { signal } from 'nanoviews/store'
+import * as Stories from './style.stories.js'
+
+const { StaticValue, ReactiveValue } = composeStories(Stories)
+
+describe('style', () => {
+  it('should render static value', () => {
+    const { container } = render(StaticValue())
+
+    expect(container.innerHTML).toBe('<div><div style="color: green;">Hello, world!</div></div>')
+  })
+
+  it('should render overridden value', () => {
+    const { container } = render(ReactiveValue({
+      color: 'red'
+    }))
+
+    expect(container.innerHTML).toBe('<div><div style="color: red;">Hello, world!</div></div>')
+  })
+
+  it('should render reactive value', () => {
+    const $color = signal('green')
+    const { container } = render(ReactiveValue({
+      color: $color
+    }))
+
+    expect(container.innerHTML).toBe('<div><div style="color: green;">Hello, world!</div></div>')
+
+    $color('red')
+
+    expect(container.innerHTML).toBe('<div><div style="color: red;">Hello, world!</div></div>')
+  })
+})
+```
+
+Import the stories module as a namespace: `composeStories` takes the meta from its `default` export and composes the stories of the other exports. The extra `<div>` in `container.innerHTML` is the element the view was mounted into: `container` is `document.body`, and `render` creates the target `<div>` inside of it.
+
+## Args
+
+Every arg of a composed story is optional and can be passed as a plain value or as a signal. The story is reactive either way, because the renderer wraps the plain ones, and an arg left out falls back to the args of the story and its meta, wrapped in a signal just the same. Passing a signal is how you get the handle to drive the story with: write to it and assert on the DOM it changed. A function is passed through as it is, so a spy goes in as an event handler. With the `Button` stories of [Getting Started](/storybook/#first-story):
+
+```ts title="src/button.spec.ts"
+import { it, expect, vi } from 'vitest'
+import { composeStories } from '@nanoviews/storybook-vite'
+import { render, screen, fireEvent } from '@nanoviews/testing-library'
+import { signal } from 'nanoviews/store'
+import * as Stories from './button.stories.js'
+
+const { Default, Primary } = composeStories(Stories)
+
+it('should call onClick on click', () => {
+  const onClick = vi.fn()
+
+  render(Default({
+    onClick
+  }))
+  fireEvent.click(screen.getByRole('button'))
+
+  expect(onClick).toHaveBeenCalledTimes(1)
+})
+
+it('should follow the label signal', () => {
+  const $label = signal('Send')
+
+  render(Primary({
+    label: $label
+  }))
+  $label('Sent')
+
+  expect(screen.getByRole('button').textContent).toBe('Sent')
+})
+```
+
+The write to `$label` updates the text before the next line runs, so the assertion needs no `await`. Each call of a composed story wraps the plain args in new signals, so two renders of one story do not share them. The `args` property of a composed story holds the args it falls back to: `Default.args.onClick` is the `fn()` spy of the meta.
+
+## `composeStory`
+
+To compose a single story instead of the whole module, `composeStory` takes the story and the meta of the module it comes from:
+
+```ts
+import { composeStory } from '@nanoviews/storybook-vite'
+import meta, { ReactiveValue as ReactiveValueStory } from './style.stories.js'
+
+const ReactiveValue = composeStory(ReactiveValueStory, meta)
+```
+
+The project annotations and the export name are the optional third and fourth arguments. The export name sets the `storyName` and the `id` of the composed story; `composeStories` passes it by itself.
+
+## Project Annotations
+
+The decorators, parameters, args, globals and loaders of `.storybook/preview.ts` reach a composed story when the preview is passed to the call: as the second argument of `composeStories`, or as the third of `composeStory`. With the theme preview of [Writing Stories](/storybook/writing-stories/#globals-and-dependency-injection), the composed stories get the injection context it opens:
+
+```ts title="src/themed.spec.ts"
+import { it, expect } from 'vitest'
+import { composeStories } from '@nanoviews/storybook-vite'
+import { render } from '@nanoviews/testing-library'
+import preview from '../.storybook/preview.js'
+import * as Stories from './themed.stories.js'
+
+const { Default, Dark } = composeStories(Stories, preview)
+
+it('should take the theme from the preview decorator', () => {
+  const { container } = render(Default())
+
+  expect(container.innerHTML).toBe('<div><span>light</span></div>')
+})
+
+it('should take the globals of the story', () => {
+  const { container } = render(Dark())
+
+  expect(container.innerHTML).toBe('<div><span>dark</span></div>')
+})
+```
+
+Both stories render a component that injects `Theme$`, and `Dark` pins `theme: 'dark'` in its `globals`. Without the preview, there is no context to inject from, and the render throws.
+
+To give the preview to every composed story of a test run instead, call `setProjectAnnotations` once in a setup file, the one of the [Vitest config](/testing/#setup):
+
+```ts title="test/setup.ts"
+import { setProjectAnnotations } from '@nanoviews/storybook-vite'
+import preview from '../.storybook/preview.js'
+
+setProjectAnnotations(preview)
+```
+
+Then `composeStories(Stories)` alone gives the stories above the preview, and a preview passed to a call still composes on top of it.
+
+## Loaders
+
+A composed story does not run its loaders by itself. Awaiting its `load()` runs them, and the calls of the story that follow get their result as `context.loaded`. With the `User` story of [Writing Stories](/storybook/writing-stories/#loaders), and its request mocked:
+
+```ts title="src/user.spec.ts"
+import { it, expect, vi } from 'vitest'
+import { composeStories } from '@nanoviews/storybook-vite'
+import { render } from '@nanoviews/testing-library'
+import * as Stories from './user.stories.js'
+
+vi.mock('./api.js', () => ({
+  async fetchUser() {
+    return {
+      name: 'Ada'
+    }
+  }
+}))
+
+const { Loaded } = composeStories(Stories)
+
+it('should greet the loaded user', async () => {
+  await Loaded.load()
+
+  const { container } = render(Loaded())
+
+  expect(container.innerHTML).toBe('<div><p>Hello, Ada</p></div>')
+})
+```
+
+`vi.mock` swaps `src/api.ts` for the factory before the stories module imports it. Without `load()`, `context.loaded` is an empty object.
+
+[Writing Tests](/testing/writing-tests/) covers queries, events, async data and dependency injection in tests, and the [API](/storybook/api/#composed-story) describes the composed story itself, its `play()` and `run()` included.

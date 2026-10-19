@@ -1,0 +1,166 @@
+---
+title: Getting Started
+description: "@nanoviews/storybook renders Nanoviews stories in Storybook, and @nanoviews/storybook-vite runs it on the Vite builder."
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem, Code, FileTree } from '@astrojs/starlight/components'
+
+`@nanoviews/storybook` is the [Storybook](https://storybook.js.org/) renderer for [Nanoviews](/getting-started/), and `@nanoviews/storybook-vite` is the framework that runs it on the Vite builder of Storybook.
+
+- **CSF3**. Stories are plain Component Story Format objects, typed with `Meta` and `StoryObj`.
+- **Args are signals**. A story's `render` is a Nanoviews component that receives the args as writable signals, so an edited control updates the view in place, with no remount.
+- **Portable stories**. `composeStories` turns stories into functions that [`@nanoviews/testing-library`](/testing/) renders in unit tests.
+- **One option**. A single `framework` entry in `.storybook/main.ts` wires the renderer to the Vite builder.
+
+## Renderer and Framework
+
+Storybook integrates a view library through two kinds of packages. `@nanoviews/storybook` is the *renderer*: it teaches Storybook how to mount and update a Nanoviews tree. It has no builder of its own, so it needs a *framework*: `@nanoviews/storybook-vite` wires it to [`@storybook/builder-vite`](https://storybook.js.org/docs/builders/vite).
+
+The framework depends on the renderer and re-exports its whole API, so a project installs the framework alone and imports everything from `@nanoviews/storybook-vite`, the story API and the config types alike.
+
+## Installation
+
+Install the packages as dev dependencies, together with Storybook and Vite:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add -D @nanoviews/storybook-vite storybook vite' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add -D @nanoviews/storybook-vite storybook vite' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install -D @nanoviews/storybook-vite storybook vite' />
+  </TabItem>
+</Tabs>
+
+`storybook` (10.5.10 or a later 10.x) and `vite` (5 to 8) are peer dependencies of the framework, and `nanoviews` is a peer dependency of the renderer.
+
+## Setup
+
+The Storybook CLI cannot scaffold a third-party framework, so the setup is done by hand: two config files and two scripts.
+
+<FileTree>
+
+- .storybook/
+  - main.ts the framework and the story files
+  - preview.ts global parameters, decorators and loaders
+- src/
+  - button.ts
+  - button.stories.ts
+- package.json
+
+</FileTree>
+
+### `.storybook/main.ts`
+
+```ts title=".storybook/main.ts"
+import type { StorybookConfig } from '@nanoviews/storybook-vite'
+
+const config: StorybookConfig = {
+  framework: '@nanoviews/storybook-vite',
+  stories: ['../src/**/*.stories.ts']
+}
+
+export default config
+```
+
+`framework` names the framework package. Storybook loads its preset, which sets the Vite builder and the Nanoviews renderer. `stories` lists the globs of the story files, relative to the `.storybook` directory. The object form of `framework`, `viteFinal` and `defineMain` are covered in the [API](/storybook/api/).
+
+### `.storybook/preview.ts`
+
+Optional, but this is where global parameters, decorators and loaders live. Its default export is typed with `Preview`:
+
+```ts title=".storybook/preview.ts"
+import type { Preview } from '@nanoviews/storybook-vite'
+
+const preview: Preview = {
+  parameters: {
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/i
+      }
+    }
+  }
+}
+
+export default preview
+```
+
+The [control matchers](https://storybook.js.org/docs/essentials/controls) pick a control by the name of the arg: a color picker for the args whose names end with `background` or `color`, a date picker for the ones that end with `Date`.
+
+### Scripts
+
+```json title="package.json"
+{
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  }
+}
+```
+
+`storybook dev` serves Storybook on port 6006 and opens it in the browser (`--no-open` skips that). `storybook build` writes a static Storybook into `storybook-static`.
+
+## First Story
+
+A button with an optional primary look and a click handler, which takes its label as children:
+
+```ts title="src/button.ts"
+import { type Signalish, when } from 'nanoviews/store'
+import { button, component$ } from 'nanoviews'
+
+export interface ButtonProps {
+  primary?: Signalish<boolean>
+  onClick?: (event: MouseEvent) => void
+}
+
+export const Button = component$(({ primary, onClick }: ButtonProps, children) => (
+  button({
+    class: ['button', when(primary, 'button_primary')],
+    onClick
+  })(
+    ...children
+  )
+))
+```
+
+Its stories set the args, and the `render` of the meta passes the label as a child:
+
+```ts title="src/button.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { fn } from 'storybook/test'
+import { Button } from './button.js'
+
+const meta: Meta<typeof Button> = {
+  title: 'Button',
+  args: {
+    primary: false,
+    onClick: fn()
+  },
+  render(props) {
+    return Button(props)('Send')
+  }
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {}
+// <button class="button">Send</button>
+
+export const Primary: Story = {
+  args: {
+    primary: true
+  }
+}
+// <button class="button button_primary">Send</button>
+```
+
+The `args` of the meta apply to every story, and the `args` of a story are merged over them. `primary` is a `Signalish<boolean>` prop, so its arg is a plain boolean, and the Controls panel shows it as a toggle. The renderer hands `Button` a signal instead: a toggle is written into that signal, and the class of the same button changes. `fn()` from `storybook/test` makes a spy, which the [Actions](https://storybook.js.org/docs/essentials/actions) panel logs on every click.
+
+Start Storybook with the `storybook` script, and both stories show up under **Button** in the sidebar.

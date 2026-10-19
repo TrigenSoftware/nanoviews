@@ -1,0 +1,649 @@
+---
+title: Components
+description: "Build reusable views with component$: props, children, render props, effects with effect$, slots and polymorphic components."
+sidebar:
+  order: 3
+---
+
+Components are the building blocks of an application: reusable pieces of view that take props and children the way an element takes attributes and children. A component renders once, when its instance is built. Its state lives in signals, and the DOM follows them through bindings instead of re-rendering.
+
+## `component$`
+
+`component$` creates a component from a render function. The component takes its props in the first call and its children in the second, like an element does, and the children call is optional. The render gets the props and the children and returns what to show, anything a child can be: a description, a node, a primitive or a signal.
+
+```ts
+import { type Attributes, div, b, component$ } from 'nanoviews'
+
+const Card = component$((props: Attributes<'div'>, children) => (
+  div(props)(
+    'Card: ',
+    ...children.length ? children : ['empty']
+  )
+))
+
+Card()
+// <div>Card: empty</div>
+
+Card({
+  class: 'card'
+})(
+  'Hello, ', b()('Nanoviews')
+)
+// <div class="card">Card: Hello, <b>Nanoviews</b></div>
+```
+
+The props argument is optional when every prop is, as here. Type the props on the parameter of the render rather than as a type argument of `component$`: the component's types are read off the render, as [Components Without Children](#components-without-children) shows.
+
+## Props
+
+A prop is a plain value or a signal, and a component is written so that it does not need to know which.
+
+### Plain Values and Signals
+
+Type a prop `Signalish<T>` when either form is fine, `Accessor<T>` for read-only reactive input, and `WritableSignal<T>` for state the component writes back. A prop typed as an accessor or a signal is always reactive, so its name takes the `$`, like a signal's; a `Signalish` prop keeps a plain name. The types come from `nanoviews/store`.
+
+```ts
+import { type Accessor, type Signalish, type WritableSignal, signal, computed, length } from 'nanoviews/store'
+import { label, input, component$ } from 'nanoviews'
+
+interface SearchProps {
+  placeholder?: Signalish<string>
+  $query: WritableSignal<string>
+  $count: Accessor<number>
+}
+
+const Search = component$(({ placeholder, $query, $count }: SearchProps) => (
+  label()(
+    input({
+      type: 'search',
+      placeholder,
+      value: $query
+    }),
+    ' Found: ', $count
+  )
+))
+
+const players = ['chopper', 'magixx', 'donk']
+const $query = signal('')
+const $found = computed(() => players.filter(name => name.includes($query())))
+
+Search({
+  placeholder: 'Player',
+  $query,
+  $count: length($found)
+})
+// <label><input type="search" placeholder="Player"> Found: 3</label>
+```
+
+`value: $query` binds the input both ways, so typing `do` writes the query, and the count follows: `Found: 1`.
+
+The render runs once, and a call in it reads the value once: `$query()` in the render body would freeze the query it held at build time. Pass a signal on as it is, or read it inside an accessor, a handler or an effect.
+
+### Handing Props On
+
+Destructure the props and hand them on as they came. An attribute, a child and a part of a class list take a plain value and a signal alike, and so do the operators of `nanoviews/store` such as `text`, `when`, `is` and `pick`, which return a plain value when none of their operands is a signal or an accessor:
+
+```ts
+import { type Signalish, text } from 'nanoviews/store'
+import { type Attributes, button, component$ } from 'nanoviews'
+
+interface ButtonProps extends Attributes<'button'> {
+  size?: Signalish<'s' | 'm'>
+}
+
+const Button = component$((
+  {
+    size = 'm',
+    class: className,
+    ...props
+  }: ButtonProps,
+  children
+) => (
+  button({
+    class: ['button', text`button_${size}`, className],
+    ...props
+  })(
+    ...children
+  )
+))
+
+Button({
+  size: 's',
+  id: 'send',
+  class: 'wide'
+})(
+  'Send'
+)
+// <button class="button button_s wide" id="send">Send</button>
+```
+
+Given a signal, the same render binds the class to it:
+
+```ts
+import { signal } from 'nanoviews/store'
+
+const $size = signal<'s' | 'm'>('m')
+
+Button({
+  size: $size
+})(
+  'Send'
+)
+// <button class="button button_m">Send</button>
+
+$size('s')
+// <button class="button button_s">Send</button>
+```
+
+Where the current value is needed rather than bound, in a handler or an effect, `$get(prop)` reads it in either form. An expression the operators do not cover reads the prop the same way inside an accessor:
+
+```ts
+import { type Signalish, signal, $get } from 'nanoviews/store'
+import { button, span, component$ } from 'nanoviews'
+
+const Counter = component$(({ step = 1 }: { step?: Signalish<number> }) => {
+  const $count = signal(0)
+
+  return (
+    button({
+      onClick() {
+        $count(count => count + $get(step))
+      }
+    })(
+      'Count: ', $count
+    )
+  )
+})
+
+const Price = component$(({ amount }: { amount: Signalish<number> }) => (
+  span()(
+    '$', () => $get(amount).toFixed(2)
+  )
+))
+
+Price({
+  amount: 5
+})
+// <span>$5.00</span>
+```
+
+`style` is the one place a prop does not go in as it is. The values of a style object are plain, so a `Signalish` prop goes in through an accessor of the whole object: `style: () => ({ '--columns': $get(columns) })`, as in the next example.
+
+### Element Attributes
+
+A component that passes arbitrary attributes on to its element types its props as `Attributes<'tag'>` extended with its own, and spreads the rest onto the element. Two things go with the spread:
+
+- The `class` it received is folded into its own class list: left in the rest, it would replace the component's own. A list may hold another list or an accessor, so `class: ['grid', className]` takes whatever the caller gave.
+- Every prop that is not an attribute is taken out first. TypeScript does not check a spread for unknown keys, and a prop left in the rest is written to the element as an attribute.
+
+```ts
+import { type Signalish, $get } from 'nanoviews/store'
+import { type Attributes, div, component$ } from 'nanoviews'
+
+interface GridProps extends Attributes<'div'> {
+  columns?: Signalish<number>
+}
+
+const Grid = component$((
+  {
+    columns = 3,
+    class: className,
+    ...props
+  }: GridProps,
+  children
+) => (
+  div({
+    class: ['grid', className],
+    style: () => ({
+      '--columns': $get(columns)
+    }),
+    ...props
+  })(
+    ...children
+  )
+))
+
+Grid({
+  columns: 2,
+  class: 'gallery'
+})(
+  'Photos'
+)
+// <div class="grid gallery" style="--columns: 2;">Photos</div>
+```
+
+`columns` stays out of `props` because it is destructured; left in, it would land on the element as `columns="2"`.
+
+## Children
+
+`children` is always an array, empty when the instance was not called with children, so the render can spread it or check its length. Untyped, the children are `Child[]`, anything an element takes. They are typed on the second parameter of the render, the way the props are typed on the first.
+
+### Render Props
+
+A tuple with a function makes a render prop: the caller passes a function, and the component calls it with data of its own.
+
+```ts
+import { type Child, for_, ul, li, b, component$ } from 'nanoviews'
+
+const List = component$((
+  { items }: { items: string[] },
+  [renderItem]: [renderItem: (item: string) => Child]
+) => (
+  ul()(
+    for_(items)(
+      item => li()(renderItem(item))
+    )
+  )
+))
+
+List({
+  items: ['chopper', 'magixx']
+})(
+  item => b()(
+    'Player: ', item
+  )
+)
+// <ul><li><b>Player: chopper</b></li><li><b>Player: magixx</b></li></ul>
+```
+
+`for_` renders the plain array of the prop once, with no tracker (see [Static Arrays](/guides/control-flow/#static-arrays)).
+
+### Instances Only
+
+`children: ComponentInstance[]` suits a component that wraps every child in markup of its own: it takes instances, and a string, a signal or a DOM node is a type error. An element description such as `div()` and a slot instance have the shape of an instance and pass too.
+
+```ts
+import { type Attributes, type ComponentInstance, for_, menu, li, button, component$ } from 'nanoviews'
+
+const ToolButton = component$((props: Attributes<'button'>, children) => button(props)(...children))
+
+const Toolbar = component$((
+  props: Attributes<'menu'>,
+  children: ComponentInstance[]
+) => (
+  menu(props)(
+    for_(children)(
+      child => li()(child)
+    )
+  )
+))
+
+Toolbar()(
+  ToolButton()('Bold'),
+  ToolButton()('Italic')
+)
+// <menu><li><button>Bold</button></li><li><button>Italic</button></li></menu>
+
+Toolbar()('Bold') // type error: Argument of type 'string' is not assignable to parameter of type 'ComponentInstance'.
+```
+
+### Components Without Children
+
+A render with no `children` parameter makes a component that takes none, so children passed to it are a type error rather than lost. The same goes for a slot made with [`slot$`](#slots).
+
+```ts
+import { type Attributes, hr, component$ } from 'nanoviews'
+
+const Divider = component$((props: Attributes<'hr'>) => hr(props))
+
+Divider({
+  class: 'wide'
+})
+// <hr class="wide">
+
+Divider()('Hello') // type error: Expected 0 arguments, but got 1.
+```
+
+That is read off the render itself, so it needs the types inferred. With the type arguments written out, `component$<Props>(...)` keeps the children allowed, and `component$<Props, []>(...)` turns them off:
+
+```ts
+const Loose = component$<Attributes<'hr'>>(props => hr(props))
+const Strict = component$<Attributes<'hr'>, []>(props => hr(props))
+
+Loose()('Hello') // compiles, and the children are dropped
+Strict()('Hello') // type error: Expected 0 arguments, but got 1.
+```
+
+## `effect$`
+
+`effect$` adds an effect to the view being built. It first runs once its part of the view is in the document, which at mount means once `mount` has appended the whole tree, so measuring and focusing are safe on the first run. It re-runs when a signal it read changes, and it is stopped when its part of the view is removed. A function it returns is the cleanup: it runs before each re-run and when the effect is stopped.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { span, component$, effect$ } from 'nanoviews'
+
+const $interval = signal(1000)
+
+const Ticker = component$(() => {
+  const $ticks = signal(0)
+
+  effect$(() => {
+    const id = setInterval(() => {
+      $ticks(ticks => ticks + 1)
+    }, $interval())
+
+    return () => clearInterval(id)
+  })
+
+  return (
+    span()(
+      'Ticks: ', $ticks
+    )
+  )
+})
+```
+
+The effect reads `$interval`, so a new interval restarts the timer, and the cleanup clears the old one first. Unmounting the ticker clears the last one.
+
+An effect that reads no signal runs once after mount and cleans up on unmount, which makes it a mount and unmount hook:
+
+```ts
+import { div, component$, effect$ } from 'nanoviews'
+
+const Hello = component$(() => {
+  effect$(() => {
+    console.log('Mounted')
+
+    return () => console.log('Unmounted')
+  })
+
+  return div()('Hello, Nanoviews!')
+})
+```
+
+`effect$` belongs to the scope of the view being built, so it is called while a view is built under `mount`: in a render, in a branch of a block, in a row of a list. At module level, in an event handler or in a dependency factory there is no such scope, and it throws.
+
+### `warmup`
+
+The effect function receives `warmup`: `true` on the first run and `undefined` on a re-run caused by a change, so the body can tell the two apart.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { input, component$, effect$ } from 'nanoviews'
+
+const SearchField = component$(() => {
+  const $query = signal('')
+
+  effect$((warmup) => {
+    const query = $query()
+
+    if (!warmup) {
+      console.log('Query changed:', query)
+    }
+  })
+
+  return (
+    input({
+      type: 'search',
+      value: $query
+    })
+  )
+})
+```
+
+Content hidden by [`show_`](/guides/control-flow/#show_) has its effects cleaned up, and showing it again runs them with `warmup` set once more.
+
+### Store Effects
+
+`effect` from `nanoviews/store` is the store effect. It runs at once wherever it is called and returns a function that stops it. Called in a render, it is still stopped on unmount, but it runs before the tree is built, and a hidden `show_` does not pause it. Views use `effect$`; stores and dependency factories use `effect`, as [Reactivity](/guides/reactivity/) shows.
+
+## Slots
+
+A layout with several places to fill, such as a header and a footer around the content, takes them as slots. A slot is a component made with `slot$`: its instances name the slot they belong to and keep their props, so a layout can pick them out of its children. `slots$` declares the slots a layout takes and gives its render the declared slots in order, an instance or `undefined` each, followed by the rest of the children. `component$` turns the result into a component.
+
+```ts
+import { type Attributes, main, header, footer, component$, slot$, slots$ } from 'nanoviews'
+
+const LayoutHeader = slot$((props: Attributes<'header'>, children) => header(props)(...children))
+const LayoutFooter = slot$((props: Attributes<'footer'>, children) => footer(props)(...children))
+
+const Layout = component$(slots$(
+  [LayoutHeader, LayoutFooter],
+  (props: Attributes<'main'>, headerSlot, footerSlot, children) => (
+    main(props)(
+      headerSlot,
+      ...children,
+      footerSlot
+    )
+  )
+))
+
+Layout({
+  class: 'page'
+})(
+  LayoutHeader({
+    class: 'header'
+  })(
+    'Header content'
+  ),
+  'Main content',
+  LayoutFooter({
+    class: 'footer'
+  })(
+    'Footer content'
+  )
+)
+// <main class="page"><header class="header">Header content</header>Main content<footer class="footer">Footer content</footer></main>
+```
+
+The caller passes the slots in any order, among the other children; the layout places them where it wants.
+
+### Missing, Repeated and Undeclared Slots
+
+A slot the caller did not pass is `undefined` and renders nothing. The same slot passed twice keeps the last one:
+
+```ts
+Layout()(
+  'Main content',
+  LayoutFooter()('First'),
+  LayoutFooter()('Second')
+)
+// <main>Main content<footer>Second</footer></main>
+```
+
+A slot the layout did not declare would have nowhere to go, so it throws when the layout renders. Declare every slot a caller may pass:
+
+```ts
+const HeaderOnly = component$(slots$(
+  [LayoutHeader],
+  (props: Attributes<'main'>, headerSlot, children) => (
+    main(props)(
+      headerSlot,
+      ...children
+    )
+  )
+))
+
+HeaderOnly()(
+  LayoutFooter()('Footer content')
+)
+// throws on build: Error: Slot is not declared in slots$
+```
+
+### Slot Instances
+
+A slot instance without the children call is a slot with no children, and a slot instance outside a `slots$` layout is an ordinary component instance that renders where it stands:
+
+```ts
+import { div } from 'nanoviews'
+
+Layout()(
+  LayoutHeader({
+    class: 'header'
+  }),
+  'Main content'
+)
+// <main><header class="header"></header>Main content</main>
+
+div()(
+  LayoutHeader()('On its own')
+)
+// <div><header>On its own</header></div>
+```
+
+### Handing Data to a Slot
+
+A slot renders inside the layout's tree, after the layout's render, so the layout hands it data the way a parent hands data to any child: with `context$`, which the slot reads with `inject`. When the caller's markup in the slot needs that data, the slot takes a render function as its child:
+
+```ts
+import { type WritableSignal, signal, provide, inject, not } from 'nanoviews/store'
+import { type Attributes, type Child, div, footer, textarea, button, component$, context$, slot$, slots$ } from 'nanoviews'
+
+function Draft$() {
+  return signal('')
+}
+
+const EditorFooter = slot$((
+  props: Attributes<'footer'>,
+  [render]: [render: ($draft: WritableSignal<string>) => Child]
+) => {
+  const $draft = inject(Draft$)
+
+  return (
+    footer(props)(
+      render($draft)
+    )
+  )
+})
+
+const Editor = component$(slots$(
+  [EditorFooter],
+  (props: Attributes<'div'>, footerSlot, children) => {
+    const $draft = signal('')
+
+    return (
+      context$(provide(Draft$, $draft))(
+        div(props)(
+          ...children,
+          textarea({
+            value: $draft
+          }),
+          footerSlot
+        )
+      )
+    )
+  }
+))
+
+Editor()(
+  'Comment',
+  EditorFooter()(
+    $draft => button({
+      disabled: not($draft)
+    })(
+      'Send'
+    )
+  )
+)
+// <div>Comment<textarea></textarea><footer><button disabled="true">Send</button></footer></div>
+```
+
+The button is disabled while the draft is empty and enabled once something is typed.
+
+## Polymorphic Components
+
+A component that renders the element or the component its caller picks is made with `polymorphic$`. Its props extend `PolymorphicProps` of the default target, given by its tag name, which brings the `as` prop and the attributes of that element. The render sets the default of `as` and passes the rest on:
+
+```ts
+import { type PolymorphicProps, a, button, polymorphic$ } from 'nanoviews'
+
+interface ButtonProps extends PolymorphicProps<'button'> {
+  variant?: 'primary' | 'secondary'
+}
+
+const Button = polymorphic$((
+  {
+    as = button,
+    variant = 'primary',
+    class: className,
+    ...props
+  }: ButtonProps,
+  children
+) => (
+  as({
+    class: ['button', `button_${variant}`, className],
+    ...props
+  })(
+    ...children
+  )
+))
+
+Button({
+  type: 'submit'
+})(
+  'Save'
+)
+// <button class="button button_primary" type="submit">Save</button>
+
+Button({
+  as: a,
+  href: '/docs/'
+})(
+  'Read the docs'
+)
+// <a class="button button_primary" href="/docs/">Read the docs</a>
+
+Button({
+  href: '/docs/' // type error: a button takes no `href`
+})
+```
+
+The props follow the target in `as`: with `as: a` they are those of a link, and without `as` those of a `button`, so `href` is a type error. `as` takes a component too, and brings its props:
+
+```ts
+import { type Attributes, a, component$ } from 'nanoviews'
+
+const Link = component$((
+  {
+    to,
+    ...props
+  }: { to: string } & Attributes<'a'>,
+  children
+) => (
+  a({
+    href: to,
+    ...props
+  })(
+    ...children
+  )
+))
+
+Button({
+  as: Link,
+  to: '/home'
+})(
+  'Home'
+)
+// <a href="/home" class="button button_primary">Home</a>
+```
+
+The default target can be a component as well: `PolymorphicProps<typeof Link>` in the props, `as = Link` in the render. A void element, such as `input`, is no target, since it takes no children. A prop of the component's own may take the name of an attribute, the way a kit has a `color` of its own: declared again with a type of its own, it stays the component's prop whatever the target.
+
+A second type argument of `PolymorphicProps` limits `as` to the targets it names, the default one aside:
+
+```ts
+import { type PolymorphicProps, article, div, span, polymorphic$ } from 'nanoviews'
+
+const Paper = polymorphic$((
+  {
+    as = div,
+    ...props
+  }: PolymorphicProps<'div', 'section' | 'article' | 'aside'>,
+  children
+) => (
+  as(props)(
+    ...children
+  )
+))
+
+Paper({
+  as: article
+})(
+  'Letter'
+)
+// <article>Letter</article>
+
+Paper({
+  as: span // type error: a span is not among the targets
+})
+```

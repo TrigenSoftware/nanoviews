@@ -1,0 +1,41 @@
+---
+title: Agent Skills
+description: Universal agent skills shipped with Nanoviews, one for views and one each for tests, stories and routing.
+sidebar:
+  order: 3
+---
+
+import { Aside, Code, Tabs, TabItem } from '@astrojs/starlight/components'
+
+The repository ships **universal agent skills**: instructions that teach an AI coding agent how to build with Nanoviews. They are compatible with Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Windsurf, Cline and other agents that support the [skills](https://github.com/vercel-labs/skills) format.
+
+## Skills
+
+- [`nanoviews`](https://github.com/TrigenSoftware/nanoviews/tree/main/skills/nanoviews): writing views. The element call shape, signals and accessors, `component$`, blocks, form bindings, effects, slots, dependency injection and the store API of `nanoviews/store`.
+- [`nanoviews-testing`](https://github.com/TrigenSoftware/nanoviews/tree/main/skills/nanoviews-testing): unit tests with `@nanoviews/testing-library` and Vitest. The happy-dom setup and cleanup, the forms of `render`, driving bindings with events, assertions right after signal writes, async data, dependency injection and composed stories.
+- [`nanoviews-storybook`](https://github.com/TrigenSoftware/nanoviews/tree/main/skills/nanoviews-storybook): stories with `@nanoviews/storybook-vite`. The framework and preview config, CSF3 typing, args that reach the render as writable signals, decorators and portable stories.
+- [`nanoviews-router`](https://github.com/TrigenSoftware/nanoviews/tree/main/skills/nanoviews-router): routing with `@nanoviews/router`. Navigation, pages and layouts, code splitting, links, the document head, URL state, guards, the dependency injection tokens and tests on virtual navigation.
+
+Install the `nanoviews` skill first, then the skills for the tools your project uses. The testing, Storybook and router skills refer to the `nanoviews` skill for how views are written instead of repeating it, and the testing and Storybook skills point to each other for stories in tests.
+
+The description of each skill tells the agent when to apply it. `nanoviews` applies to components, views, forms, lists and stores wired into views in any file that imports from `nanoviews`, `nanoviews/store`, `@nanoviews/*` or `@nano_kit/*`, whether or not the request names the library. `nanoviews-testing` applies to `*.spec.ts` files, `nanoviews-storybook` to `*.stories.ts` files, the `.storybook` config and story-based tests, and `nanoviews-router` to routes, pages, layouts, links, head tags and URL-derived state.
+
+## Installation
+
+Install a skill into your project with any package runner, replacing the skill name as needed:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpx skills add TrigenSoftware/nanoviews --skill nanoviews' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn dlx skills add TrigenSoftware/nanoviews --skill nanoviews' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npx skills add TrigenSoftware/nanoviews --skill nanoviews' />
+  </TabItem>
+</Tabs>
+
+## Nano Kit Skills
+
+The `@nano_kit/*` packages have skills of their own in the Nano Kit repository. Install them the same way, from `TrigenSoftware/nano_kit`, for the packages your app uses: see [Agent Skills](https://nano-kit.js.org/getting-started/agent-skills/) in the Nano Kit docs.

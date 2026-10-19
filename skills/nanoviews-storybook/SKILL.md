@@ -22,96 +22,53 @@ metadata:
     - nanoviews
     - storybook
     - stories
+  docs:
+    paths:
+      - storybook
 ---
 
 # Nanoviews Storybook
 
-`@nanoviews/storybook` is the renderer (it teaches Storybook to mount and update a nanoviews tree); `@nanoviews/storybook-vite` is the framework that wires it to the Vite builder and re-exports the renderer. A story's `render` is a nanoviews component like any other: it gets props and returns a view. How views are written is the nanoviews skill.
+`@nanoviews/storybook` is the Storybook renderer for nanoviews, and `@nanoviews/storybook-vite` is the framework that runs it on the Vite builder and re-exports its whole API. Stories are plain CSF3; a story's `render`, like the `component` of its meta, gets the args as writable signals and returns a view. How views are written is the nanoviews skill.
 
-## Setup
+## Reference
 
-```ts
-// .storybook/main.ts
-import type { StorybookConfig } from '@nanoviews/storybook-vite'
+`DOCS.md` next to this file is the documentation of the released packages as published on https://nanoviews.js.org, generated from the site sources. Read its relevant sections for the setup, the `Meta` forms, decorators, loaders, portable stories and the exact types before writing code. This skill adds only conventions, choices and pitfalls.
 
-const config: StorybookConfig = {
-  framework: '@nanoviews/storybook-vite',
-  stories: ['../src/**/*.stories.ts']
-}
+## Mental model
 
-export default config
-```
+- An arg has three shapes: a plain value in `args`, the Controls panel and loaders; a writable signal in `render`, the component and decorators; either one in a call of a composed story. Function args and args that already are signals pass through untouched.
+- A story mounts once. A control edit writes into the same signals and updates only the bindings that read them: no re-render, no new decorator call, component state kept. A change of globals (backgrounds, viewport, a toolbar of your own `globalTypes`) and the Reload story button remount it, with fresh signals and fresh state.
 
-```ts
-// .storybook/preview.ts
-import type { Preview } from '@nanoviews/storybook-vite'
+## Conventions
 
-const preview: Preview = {
-  parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' }   // every onX arg logs as an action; fn() from storybook/test is the explicit alternative
-  }
-}
+- `name.stories.ts` sits next to the module it shows: `const meta: Meta<...> = { title: 'Group/Name', ... }`, `export default meta`, `type Story = StoryObj<typeof meta>`, then one PascalCase CSF3 object per story. The spec of the module can render its composed stories instead of building the same views again.
+- Every named export of a stories module is a story: shared decorators, loaders and fixtures live in modules of their own, such as `.storybook/decorators.ts`.
+- Story code is view code: `render` and decorators take the block layout and the naming of the nanoviews skill (attributes one per line, `})(` or `()(` ends the line, children indented, `)` on its own line). Args keep the names of the props, so `render({ label })` destructures signals under plain names; a signal made in `render` takes the `$` (`$total`).
+- Every handler arg gets `fn()` from `storybook/test` in `args`, usually the meta's: the Actions panel logs its calls, and a test passes its own spy instead.
+- Install `@nanoviews/storybook-vite` alone, not the renderer: it depends on `@nanoviews/storybook` and re-exports its API, so the story API and the config types are imported from it.
+- A library package keeps `**/*.stories.ts` out of its declaration build and its coverage, as the nanoviews package does.
 
-export default preview
-```
+## Which form for which job
 
-- Dev dependencies: `@nanoviews/storybook-vite`, `storybook`, `vite`. The framework depends on `@nanoviews/storybook` and re-exports its API, so the renderer is not installed and everything is imported from the framework. Script: `storybook dev -p 6006 --no-open`.
-- Stories are plain CSF3: a default export with the meta and a named export per story. Story files are excluded from the library build and from coverage in the nanoviews repo.
+- `Meta<typeof Component>` with `component`: the stories of one component whose props are `Signalish`, `WritableSignal` or functions. A story that only picks args is `{}` or `{ args }`, with no `render`.
+- `Meta<Args>`, the plain args type: a story of several components or of a view with no component, and a `component$` whose props are all optional (the component form types their args `any`). It can still name the `component` that renders its stories.
+- `render` in the meta: the render of every story of the module; the stories then only set `args`.
+- A context for `inject`: a decorator wraps `story()` in `context$(provide(...))`, in the preview for every story, with the toolbar value read from `context.globals`; `render`, the components of the story and an inner decorator can all `inject` what it provides.
+- A test of a story: `composeStories(Stories, preview)` and `render(Story({ arg: $signal }))` from `@nanoviews/testing-library`, with a signal for every arg the test drives.
 
-## Writing stories
+## Pitfalls
 
-```ts
-import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
-import { b, if_ } from 'nanoviews'
+- `setProjectAnnotations(preview)` in a test setup file gives the preview to every composed story; a preview passed to a call, `composeStories(Stories, preview)` or `composeStory(Story, meta, preview)`, composes on top of it.
+- There is no docgen, so Storybook knows only the args a story gives a value or declares in `argTypes`. An arg left out has no control, and `actions: { argTypesRegex: '^on[A-Z].*' }` makes no action for an undeclared `onX`, which is what `fn()` is for. Give an optional prop that needs a control a value in `args`.
+- The signals are made for the args a story has at mount: an arg set later, from the control of a declared argType, reaches the view only at the next remount. `loaded` is fixed at mount too: a loader that reads an edited arg shows its new result after a remount.
+- A value read from an arg in the body of `render`, like `price() * quantity()`, is read once and goes stale on the next edit: derive it with `computed`, an operator or an arrow, or hand the signal itself to an attribute, a child or a block.
+- A component prop typed as a plain value (`id: string`) makes `component` a type error, because the renderer hands it a signal: type it `Signalish<string>`.
+- Decorators get the args as signals, but `Meta` and `StoryObj` type them as plain values: hand `context.args.label` to a binding, never read it as a string. Type a shared decorator with the plain args, `Decorator<{ label: string }>`, for a meta or a story; the preview takes the untyped `Decorator`. `Decorator<{ label: WritableSignal<string> }>` fits no `decorators`.
+- A composed story runs no loaders by itself: `await Story.load()` before `render`.
 
-const meta: Meta<{ value: boolean; label: string }> = {   // args type: plain values
-  title: 'Logic/if_'
-}
+## Related skills
 
-export default meta
-
-type Story = StoryObj<typeof meta>
-
-export const Static: Story = {
-  render() {
-    return if_(true)(() => b()('on'))
-  }
-}
-
-export const Reactive: Story = {
-  args: { value: true, label: 'on' },
-  render({ value, label }) {                  // WritableSignal<boolean>, WritableSignal<string>
-    return if_(value)(() => b()(label), () => 'off')
-  }
-}
-```
-
-- `Meta<Args>` takes the plain args type; `Meta<typeof Component>` takes the component, whose signal props define the args. In both forms `args` stays plain and `render` receives one writable signal per key.
-- A story with `component` in the meta needs no `render` of its own: `export const Default: Story = {}` and `export const Dozen: Story = { args: { count: 12 } }` render the component with those args. A story with neither `render` nor a `component` fails to render.
-- A value computed from `value()` at render time goes stale; derive with `computed` or pass the signal through to `if_`, `for_`, attributes and children.
-- Args that are already signals, and function args (`fn()` from `storybook/test` for actions), pass through untouched.
-- Decorators wrap the rendered view and run once per mount: `export const withWrap: Decorator = story => div({ class: 'wrap' })(story())`; type them `Decorator<{ label: WritableSignal<string> }>` when they read args.
-
-## Args are signals
-
-On the first render of a canvas the renderer wraps every plain arg in `signal()` and mounts the story once. Every later render (a control edited, an arg changed from the URL) writes the new plain values into the same signals: no re-render, the bindings that depend on the arg update. A toolbar (globals) change and `forceRemount` unmount and mount again, which resets component-local signals.
-
-## Portable stories
-
-```ts
-import { composeStories, composeStory } from '@nanoviews/storybook-vite'
-import * as Stories from './toggle.stories.js'
-import meta, { Reactive as ReactiveStory } from './toggle.stories.js'
-
-const { Static, Reactive } = composeStories(Stories)   // every story of the module
-const ReactiveAlone = composeStory(ReactiveStory, meta)  // one story
-```
-
-- A composed story is a function whose result is the story unbuilt, like a component instance: `@nanoviews/testing-library`'s `render` takes it as is, `render(Reactive({ value: false }))`, and a view takes it as a child. Every arg is optional and may be a plain value or a signal; a signal is the handle the test drives, an omitted arg falls back to the story's own `args` wrapped in a signal.
-- `setProjectAnnotations(preview)` from `@nanoviews/storybook`, called once in a test setup file, applies the globals from `.storybook/preview.ts` to every composed story.
-- Testing details (setup, `render`, events) are the nanoviews-testing skill.
-
-## Entry points and types
-
-- `@nanoviews/storybook`: `composeStories`, `composeStory`, `setProjectAnnotations` and the types `Meta`, `StoryObj`, `StoryFn`, `Decorator`, `Loader`, `StoryContext`, `Preview`, `NanoviewsRenderer`, plus `Args`, `ArgTypes`, `Parameters`, `StrictArgs` re-exported from `storybook/internal/types`. `@nanoviews/storybook-vite` re-exports all of it and adds `StorybookConfig`.
-- `@nanoviews/storybook/preset` is the `previewAnnotations` hook a framework points `core.renderer` at; `@nanoviews/storybook/entry-preview` holds the renderer's preview annotations (`render`, `renderToCanvas`, `applyDecorators`, `argTypesEnhancers`). Neither is imported by an ordinary project.
+- nanoviews: views, components, signals, dependency injection, the layout and naming rules.
+- nanoviews-testing: the Vitest setup, `render`, queries and events of the tests that render composed stories.
+- nanoviews-router: a routed view of the dependency injection shape gets the router tokens from a decorator that provides `virtualNavigation(path, routes)` as `LocationNavigation$`, the way its tests do; the links of the module-scope shape ignore it and move the location of the preview iframe.

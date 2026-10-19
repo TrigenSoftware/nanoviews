@@ -1,0 +1,213 @@
+---
+title: API
+description: "Reference for @nanoviews/storybook and @nanoviews/storybook-vite: the config types, the portable story helpers, the story types and the entry points."
+sidebar:
+  order: 4
+---
+
+This page describes the public API of `@nanoviews/storybook` and `@nanoviews/storybook-vite`: the config of `.storybook/main.ts`, the portable story helpers, the story types and the entry points.
+
+## `@nanoviews/storybook-vite`
+
+### `StorybookConfig`
+
+The type of the `.storybook/main.ts` default export, as on [Getting Started](/storybook/#storybookmaints). It is Storybook's own config type from `storybook/internal/types`, extended with the Vite builder option `viteFinal` and changed in two keys:
+
+- `framework` is required: `'@nanoviews/storybook-vite'`, or the [object form](#framework-options). The type suggests the package name to the editor but accepts any string.
+- `core.builder` is optional and takes `'@storybook/builder-vite'`, or `{ name, options }` with the builder options. The framework sets the builder already, so it is rarely needed.
+
+Every other key is a [`main.ts` option](https://storybook.js.org/docs/api/main-config/main-config) of Storybook: `stories`, `addons`, `staticDirs`, `docs` and the rest.
+
+### Framework Options
+
+`framework` also accepts the object form, where `options` is a `FrameworkOptions`:
+
+```ts title=".storybook/main.ts"
+import type { StorybookConfig } from '@nanoviews/storybook-vite'
+
+const config: StorybookConfig = {
+  framework: {
+    name: '@nanoviews/storybook-vite',
+    options: {
+      builder: {
+        viteConfigPath: '.storybook/vite.config.ts'
+      }
+    }
+  },
+  stories: ['../src/**/*.stories.ts']
+}
+
+export default config
+```
+
+`FrameworkOptions` has one key, `builder`, which is optional and passed straight through to [`@storybook/builder-vite`](https://storybook.js.org/docs/builders/vite):
+
+- `viteConfigPath` is the Vite config file to read, resolved relative to `process.cwd()`. By default the builder looks for a `vite.config` file in the project root, the directory that holds `.storybook`.
+- `configLoader` is how Vite loads that file: `'bundle'`, `'runner'` or `'native'`, the same as the `--configLoader` flag of Vite. It needs Vite 6.1 or newer and is ignored by older versions.
+
+In the object form `options` is required, so pass `options: {}` when there is nothing to configure.
+
+### `viteFinal`
+
+`StorybookConfig` also types [`viteFinal`](https://storybook.js.org/docs/api/main-config/main-config-vite-final), to extend the resolved Vite config:
+
+```ts title=".storybook/main.ts"
+import type { StorybookConfig } from '@nanoviews/storybook-vite'
+
+const config: StorybookConfig = {
+  framework: '@nanoviews/storybook-vite',
+  stories: ['../src/**/*.stories.ts'],
+  async viteFinal(config) {
+    const { mergeConfig } = await import('vite')
+
+    return mergeConfig(config, {
+      resolve: {
+        alias: {
+          '~': '/src'
+        }
+      }
+    })
+  }
+}
+
+export default config
+```
+
+`viteFinal(config, options)` gets the Vite config Storybook resolved and the Storybook options, and returns the config to use, or a promise of it.
+
+### `defineMain`
+
+`@nanoviews/storybook-vite/node` exports `defineMain`, an identity helper that types a `main.ts` config without a type annotation:
+
+```ts title=".storybook/main.ts"
+import { defineMain } from '@nanoviews/storybook-vite/node'
+
+export default defineMain({
+  framework: '@nanoviews/storybook-vite',
+  stories: ['../src/**/*.stories.ts']
+})
+```
+
+### Re-exports
+
+Everything exported by `@nanoviews/storybook` is re-exported from `@nanoviews/storybook-vite`, so a project installs the framework alone and imports its config types and its story types from it.
+
+## `@nanoviews/storybook`
+
+### `composeStories(csfExports, projectAnnotations?)`
+
+Composes all stories of a CSF module, the `import * as Stories` namespace, into callable functions bound to the Nanoviews renderer, and returns them in an object keyed by export name. The meta is the `default` export, and every other export is composed unless the `includeStories` or `excludeStories` of the meta leaves it out. Project annotations, such as the default export of `.storybook/preview.ts`, can be passed as the optional second argument. See [Portable Stories](/storybook/portable-stories/).
+
+### `composeStory(story, meta, projectAnnotations?, exportsName?)`
+
+Composes one story into a callable function bound to the Nanoviews renderer. Takes the story object and the meta of its module; project annotations and the export name of the story are the optional third and fourth arguments. The export name gives the composed story its name and id.
+
+### Composed Story
+
+What `composeStory` returns, and `composeStories` returns one per story: a function that takes the args and returns the story unbuilt, a [`LazyChild`](/guides/advanced/#children-and-components) like a component instance, that `render` of [`@nanoviews/testing-library`](/testing/) takes and a view takes as a child. Every arg is optional and accepts a plain value or a writable signal; a plain value is wrapped in a new signal on every call, and an arg left out falls back to the `args` below. The function also has the properties of a composed story of Storybook:
+
+- `args` — the args it falls back to, merged from the project annotations, the meta and the story;
+- `parameters`, `argTypes`, `globals` and `tags` — the merged annotations;
+- `id` and `storyName`;
+- `load()` — runs the loaders, and the calls of the story that follow get their result as `context.loaded`;
+- `play(context?)` — runs the `play` function of the story on `document.body`, or on the `canvasElement` the context passes; it is `undefined` when the story has no `play`;
+- `run(context?)` — runs the loaders, mounts the story into a new `<div>` appended to `document.body` and runs its `play` function. The `<div>` stays in the document until the next `run()` or `load()` of a composed story removes it.
+
+### `setProjectAnnotations(projectAnnotations)`
+
+Stores project annotations, one object or an array of them, globally, together with the annotations of the renderer. Every story composed afterwards by `composeStory` and `composeStories` gets them, and the annotations passed to a call compose on top. Call it once in a test setup file, as [Portable Stories](/storybook/portable-stories/#project-annotations) shows.
+
+## Types
+
+### `Meta`
+
+`Meta<typeof Component>` or `Meta<Args>`: the metadata of the default export. Parameterize it with the component or with the plain args type; `args` is plain in both cases, and `render` gets signals. With the component form, a prop typed as `Signalish<T>` or `WritableSignal<T>` takes a plain `T` in `args`, a prop that is only a function stays a function, and a prop typed as a plain value makes `component` a type error, since the renderer hands it a signal. See [Typing the Meta](/storybook/writing-stories/#typing-the-meta).
+
+### `StoryObj`
+
+`StoryObj<typeof meta>`: a CSF3 story object. It can also be parameterized with a component or a plain args type directly, instead of with the meta: `StoryObj<{ muted: boolean }>`.
+
+### `StoryFn`
+
+`StoryFn<Component>` or `StoryFn<Args>`: a CSF2 story function. It is a `render` like any other, it gets the args as signals, and its annotations go on the function:
+
+```ts title="src/bold.stories.ts"
+import type { Meta, StoryFn } from '@nanoviews/storybook-vite'
+import { b } from 'nanoviews'
+
+const meta: Meta<{
+  label: string
+}> = {
+  title: 'Bold'
+}
+
+export default meta
+
+export const Bold: StoryFn<{
+  label: string
+}> = ({ label }) => b()(label)
+
+Bold.args = {
+  label: 'Hello'
+}
+// <b>Hello</b>
+```
+
+### `Decorator`, `Loader`, `StoryContext`
+
+`Decorator<Args>`, `Loader<Args>` and `StoryContext<Args>` are the decorator, loader and story context types of Storybook, bound to the Nanoviews renderer. `Args` defaults to `StrictArgs`, which types every arg as `unknown`.
+
+Parameterize them with the plain args type. A decorator gets the args as signals all the same, see [Args in Decorators](/storybook/writing-stories/#args-in-decorators); a loader gets them as plain values. The loader of the `User` story of [Loaders](/storybook/writing-stories/#loaders), as a constant of its own:
+
+```ts title="src/loaders.ts"
+import type { Loader } from '@nanoviews/storybook-vite'
+import { fetchUser } from './api.js'
+
+export const loadUser: Loader<{
+  id: number
+}> = async ({ args }) => ({
+  user: await fetchUser(args.id)
+})
+```
+
+A meta or a story with the same args takes it in its `loaders`.
+
+### `Preview`
+
+The type of the `.storybook/preview.ts` default export, as on [Getting Started](/storybook/#storybookpreviewts).
+
+### Renderer Types
+
+- `NanoviewsRenderer<Props>` is the renderer itself: its `component` takes the signal props, `SignalProps<Props>`, its `storyResult` is the view they render, a `Child`, and its canvas element is an `HTMLElement`.
+- `NanoviewsMountRenderer<Props>` is the renderer as seen after `applyDecorators`, which defers the whole decorated story: its `storyResult` is a `LazyChild`, the story unbuilt, instead of a view. A composed story is typed with it.
+
+### Props Types
+
+The types that map the three shapes of a prop into each other:
+
+| Type | What it is | Example |
+| --- | --- | --- |
+| `ComponentType<Props>` | a function from props to a view | `(props: Props) => Child` |
+| `ComponentArgs<T>` | the plain args of a component's props | `{ a: Signalish<number> }` → `{ a: number }` |
+| `SignalProps<T>` | what `render` gets for plain args | `{ a: number }` → `{ a: WritableSignal<number> }` |
+| `RawProps<T>` | signal props back to plain values | `{ a: WritableSignal<number> }` → `{ a: number }` |
+| `UniversalProps<T>` | what a composed story accepts | `{ a: number }` → `{ a: number \| WritableSignal<number> }` |
+
+`ComponentArgs` and `SignalProps` leave a prop that is only a function, like an event handler, as it is, and `SignalProps` and `UniversalProps` keep a signal prop as it is. An optional prop keeps its `undefined` outside the signal (`b?: WritableSignal<string>`), while a required prop that takes `undefined` holds it inside (`WritableSignal<string | undefined>`).
+
+### Storybook Types
+
+`Args`, `ArgTypes`, `Parameters` and `StrictArgs` are re-exported from `storybook/internal/types`.
+
+## Entry Points
+
+| Entry point | Exports |
+| --- | --- |
+| `@nanoviews/storybook` | `composeStories`, `composeStory`, `setProjectAnnotations` and the types above. |
+| `@nanoviews/storybook/preset` | `previewAnnotations`, the Storybook preset hook that adds the preview entry below to the config. `@nanoviews/storybook-vite` points at it as `core.renderer`; a framework for another builder would do the same. |
+| `@nanoviews/storybook/entry-preview` | The preview annotations of the renderer: `parameters`, `applyDecorators`, `render`, `renderToCanvas` and `argTypesEnhancers`. |
+| `@nanoviews/storybook-vite` | `StorybookConfig`, `FrameworkOptions` and every export of `@nanoviews/storybook`. |
+| `@nanoviews/storybook-vite/node` | `defineMain`. |
+| `@nanoviews/storybook-vite/preset` | The framework preset, `core`: the builder, `@storybook/builder-vite`, and the renderer, `@nanoviews/storybook/preset`. |
+
+Storybook loads the presets and the preview entry by itself once `framework` names `@nanoviews/storybook-vite`: a project imports none of them. What the preview annotations do with a story is described in [Args Are Signals](/storybook/writing-stories/#args-are-signals).

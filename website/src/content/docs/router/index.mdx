@@ -1,0 +1,113 @@
+---
+title: Getting Started
+description: "@nanoviews/router is the Nanoviews integration for @nano_kit/router: pages, nested layouts, code splitting, links and head management."
+sidebar:
+  order: 1
+---
+
+import { Image } from 'astro:assets'
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
+import logoLight from '../../../assets/ring-system_black.svg'
+import logoDark from '../../../assets/ring-system_white.svg'
+
+<Image src={logoLight} alt='Four-pointed ring system star logo' width={128} height={128} class='dark:sl-hidden nv-brand-logo' />
+<Image src={logoDark} alt='Four-pointed ring system star logo' width={128} height={128} class='light:sl-hidden nv-brand-logo' />
+
+`@nanoviews/router` is the [Nanoviews](/getting-started/) integration for [@nano_kit/router](https://nano-kit.js.org/router/): pages, nested layouts, code splitting, links and head management, with or without dependency injection.
+
+- **Small**. Around 1.3 kB (minified and brotlied) on top of the router, and only what you import of it.
+- **Direct DOM**. A layout is built once and the matched page is swapped inside it.
+- **Type-safe**. Route names and params are checked in links and path builders.
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add nanoviews @nano_kit/store @nano_kit/router @nanoviews/router' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add nanoviews @nano_kit/store @nano_kit/router @nanoviews/router' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install nanoviews @nano_kit/store @nano_kit/router @nanoviews/router' />
+  </TabItem>
+</Tabs>
+
+`@nano_kit/router` is built on `@nano_kit/store`, which extends the signals of `nanoviews/store`. The location, the URL params and the matched page are such signals, so they bind into views as they are. They do as long as `nanoviews` and `@nano_kit/store` share one copy of the reactive core: [Nanoviews and Nano Kit](/getting-started/#nanoviews-and-nano-kit) shows how to merge two copies.
+
+## Quick Start
+
+Here is an app with two pages in a layout, each page in a chunk of its own:
+
+```ts
+import { mount, main, nav, component$ } from 'nanoviews'
+import { browserNavigation, buildPaths, linkComponent, router, pageView, page, layout, loadable, Outlet } from '@nanoviews/router'
+
+const routes = {
+  home: '/',
+  user: '/users/:id'
+} as const
+const [$location, navigation] = browserNavigation(routes)
+const Link = linkComponent(navigation, buildPaths(routes))
+
+const MainLayout = component$(() => (
+  main()(
+    nav()(
+      Link({
+        to: 'home'
+      })(
+        'Home'
+      ),
+      Link({
+        to: 'user',
+        params: {
+          id: 1
+        }
+      })(
+        'User'
+      )
+    ),
+    Outlet()
+  )
+))
+
+const $page = router($location, [
+  layout(MainLayout, [
+    page('home', loadable(() => import('./pages/Home.js'))),
+    page('user', loadable(() => import('./pages/User.js')))
+  ])
+])
+
+mount(() => pageView($page), document.querySelector('#app')!)
+```
+
+A page module exports its page as `default`:
+
+```ts
+// pages/Home.ts
+import { h1, component$ } from 'nanoviews'
+
+export default component$(() => h1()('Home'))
+```
+
+`browserNavigation` turns the browser history into a location signal and a navigation. `Link` builds the `href` of a route from its params and navigates on click without a page reload. `router` matches the location against the pages, and `pageView` renders the matched one. At `/`, once the chunk of the home page has loaded, the app is `<main><nav><a href="/">Home</a><a href="/users/1">User</a></nav><h1>Home</h1></main>`. A click on `User` pushes `/users/1`: the layout stays as it is, and only the page at its `Outlet` is swapped.
+
+## From `@nano_kit/router`
+
+`@nanoviews/router` re-exports everything from `@nano_kit/router`: navigation, params, paths, head descriptors and the rest are imported from here. Their guide is the [router documentation](https://nano-kit.js.org/router/) of Nano Kit.
+
+| Re-exported | Guide |
+| --- | --- |
+| `browserNavigation`, `virtualNavigation`, `canGoBack` | [Navigation](https://nano-kit.js.org/router/core-concepts/#navigation), [`canGoBack`](https://nano-kit.js.org/router/advanced/#cangoback) |
+| `param`, `searchParams`, `searchParam`, `forRoute` | [Route Parameters](https://nano-kit.js.org/router/core-concepts/#route-parameters), [Query Parameters](https://nano-kit.js.org/router/core-concepts/#query-parameters), [Route-Scoped Signals](https://nano-kit.js.org/router/core-concepts/#route-scoped-signals) |
+| `buildPaths`, `basePath`, `updateHref` | [Links](https://nano-kit.js.org/router/core-concepts/#links), [Utils](https://nano-kit.js.org/router/advanced/#utils) |
+| `title`, `meta`, `link`, `script`, `lang`, `dir` | [Head Management](https://nano-kit.js.org/router/advanced/#head-management) |
+| `resetScroll`, `scrollToAnchor`, `ScrollRestorator` | [Scroll Management](https://nano-kit.js.org/router/advanced/#scroll-management) |
+| `loadPage`, `loadPages` | [Code Splitting](https://nano-kit.js.org/router/advanced/#code-splitting) |
+| `LocationNavigation$`, `Location$`, `Navigation$`, `Page$`, `Pages$`, `Paths$`, `CanGoBack$` | [Dependency Injection](https://nano-kit.js.org/router/advanced/#dependency-injection) |
+
+`@nanoviews/router` adds what renders: `router`, `pageView` and `Outlet`, `App`, the `Link` components with `preloadable` and `ariaCurrent`, the routing of plain anchors and the head sync. [Specifics](/router/specifics/) covers them, in their module scope and dependency injection forms. `router` takes the place of the one from `@nano_kit/router`: it composes layouts with `Outlet`. `page`, `layout`, `loadable` and `notFound` are the ones from `@nano_kit/router`, typed for Nanoviews pages.
+
+The types of what it adds are exported too: `PageComponent` types a page or a layout, a function that returns a child; `LinkComponent<R>` and `LinkProps<R, K>` type a `Link` and its props for the routes `R`; `LinkSettingsHook` types a hook of `linkComponent`; `IsAriaCurrent<R>` types the predicate of `ariaCurrent`. `compose`, `LinkSettings$` and `defaultIsAriaCurrent` are the parts that `router`, the DI `Link` and `ariaCurrent` are built from.

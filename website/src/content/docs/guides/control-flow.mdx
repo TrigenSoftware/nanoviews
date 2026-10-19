@@ -1,0 +1,556 @@
+---
+title: Control Flow
+description: Render conditions, cases and lists that follow signals.
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+A view is built once. A ternary or a `.map()` in it runs once, at build time, and nothing follows the signal it read. A condition or a list that changes needs a block: a call that takes a signal and keeps its part of the DOM in step with it. Blocks end with `_`.
+
+| Block | Use when | Shape |
+| --- | --- | --- |
+| [`if_`](#if_) | branch, rebuilt on every flip | `if_($cond)(v => thenView, () => elseView)` |
+| [`show_`](#show_) | toggle visibility, keep state and DOM | `show_($cond, () => view)` |
+| [`switch_`](#switch_) | one primitive value, several cases | `switch_($tab)(case_('a', () => ...), default_(() => ...))` |
+| [`match_`](#match_) | first truthy condition wins | `match_(when_($loading, () => ...), when_($error, $error => ...), default_(() => ...))` |
+| [`show_switch_`](#show_switch_) | `switch_` that keeps every case alive | `show_switch_($tab)(case_('a', () => ...), default_(() => ...))` |
+| [`show_match_`](#show_match_) | `match_` that keeps every case alive | `show_match_(when_($loading, () => ...), default_(() => ...))` |
+| [`swap_`](#swap_) | custom mapping value to view | `swap_($value, value => view)` |
+| [`for_`](#for_) | reactive list | `for_($items, trackById)(($item, $index, key) => row, () => emptyView)` |
+
+Every block takes a plain value as well as a signal or an accessor. A plain value never changes, so the block decides once, at build time, and follows nothing. The children of a block are functions: the block calls one when it needs that child built.
+
+## `if_`
+
+`if_` renders one of two branches by the truthiness of a value: the first while it is truthy, the second while it is falsy.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { if_, b, i } from 'nanoviews'
+
+const $open = signal(false)
+
+if_($open)(
+  () => b()('Open'),
+  () => i()('Closed')
+)
+// <i>Closed</i>
+
+$open(true)
+// <b>Open</b>
+```
+
+The second branch is optional: without it a falsy value renders nothing.
+
+### Narrowed Value
+
+Each branch receives the value `if_` was given, typed to its side: the first branch gets the signal typed as truthy, so a nullable value needs no check inside it. The branch reads the signal live.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { if_, p } from 'nanoviews'
+
+interface User {
+  name: string
+}
+
+const $user = signal<User | null>(null)
+
+if_($user)(
+  $user => p()(
+    'Hello, ', () => $user().name
+  ),
+  () => p()('Nobody is signed in')
+)
+// <p>Nobody is signed in</p>
+
+$user({ name: 'Ann' })
+// <p>Hello, Ann</p>
+
+$user({ name: 'Bob' })
+// <p>Hello, Bob</p>
+```
+
+### Rebuilt on a Flip
+
+`if_` follows the truthiness of the value, not the value. A write that keeps it truthy, like the switch from Ann to Bob above, reaches the branch through its bindings: the same `p` stays and only its text changes. A flip rebuilds: the old branch is destroyed, and the new one starts from scratch, with new DOM and new local signals. A subtree that must keep its state across flips belongs in [`show_`](#show_).
+
+### Plain Value
+
+A plain value picks the branch once, at build time: `if_(isAdmin)(() => li()('Settings'))` renders the item or nothing and subscribes to nothing. The branch gets the plain value, narrowed the same way.
+
+## `show_`
+
+`show_` hides and shows a child instead of rebuilding it. The child is built once, when the block is built, even if the value is falsy then. Hiding parks the tree instead of destroying it:
+
+- The nodes leave the document and are kept: showing puts the same nodes back.
+- Local state is kept: the signals the render created live on.
+- Bindings keep updating: text, attributes and `style` follow their signals while hidden, so the tree comes back up to date.
+- [`effect$`](/guides/components/#effect) effects stop: their cleanups run on hide, while the DOM is still attached, and they run again on show, with `warmup` set to `true` as on the first run.
+
+There is no else branch.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { show_, button } from 'nanoviews'
+
+const $visible = signal(true)
+
+show_($visible, () => {
+  const $count = signal(0)
+
+  return (
+    button({
+      onClick() {
+        $count(count => count + 1)
+      }
+    })(
+      'Count: ', $count
+    )
+  )
+})
+// <button>Count: 0</button>
+```
+
+The counter above keeps counting from where it was left: with `if_` it would start from zero every time it comes back.
+
+Only the `effect$` effects stop. A timer started in one is cleared on hide and started again on show, and the count it drives is kept:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { show_, span, effect$, component$ } from 'nanoviews'
+
+const Stopwatch = component$(() => {
+  const $seconds = signal(0)
+
+  effect$(() => {
+    const id = setInterval(() => $seconds(seconds => seconds + 1), 1000)
+
+    return () => clearInterval(id)
+  })
+
+  return (
+    span()(
+      $seconds, 's'
+    )
+  )
+})
+
+const $visible = signal(true)
+
+show_($visible, () => Stopwatch())
+// <span>0s</span>
+```
+
+A plain value renders the child or nothing: `show_(false, render)` never calls `render`.
+
+<Aside type='caution' title='Keep portals and refs out of show_'>
+Hiding runs the cleanups a `portal` and a `ref` register, the way it runs those of `effect$`: the portal removes its content, the `ref` receives `null`, and showing again restores neither. Put the `show_` inside the portal instead, `portal(() => document.body, show_($open, () => Modal()))`: the parked DOM leaves the target and comes back with its state. A subtree that needs a live `ref` belongs in `if_`. See [`portal`](/guides/advanced/#portal).
+</Aside>
+
+## `switch_`
+
+`switch_` renders the case that equals a value. Cases are made with `case_(value, render)` and compared by strict equality; `default_(render)` answers when no case matches, and without it nothing renders.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { switch_, case_, default_, b } from 'nanoviews'
+
+const $state = signal<'loading' | 'error' | 'done'>('loading')
+
+switch_($state)(
+  case_('loading', () => b()('Loading')),
+  case_('error', () => b()('Error')),
+  default_(() => 'Success')
+)
+// <b>Loading</b>
+
+$state('done')
+// Success
+```
+
+Case values are plain values, fixed when the block is built, and typed by the value: with the signal above, `case_('ready', ...)` is a type error. The child is built anew on every change of the value, the way [`swap_`](#swap_) builds it: a write from one unmatched value to another builds the `default_` child again. [`show_switch_`](#show_switch_) keeps every case alive instead.
+
+## `match_`
+
+`match_` renders the child of the first case that holds: a cascade of conditions written as a list instead of `if_` inside `if_` inside `if_`. Cases are made with `when_(value, render)`, and `default_`, the same one `switch_` takes, answers when no case holds.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { match_, when_, default_, b, i } from 'nanoviews'
+
+const $loading = signal(true)
+const $error = signal(false)
+
+match_(
+  when_($loading, () => i()('Loading')),
+  when_($error, () => b()('Error')),
+  default_(() => 'Ready')
+)
+// <i>Loading</i>
+
+$loading(false)
+// Ready
+```
+
+The walk stops at the case that holds, so a case below it is never read, and never wakes the block when it changes: while `$loading` is `true`, a write to `$error` does nothing. The child is rebuilt only when another case starts to hold. The list is fixed when the block is built, and the first `default_` in it is the one that answers.
+
+### Conditions That Move Together
+
+Cases that move together are worth a [`batch`](/guides/advanced/#batching): without one every write swaps the content, so the case in between is built and started only to be replaced. Here, from `Loading`, the first write alone would render `Ready` and the second `Error`:
+
+```ts
+import { batch } from 'nanoviews/store'
+
+batch(() => {
+  $loading(false)
+  $error(true)
+})
+// <b>Error</b>
+```
+
+### The Case Value
+
+Every case hands its own value to its child: the signal it tested, which the child reads live.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { match_, when_, default_, b } from 'nanoviews'
+
+interface Post {
+  title: string
+}
+
+const $post = signal<Post | null>(null)
+
+match_(
+  when_($post, $post => b()(() => $post().title)),
+  default_(() => 'No post')
+)
+// No post
+
+$post({ title: 'Hello' })
+// <b>Hello</b>
+```
+
+## `show_switch_`
+
+`show_switch_` is `switch_` built on `show_`: every case is built once, up front, and the cases that do not match are parked, so a case comes back exactly as it was left. It takes the same `case_` and `default_`.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { show_switch_, case_, default_, button, b } from 'nanoviews'
+
+const $tab = signal('counter')
+
+show_switch_($tab)(
+  case_('counter', () => {
+    const $count = signal(0)
+
+    return (
+      button({
+        onClick() {
+          $count(count => count + 1)
+        }
+      })(
+        'Count: ', $count
+      )
+    )
+  }),
+  default_(() => b()('Settings'))
+)
+// <button>Count: 0</button>
+
+$tab('settings')
+// <b>Settings</b>
+```
+
+The counter keeps its count while another tab is open: with `switch_` it would start from zero every time its tab comes back. A parked case follows the rules of `show_`: its bindings keep it up to date, its `effect$` effects run only while it is shown, and a `portal` or a live `ref` does not belong in it. A write that keeps the same case matching wakes no case, and a plain value builds the matching case alone.
+
+## `show_match_`
+
+`show_match_` is `match_` built on `show_`: the first case that holds is shown and every other case is parked. It takes the same `when_` and `default_` and walks the cases the same way, so cases that move together are worth a `batch` here too.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { show_match_, when_, default_, b, i } from 'nanoviews'
+
+const $loading = signal(true)
+const $error = signal(false)
+
+show_match_(
+  when_($loading, () => i()('Loading')),
+  when_($error, () => b()('Error')),
+  default_(() => 'Ready')
+)
+// <i>Loading</i>
+```
+
+A case child takes no value. It is built before its case holds and lives on, parked, after the case stops holding, so a value narrowed to the truthy side would not hold for it, and TypeScript turns such a child away. Read the signal itself instead, and let the read allow for the falsy side:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { show_match_, when_, default_, b } from 'nanoviews'
+
+interface Post {
+  title: string
+}
+
+const $post = signal<Post | null>(null)
+
+show_match_(
+  when_($post, $post => b()(() => $post().title)), // type error: a case child takes no value
+  default_(() => 'No post')
+)
+
+show_match_(
+  when_($post, () => b()(() => $post()?.title)),
+  default_(() => 'No post')
+)
+```
+
+## `swap_`
+
+`swap_` is the block `if_`, `switch_` and `match_` are built on: it renders a child decided by a value. Unlike a binding, which updates content in place, the child is built anew every time the value changes.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { swap_, b, i } from 'nanoviews'
+
+const $tab = signal('list')
+
+swap_($tab, tab => (
+  tab === 'list'
+    ? b()(tab)
+    : i()(tab)
+))
+// <b>list</b>
+
+$tab('grid')
+// <i>grid</i>
+```
+
+## `for_`
+
+`for_` renders a row for every item of an array and keeps the rows in step with it.
+
+```ts
+import { signal, record } from 'nanoviews/store'
+import { for_, trackById, ul, li } from 'nanoviews'
+
+const $players = signal([
+  { id: 1, name: 'chopper' },
+  { id: 2, name: 'magixx' },
+  { id: 3, name: 'zont1x' }
+])
+
+ul()(
+  for_($players, trackById)(
+    $player => li()(record($player).$name)
+  )
+)
+// <ul><li>chopper</li><li>magixx</li><li>zont1x</li></ul>
+```
+
+### Trackers
+
+The second argument is a tracker: it names a row, so on reorder the row's DOM, signals and effects move with it instead of being rebuilt. Reversing the list above:
+
+```ts
+$players(players => [...players].reverse())
+// <ul><li>zont1x</li><li>magixx</li><li>chopper</li></ul>
+```
+
+The three `li` elements are the ones built at first: the rows moved, and nothing was rebuilt.
+
+`trackById` names a row by the `id` of its item, and `trackBy(key)` makes a tracker for another key: `for_($cities, trackBy('label'))`. Any function of the item and its index works too: `for_($files, file => file.path)`.
+
+Without a tracker a row is named by its position. A reorder leaves every row where it is and writes the item of the new position into it, so whatever a row holds of its own, a local signal or the state of an input, stays with the position, not with the item. Give a tracker whenever the items are objects or the rows hold state.
+
+### Row Arguments
+
+The render is given the row, its index signal and the key the tracker named the row by. The index changes while the row moves, the key never does. Without a tracker the key is the index.
+
+```ts
+ul()(
+  for_($players, trackById)(
+    ($player, $index, id) => li()(
+      $index, ': ', () => $player().name, ' #', id
+    )
+  )
+)
+// <ul><li>0: chopper #1</li><li>1: magixx #2</li><li>2: zont1x #3</li></ul>
+
+$players(players => [...players].reverse())
+// <ul><li>0: zont1x #3</li><li>1: magixx #2</li><li>2: chopper #1</li></ul>
+```
+
+### Writable Rows
+
+When the list is a writable signal, so is the row: writing the row writes a new item into a new array, and everything that reads the list follows. [`record`](/guides/reactivity/#other-exports) turns the row into writable fields, ready for two-way bindings.
+
+```ts
+import { signal, record } from 'nanoviews/store'
+import { for_, trackById, ul, li, label, input } from 'nanoviews'
+
+interface Todo {
+  id: number
+  title: string
+  done: boolean
+}
+
+const $todos = signal<Todo[]>([
+  { id: 1, title: 'Write docs', done: false },
+  { id: 2, title: 'Ship it', done: false }
+])
+
+ul()(
+  for_($todos, trackById)(
+    ($todo) => {
+      const { $title, $done } = record($todo)
+
+      return (
+        li()(
+          label()(
+            input({
+              type: 'checkbox',
+              checked: $done
+            }),
+            $title
+          )
+        )
+      )
+    }
+  )
+)
+// <ul><li><label><input type="checkbox">Write docs</label></li><li><label><input type="checkbox">Ship it</label></li></ul>
+```
+
+Ticking the first box writes `{ id: 1, title: 'Write docs', done: true }` into a new `$todos` array.
+
+A list that cannot be written, such as a `computed` list, hands out read-only rows: there is nothing to write back to. In the types, the rows of a signal typed `T[] | null` or `T[] | undefined`, such as `signal<Todo[]>()`, are read-only too. Keep a list you edit through its rows non-nullable, with `[]` for no items, or type it with `EmptyValue` from `nanoviews/store`: the rows of `signal<Todo[] | EmptyValue>(null)` are writable.
+
+### Read the Row, Not the List
+
+Inside a row, read the row's own signals, `$item()` and `$index()`. A read of the whole list there, `$items()`, subscribes every row to every change of the list, so one edited item re-runs that read in every row. A value derived from the whole list belongs outside the rows, in a computed the rows read: `length` notifies only when the length changes.
+
+```ts
+import { length } from 'nanoviews/store'
+import { for_, trackById, ul, li } from 'nanoviews'
+
+const $total = length($players)
+
+ul()(
+  for_($players, trackById)(
+    ($player, $index) => li()(
+      () => $index() + 1, ' of ', $total, ': ', () => $player().name
+    )
+  )
+)
+// <ul><li>1 of 3: chopper</li><li>2 of 3: magixx</li><li>3 of 3: zont1x</li></ul>
+```
+
+### Selection
+
+One [`selector`](/guides/reactivity/#selector) outside the loop, asked by key in each row, marks the selected row: a change of the selection wakes the row that lost it and the row that got it, and no other, where a computed per row would wake them all.
+
+### Empty State
+
+The second function of the row call renders the empty state: for an empty array, and for `null` or `undefined`. It stays while the list stays empty and gives way to the rows when items arrive.
+
+```ts
+import { signal } from 'nanoviews/store'
+import { for_, ul, li } from 'nanoviews'
+
+const $results = signal<string[] | null>(null)
+
+ul()(
+  for_($results)(
+    $result => li()($result),
+    () => li()('Nothing found')
+  )
+)
+// <ul><li>Nothing found</li></ul>
+
+$results(['Berlin', 'Prague'])
+// <ul><li>Berlin</li><li>Prague</li></ul>
+
+$results([])
+// <ul><li>Nothing found</li></ul>
+```
+
+### Static Arrays
+
+A plain array takes no tracker and renders once. The row gets the plain item, its index and the index again as its key.
+
+```ts
+import { for_, ul, li } from 'nanoviews'
+
+const links = ['Home', 'Blog', 'About']
+
+ul()(
+  for_(links)(
+    link => li()(link),
+    () => li()('No links')
+  )
+)
+// <ul><li>Home</li><li>Blog</li><li>About</li></ul>
+```
+
+### Duplicate Keys
+
+Keys must be unique within the list. A repeated key is not reported: the loop holds one row per key, so depending on where the repeat falls, the list renders a row short, or the write throws a `TypeError` from inside the loop and leaves the old rows on screen. When values can repeat, track by something that cannot, or give no tracker and let the positions name the rows:
+
+```ts
+import { signal } from 'nanoviews/store'
+import { for_, ul, li } from 'nanoviews'
+
+const $tags = signal(['news', 'tech', 'news'])
+
+ul()(
+  for_($tags)(
+    $tag => li()($tag)
+  )
+)
+// <ul><li>news</li><li>tech</li><li>news</li></ul>
+```
+
+With `tag => tag` as the tracker, the same list renders `<ul><li>news</li><li>tech</li></ul>`.
+
+### `as_`
+
+`as_` hands the row through a transform before rendering it, carrying the index and the key through: the same `$players` list, with `record` written once instead of in every child.
+
+```ts
+import { record } from 'nanoviews/store'
+import { for_, trackById, as_, ul, li } from 'nanoviews'
+
+ul()(
+  for_($players, trackById)(
+    as_(record, ($player, $index) => li()(
+      $index, ': ', $player.$name
+    ))
+  )
+)
+// <ul><li>0: chopper</li><li>1: magixx</li><li>2: zont1x</li></ul>
+```
+
+The transformed row is still bound to the list: a write to `$player.$name` lands in `$players`.
+
+## `throw_`
+
+`throw_` throws an error from inside an expression, where a `throw` statement cannot stand.
+
+```ts
+import { ul, component$, throw_ } from 'nanoviews'
+
+const List = component$((_, children) => (
+  ul()(
+    ...children.length ? children : throw_(new Error('Children are required'))
+  )
+))
+```
+
+`List()` without children throws `Children are required` when it is built.

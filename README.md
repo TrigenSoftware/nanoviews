@@ -2,6 +2,8 @@
 
 A small Direct DOM library for building user interfaces.
 
+[📚 Documentation](https://nanoviews.js.org)
+
 | Package | Description | Version |
 |---------|-------------|---------|
 | [`nanoviews`](packages/nanoviews#readme) | A small Direct DOM library for building user interfaces. | [![NPM version][nanoviews-npm]][nanoviews-npm-url] |
@@ -27,6 +29,8 @@ pnpx skills add TrigenSoftware/nanoviews --skill nanoviews
 # npm
 npx skills add TrigenSoftware/nanoviews --skill nanoviews
 ```
+
+See the [Agent Skills](https://nanoviews.js.org/getting-started/agent-skills/) page for details.
 
 <!-- nanoviews -->
 

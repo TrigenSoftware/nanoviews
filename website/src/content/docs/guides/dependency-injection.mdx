@@ -1,0 +1,253 @@
+---
+title: Dependency Injection
+description: "Share stores and services across a view tree with context$, provide and inject, and swap them for a subtree, a test or a story."
+sidebar:
+  order: 6
+---
+
+Dependency injection lets a view tree share stores and services without keeping them in module scope. A component asks for a dependency by its factory, and the context it is built in decides which instance it gets. A subtree, a test or a story can swap a dependency for another value, and every app instance gets stores of its own.
+
+Nanoviews uses the dependency injection of its reactive core, the one Nano Kit is built on. `inject`, `provide`, `provideAs`, `InjectionContext`, `Injectable$` and `DependencyNotFound` come from `nanoviews/store`; `context$` and `isolate$`, which choose the context a part of the view is built in, come from `nanoviews`.
+
+```ts
+import { signal, provide, inject } from 'nanoviews/store'
+import { div, component$, context$, mount } from 'nanoviews'
+
+type Theme = 'light' | 'dark'
+
+function Theme$() {
+  return signal<Theme>('light')
+}
+
+const Themed = component$(() => {
+  const $theme = inject(Theme$)
+
+  return (
+    div()(
+      'Current theme: ', $theme
+    )
+  )
+})
+
+const App = component$(() => {
+  const $theme = signal<Theme>('dark')
+
+  return (
+    context$(provide(Theme$, $theme))(
+      Themed()
+    )
+  )
+})
+
+mount(App, document.querySelector('#app')!)
+// <div>Current theme: dark</div>
+```
+
+`Themed` asks for `Theme$` and gets the signal that `App` provides. Nano Kit's documentation covers the same system from the store side: [Dependency Injection](https://nano-kit.js.org/store/core-concepts/#dependency-injection).
+
+## DI Basics
+
+Factories, providers and tokens work in a view the way they do anywhere else, and Nano Kit's docs cover them:
+
+| API | What it does | Nano Kit docs |
+| --- | --- | --- |
+| `inject(Factory$)` | the instance of the current context, made by the factory, a `Name$` function, on first use; what the factory returns is the default | [Dependency Injection](https://nano-kit.js.org/store/core-concepts/#dependency-injection) |
+| nested contexts | an instance lives in the deepest context that provides something it read, and the contexts below share it | [Nested Contexts](https://nano-kit.js.org/store/core-concepts/#nested-contexts) |
+| `provide(Factory$, value)` | a provider for `context$`: `inject` returns the value there; it fits the factory's type exactly, a signal included | [Providing Custom Values](https://nano-kit.js.org/store/core-concepts/#providing-custom-values) |
+| `provideAs(Factory$, Other$)` | resolves a factory as another one, which shares its instance: a mock API in stories and tests | [Aliases](https://nano-kit.js.org/store/core-concepts/#aliases) |
+| `Injectable$` | a class as the token, made with `new` | [Class Tokens](https://nano-kit.js.org/store/core-concepts/#class-tokens) |
+| `DependencyNotFound` | thrown by a factory with no default, so a missing provider fails at the first `inject` | [Required Dependencies](https://nano-kit.js.org/store/core-concepts/#required-dependencies) |
+
+## `context$`
+
+`context$(...providers)(child)` describes a child built within an injection context. The child is built inside the context, wherever its description was made, and every `inject` in it, however deep, sees the values of that context. Which context it is depends on what `context$` is given and on what is above it.
+
+### Root Context
+
+An app opens one context at its root before anything injects. `context$()` with no context above opens the root context, and the app wraps its whole view in it, here with `Themed` from above:
+
+```ts
+import { main, component$, context$, mount } from 'nanoviews'
+
+const App = component$(() => (
+  context$()(
+    main()(
+      Themed()
+    )
+  )
+))
+
+mount(App, document.querySelector('#app')!)
+// <main><div>Current theme: light</div></main>
+```
+
+A `context$` with providers and no context above opens the root context too, with those providers in it. With no context at all, `inject` throws, so a missing root context shows up at the first component that injects. In development the error reads `Cannot inject dependency outside of injection context`; the production build skips that check, and the call fails with a `TypeError` there.
+
+### Child Context
+
+`context$` with providers inside a context opens a child context: its providers override the values above, and everything else is inherited. A component provides to its own children the same way, wrapping them in `context$`:
+
+```ts
+import { type WritableSignal, signal, provide, inject, is } from 'nanoviews/store'
+import { type ComponentInstance, div, button, component$, context$ } from 'nanoviews'
+
+function Selected$() {
+  return signal('')
+}
+
+const SegmentedControl = component$((
+  { $value }: { $value: WritableSignal<string> },
+  children: ComponentInstance[]
+) => (
+  context$(provide(Selected$, $value))(
+    div({
+      role: 'tablist'
+    })(
+      ...children
+    )
+  )
+))
+
+const Segment = component$(({ value }: { value: string }, children) => {
+  const $selected = inject(Selected$)
+
+  return (
+    button({
+      role: 'tab',
+      'aria-selected': is($selected, value),
+      onClick() {
+        $selected(value)
+      }
+    })(
+      ...children
+    )
+  )
+})
+
+const $tab = signal('signals')
+
+SegmentedControl({
+  $value: $tab
+})(
+  Segment({
+    value: 'signals'
+  })(
+    'Signals'
+  ),
+  Segment({
+    value: 'log'
+  })(
+    'Log'
+  )
+)
+// <div role="tablist"><button role="tab" aria-selected="true">Signals</button><button role="tab" aria-selected="false">Log</button></div>
+```
+
+The `Segment()` instances are created as arguments of the `SegmentedControl` call, outside its context, and still inject what it provides: an instance renders when it is built, and it is built inside `context$`. A click on `Log` writes `$tab`, and the selection follows.
+
+`context$` takes one child. Several children go under an element, as here, or under a `fragment`.
+
+### Current Context
+
+Inside a context, `context$()` with no providers adds nothing: the child is built in the current context. So a component that opens the root context for itself can also be built inside a context made around it, by a test or a host page, and then uses that one:
+
+```ts
+const App = component$(() => (
+  context$()(
+    Themed()
+  )
+))
+
+mount(() => context$(provide(Theme$, signal<Theme>('dark')))(
+  App()
+), document.querySelector('#app')!)
+// <div>Current theme: dark</div>
+```
+
+[Writing Tests](/testing/writing-tests/) shows how tests use this to override dependencies.
+
+## `InjectionContext`
+
+`context$` also takes an `InjectionContext` instance in place of the providers. The child is built within that very context: it sees the values of the instance and of the parent it was created with, not those of the context around the call. This is how a context made outside the view is handed to it, so the view and the code around it share the same instances:
+
+```ts
+import { InjectionContext, signal, provide, inject } from 'nanoviews/store'
+import { context$, mount } from 'nanoviews'
+
+const context = new InjectionContext([
+  provide(Theme$, signal<Theme>('dark'))
+])
+
+mount(() => context$(context)(
+  Themed()
+), document.querySelector('#app')!)
+// <div>Current theme: dark</div>
+
+const $theme = inject(Theme$, context)
+
+$theme('light')
+// <div>Current theme: light</div>
+```
+
+`new InjectionContext(providers, parent)` takes the providers, if any, and an optional parent context. `inject(Factory$, context)` resolves in the given context outside any render: it returns the instance the view injects, and creates it there when the view has not asked for it yet. Tests use the same pair to reach the stores of the view they render.
+
+## `isolate$`
+
+`isolate$(child)` builds a child outside any injection context, so nothing above it is reachable. It does not fall back to the defaults: `inject` right inside a bare `isolate$` throws. A `context$` inside it starts a fresh tree that inherits nothing:
+
+```ts
+import { signal, provide, inject } from 'nanoviews/store'
+import { div, component$, context$, isolate$ } from 'nanoviews'
+
+type Theme = 'light' | 'dark'
+
+function Theme$() {
+  return signal<Theme>('light')
+}
+
+const Themed = component$(() => {
+  const $theme = inject(Theme$)
+
+  return (
+    div()(
+      'Theme: ', $theme
+    )
+  )
+})
+
+const App = component$(() => (
+  context$(provide(Theme$, signal<Theme>('dark')))(
+    div()(
+      Themed(),
+      isolate$(
+        context$()(
+          Themed()
+        )
+      )
+    )
+  )
+))
+// <div><div>Theme: dark</div><div>Theme: light</div></div>
+```
+
+The isolated `context$()` opens a new root, where `Theme$` has its default again. Use `isolate$` where a subtree must start from scratch, with new instances of every dependency.
+
+## Inject During Render
+
+`inject` works only synchronously while a view is built: in a render, in a branch or a row a block builds, and in a factory that another `inject` runs. Inside an `effect$`, an event handler, a promise callback or a timer there is no current context, and it throws. Inject everything a component needs in its body and close over the results:
+
+```ts
+const ThemeToggle = component$(() => {
+  const $theme = inject(Theme$)
+
+  return (
+    button({
+      onClick() {
+        $theme(theme => theme === 'light' ? 'dark' : 'light')
+      }
+    })(
+      'Theme: ', $theme
+    )
+  )
+})
+```

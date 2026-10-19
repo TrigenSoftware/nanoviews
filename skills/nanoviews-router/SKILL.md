@@ -23,140 +23,74 @@ metadata:
     - router
     - routing
     - signals
+  docs:
+    paths:
+      - router
 ---
 
 # Nanoviews Router
 
-`@nanoviews/router` re-exports all of `@nano_kit/router`, from navigation, params and paths to head descriptors and the DI tokens, and adds what renders: `router` with `pageView` or `App`, `Outlet`, `Link`, link interception and head sync. Import everything router-related from it. The current location is a signal, `router` matches it into a page signal, and the view swaps only the page while the rest stays built. The package README in `node_modules/@nanoviews/router` shows every piece and https://nano-kit.js.org/router is the guide to the core; this skill adds the conventions and the pitfalls. How views are written is the nanoviews skill.
+`@nanoviews/router` is the nanoviews integration of `@nano_kit/router`: it re-exports the whole core and adds what renders, `router` with `pageView` or `App`, `Outlet`, `Link`, link interception and head sync. How views are written is the nanoviews skill.
 
-## Setup
+## Reference
 
-```ts
-import { mount, main, nav, component$ } from 'nanoviews'
-import { type UnknownMatchRef, browserNavigation, buildPaths, linkComponent, preloadable, ariaCurrent, router, pageView, page, layout, loadable, notFound, listenNavigationLinks$, syncPageHead$, Outlet } from '@nanoviews/router'
+`DOCS.md` next to this file is the documentation of the released package as published on https://nanoviews.js.org, generated from the site sources. Read its relevant sections for exact signatures, props and examples before writing code. The core it re-exports, from the route syntax, optional params and splats to transitions, `ScrollRestorator` and `basePath`, is documented at https://nano-kit.js.org/router/ and in the nano-kit-react-router skill. This skill adds only conventions, choices and pitfalls.
 
-export const routes = { home: '/', user: '/users/:id' } as const
-export const [$location, navigation] = browserNavigation(routes)
-export const paths = buildPaths(routes)
+## Mental model
 
-export const Link = linkComponent(navigation, paths, [
-  preloadable((): UnknownMatchRef[] => pages), // a function: the pages are declared later
-  ariaCurrent($location)
-])
+- The location is a signal, `router` matches it into a page signal, and `pageView` or `App` swaps only the page: the layouts around it stay built, and so does the page while only its params change, or between two routes mapped to it. So pages, stores and `Head$` read the URL through signals derived once from the location, never once when they are built.
 
-const MainLayout = component$(() => main()(nav()(Link({ to: 'home' })('Home')), Outlet()))
+## Setup shapes
 
-const pages = [
-  layout(MainLayout, [
-    page('home', loadable(() => import('./pages/Home.js'))),
-    page('user', loadable(() => import('./pages/User.js'), () => 'Loading...'))
-  ]),
-  notFound(() => 'Not found')
-]
-const $page = router($location, pages)
+- **Module scope**: `router.ts` exports the route table `as const`, `[$location, navigation] = browserNavigation(routes)`, `paths = buildPaths(routes)` and the URL-state signals, `pages.ts` the page list, and `Link.ts` the `linkComponent(navigation, paths, [preloadable((): UnknownMatchRef[] => pages), ariaCurrent($location)])`. The root module creates `$page = router($location, pages)` once and mounts `pageView($page)`, and the outermost layout, declared in the pages, calls `listenNavigationLinks$(navigation)` and `syncPageHead$($page)` around its `Outlet()`.
+- **Dependency injection**: `main.ts` creates one `browserNavigation(routes)` and one `router($location, pages)` and provides `LocationNavigation$`, `Page$` and `Pages$` together in the root `context$` around `App()`, which is what goes into `mount`. The outermost layout, declared in the pages, calls `enableLinkComponentPreload$(true)`, `enableLinkComponentAriaCurrent$()` and `syncHead$()` and renders the navigation and `Outlet()`. Views use the DI `Link`, inject the tokens in the render, and take URL state from a `Params$` factory that injects `Location$`.
+- Take dependency injection when each test or story must give the views a navigation of its own, module scope otherwise. Either way the routes and the pages live in modules of their own, so that pages, links and stores import them without the app. The DI `Link` and a `linkComponent` link are different components: the `enable…$` calls extend only the DI one.
+- Import everything router-related from `@nanoviews/router`, which types `page`, `layout`, `loadable` and `notFound` for nanoviews pages and composes layouts in its `router`: the `router` of `@nano_kit/router` rejects layouts and renders nothing for their pages.
 
-const App = component$(() => {
-  listenNavigationLinks$(navigation) // clicks on plain anchors navigate too
-  syncPageHead$($page)               // the Head$ of the matched modules
+## Dependency injection
 
-  return pageView($page)
-})
-
-mount(App, document.querySelector('#app')!)
-```
-
-## With dependency injection
-
-```ts
-import { provide } from 'nanoviews/store'
-import { mount, div, nav, component$, context$ } from 'nanoviews'
-import { App, Link, browserNavigation, router, enableLinkComponentPreload$, enableLinkComponentAriaCurrent$, listenLinks$, syncHead$, LocationNavigation$, Page$, Pages$ } from '@nanoviews/router'
-
-declare module '@nano_kit/router' {
-  interface AppContext {
-    routes: typeof routes // types Location$, Navigation$, Paths$ and Link, once per app
-  }
-}
-
-const Root = component$(() => {
-  enableLinkComponentPreload$(true) // before the links it extends are built
-  enableLinkComponentAriaCurrent$()
-  listenLinks$()
-  syncHead$()
-
-  return div()(nav()(Link({ to: 'user', params: { id: 1 } })('Profile')), App())
-})
-
-const locationNavigation = browserNavigation(routes)
-const $page = router(locationNavigation[0], pages)
-
-mount(() => context$(
-  provide(LocationNavigation$, locationNavigation),
-  provide(Page$, $page),
-  provide(Pages$, pages)
-)(Root()), document.querySelector('#app')!)
-```
-
-- Provide `LocationNavigation$`, `Page$` and `Pages$` together at the root. `Location$`, `Navigation$`, `Paths$` and `CanGoBack$` derive from them and are injected where needed: `const navigation = inject(Navigation$)`.
-- `App` and `syncHead$` need `Page$`, `enableLinkComponentPreload$` needs `Pages$`. The DI `Link` and a `Link` from `linkComponent` are different components: the `enable…$` calls extend only the DI one.
-
-## Pages and layouts
-
-- A page is a component, or any function that returns a child when called with no arguments. `loadable(load, fallback?)` splits it into a chunk and renders `fallback` while the chunk loads. A page module exports the component as `default` and may export `Head$`; a module that is already loaded goes in whole, `import * as Home from './Home.js'` and `page('home', Home)`, so its `Head$` is found.
-- `pageView($page)` and `App` build a page anew only when another page component is matched. A change of params keeps the page, and so do two routes mapped to the same component, state included: a page reads its params through signals, never once at build.
-- A layout is built once for all of its pages and renders `Outlet()` where the page goes, at any depth, in a component of its own or in a branch built later; nothing passes the page down through props or children. Layouts nest and can be `loadable`.
-- What a layout and its pages inject is kept where it would be without the layout, so a store a page creates survives the layout being built anew.
+- Augment `AppContext.routes` once per app, with `declare module '@nano_kit/router'` in `main.ts` or next to the routes. Without it `provide(LocationNavigation$, browserNavigation(routes))` is a type error and the DI `Link` takes any `to` and no `params`; a second augmentation with another table is TS2717.
+- `App` and `syncHead$()` need `Page$`; a link that preloads needs `Pages$` when it is built.
+- The `enable…$` calls extend only the links built after them, not one of an earlier sibling: call them in the outermost layout, before its links. A hook of your own, `inject(LinkSettings$).addHook(hook)`, is defined at module scope: one created in the render is added again on every build.
 
 ## Links
 
-- `Link({ to: 'user', params: { id: 1 } })('Profile')` builds `href` from the route and navigates on click. `params` is static and read once, or an accessor the `href` follows: `params: () => ({ id: $id() })`; a row of a `for_` tracked by id reads its id once, `params: { id: $item().id }`. `Link({ href })` takes any URL, and every other prop is an attribute of the `a`.
-- A click that opens a new tab or window, a download, an external link and a click whose `onClick` called `preventDefault()` are left to the browser.
-- `preloadable(pages, preloadByDefault?)` loads the page of a link on hover and focus, and `preload` on a link overrides the default. `ariaCurrent($location, isAriaCurrent?)` sets `aria-current="page"` when the pathname of the link is the current one; the predicate gets the URL of the link and the location.
-- `listenNavigationLinks$(navigation)` or `listenLinks$()` routes clicks on plain anchors, from markup that is not a `Link` or a `Button({ as: a, href })`, as long as the component it is called in is mounted.
+- An in-app link is `Link({ to, params })`, checked against the routes, and a URL built in code comes from the path builders, `paths.user({ id: 1 })`, never by hand. `Link({ href })` takes any URL.
+- Static `params` are read once, when the link is built, which is enough for a `for_` row tracked by id. Params that change are an accessor: `params: () => ({ id: $userId() })`.
+- A plain `a`, from markup or a component such as a button with `as: a`, navigates without a reload only under `listenNavigationLinks$` or `listenLinks$`.
+- To leave a same-origin link to the browser, give it `target: '_self'` or `rel: 'external'` exactly: `rel: 'external noopener'`, a named `target` and an empty `download` are routed.
+- `ariaCurrent` compares pathnames only, so a link to another site with the pathname `/` is current on `/`: give it an `aria-current` of its own, `'aria-current': false`, which the hook leaves.
+
+## Pages, layouts and head
+
+- A page or layout module exports the view as `default` and may export `Head$`. It goes in as `loadable(() => import('./pages/User.js'))`, or whole when imported eagerly, `import * as Main from './layouts/Main.js'` and `layout(Main, [...])`: `Main.default` alone drops the `Head$`.
+- `Head$` does not run again when only the params change, and under an injection context it runs once per page: a tag that follows state takes an accessor, ``title(() => `User ${$userId()}`)``. `syncPageHead$($page)` or `syncHead$()` is called once, in the outermost layout.
+- A page that injects needs a root context above the router view, `context$()` or the providers of the DI shape. Without one, a page in a layout injects into the context of the layout's outlet and its store goes with the layout, and a page outside a layout throws.
 
 ## URL state and navigation
 
-- Derive URL state into signals once, in the router module or an injectable `Params$` factory, and read those in stores and views: `param($location, 'id', Number)`, `searchParam(searchParams($location), 'q', value => value ?? '')`. `forRoute($location, 'user', $value)` keeps a value to its route, so a query of the page being left does not get the params of the next one.
-- `navigation.push(paths.user({ id: 1 }))`, `navigation.replace({ search: params.toString() })`, `navigation.back()`. A filter typed into an input replaces, so Back leaves the page instead of replaying the keystrokes.
-- A guard swaps `navigation.transition` in an `effect$`, which puts the old one back on unmount, and reads its signals when asked, so it is set once:
-
-```ts
-effect$(() => {
-  const { transition } = navigation
-
-  navigation.transition = (proceed, next, prev) => {
-    if (!$dirty() || confirm('Leave without saving?')) proceed(next)
-  }
-
-  return () => { navigation.transition = transition }
-})
-```
-
-- `resetScroll()` and `scrollToAnchor(hash)` scroll the window. To reset on every navigation but a replace, read the whole location: `effect$((warmup) => { if (!warmup && $location().action !== 'replace') resetScroll() })`.
-
-## Head
-
-- `Head$` of a page or layout module returns descriptors: `title(text)`, `meta({ name, content })`, `link({ rel, href })`, `script(...)`, and `lang(value)` and `dir(value)` for the attributes of `html`. A value may be an accessor, and the tag follows it.
-- `syncPageHead$($page)` or `syncHead$()` keeps the document head in sync while the component it is called in is mounted. Call it once, in the root component or the outermost layout. With DI, `Head$` runs within the injection context and may `inject`, messages or the store of the page.
+- URL state is derived once, in `router.ts` or `Params$`, and parsed in the parser: `param($location, 'id', Number)`, `searchParam($searchParams, 'q', value => value ?? '')`. Views and stores read those signals, never `location` or a URL they parse themselves.
+- A param that a store or a query keys on goes through `forRoute($location, 'user', $value)`, so the page being left does not get the params of the next one.
+- The fields of `$location` wake only when their value changes, except `$location.$params`, a new object on every navigation: one param is read with `param`.
+- `replace` a filter typed into an input and a redirect, so Back neither replays the keystrokes nor lands on the redirect; `push` the rest.
+- A scroll effect reads the whole location, `$location()`, before it looks at `warmup`. One on `$location.$action` alone misses the second of two pushes, and `if (!warmup && $location().action !== 'replace')` reads nothing on its first run and never runs again.
 
 ## Testing
 
-```ts
-import { render } from '@nanoviews/testing-library'
-import { virtualNavigation, router, pageView } from '@nanoviews/router'
-
-const [$location, navigation] = virtualNavigation('/users/1', routes)
-
-render(() => pageView(router($location, pages)))
-navigation.push('/users/2')
-```
-
-- With DI, provide `virtualNavigation(path, routes)` as `LocationNavigation$`, with `Page$` and `Pages$` for a component test, and render `App` or the root. A store test provides `LocationNavigation$` alone and navigates through the navigation it returns.
+- Routed views are tested on `virtualNavigation(path, routes)`, one per test. With dependency injection it is provided as `LocationNavigation$`, with `Page$` and `Pages$` for a component test that renders `App`; a store test provides `LocationNavigation$` alone. A click on a link and a push apply at once; only the first load of a `loadable` chunk is awaited, with `findBy*`.
+- Pages of the module-scope shape read the location of the app, which a `virtualNavigation` of the test does not reach: the test drives the `navigation` of the app and puts it back in `beforeEach`, `navigation.replace('/')`.
 
 ## Pitfalls
 
-- `title`, `meta`, `link` and `script` are head descriptors from `@nanoviews/router` and element factories from `nanoviews`: a module that needs both aliases one, `import { title as headTitle } from '@nanoviews/router'`.
-- A route table kept in a variable is declared `as const`, or `params` and the path builders lose their types. `AppContext.routes` is augmented once.
-- When the module of `Link` passes `pages` to `preloadable` and `pages` imports a layout that renders `Link`, TypeScript cannot infer the cycle (TS7022): pass a function with its type written out, `preloadable((): UnknownMatchRef[] => pages)`.
-- The functions ending with `$` run in a component render only. `enableLinkComponentPreload$` and `enableLinkComponentAriaCurrent$` run before the links they extend are built, so in the root or the outermost layout.
-- The children of the location record, `$location.$route`, `$location.$action` and the rest, are deduped: an effect that reads one wakes only when that value changes, not on every navigation.
+- `title`, `meta`, `link` and `script` are head descriptors from `@nanoviews/router` and element factories from `nanoviews`, and `nanoviews/svg` has a `title` and a `script` too: a module that needs both aliases one, `import { title as headTitle } from '@nanoviews/router'`.
+- A route table kept in a variable is declared `as const`, or `param`, the path builders and the `params` of a link lose the params of the routes. A table written inline keeps them.
+- When `Link.ts` passes `pages` to `preloadable` and `pages` imports a layout that renders `Link`, TypeScript cannot infer the cycle (TS7022), and an app that imports the pages before `Link.ts` throws `Cannot access 'pages' before initialization`. Pass a function with its type written out, `preloadable((): UnknownMatchRef[] => pages)`: it is called only when a link that preloads is built.
+- `listenNavigationLinks$`, `syncPageHead$`, `listenLinks$`, `syncHead$` and the `enable…$` calls run in a component render only and throw at module level or in a handler; outside a component, `listenLinks(navigation)` and `syncHead($page, context?)` start at once and return the stop. A function of your own that calls `inject` or `effect$` ends with `$` too, and `Head$` and `Params$` are factories, named `Name$`.
+
+## Related skills
+
+- nanoviews: views, components, `effect$`, `context$` and `inject`.
+- nanoviews-testing: `render`, queries and events of the tests above.
+- nanoviews-storybook: stories, where a view of the DI shape gets the router tokens from a decorator that provides them, as a test does.
+- nano-kit-react-router and https://nano-kit.js.org/router/: the router core this package re-exports.
+- nano-kit-store: signals and dependency injection. nano-kit-query: queries keyed by URL state. nano-kit-intl: messages in `Head$`. nano-kit-platform-web: browser API signals.

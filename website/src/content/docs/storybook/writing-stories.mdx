@@ -1,0 +1,521 @@
+---
+title: Writing Stories
+description: "Write CSF3 stories for Nanoviews: the Meta forms, args as writable signals, decorators and loaders."
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Stories are plain [CSF3](https://storybook.js.org/docs/api/csf): a default export with the metadata and a named export per example. A story's `render` is a Nanoviews component like any other: it gets props and returns a view. The props are the story's args, each plain value wrapped in a writable signal.
+
+## CSF3
+
+```ts title="src/style.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { div } from 'nanoviews'
+
+const meta: Meta<{
+  color: string
+}> = {
+  title: 'Elements/Style'
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const StaticValue: Story = {
+  render() {
+    return (
+      div({
+        style: {
+          color: 'green'
+        }
+      })(
+        'Hello, world!'
+      )
+    )
+  }
+}
+// <div style="color: green;">Hello, world!</div>
+
+export const ReactiveValue: Story = {
+  args: {
+    color: 'green'
+  },
+  // `color` here is a `WritableSignal<string>`, not a `string`
+  render({ color }) {
+    return (
+      div({
+        style: () => ({
+          color: color()
+        })
+      })(
+        'Hello, world!'
+      )
+    )
+  }
+}
+// <div style="color: green;">Hello, world!</div>
+```
+
+`StaticValue` uses no args. The meta types `color` as a plain string and `ReactiveValue` sets it to `'green'`, but its `render` receives a `WritableSignal<string>`: the `style` accessor reads it, so an edit of the control restyles the same `div`. `title` places the stories in the sidebar, with `/` nesting them in groups; without it, Storybook derives the title from the file path.
+
+## Typing the Meta
+
+`Meta` can be parameterized either with the component or with the plain args type: the values you put into `args` and the Controls panel edits. Both forms describe the same story: `args` stays plain, `render` and the component get signals. `StoryObj<typeof meta>` types the stories after the meta.
+
+### `Meta<typeof Component>`
+
+The component form reads the args off the props of the component. Here it is the `Button` of [Getting Started](/storybook/#first-story), with a story that renders it next to a second one:
+
+```ts title="src/button-pair.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { div } from 'nanoviews'
+import { Button } from './button.js'
+
+const meta: Meta<typeof Button> = {
+  title: 'Button',
+  component: Button,
+  args: {
+    label: 'Send'
+  }
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const WithCancel: Story = {
+  args: {
+    primary: true
+  },
+  // label: WritableSignal<string>
+  // primary: WritableSignal<boolean> | undefined
+  // onClick: ((event: MouseEvent) => void) | undefined
+  render({ label, primary, onClick }) {
+    return (
+      div()(
+        Button({
+          label,
+          primary,
+          onClick
+        }),
+        Button({
+          label: 'Cancel'
+        })
+      )
+    )
+  }
+}
+// <div><button class="button button_primary">Send</button><button class="button">Cancel</button></div>
+```
+
+A prop becomes an arg this way:
+
+| Prop of the component | Arg in `args` and Controls | What `render` and the component get |
+| --- | --- | --- |
+| `Signalish<T>` | `T` | `WritableSignal<T>` |
+| `WritableSignal<T>` | `T` | `WritableSignal<T>` |
+| a function: an event handler, an `Accessor<T>` | the function | the same function |
+| optional, `name?:` | the same, and may be left out | the same, or `undefined` |
+
+A signal from `render` fits a `Signalish` prop, so `render` passes the args on to the component as they came. The renderer hands the component a signal for every arg that is not a function, so a prop typed as a plain value, like `id: string`, makes the `component` of the meta a type error: type it `Signalish<string>` instead.
+
+<Aside type='caution'>
+A component made with `component$` whose props are all optional takes them through an optional parameter, and `Meta<typeof Component>` cannot read the args off it: they come out untyped (`any`). Type the meta of such a component with the args form below.
+</Aside>
+
+### `Meta<Args>`
+
+The args form names the plain args type itself. It fits a story that renders more than one component, a view with no component at all, and a component whose props are all optional:
+
+```ts title="src/button-args.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { Button } from './button.js'
+
+const meta: Meta<{
+  label: string
+  primary?: boolean
+}> = {
+  title: 'Button/Args'
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const Primary: Story = {
+  args: {
+    label: 'Send',
+    primary: true
+  },
+  render({ label, primary }) {
+    return (
+      Button({
+        label,
+        primary
+      })
+    )
+  }
+}
+// <button class="button button_primary">Send</button>
+```
+
+## Stories Without a Render
+
+`component` in the meta is what its stories render by default: the renderer calls it with the args, as signals. A story that only picks args needs no `render` of its own, and the `Button` stories of [Getting Started](/storybook/#first-story) are just `{}` and `{ args: { primary: true } }`. A `render` in the meta is the default `render` of every story in the module, as in the `Profile` stories [below](#optional-args).
+
+A story with neither a `render` nor a `component` to fall back to fails to render, with `Unable to render story <id> as the component annotation is missing from the default export`.
+
+## Args Are Signals
+
+An arg has two ends: the story declares it as a plain value, and the view receives it as a writable signal. Everything between the two is the renderer. On the first render of a canvas it wraps every plain arg in a `signal()` and mounts the story once with that map of signals. On every next render (a control edited, the controls reset) it **writes the new plain values into the same signals** instead of passing them to a new component instance. There is no re-render: the signal updates exactly the bindings that depend on it, and the rest of the view, its state included, stays as it is.
+
+So one prop has three shapes, and the [props types](/storybook/api/#props-types) name all three:
+
+- what the story declares, in `args` and the Controls panel: plain values;
+- what `render` and the component receive: writable signals;
+- what a [composed story](/storybook/portable-stories/) accepts in a test: either of the two.
+
+### Reading Args
+
+`render` runs once per mount, so a value read from an arg in its body is read once. Derive from the signals with `computed`, an arrow function or an [operator](/guides/reactivity/#operators), or hand the signal itself to an attribute, a child or a [control flow](/guides/control-flow/) block like `if_`:
+
+```ts title="src/total.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { computed } from 'nanoviews/store'
+import { p } from 'nanoviews'
+
+const meta: Meta<{
+  price: number
+  quantity: number
+}> = {
+  title: 'Total'
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const Total: Story = {
+  args: {
+    price: 10,
+    quantity: 2
+  },
+  render({ price, quantity }) {
+    const $total = computed(() => price() * quantity())
+
+    return (
+      p()(
+        'Total: ', $total
+      )
+    )
+  }
+}
+// <p>Total: 20</p>
+```
+
+`price() * quantity()` written straight into the render body would compute `20` once and keep showing it after an edit of either control.
+
+### Optional Args
+
+An optional arg reaches `render` as `WritableSignal<T> | undefined`, because an arg that is left out is not passed at all:
+
+```ts title="src/profile.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { p, b, span } from 'nanoviews'
+
+const meta: Meta<{
+  name: string
+  role?: string
+}> = {
+  title: 'Profile',
+  render({ name, role }) {
+    return (
+      p()(
+        b()(name),
+        role && span()(', ', role)
+      )
+    )
+  }
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const NameOnly: Story = {
+  args: {
+    name: 'Ada'
+  }
+}
+// <p><b>Ada</b></p>
+
+export const WithRole: Story = {
+  args: {
+    name: 'Ada',
+    role: 'Engineer'
+  }
+}
+// <p><b>Ada</b><span>, Engineer</span></p>
+```
+
+`role && span()(', ', role)` checks the arg once, when the story mounts: whether an arg is there is fixed for the life of the mounted view, see [What Remounts](#what-remounts).
+
+### Function Args
+
+Args that are functions are passed through untouched, and so are args that are already signals, like the ones a test passes to a [composed story](/storybook/portable-stories/#args):
+
+```ts title="src/tag.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { fn } from 'storybook/test'
+import { button } from 'nanoviews'
+
+const meta: Meta<{
+  label: string
+  onSelect: (label: string) => void
+}> = {
+  title: 'Tag'
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const Selectable: Story = {
+  args: {
+    label: 'nanoviews',
+    onSelect: fn()
+  },
+  // `onSelect` is the `fn()` spy itself, `label` is a signal
+  render({ label, onSelect }) {
+    return (
+      button({
+        onClick() {
+          onSelect(label())
+        }
+      })(
+        label
+      )
+    )
+  }
+}
+// <button>nanoviews</button>
+```
+
+The [Actions](https://storybook.js.org/docs/essentials/actions) panel logs every call of the `fn()` spy. The click handler reads `label()` when the click happens, so it sends the label the control holds at that moment.
+
+### What Remounts
+
+The story is unmounted and mounted again, with fresh signals made from the current args, on:
+
+- a change of [globals](https://storybook.js.org/docs/essentials/toolbars-and-globals): a toolbar like backgrounds, viewport, measure or outline, or one of your own `globalTypes`;
+- the **Reload story** button of the toolbar.
+
+A remount starts the view over: state that lives inside its components, like the count of a counter, is reset. The signals are made for the args the story has when it mounts, so an optional arg that was left out and is then set from the Controls panel reaches the view only at the next remount.
+
+## Decorators
+
+A [decorator](https://storybook.js.org/docs/writing-stories/decorators) wraps the view the story rendered, the same way as in every other Storybook renderer. Every named export of a stories file is taken for a story, so a shared decorator lives in a module of its own:
+
+```ts title=".storybook/decorators.ts"
+import type { Decorator } from '@nanoviews/storybook-vite'
+import { div } from 'nanoviews'
+
+export const withPadding: Decorator = story => (
+  div({
+    class: 'padded'
+  })(
+    story()
+  )
+)
+```
+
+`decorators` takes it in the meta, in a story or in the preview:
+
+```ts title="src/padded.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { withPadding } from '../.storybook/decorators.js'
+import { Button } from './button.js'
+
+const meta: Meta<typeof Button> = {
+  title: 'Button/Padded',
+  component: Button,
+  decorators: [withPadding],
+  args: {
+    label: 'Send'
+  }
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {}
+// <div class="padded"><button class="button">Send</button></div>
+```
+
+Decorators run once per mount, together with the story they wrap: later arg edits reach the view through the signals, not through a new call to the decorator.
+
+### Args in Decorators
+
+`context.args` of a decorator holds the same signals the render gets. The `decorators` of `Meta` and `StoryObj` type it with the plain args, so hand an arg to a binding, which takes a signal and a value alike, instead of reading it as a plain value:
+
+```ts title="src/titled.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { div } from 'nanoviews'
+import { Button } from './button.js'
+
+const meta: Meta<typeof Button> = {
+  title: 'Button/Titled',
+  component: Button,
+  decorators: [
+    // typed `string`, but `args.label` is the signal the button gets
+    (story, { args }) => (
+      div({
+        title: args.label
+      })(
+        story()
+      )
+    )
+  ],
+  args: {
+    label: 'Send'
+  }
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {}
+// <div title="Send"><button class="button">Send</button></div>
+```
+
+The `title` follows every edit of `label`, while the decorator itself ran once. A shared decorator that reads args is typed with the plain args too, `Decorator<{ label: string }>`, and fits the `decorators` of a meta or a story with those args.
+
+### Globals and Dependency Injection
+
+A change of globals [remounts](#what-remounts) the story, so a decorator that reads `context.globals` runs again on every toolbar change. A decorator is also the place to open the [injection context](/guides/dependency-injection/) that a component needs for `inject`: a story has none of its own. A factory for the theme:
+
+```ts title="src/theme.ts"
+import { signal } from 'nanoviews/store'
+
+export type Theme = 'light' | 'dark'
+
+export function Theme$() {
+  return signal<Theme>('light')
+}
+```
+
+The preview adds a theme toolbar and provides its value to every story:
+
+```ts title=".storybook/preview.ts"
+import type { Preview } from '@nanoviews/storybook-vite'
+import { signal, provide } from 'nanoviews/store'
+import { context$ } from 'nanoviews'
+import { type Theme, Theme$ } from '../src/theme.js'
+
+const preview: Preview = {
+  globalTypes: {
+    theme: {
+      description: 'Color theme',
+      toolbar: {
+        title: 'Theme',
+        items: ['light', 'dark']
+      }
+    }
+  },
+  initialGlobals: {
+    theme: 'light'
+  },
+  decorators: [
+    (story, { globals }) => (
+      context$(
+        provide(Theme$, signal<Theme>(globals.theme))
+      )(
+        story()
+      )
+    )
+  ]
+}
+
+export default preview
+```
+
+Everything a story renders gets the theme of the toolbar, its `render` included, and a story can pin one with its `globals`:
+
+```ts title="src/themed.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { inject } from 'nanoviews/store'
+import { span } from 'nanoviews'
+import { Theme$ } from './theme.js'
+
+const meta: Meta = {
+  title: 'Themed',
+  render() {
+    const $theme = inject(Theme$)
+
+    return (
+      span()(
+        $theme
+      )
+    )
+  }
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {}
+// <span>light</span>
+
+export const Dark: Story = {
+  globals: {
+    theme: 'dark'
+  }
+}
+// <span>dark</span>
+```
+
+`story()` hands the story back unbuilt: it renders once `context$` builds it, inside the context, the way a component renders inside its parent. So `render` can `inject` what a decorator provides, and so can a decorator inside the one that opened the context.
+
+## Loaders
+
+A [loader](https://storybook.js.org/docs/writing-stories/loaders) runs before the story mounts and receives the plain args. What it returns is merged into `loaded` of the story context, which `render` gets as its second argument. `fetchUser` stands for a request function of the app:
+
+```ts title="src/user.stories.ts"
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
+import { p } from 'nanoviews'
+import { fetchUser } from './api.js'
+
+const meta: Meta<{
+  id: number
+}> = {
+  title: 'User'
+}
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const Loaded: Story = {
+  args: {
+    id: 1
+  },
+  loaders: [
+    async ({ args }) => ({
+      user: await fetchUser(args.id)
+    })
+  ],
+  render(_, { loaded }) {
+    return p()('Hello, ', loaded.user.name)
+  }
+}
+// <p>Hello, Ada</p>
+```
+
+The mounted view keeps the `loaded` of its first render. Storybook runs the loaders again on every arg edit, but only the new args reach the mounted view: the user fetched for a new `id` shows up at the next [remount](#what-remounts). A composed story runs its loaders when its `load()` is awaited, see [Portable Stories](/storybook/portable-stories/#loaders).

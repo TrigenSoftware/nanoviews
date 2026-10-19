@@ -1,0 +1,47 @@
+---
+title: Testing
+description: Test routed views of @nanoviews/router on a virtual navigation.
+sidebar:
+  order: 3
+next:
+  label: Testing
+---
+
+`@nano_kit/router` keeps the navigation apart from the History API of the browser, so routed views are tested on a navigation of their own. The views are rendered with `render` from [@nanoviews/testing-library](/testing/).
+
+## Virtual Navigation
+
+In tests, use `virtualNavigation` instead of `browserNavigation`: it keeps the history in memory and behaves like the browser one, without touching the URL of the test environment.
+
+Provide it in place of the navigation of the app, with the tokens of [Setup with Dependency Injection](/router/specifics/#setup-with-dependency-injection), and render `App` within that context:
+
+```ts
+import { it, expect } from 'vitest'
+import { render, screen } from '@nanoviews/testing-library'
+import { InjectionContext, provide } from 'nanoviews/store'
+import { context$ } from 'nanoviews'
+import { App, virtualNavigation, router, LocationNavigation$, Page$, Pages$ } from '@nanoviews/router'
+import { routes } from './routes.js'
+import { pages } from './pages.js'
+
+it('should render the admin page', async () => {
+  // A virtual navigation for the test
+  const locationNavigation = virtualNavigation('/admin', routes)
+  const [$location] = locationNavigation
+
+  // The tokens of the app, on the virtual navigation
+  const context = new InjectionContext([
+    provide(LocationNavigation$, locationNavigation),
+    provide(Page$, router($location, pages)),
+    provide(Pages$, pages)
+  ])
+
+  render(() => context$(context)(
+    App()
+  ))
+
+  expect(await screen.findByText('Admin Panel')).toBeInTheDocument()
+})
+```
+
+`findByText` waits for the chunk of a `loadable` page. Nano Kit's [Testing](https://nano-kit.js.org/router/testing/) covers `virtualNavigation`, and [Writing Tests](/testing/writing-tests/) the rest of testing views.
