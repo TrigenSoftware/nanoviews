@@ -44,7 +44,7 @@ export default config
 
 ```ts
 // .storybook/preview.ts
-import type { Preview } from '@nanoviews/storybook'
+import type { Preview } from '@nanoviews/storybook-vite'
 
 const preview: Preview = {
   parameters: {
@@ -55,13 +55,13 @@ const preview: Preview = {
 export default preview
 ```
 
-- Dev dependencies: `@nanoviews/storybook-vite`, `@nanoviews/storybook` (the snippets import its types; the framework re-exports them, so importing from `@nanoviews/storybook-vite` needs only the framework), `storybook`, `vite`. Script: `storybook dev -p 6006 --no-open`.
+- Dev dependencies: `@nanoviews/storybook-vite`, `storybook`, `vite`. The framework depends on `@nanoviews/storybook` and re-exports its API, so the renderer is not installed and everything is imported from the framework. Script: `storybook dev -p 6006 --no-open`.
 - Stories are plain CSF3: a default export with the meta and a named export per story. Story files are excluded from the library build and from coverage in the nanoviews repo.
 
 ## Writing stories
 
 ```ts
-import type { Meta, StoryObj } from '@nanoviews/storybook'
+import type { Meta, StoryObj } from '@nanoviews/storybook-vite'
 import { b, if_ } from 'nanoviews'
 
 const meta: Meta<{ value: boolean; label: string }> = {   // args type: plain values
@@ -99,7 +99,7 @@ On the first render of a canvas the renderer wraps every plain arg in `signal()`
 ## Portable stories
 
 ```ts
-import { composeStories, composeStory } from '@nanoviews/storybook'
+import { composeStories, composeStory } from '@nanoviews/storybook-vite'
 import * as Stories from './toggle.stories.js'
 import meta, { Reactive as ReactiveStory } from './toggle.stories.js'
 
