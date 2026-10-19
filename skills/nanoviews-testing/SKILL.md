@@ -1,6 +1,6 @@
 ---
 name: nanoviews-testing
-description: "Conventions and API for unit-testing nanoviews views with @nanoviews/testing-library and Vitest: the happy-dom setup and cleanup entry, the render forms (function or [Component, props] tuple), what container is, driving value and checked bindings with fireEvent, synchronous assertions after signal writes, awaiting resolved/query/onMount data, overriding dependency injection with context and provide, and rendering composed stories. Apply when writing or editing *.spec.ts files for nanoviews components, blocks or stores wired into views."
+description: "Conventions and API for unit-testing nanoviews views with @nanoviews/testing-library and Vitest: the happy-dom setup and cleanup entry, what render takes (a function returning a view, a component instance among them), what container is, driving value and checked bindings with fireEvent, synchronous assertions after signal writes, awaiting resolved/query/onMount data, overriding dependency injection with context and provide, and rendering composed stories. Apply when writing or editing *.spec.ts files for nanoviews components, blocks or stores wired into views."
 license: MIT
 compatibility:
   - Claude Code
@@ -61,7 +61,7 @@ describe('components', () => {
   describe('Counter', () => {
     it('should increment count on click', () => {
       const $count = signal(0)
-      const { container } = render([Counter, { $count }])
+      const { container } = render(Counter({ $count }))
 
       fireEvent.click(screen.getByRole('button'))
 
@@ -85,7 +85,7 @@ describe('components', () => {
 })
 ```
 
-- `render` takes a function returning a view (`render(App)`, `render(() => Card({ id }))`) or a `[Component, ...args]` tuple. A `component$` instance is a function too, so `render(Counter({ $count }))` builds it under `mount`. Building by hand outside `render` (`Counter({ $count })()`) throws at the first `effect$` (`Cannot read properties of undefined (reading 'depsTail')`), and passing a built node throws `Invalid block creator. Expected a function.`.
+- `render` takes a function returning a view (`render(App)`, `render(() => Card({ id }))`). A `component$` instance is such a function, so `render(Counter({ $count }))` builds it under `mount`. Building by hand outside `render` (`Counter({ $count })()`) throws at the first `effect$` (`Cannot read properties of undefined (reading 'depsTail')`), and passing a built node throws a `TypeError`.
 - It mounts into a fresh `<div>` appended to `document.body`; `container` is `document.body` and the mount wrapper is `container.firstElementChild`, so `container.innerHTML` starts with that `<div>` and a portalled node is a sibling of the wrapper. Queries are bound to the container; `screen` sees the same DOM.
 - The result also has `destroy()` (early unmount, idempotent) and `debug()`. `RenderOptions` are `{ target?, container?, queries? }`; cleanup removes only targets sitting directly in `document.body`, a custom `container` is the test's to remove.
 
@@ -128,7 +128,7 @@ it('should use the provided theme', () => {
 
 ## Stories in tests
 
-`composeStories` from `@nanoviews/storybook` turns a stories module into functions whose result is exactly the tuple `render` accepts:
+`composeStories` from `@nanoviews/storybook` turns a stories module into functions whose result is the story unbuilt, like a component instance, which `render` takes as is:
 
 ```ts
 import { it, expect } from 'vitest'

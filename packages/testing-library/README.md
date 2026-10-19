@@ -27,24 +27,24 @@ Testing utilities for [Nanoviews](../nanoviews#readme), built on [Testing Librar
 import { it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@nanoviews/testing-library'
 import { signal } from 'nanoviews/store'
-import { button } from 'nanoviews'
+import { button, component$ } from 'nanoviews'
 
-function Counter({ count }) {
-  return (
-    button({
-      onClick() {
-        count(count() + 1)
-      }
-    })(
-      'count is ', count
-    )
+const Counter = component$(({ $count }) => (
+  button({
+    onClick() {
+      $count(count => count + 1)
+    }
+  })(
+    'count is ', $count
   )
-}
+))
 
 it('should increment count on click', () => {
-  const count = signal(0)
+  const $count = signal(0)
 
-  render([Counter, { count }])
+  render(Counter({
+    $count
+  }))
 
   const counter = screen.getByRole('button')
 
@@ -153,10 +153,12 @@ it('should set ref', () => {
 })
 ```
 
-...or a component with its arguments as a `[component, ...args]` tuple:
+...or a component instance, which renders once `render` mounts it:
 
 ```js
-const { getByRole } = render([Counter, { count }])
+const { getByRole } = render(Counter({
+  $count
+}))
 
 expect(getByRole('button').textContent).toBe('count is 0')
 ```
@@ -166,7 +168,9 @@ The view is mounted into a `<div>` appended to the container, and the container 
 ```js
 import { render, screen } from '@nanoviews/testing-library'
 
-render([Counter, { count }])
+render(Counter({
+  $count
+}))
 
 screen.getByRole('button')
 ```
@@ -215,18 +219,20 @@ import { signal } from 'nanoviews/store'
 
 it('should increment count on click', async () => {
   const user = userEvent.setup()
-  const count = signal(0)
-  const { getByRole } = render([Counter, { count }])
+  const $count = signal(0)
+  const { getByRole } = render(Counter({
+    $count
+  }))
 
   await user.click(getByRole('button'))
 
-  expect(count()).toBe(1)
+  expect($count()).toBe(1)
 })
 ```
 
 ## Testing stories
 
-[`composeStories`](../storybook#readme) applies the meta and the project annotations to every story of a module and hands back a function per story. Calling it gives `render` everything it needs, so a story goes into a test as is:
+[`composeStories`](../storybook#readme) applies the meta and the project annotations to every story of a module and hands back a function per story. Calling it returns the story unbuilt, like a component instance, so a story goes into `render` as is:
 
 ```js
 import { it, expect } from 'vitest'
@@ -288,7 +294,7 @@ An arg left out entirely falls back to the story's own `args`, wrapped in a sign
 
 Mounts a view into the document and returns handles to it, along with all the `@testing-library/dom` queries bound to the container.
 
-The first argument is either a function that returns a view, or a `[component, ...args]` tuple — the component is then called with the rest of the tuple as arguments. A [called composed story](#testing-stories) already has that shape, so it can be passed straight in. Anything else throws `Invalid block creator. Expected a function.` If mounting itself throws, a target sitting directly in `document.body` is removed and the error is rethrown.
+The first argument is a function that returns a view: a component instance, a [called composed story](#testing-stories) or a function of your own. If mounting throws, a target sitting directly in `document.body` is removed and the error is rethrown.
 
 The result contains:
 

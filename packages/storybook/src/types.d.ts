@@ -10,6 +10,7 @@ import type {
 } from 'nanoviews/store'
 import type {
   Child,
+  LazyChild,
   NonEmptyValue,
   EmptyValue
 } from 'nanoviews'
@@ -91,15 +92,6 @@ export type WithRender<TAnnotations, TArgs extends AnyProps> = Omit<TAnnotations
   render?: Render<TArgs>
 }
 
-/**
- * What the renderer hands to `renderToCanvas` and to a portable story: the view creator
- * and the signal props to create it with.
- */
-export type NanoviewsStoryResult<Props extends AnyProps = AnyProps> = readonly [
-  ComponentType<SignalProps<Props>>,
-  SignalProps<Props>
-]
-
 export interface NanoviewsRenderer<Props extends AnyProps | null = null> extends WebRenderer {
   component: ComponentType<Props extends null
     ? this['T'] extends AnyProps ? SignalProps<this['T']> : any
@@ -109,13 +101,13 @@ export interface NanoviewsRenderer<Props extends AnyProps | null = null> extends
 
 /**
  * The renderer as seen after `applyDecorators`, which defers the whole decorated
- * story into the `[view, props]` tuple.
+ * story into a lazy child, built by the `mount` or the element it goes into.
  */
 export interface NanoviewsMountRenderer<Props extends AnyProps | null = null> extends WebRenderer {
   component: ComponentType<Props extends null
     ? this['T'] extends AnyProps ? SignalProps<this['T']> : any
     : SignalProps<OrAnyProps<Props>>>
-  storyResult: NanoviewsStoryResult<OrAnyProps<Props extends null ? this['T'] : Props>>
+  storyResult: LazyChild
 }
 
 export type StoryContext = StoryContextBase<NanoviewsRenderer>

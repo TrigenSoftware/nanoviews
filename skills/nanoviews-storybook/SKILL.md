@@ -107,7 +107,7 @@ const { Static, Reactive } = composeStories(Stories)   // every story of the mod
 const ReactiveAlone = composeStory(ReactiveStory, meta)  // one story
 ```
 
-- A composed story is a function whose result is the `[component, props]` tuple `@nanoviews/testing-library`'s `render` accepts: `render(Reactive({ value: false }))`. Every arg is optional and may be a plain value or a signal; a signal is the handle the test drives, an omitted arg falls back to the story's own `args` wrapped in a signal.
+- A composed story is a function whose result is the story unbuilt, like a component instance: `@nanoviews/testing-library`'s `render` takes it as is, `render(Reactive({ value: false }))`, and a view takes it as a child. Every arg is optional and may be a plain value or a signal; a signal is the handle the test drives, an omitted arg falls back to the story's own `args` wrapped in a signal.
 - `setProjectAnnotations(preview)` from `@nanoviews/storybook`, called once in a test setup file, applies the globals from `.storybook/preview.ts` to every composed story.
 - Testing details (setup, `render`, events) are the nanoviews-testing skill.
 
