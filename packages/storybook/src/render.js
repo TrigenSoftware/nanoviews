@@ -56,9 +56,9 @@ function toSignals(props, canvasElement) {
   return newSignals
 }
 
-// The story a decorator gets: `story()` hands it back unbuilt, as a child that renders once the
-// element or the `context$` it goes into builds it, inside whatever that opened - the way a
-// component renders inside its parent
+// The story a decorator gets, and the decorated story itself: a call hands it back unbuilt, as a
+// child that renders once the `mount`, the element or the `context$` it goes into builds it, inside
+// whatever that opened - the way a component renders inside its parent
 function lazyStory(story) {
   return (update) => {
     const child = () => story(update)
@@ -70,18 +70,15 @@ function lazyStory(story) {
 }
 
 export function applyDecorators(storyFn, decorators) {
-  const decorated = defaultDecorateStory(
+  const decorated = lazyStory(defaultDecorateStory(
     storyFn,
     decorators.map(decorator => (story, context) => decorator(lazyStory(story), context))
-  )
+  ))
 
-  return context => [
-    props => decorated({
-      ...context,
-      args: props
-    }),
-    toSignals(context.args, context.canvasElement)
-  ]
+  return context => decorated({
+    ...context,
+    args: toSignals(context.args, context.canvasElement)
+  })
 }
 
 export function render(props, context) {
@@ -110,11 +107,11 @@ export function renderToCanvas({ storyFn, showMain, forceRemount, storyContext }
 
   globalsByDomElement.set(canvasElement, globals)
 
-  const [view, props] = storyFn()
+  const story = storyFn()
 
   if (!unmount) {
     try {
-      unmount = mount(() => view(props), canvasElement)
+      unmount = mount(story, canvasElement)
     } catch (error) {
       signalsByDomElement.delete(canvasElement)
       throw error

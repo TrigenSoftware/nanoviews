@@ -12,9 +12,6 @@ import {
 
 export * from '@testing-library/dom'
 
-// oxlint-disable-next-line typescript/no-explicit-any
-type BlockCreator = readonly [(...args: any[]) => Child, ...unknown[]]
-
 type App = () => Child
 
 interface ContainerCacheEntry {
@@ -33,27 +30,19 @@ const containerCache = new Set<ContainerCacheEntry>()
 const unmountCache = new Set<Destroy>()
 
 /**
- * Render a Component Block into the Document.
- * @param blockCreator - The Component Block to render or a block creator
+ * Mount an app into the document.
+ * @param app - App function to mount, such as a component instance or a called composed story
  * @param renderOptions - Options to customize the render
- * @returns An object with utilities to interact with the rendered block
+ * @returns An object with utilities to interact with the rendered app
  */
-export function render<Q extends Queries = typeof defaultQueries>(blockCreator: BlockCreator | App, renderOptions: RenderOptions<Q> = {}) {
+export function render<Q extends Queries = typeof defaultQueries>(app: App, renderOptions: RenderOptions<Q> = {}) {
   const { queries } = renderOptions
   const container = renderOptions.container || document.body
   const target = renderOptions.target || container.appendChild(document.createElement('div'))
   let unmount: Destroy
 
   try {
-    if (Array.isArray(blockCreator)) {
-      const [creator, ...args] = blockCreator as BlockCreator
-
-      unmount = mount(() => creator(...args), target)
-    } else if (typeof blockCreator === 'function') {
-      unmount = mount(() => blockCreator(), target)
-    } else {
-      throw new Error('Invalid block creator. Expected a function.')
-    }
+    unmount = mount(app, target)
   } catch (error) {
     if (target.parentNode === document.body) {
       document.body.removeChild(target)

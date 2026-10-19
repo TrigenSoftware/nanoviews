@@ -156,6 +156,22 @@ describe('nanoviews', () => {
 
           expect(container.innerHTML).toBe('<div><div class="dark"><div>Story</div></div></div>')
         })
+
+        it('should render a story inside the context of the view it goes into', () => {
+          const Theme$ = () => 'light'
+          const Story = composeStory({
+            render: () => div()(
+              'Theme: ', inject(Theme$)
+            )
+          }, {})
+          const { container } = render(() => context$(
+            provide(Theme$, 'dark')
+          )(
+            Story()
+          ))
+
+          expect(container.innerHTML).toBe('<div><div>Theme: dark</div></div>')
+        })
       })
     })
 

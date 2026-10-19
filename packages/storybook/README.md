@@ -239,7 +239,7 @@ Decorators run once per mount, together with the story they wrap: later arg edit
 
 ## Portable stories
 
-`composeStories` applies the meta, the project annotations and the renderer to every story of a module, so the story becomes a function you can call in a test. Its result is what [`@nanoviews/testing-library`](../testing-library#readme)'s `render` takes:
+`composeStories` applies the meta, the project annotations and the renderer to every story of a module, so the story becomes a function you can call in a test. A call returns the story unbuilt, like a component instance: [`@nanoviews/testing-library`](../testing-library#readme)'s `render` takes it as is, and a view takes it as a child:
 
 ```ts
 import {

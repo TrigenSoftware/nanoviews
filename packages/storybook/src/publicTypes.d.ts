@@ -80,7 +80,6 @@ export type StoryObj<MetaOrCmpOrArgs = Args> = MetaOrCmpOrArgs extends {
 export type {
   NanoviewsRenderer,
   NanoviewsMountRenderer,
-  NanoviewsStoryResult,
   ComponentArgs,
   ComponentType,
   RawProps,
