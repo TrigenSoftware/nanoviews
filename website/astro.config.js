@@ -6,6 +6,8 @@ import llmsTxt from 'starlight-llms-txt'
 import { viewTransitions } from 'astro-vtbot/starlight-view-transitions'
 import { rehypeNormalizeContent } from './rehype.js'
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 export default defineConfig({
   site: 'https://nanoviews.js.org',
   markdown: {
@@ -80,8 +82,18 @@ export default defineConfig({
             name: 'format-detection',
             content: 'telephone=no'
           }
+        },
+        isProduction && {
+          tag: 'script',
+          attrs: {
+            src: 'https://cloud.umami.is/script.js',
+            'data-website-id': '1b1d953b-36cd-4491-85c1-0efddef901cb',
+            defer: true,
+            // Required to pass the COEP require-corp check
+            crossorigin: 'anonymous'
+          }
         }
-      ],
+      ].filter(Boolean),
       social: [
         {
           label: 'GitHub',
