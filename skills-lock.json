@@ -13,11 +13,11 @@
       "skillPath": "skills/conventional-commit-message/SKILL.md",
       "computedHash": "6ae250d67edc757e2e54163dae2d32f7b44bd8827231cbab2895db8fc0331ac3"
     },
-    "setup-simple-release-action": {
+    "simple-release-action": {
       "source": "TrigenSoftware/simple-release",
       "sourceType": "github",
-      "skillPath": "skills/setup-simple-release-action/SKILL.md",
-      "computedHash": "41745282b860c53f5ea08e8f23c3fad5d8370401e28ce9f273a9516bdb0fbc2b"
+      "skillPath": "skills/simple-release-action/SKILL.md",
+      "computedHash": "172a623973cd6c66fd971b8c69680d67212f04023ae1428cf1c673170cd62007"
     },
     "size-limit": {
       "source": "TrigenSoftware/scripts",
