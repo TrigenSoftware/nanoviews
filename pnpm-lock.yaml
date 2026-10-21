@@ -55,7 +55,7 @@ overrides:
   '@nanoviews/storybook@*': workspace:^
   '@nanoviews/storybook-vite@*': workspace:^
   '@nano_kit/intl@*': 2.0.0-prerelease.20261014204046
-  '@nano_kit/platform-web@*': 2.0.0-prerelease.20261014204046
+  '@nano_kit/platform-web@*': 2.0.0
   '@nano_kit/query@*': 2.0.0-prerelease.20261014204046
   '@nano_kit/router@*': 2.0.0-prerelease.20261014204046
   '@nano_kit/store@*': 2.0.0-prerelease.20261014204046
@@ -207,8 +207,8 @@ importers:
         specifier: ^1.19.9
         version: 1.19.17(hono@4.13.13)
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0
+        version: 2.0.0(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/query':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
@@ -241,8 +241,8 @@ importers:
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0
+        version: 2.0.0(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/query':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
@@ -375,8 +375,8 @@ importers:
   examples/weather/common:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0
+        version: 2.0.0(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/query':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
@@ -409,8 +409,8 @@ importers:
   examples/weather/nano_kit:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0
+        version: 2.0.0(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/query':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
@@ -431,8 +431,8 @@ importers:
   examples/weather/nano_kit-di:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0
+        version: 2.0.0(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/query':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
@@ -1530,8 +1530,8 @@ packages:
     peerDependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/platform-web@2.0.0-prerelease.20261014204046':
-    resolution: {integrity: sha512-4eBtyHNPKfyHjfOZU8MvvClN3DpVjEEHnQ40deDQ1vGDdhCrThqzwIboC2S2LymIjoCq/PhbJKbH1SEHxDbd3w==}
+  '@nano_kit/platform-web@2.0.0':
+    resolution: {integrity: sha512-tkE01Dj7q1xBbPCvWbF/M57fDkOULRWIWXATl5lvJ11tzg04zUGsEmnynabLYzG+bLLQDjUKleag88By4EbL0g==}
     engines: {node: '>=24'}
     peerDependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
@@ -6759,7 +6759,7 @@ snapshots:
     dependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
-  '@nano_kit/platform-web@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
+  '@nano_kit/platform-web@2.0.0(@nano_kit/store@2.0.0-prerelease.20261014204046)':
     dependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
