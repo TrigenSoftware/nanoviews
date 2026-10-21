@@ -54,7 +54,7 @@ overrides:
   '@nanoviews/router@*': workspace:^
   '@nanoviews/storybook@*': workspace:^
   '@nanoviews/storybook-vite@*': workspace:^
-  '@nano_kit/intl@*': 2.0.0-prerelease.20261014204046
+  '@nano_kit/intl@*': 2.0.0
   '@nano_kit/platform-web@*': 2.0.0-prerelease.20261014204046
   '@nano_kit/query@*': 2.0.0-prerelease.20261014204046
   '@nano_kit/router@*': 2.0.0-prerelease.20261014204046
@@ -238,8 +238,8 @@ importers:
   examples/event-board/nano_kit-di-intl:
     dependencies:
       '@nano_kit/intl':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: 2.0.0
+        version: 2.0.0(@nano_kit/store@2.0.0-prerelease.20261014204046)
       '@nano_kit/platform-web':
         specifier: 2.0.0-prerelease.20261014204046
         version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
@@ -1524,8 +1524,8 @@ packages:
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
 
-  '@nano_kit/intl@2.0.0-prerelease.20261014204046':
-    resolution: {integrity: sha512-GQ8lPWeS/Uha1v5TAtaSGdWMCaEUQz4hQ2Ee0N/jh2Ms6SYd6GR57yY70E0hfHMaarJjj9t5+ct44g95FLL5nA==}
+  '@nano_kit/intl@2.0.0':
+    resolution: {integrity: sha512-nJUCm8VjWa2CJyAx56w2/qGEGOwTpZvHifuj4XQF1olwne3b94eRBnWon7qM4VmrFY6fGkf7YxxL5pdpoZ9I5Q==}
     engines: {node: '>=24'}
     peerDependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
@@ -6755,7 +6755,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nano_kit/intl@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
+  '@nano_kit/intl@2.0.0(@nano_kit/store@2.0.0-prerelease.20261014204046)':
     dependencies:
       '@nano_kit/store': 2.0.0-prerelease.20261014204046
 
