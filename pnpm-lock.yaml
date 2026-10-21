@@ -44,7 +44,7 @@ catalogs:
       version: 7.0.2
     vite:
       specifier: ^8.2.2
-      version: 8.2.2
+      version: 8.3.4
     vitest:
       specifier: ^5.0.0
       version: 5.0.0
@@ -54,13 +54,6 @@ overrides:
   '@nanoviews/router@*': workspace:^
   '@nanoviews/storybook@*': workspace:^
   '@nanoviews/storybook-vite@*': workspace:^
-  '@nano_kit/intl@*': 2.0.0-prerelease.20261014204046
-  '@nano_kit/platform-web@*': 2.0.0-prerelease.20261014204046
-  '@nano_kit/query@*': 2.0.0-prerelease.20261014204046
-  '@nano_kit/router@*': 2.0.0-prerelease.20261014204046
-  '@nano_kit/store@*': 2.0.0-prerelease.20261014204046
-  kida@*: 2.0.0-prerelease.20261014204046
-  agera@*: 2.0.0-prerelease.20261014204046
 
 importers:
 
@@ -135,7 +128,7 @@ importers:
     devDependencies:
       vite:
         specifier: ^8.2.1
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
   examples/common:
     devDependencies:
@@ -155,14 +148,14 @@ importers:
   examples/cvapp/nano_kit:
     dependencies:
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046
+        specifier: '*'
+        version: 2.0.0
       '@nanoviews/router':
         specifier: workspace:^
         version: link:../../../packages/router
@@ -199,7 +192,7 @@ importers:
         version: 7.0.2
       vite:
         specifier: ^8.2.1
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
   examples/event-board/common:
     dependencies:
@@ -207,17 +200,17 @@ importers:
         specifier: ^1.19.9
         version: 1.19.17(hono@4.13.13)
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046
+        specifier: '*'
+        version: 2.0.0
       hono:
         specifier: ^4.12.1
         version: 4.13.13
@@ -230,28 +223,28 @@ importers:
         version: 7.0.2
       vite:
         specifier: 'catalog:'
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   examples/event-board/nano_kit-di-intl:
     dependencies:
       '@nano_kit/intl':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046
+        specifier: '*'
+        version: 2.0.0
       '@nanoviews/router':
         specifier: workspace:^
         version: link:../../../packages/router
@@ -270,19 +263,19 @@ importers:
         version: 7.0.2
       vite:
         specifier: ^8.2.1
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
   examples/rick-and-morty/common:
     dependencies:
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046
+        specifier: '*'
+        version: 2.0.0
     devDependencies:
       playwright:
         specifier: 'catalog:'
@@ -292,22 +285,22 @@ importers:
         version: 7.0.2
       vite:
         specifier: 'catalog:'
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   examples/rick-and-morty/nano_kit:
     dependencies:
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046
+        specifier: '*'
+        version: 2.0.0
       '@nanoviews/router':
         specifier: workspace:^
         version: link:../../../packages/router
@@ -320,7 +313,7 @@ importers:
         version: 7.0.2
       vite:
         specifier: ^8.2.1
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
   examples/vite-demo/nanoviews:
     dependencies:
@@ -333,7 +326,7 @@ importers:
         version: 7.0.2
       vite:
         specifier: ^8.2.1
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
   examples/vite-demo/solid:
     dependencies:
@@ -346,16 +339,16 @@ importers:
         version: 7.0.2
       vite:
         specifier: ^8.2.1
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vite-plugin-solid:
         specifier: ^2.11.12
-        version: 2.11.14(@testing-library/jest-dom@6.9.1)(solid-js@1.9.15)(supports-color@7.2.0)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.11.14(@testing-library/jest-dom@6.9.1)(solid-js@1.9.15)(supports-color@7.2.0)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   examples/vite-demo/svelte:
     devDependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^7.0.0
-        version: 7.3.0(svelte@5.57.0(@typescript-eslint/types@8.46.4))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 7.3.0(svelte@5.57.0(@typescript-eslint/types@8.46.4))(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.8
@@ -370,19 +363,19 @@ importers:
         version: 6.0.3
       vite:
         specifier: ^8.2.1
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
   examples/weather/common:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046
+        specifier: '*'
+        version: 2.0.0
       '@nanostores/persistent':
         specifier: ^1.3.5
         version: 1.3.5(nanostores@1.5.2)
@@ -401,22 +394,22 @@ importers:
         version: 7.0.2
       vite:
         specifier: 'catalog:'
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   examples/weather/nano_kit:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046
+        specifier: '*'
+        version: 2.0.0
       nanoviews:
         specifier: workspace:^
         version: link:../../../packages/nanoviews
@@ -426,19 +419,19 @@ importers:
         version: 7.0.2
       vite:
         specifier: ^8.2.1
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
   examples/weather/nano_kit-di:
     dependencies:
       '@nano_kit/platform-web':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/query':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: '*'
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046
+        specifier: '*'
+        version: 2.0.0
       nanoviews:
         specifier: workspace:^
         version: link:../../../packages/nanoviews
@@ -448,7 +441,7 @@ importers:
         version: 7.0.2
       vite:
         specifier: ^8.2.1
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
   packages/nanoviews:
     dependencies:
@@ -456,8 +449,8 @@ importers:
         specifier: ^3.1.3
         version: 3.2.3
       kida:
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@nanoviews/storybook':
         specifier: workspace:^
@@ -500,21 +493,21 @@ importers:
         version: 7.0.2
       vite:
         specifier: 'catalog:'
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
     linkDirectory: false
     publishDirectory: package
 
   packages/router:
     devDependencies:
       '@nano_kit/router':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)
+        specifier: ^2.0.0
+        version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
-        specifier: 2.0.0-prerelease.20261014204046
-        version: 2.0.0-prerelease.20261014204046
+        specifier: ^2.0.0
+        version: 2.0.0
       '@nanoviews/testing-library':
         specifier: workspace:^
         version: link:../testing-library
@@ -541,10 +534,10 @@ importers:
         version: 7.0.2
       vite:
         specifier: 'catalog:'
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
     linkDirectory: false
     publishDirectory: package
 
@@ -570,14 +563,14 @@ importers:
         version: link:../storybook
       '@storybook/builder-vite':
         specifier: ^10.5.10
-        version: 10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
     devDependencies:
       storybook:
         specifier: 'catalog:'
         version: 10.5.10(prettier@3.9.10)(react@19.2.8)
       vite:
         specifier: 'catalog:'
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
     linkDirectory: false
     publishDirectory: package
 
@@ -594,10 +587,10 @@ importers:
         version: link:../nanoviews
       vite:
         specifier: 'catalog:'
-        version: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
     linkDirectory: false
     publishDirectory: package
 
@@ -1524,32 +1517,32 @@ packages:
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
 
-  '@nano_kit/intl@2.0.0-prerelease.20261014204046':
-    resolution: {integrity: sha512-GQ8lPWeS/Uha1v5TAtaSGdWMCaEUQz4hQ2Ee0N/jh2Ms6SYd6GR57yY70E0hfHMaarJjj9t5+ct44g95FLL5nA==}
+  '@nano_kit/intl@2.0.0':
+    resolution: {integrity: sha512-nJUCm8VjWa2CJyAx56w2/qGEGOwTpZvHifuj4XQF1olwne3b94eRBnWon7qM4VmrFY6fGkf7YxxL5pdpoZ9I5Q==}
     engines: {node: '>=24'}
     peerDependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261014204046
+      '@nano_kit/store': ^2.0.0
 
-  '@nano_kit/platform-web@2.0.0-prerelease.20261014204046':
-    resolution: {integrity: sha512-4eBtyHNPKfyHjfOZU8MvvClN3DpVjEEHnQ40deDQ1vGDdhCrThqzwIboC2S2LymIjoCq/PhbJKbH1SEHxDbd3w==}
+  '@nano_kit/platform-web@2.0.0':
+    resolution: {integrity: sha512-tkE01Dj7q1xBbPCvWbF/M57fDkOULRWIWXATl5lvJ11tzg04zUGsEmnynabLYzG+bLLQDjUKleag88By4EbL0g==}
     engines: {node: '>=24'}
     peerDependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261014204046
+      '@nano_kit/store': ^2.0.0
 
-  '@nano_kit/query@2.0.0-prerelease.20261014204046':
-    resolution: {integrity: sha512-b3Sw8R7rAwQBAuMX3NQftoP8T7ghvL4VhrpnSd1hDBOUx1Hzu6Vwur6/omwnwgjrX6LAXmvgLtnCl9IC/mxPjw==}
+  '@nano_kit/query@2.0.0':
+    resolution: {integrity: sha512-KCGRUwO6UJNRHGikViJOPIJrdFYRe5hWYmsGFS7/bfCEJ6qv3NFTB5PgGIlQSsgTW1UNggevOlfCUg4TzGQZWg==}
     engines: {node: '>=24'}
     peerDependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261014204046
+      '@nano_kit/store': ^2.0.0
 
-  '@nano_kit/router@2.0.0-prerelease.20261014204046':
-    resolution: {integrity: sha512-s43iYBgmscPTWfW2GvVn046WpvfmMRWLIjz/nSDRbVdLbSslfE7gqzt0xRWnrjJpbdubCPgN2rENMDQbToM88Q==}
+  '@nano_kit/router@2.0.0':
+    resolution: {integrity: sha512-HvTsIehZoa4wOLsimUHAvKIvNJKksxMYtfmy9NbsIsOAfBHDawHhtx0s99JcWSJlG3Alktoa3TXSmd7zpCDLxQ==}
     engines: {node: '>=24'}
     peerDependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261014204046
+      '@nano_kit/store': ^2.0.0
 
-  '@nano_kit/store@2.0.0-prerelease.20261014204046':
-    resolution: {integrity: sha512-7jfNe1UZjaAbssZ4YU1EeCyd5w1BkikrZiFL1dlRIE/elKjyTGN+oaKqxknGFzAalGKjhYUtx0frI1G069aXug==}
+  '@nano_kit/store@2.0.0':
+    resolution: {integrity: sha512-uHZR+okno55lxjtVZ+UXoWQoIhYEJrMGdCQcouVKssAK/CeWmBmAjyKqR1CFm1WPvVAKuffRaOGAkUA750YWGA==}
     engines: {node: '>=24'}
 
   '@nanostores/persistent@1.3.5':
@@ -1729,9 +1722,6 @@ packages:
 
   '@oxc-project/types@0.127.0':
     resolution: {integrity: sha512-aIYXQBo4lCbO4z0R3FHeucQHpF46l2LbMdxRvqvuRuW2OxdnSkcng5B8+K12spgLDj93rtN3+J2Vac/TIO+ciQ==}
-
-  '@oxc-project/types@0.147.0':
-    resolution: {integrity: sha512-IJ3s6ltHLp45S0bh7phkX+gJO7A1Wuz2EaqpAhb8WjqDwbzMiWKHhyyT42tskaWjEYXtHtVCPpnBJVT9+dcRLg==}
 
   '@oxc-project/types@0.149.0':
     resolution: {integrity: sha512-Efcc+iF0j3Bf67YjEqIqWXbX5XddXoK/Mw4K1/JuXwRCZ8N16VR7iT23nlCc9XrveFVh/E5Rqs2StT0V8v9LdA==}
@@ -2146,12 +2136,6 @@ packages:
     cpu: [arm]
     os: [android]
 
-  '@rolldown/binding-android-arm-eabi@1.2.6':
-    resolution: {integrity: sha512-b+jTcARdTiFLI6jB4a5XjTm0RWd6KcRfQj/I2356fxUZemiho9zQLxo0RtCuMDAyKcLo6cEltkgbQp6d1+sjjQ==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm]
-    os: [android]
-
   '@rolldown/binding-android-arm-eabi@1.2.8':
     resolution: {integrity: sha512-tN5aztYkKCte4i5SIrrz5yK/HMjEuCqCSCJa418jOV8tZ1cBY3YF2otxB1ktPxzsLA1BeTqwapK0bfjxNvHJVw==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2160,12 +2144,6 @@ packages:
 
   '@rolldown/binding-android-arm64@1.2.14':
     resolution: {integrity: sha512-QiVxHofl6A8lQU7WAtOUY4QMVZXohxwz7WJJoeh8NBEUyKfIkMRKhYyq8az/1RypNiIXzNTtiS6KwHz0erxYRQ==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [android]
-
-  '@rolldown/binding-android-arm64@1.2.6':
-    resolution: {integrity: sha512-lkWU8ZJaRk9q3CIEY1Tc7vIFALp3Xw5NfGJo2hQg5oIqNgxWi1zI+IiDEK3r70BF5Dzol1tcXsnzsRc8NLhG+Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [android]
@@ -2182,12 +2160,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@rolldown/binding-darwin-arm64@1.2.6':
-    resolution: {integrity: sha512-dgR56NYnvAszm7Ob1B2/Vn0e8bUQYZH2UjVaMMtMVOCKFSfjhfLmuA/9+O+F+ajUdG6B/bSssrKW6JJYASa8jA==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [darwin]
-
   '@rolldown/binding-darwin-arm64@1.2.8':
     resolution: {integrity: sha512-PCSDQGXD2IyTEFrcgPyBM8jJuGmrbCMuoIOXdbEGVemruKACXoLQJrb+A45Z0L5t1RQkdfJprAYPkikbh7dzdA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2196,12 +2168,6 @@ packages:
 
   '@rolldown/binding-darwin-x64@1.2.14':
     resolution: {integrity: sha512-hyMKEGatjmBYCs/Q4sbIcL/GqpFEqsX3wc+HYVQ/85A4rxc1o7rPm4DUI4GV4k/h0ITddwFSGpqQunI14GXjTA==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [darwin]
-
-  '@rolldown/binding-darwin-x64@1.2.6':
-    resolution: {integrity: sha512-vpVxFvUCFioJqug7OTvqptkc4yb8UX0AwfDmJpaR/0sWz+BUmqSVAf7c8JkUgnN8YLspb4a/N6NhTyMAmdyQ7Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [darwin]
@@ -2218,12 +2184,6 @@ packages:
     cpu: [x64]
     os: [freebsd]
 
-  '@rolldown/binding-freebsd-x64@1.2.6':
-    resolution: {integrity: sha512-h1wG6Y6K3JlRswxsI64qQJqBAy4vrLuHgRbc8CZMGSWTOFRY6ghMApM1NKzB2I0n5xV1fjkE18SuVl2QpLeNpA==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [freebsd]
-
   '@rolldown/binding-freebsd-x64@1.2.8':
     resolution: {integrity: sha512-DjszaTEVogPqA5bYzsEeqDCQxbcp2fexQwKcRspYji2yzR68fCf+e4fx6kBSRDwX5/brZaHw/hWS9+A/+/w9sQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2236,12 +2196,6 @@ packages:
     cpu: [arm]
     os: [linux]
 
-  '@rolldown/binding-linux-arm-gnueabihf@1.2.6':
-    resolution: {integrity: sha512-tbCiqub0q2MVWJKgF5PoAlNWCtQydiOYSLIkd8sByqK/6MMYLJRcSXSYodqYtd0O+Fw7QaVmKKlS4oL94YRZ0w==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm]
-    os: [linux]
-
   '@rolldown/binding-linux-arm-gnueabihf@1.2.8':
     resolution: {integrity: sha512-zmwa7FTmdzB6aaEEuuls18H6Ap5JmJPSoPTuXixeJZV6tG40SyLkApQtz1g8ptZtiEKqj9OM0oNLPh1AgvE31Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2250,13 +2204,6 @@ packages:
 
   '@rolldown/binding-linux-arm64-gnu@1.2.14':
     resolution: {integrity: sha512-SD9kY8M009x/7s57Z1dgUVlP5+uYBgKQK0Tkr1WIWngrtUJmRCW1RJFMY7QDla2khXhmg2i5Io7MUjcmZNZ/KQ==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [linux]
-    libc: [glibc]
-
-  '@rolldown/binding-linux-arm64-gnu@1.2.6':
-    resolution: {integrity: sha512-oxK9+baEBPhZG5HB4URY+uU04zJWeZlH6Tb9rB5DK4DF9XR1uXNLXt5Q5ZsugTKayNCNLhkcwz/ye74hRI98dg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
@@ -2276,13 +2223,6 @@ packages:
     os: [linux]
     libc: [musl]
 
-  '@rolldown/binding-linux-arm64-musl@1.2.6':
-    resolution: {integrity: sha512-muWCk27FVBEZtv0MsK8gnfSmgczA8KQ0uRVJbTABKhkRfQc38aUrcb7fhi3BNiyseFmgcRsoMfQsSNJ+DbZdSw==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [linux]
-    libc: [musl]
-
   '@rolldown/binding-linux-arm64-musl@1.2.8':
     resolution: {integrity: sha512-jFJTifHnNPY+yzOoNZQfSIysrVyXzEQPhPnOUjmD1bcQGHH6s7c8cViKWar8YplQImE5N9JRqMCLrM2CdxOrZA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2292,13 +2232,6 @@ packages:
 
   '@rolldown/binding-linux-ppc64-gnu@1.2.14':
     resolution: {integrity: sha512-4+Kl8daPV8NDHaD7mfCcc1pRM+Qg7ab8DyMm5FG5WoZgv4h2i3KFN1CybYBNbQqmuYm7ftJLvmMI1eHYJ22S/Q==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [ppc64]
-    os: [linux]
-    libc: [glibc]
-
-  '@rolldown/binding-linux-ppc64-gnu@1.2.6':
-    resolution: {integrity: sha512-eWDoSfU7Co2qj3vgB3Dt4lj1mG6CoWbcJQkRMP3XJplyCMtuaq3LHvPFjS9QIPvMGWVadJC04Xiy0IdcVPtnwQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [ppc64]
     os: [linux]
@@ -2318,13 +2251,6 @@ packages:
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-s390x-gnu@1.2.6':
-    resolution: {integrity: sha512-2bWNjRSIayvupRKxXUY2tWG9fYdoUlTqWywHRvE8Eq3GvuQ+f2HeIkve697fIt+IQs/PV8yFsdWuhp1aJ1PdnA==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [s390x]
-    os: [linux]
-    libc: [glibc]
-
   '@rolldown/binding-linux-s390x-gnu@1.2.8':
     resolution: {integrity: sha512-WnHfADMzOV2Y55wlx1hzzQnar/wDt/VdvWSD99r18Mz9ylNieIGOkRx3UV21h7m/eJvjySYJkO26VvGNFkwsIQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2334,13 +2260,6 @@ packages:
 
   '@rolldown/binding-linux-x64-gnu@1.2.14':
     resolution: {integrity: sha512-WxalXzgrLVpKC93xfpaJ3gCXUWzeCr+FRCbDVD2mUAy4L6Vo3lNVz0epUEUpxPWJkLNYUwM4OSIikv36OJ9mLg==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@rolldown/binding-linux-x64-gnu@1.2.6':
-    resolution: {integrity: sha512-KekI0gS0wLxe1UBSQSjenBVwou/JkcQPDzBPICGZjxUv9k3RteHDPBQaiOicZUFKRIH2wKEimGwVpnJsbPzu7w==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
@@ -2360,13 +2279,6 @@ packages:
     os: [linux]
     libc: [musl]
 
-  '@rolldown/binding-linux-x64-musl@1.2.6':
-    resolution: {integrity: sha512-TvtPnfVr+HtyGiDmPK4VWmlNm7QhNNAcK5Q9A7aOXsI8545yCyaoMaicXrFZ72JzeYjaUVk7yT243zT0jzjFKQ==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
   '@rolldown/binding-linux-x64-musl@1.2.8':
     resolution: {integrity: sha512-UefiqfM3D6IVNlZ8tSGs9+Ejjud2T+oxO0IHADU45Y+lyEjD2dVFyZHbkfX0LUb5Zugo/oIv1eCO/KVYhgYJYA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2376,12 +2288,6 @@ packages:
 
   '@rolldown/binding-openharmony-arm64@1.2.14':
     resolution: {integrity: sha512-qyr5XiNGxm2ytx17vvtcJ9nXn6v1gENETi503bJx3OGwZ1tSonj7BosxbMa/xeAfSl5iS9X6KjEWYXLu6v1L7Q==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [openharmony]
-
-  '@rolldown/binding-openharmony-arm64@1.2.6':
-    resolution: {integrity: sha512-iOo0VEay2XFhaCcH0sps5XIimkSuOnNaZrf6+ZkoSOQBJPKNU48RkmJv0/lSpipexu5P+ouFgafe5IGr/DiQfg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [openharmony]
@@ -2398,12 +2304,6 @@ packages:
     cpu: [arm64]
     os: [win32]
 
-  '@rolldown/binding-win32-arm64-msvc@1.2.6':
-    resolution: {integrity: sha512-y5NTmmasMS455JlOCO4ZM9krIchv3Mvm1crL1iUPGOPgEzSkves9n0SdC5Sjz6+qWDFhd8/JpfWMH8NSWNHe+A==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [win32]
-
   '@rolldown/binding-win32-arm64-msvc@1.2.8':
     resolution: {integrity: sha512-xWBkPOF1Q9k/Gv1nQXnVdLxKu74jXppuOM4Z3mnypVUJJJwLsMl7hNJGRAUJoG8A5MgOI1ACKM+wBFxSJzKy4A==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2412,12 +2312,6 @@ packages:
 
   '@rolldown/binding-win32-x64-msvc@1.2.14':
     resolution: {integrity: sha512-9mE94bf2GZUaR/fUSXCMpBoWkctu421Mi0ORpm4zqfbkjKep7RxzPFa5etcGs5h+2KApoWBOA/hAJa/7saGgEQ==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [win32]
-
-  '@rolldown/binding-win32-x64-msvc@1.2.6':
-    resolution: {integrity: sha512-np8iZSLfXlAD4kWhiyq/u0Yt8oZDtRQ8lGhQaCXo2rl37KNjeU0GjJuwr4P3oeZ++ROfofsKNBqR5LTO8aXyWQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
@@ -2919,8 +2813,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  agera@2.0.0-prerelease.20261014204046:
-    resolution: {integrity: sha512-XMNW1O+eUacJyYMEPoZ1kuFwbkEcCjGDs03ijPDOeFH6t5vihgzy07zQ9Q95Eq505EHcwnLUamFWcV4Hw8DLeQ==}
+  agera@2.0.0:
+    resolution: {integrity: sha512-BP2jcKdeiIcnzZ4WexHkp/Wf0AKmHcDujL9oQx8MHkwY+Za/NvwTilVrsg6fYh6nTALT1kt2jhVFG6caBgPnLw==}
     engines: {node: '>=24'}
 
   ajv-draft-04@1.0.0:
@@ -4069,8 +3963,8 @@ packages:
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
-  kida@2.0.0-prerelease.20261014204046:
-    resolution: {integrity: sha512-kF6RV1fCL+P3c/153ghM4gxIUbV1eoNY/K0LNRGDlwzqW3Aa+7BbhpcgtVnTZvu9t6DtUVfxwiJYNEfVNa606g==}
+  kida@2.0.0:
+    resolution: {integrity: sha512-ZBX8zO5tzQSMDXPo0LPPuaLIM43wyQPfS5f1VA784twyWE2UX+gjFGInaLnja1Ir3uFiAD6SUxhLV0L2KlQpxA==}
     engines: {node: '>=24'}
 
   kleur@4.1.5:
@@ -4908,11 +4802,6 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
-  rolldown@1.2.6:
-    resolution: {integrity: sha512-vMM4q3aixf46GiF1Kok8jDPFsEpXgFWGjUHXNkNHNm+Y2adXAG2dbX91jkti3i0ZRsOlcmbuzAz1poObSHCmUA==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    hasBin: true
-
   rolldown@1.2.8:
     resolution: {integrity: sha512-Z67nTmhZe7anqnM/EjI392w5i/ANUinjip7QYsOyN37oayduxt3ksdX0hf5OOamkAd53BiIHfbfSzfUmzKFQqQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -5474,49 +5363,6 @@ packages:
       vite: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
     peerDependenciesMeta:
       '@testing-library/jest-dom':
-        optional: true
-
-  vite@8.2.2:
-    resolution: {integrity: sha512-cFKLV/PRgAUlIRm5WjMjJ86jrftzpqcgH+Us+DS8mI3CDNiH30Whrz8uHL3+MOLPAgqbMBAqWdAHAphOAM+z/Q==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^20.19.0 || >=22.12.0
-      '@vitejs/devtools': ^0.4.0 || ^0.5.0
-      esbuild: ^0.27.0 || ^0.28.0
-      jiti: '>=1.21.0'
-      less: ^4.0.0
-      sass: ^1.70.0
-      sass-embedded: ^1.70.0
-      stylus: '>=0.54.8'
-      sugarss: ^5.0.0
-      terser: ^5.16.0
-      tsx: ^4.8.1
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      '@vitejs/devtools':
-        optional: true
-      esbuild:
-        optional: true
-      jiti:
-        optional: true
-      less:
-        optional: true
-      sass:
-        optional: true
-      sass-embedded:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
         optional: true
 
   vite@8.3.4:
@@ -6755,25 +6601,25 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nano_kit/intl@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
+  '@nano_kit/intl@2.0.0(@nano_kit/store@2.0.0)':
     dependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261014204046
+      '@nano_kit/store': 2.0.0
 
-  '@nano_kit/platform-web@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
+  '@nano_kit/platform-web@2.0.0(@nano_kit/store@2.0.0)':
     dependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261014204046
+      '@nano_kit/store': 2.0.0
 
-  '@nano_kit/query@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
+  '@nano_kit/query@2.0.0(@nano_kit/store@2.0.0)':
     dependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261014204046
+      '@nano_kit/store': 2.0.0
 
-  '@nano_kit/router@2.0.0-prerelease.20261014204046(@nano_kit/store@2.0.0-prerelease.20261014204046)':
+  '@nano_kit/router@2.0.0(@nano_kit/store@2.0.0)':
     dependencies:
-      '@nano_kit/store': 2.0.0-prerelease.20261014204046
+      '@nano_kit/store': 2.0.0
 
-  '@nano_kit/store@2.0.0-prerelease.20261014204046':
+  '@nano_kit/store@2.0.0':
     dependencies:
-      kida: 2.0.0-prerelease.20261014204046
+      kida: 2.0.0
 
   '@nanostores/persistent@1.3.5(nanostores@1.5.2)':
     dependencies:
@@ -6897,8 +6743,6 @@ snapshots:
     optional: true
 
   '@oxc-project/types@0.127.0': {}
-
-  '@oxc-project/types@0.147.0': {}
 
   '@oxc-project/types@0.149.0': {}
 
@@ -7158,16 +7002,10 @@ snapshots:
   '@rolldown/binding-android-arm-eabi@1.2.14':
     optional: true
 
-  '@rolldown/binding-android-arm-eabi@1.2.6':
-    optional: true
-
   '@rolldown/binding-android-arm-eabi@1.2.8':
     optional: true
 
   '@rolldown/binding-android-arm64@1.2.14':
-    optional: true
-
-  '@rolldown/binding-android-arm64@1.2.6':
     optional: true
 
   '@rolldown/binding-android-arm64@1.2.8':
@@ -7176,16 +7014,10 @@ snapshots:
   '@rolldown/binding-darwin-arm64@1.2.14':
     optional: true
 
-  '@rolldown/binding-darwin-arm64@1.2.6':
-    optional: true
-
   '@rolldown/binding-darwin-arm64@1.2.8':
     optional: true
 
   '@rolldown/binding-darwin-x64@1.2.14':
-    optional: true
-
-  '@rolldown/binding-darwin-x64@1.2.6':
     optional: true
 
   '@rolldown/binding-darwin-x64@1.2.8':
@@ -7194,16 +7026,10 @@ snapshots:
   '@rolldown/binding-freebsd-x64@1.2.14':
     optional: true
 
-  '@rolldown/binding-freebsd-x64@1.2.6':
-    optional: true
-
   '@rolldown/binding-freebsd-x64@1.2.8':
     optional: true
 
   '@rolldown/binding-linux-arm-gnueabihf@1.2.14':
-    optional: true
-
-  '@rolldown/binding-linux-arm-gnueabihf@1.2.6':
     optional: true
 
   '@rolldown/binding-linux-arm-gnueabihf@1.2.8':
@@ -7212,16 +7038,10 @@ snapshots:
   '@rolldown/binding-linux-arm64-gnu@1.2.14':
     optional: true
 
-  '@rolldown/binding-linux-arm64-gnu@1.2.6':
-    optional: true
-
   '@rolldown/binding-linux-arm64-gnu@1.2.8':
     optional: true
 
   '@rolldown/binding-linux-arm64-musl@1.2.14':
-    optional: true
-
-  '@rolldown/binding-linux-arm64-musl@1.2.6':
     optional: true
 
   '@rolldown/binding-linux-arm64-musl@1.2.8':
@@ -7230,16 +7050,10 @@ snapshots:
   '@rolldown/binding-linux-ppc64-gnu@1.2.14':
     optional: true
 
-  '@rolldown/binding-linux-ppc64-gnu@1.2.6':
-    optional: true
-
   '@rolldown/binding-linux-ppc64-gnu@1.2.8':
     optional: true
 
   '@rolldown/binding-linux-s390x-gnu@1.2.14':
-    optional: true
-
-  '@rolldown/binding-linux-s390x-gnu@1.2.6':
     optional: true
 
   '@rolldown/binding-linux-s390x-gnu@1.2.8':
@@ -7248,16 +7062,10 @@ snapshots:
   '@rolldown/binding-linux-x64-gnu@1.2.14':
     optional: true
 
-  '@rolldown/binding-linux-x64-gnu@1.2.6':
-    optional: true
-
   '@rolldown/binding-linux-x64-gnu@1.2.8':
     optional: true
 
   '@rolldown/binding-linux-x64-musl@1.2.14':
-    optional: true
-
-  '@rolldown/binding-linux-x64-musl@1.2.6':
     optional: true
 
   '@rolldown/binding-linux-x64-musl@1.2.8':
@@ -7266,25 +7074,16 @@ snapshots:
   '@rolldown/binding-openharmony-arm64@1.2.14':
     optional: true
 
-  '@rolldown/binding-openharmony-arm64@1.2.6':
-    optional: true
-
   '@rolldown/binding-openharmony-arm64@1.2.8':
     optional: true
 
   '@rolldown/binding-win32-arm64-msvc@1.2.14':
     optional: true
 
-  '@rolldown/binding-win32-arm64-msvc@1.2.6':
-    optional: true
-
   '@rolldown/binding-win32-arm64-msvc@1.2.8':
     optional: true
 
   '@rolldown/binding-win32-x64-msvc@1.2.14':
-    optional: true
-
-  '@rolldown/binding-win32-x64-msvc@1.2.6':
     optional: true
 
   '@rolldown/binding-win32-x64-msvc@1.2.8':
@@ -7360,24 +7159,24 @@ snapshots:
       color: 5.0.3
       text-hex: 1.0.0
 
-  '@storybook/builder-vite@10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
+  '@storybook/builder-vite@10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
-      '@storybook/csf-plugin': 10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@storybook/csf-plugin': 10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       storybook: 10.5.10(prettier@3.9.10)(react@19.2.8)
       ts-dedent: 2.2.0
-      vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+      vite: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
     transitivePeerDependencies:
       - esbuild
       - rollup
       - webpack
 
-  '@storybook/csf-plugin@10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
+  '@storybook/csf-plugin@10.5.10(esbuild@0.28.2)(storybook@10.5.10(prettier@3.9.10)(react@19.2.8))(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
       storybook: 10.5.10(prettier@3.9.10)(react@19.2.8)
       unplugin: 2.3.11
     optionalDependencies:
       esbuild: 0.28.2
-      vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+      vite: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
   '@storybook/global@5.0.0': {}
 
@@ -7400,14 +7199,14 @@ snapshots:
 
   '@sveltejs/load-config@0.2.3': {}
 
-  '@sveltejs/vite-plugin-svelte@7.3.0(svelte@5.57.0(@typescript-eslint/types@8.46.4))(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
+  '@sveltejs/vite-plugin-svelte@7.3.0(svelte@5.57.0(@typescript-eslint/types@8.46.4))(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
       deepmerge: 4.3.1
       magic-string: 1.2.3
       obug: 2.1.1
       svelte: 5.57.0(@typescript-eslint/types@8.46.4)
-      vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
-      vitefu: 1.1.3(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      vite: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+      vitefu: 1.1.3(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   '@testing-library/dom@10.4.1':
     dependencies:
@@ -7644,15 +7443,6 @@ snapshots:
     dependencies:
       '@vitest/istanbul-lib-coverage': 1.0.1
 
-  '@vitest/mocker@5.0.0(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.31
-      '@vitest/spy': 5.0.0
-      estree-walker: 3.0.3
-      magic-string: 1.2.3
-    optionalDependencies:
-      vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
-
   '@vitest/mocker@5.0.0(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -7756,7 +7546,7 @@ snapshots:
 
   acorn@8.19.0: {}
 
-  agera@2.0.0-prerelease.20261014204046: {}
+  agera@2.0.0: {}
 
   ajv-draft-04@1.0.0(ajv@8.17.1):
     optionalDependencies:
@@ -8578,10 +8368,6 @@ snapshots:
     dependencies:
       reusify: 1.1.0
 
-  fdir@6.5.0(picomatch@4.0.5):
-    optionalDependencies:
-      picomatch: 4.0.5
-
   fdir@6.5.0(picomatch@4.0.7):
     optionalDependencies:
       picomatch: 4.0.7
@@ -9090,9 +8876,9 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
-  kida@2.0.0-prerelease.20261014204046:
+  kida@2.0.0:
     dependencies:
-      agera: 2.0.0-prerelease.20261014204046
+      agera: 2.0.0
 
   kleur@4.1.5: {}
 
@@ -10310,27 +10096,6 @@ snapshots:
       '@rolldown/binding-win32-arm64-msvc': 1.2.14
       '@rolldown/binding-win32-x64-msvc': 1.2.14
 
-  rolldown@1.2.6:
-    dependencies:
-      '@oxc-project/types': 0.147.0
-      '@rolldown/pluginutils': 1.0.1
-    optionalDependencies:
-      '@rolldown/binding-android-arm-eabi': 1.2.6
-      '@rolldown/binding-android-arm64': 1.2.6
-      '@rolldown/binding-darwin-arm64': 1.2.6
-      '@rolldown/binding-darwin-x64': 1.2.6
-      '@rolldown/binding-freebsd-x64': 1.2.6
-      '@rolldown/binding-linux-arm-gnueabihf': 1.2.6
-      '@rolldown/binding-linux-arm64-gnu': 1.2.6
-      '@rolldown/binding-linux-arm64-musl': 1.2.6
-      '@rolldown/binding-linux-ppc64-gnu': 1.2.6
-      '@rolldown/binding-linux-s390x-gnu': 1.2.6
-      '@rolldown/binding-linux-x64-gnu': 1.2.6
-      '@rolldown/binding-linux-x64-musl': 1.2.6
-      '@rolldown/binding-openharmony-arm64': 1.2.6
-      '@rolldown/binding-win32-arm64-msvc': 1.2.6
-      '@rolldown/binding-win32-x64-msvc': 1.2.6
-
   rolldown@1.2.8:
     dependencies:
       '@oxc-project/types': 0.149.0
@@ -10730,8 +10495,8 @@ snapshots:
 
   tinyglobby@0.2.17:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.5)
-      picomatch: 4.0.5
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
 
   tinyps@0.5.0: {}
 
@@ -10939,7 +10704,7 @@ snapshots:
       remove-trailing-separator: 1.1.0
       replace-ext: 1.0.1
 
-  vite-plugin-solid@2.11.14(@testing-library/jest-dom@6.9.1)(solid-js@1.9.15)(supports-color@7.2.0)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
+  vite-plugin-solid@2.11.14(@testing-library/jest-dom@6.9.1)(solid-js@1.9.15)(supports-color@7.2.0)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
     dependencies:
       '@babel/core': 7.29.7(supports-color@7.2.0)
       '@types/babel__core': 7.20.5
@@ -10947,26 +10712,12 @@ snapshots:
       merge-anything: 5.1.7
       solid-js: 1.9.15
       solid-refresh: 0.6.3(solid-js@1.9.15)(supports-color@7.2.0)
-      vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
-      vitefu: 1.1.3(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      vite: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+      vitefu: 1.1.3(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
     optionalDependencies:
       '@testing-library/jest-dom': 6.9.1
     transitivePeerDependencies:
       - supports-color
-
-  vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1):
-    dependencies:
-      lightningcss: 1.33.0
-      picomatch: 4.0.5
-      postcss: 8.5.26
-      rolldown: 1.2.6
-      tinyglobby: 0.2.17
-    optionalDependencies:
-      '@types/node': 24.13.2
-      esbuild: 0.28.2
-      fsevents: 2.3.3
-      jiti: 2.7.0
-      yaml: 2.9.1
 
   vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1):
     dependencies:
@@ -10982,36 +10733,9 @@ snapshots:
       jiti: 2.7.0
       yaml: 2.9.1
 
-  vitefu@1.1.3(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
-    optionalDependencies:
-      vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
-
   vitefu@1.1.3(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
     optionalDependencies:
       vite: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
-
-  vitest@5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
-    dependencies:
-      '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.0(vite@8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
-      chai: 6.2.2
-      es-module-lexer: 2.3.2
-      expect-type: 1.4.0
-      magic-string: 1.2.3
-      obug: 2.2.1
-      picomatch: 4.0.7
-      std-env: 4.2.0
-      tinybench: 6.1.4
-      tinyexec: 1.3.0
-      tinyglobby: 0.2.17
-      vite: 8.2.2(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/node': 24.13.2
-      '@vitest/coverage-v8': 5.0.0(vitest@5.0.0)
-      happy-dom: 21.0.3
-    transitivePeerDependencies:
-      - msw
 
   vitest@5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)):
     dependencies:
