@@ -24,7 +24,7 @@ export const Steps = component$(({
   size = 'md',
   ...props
 }: StepsProps) => div({
-  'class': [
+  class: [
     styles.root,
     pick(styles, size),
     className

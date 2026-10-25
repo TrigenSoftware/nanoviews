@@ -15,7 +15,7 @@ export const ErrorMessage = component$((
   }: ErrorMessageProps,
   children
 ) => div({
-  'class': [
+  class: [
     styles.root,
     typography.text,
     typography.sm,

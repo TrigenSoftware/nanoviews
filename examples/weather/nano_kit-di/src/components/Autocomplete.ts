@@ -15,6 +15,7 @@ import {
   trackBy,
   ul,
   component$,
+  as_,
   for_,
   if_
 } from 'nanoviews'
@@ -30,12 +31,18 @@ interface AutocompleteProps {
 
 const FIRST_SUGGESTION = 0
 
-export const Autocomplete = component$((props: AutocompleteProps) => {
+export const Autocomplete = component$(({
+  id,
+  label: labelText,
+  name,
+  $value,
+  $suggestions
+}: AutocompleteProps) => {
   const $isOpen = signal(false)
   const $activeIndex = signal(FIRST_SUGGESTION)
-  const $hasSuggestions = computed(() => $isOpen() && props.$suggestions().length > 0)
+  const $hasSuggestions = computed(() => $isOpen() && $suggestions().length > 0)
   const select = (value: string) => {
-    props.$value(value)
+    $value(value)
     $isOpen(false)
     $activeIndex(FIRST_SUGGESTION)
   }
@@ -45,41 +52,45 @@ export const Autocomplete = component$((props: AutocompleteProps) => {
   })(
     label({
       class: 'autocomplete-label',
-      for: props.id
+      for: id
     })(
-      props.label
+      labelText
     ),
     div({
       class: 'autocomplete-control'
     })(
       input({
         'aria-autocomplete': 'list',
-        'aria-controls': `${props.id}-suggestions`,
+        'aria-controls': `${id}-suggestions`,
         'aria-expanded': $hasSuggestions,
-        'autoComplete': 'off',
-        'class': 'autocomplete-field',
-        'id': props.id,
-        'name': props.name,
-        'role': 'combobox',
-        'type': 'text',
-        'value': props.$value,
-        'onBlur': () => $isOpen(false),
-        'onFocus': () => $isOpen(true),
-        'onInput': () => {
+        autoComplete: 'off',
+        class: 'autocomplete-field',
+        id,
+        name,
+        role: 'combobox',
+        type: 'text',
+        value: $value,
+        onBlur() {
+          $isOpen(false)
+        },
+        onFocus() {
+          $isOpen(true)
+        },
+        onInput() {
           $isOpen(true)
           $activeIndex(FIRST_SUGGESTION)
         },
-        'onKeyDown': (event) => {
+        onKeyDown(event) {
           if (event.key === 'ArrowDown') {
             event.preventDefault()
             $isOpen(true)
-            $activeIndex(Math.min($activeIndex() + 1, props.$suggestions().length - 1))
+            $activeIndex(Math.min($activeIndex() + 1, $suggestions().length - 1))
           } else if (event.key === 'ArrowUp') {
             event.preventDefault()
             $activeIndex(Math.max($activeIndex() - 1, FIRST_SUGGESTION))
           } else if (event.key === 'Enter' && $hasSuggestions()) {
             event.preventDefault()
-            select(props.$suggestions()[$activeIndex()].label)
+            select($suggestions()[$activeIndex()].label)
           } else if (event.key === 'Escape') {
             $isOpen(false)
           }
@@ -88,41 +99,41 @@ export const Autocomplete = component$((props: AutocompleteProps) => {
       if_($hasSuggestions)(
         () => ul({
           class: 'autocomplete-list',
-          id: `${props.id}-suggestions`,
+          id: `${id}-suggestions`,
           role: 'listbox'
         })(
-          for_(props.$suggestions, trackBy('label'))(
-            ($city, index) => {
-              const city = record($city)
-
-              return li({
-                role: 'presentation'
+          for_($suggestions, trackBy('label'))(
+            as_(record, ($city, $index) => li({
+              role: 'presentation'
+            })(
+              button({
+                'aria-selected': computed(() => $index() === $activeIndex()),
+                class: computed(() => (
+                  $index() === $activeIndex()
+                    ? 'autocomplete-option autocomplete-option-active'
+                    : 'autocomplete-option'
+                )),
+                role: 'option',
+                type: 'button',
+                onMouseDown(event) {
+                  event.preventDefault()
+                },
+                onClick() {
+                  select($city.$label())
+                }
               })(
-                button({
-                  'aria-selected': computed(() => index() === $activeIndex()),
-                  'class': computed(() => (
-                    index() === $activeIndex()
-                      ? 'autocomplete-option autocomplete-option-active'
-                      : 'autocomplete-option'
-                  )),
-                  'role': 'option',
-                  'type': 'button',
-                  'onMouseDown': event => event.preventDefault(),
-                  'onClick': () => select(city.$label())
+                span({
+                  class: 'autocomplete-option-title'
                 })(
-                  span({
-                    class: 'autocomplete-option-title'
-                  })(
-                    city.$name
-                  ),
-                  span({
-                    class: 'autocomplete-option-meta'
-                  })(
-                    city.$country
-                  )
+                  $city.$name
+                ),
+                span({
+                  class: 'autocomplete-option-meta'
+                })(
+                  $city.$country
                 )
               )
-            }
+            ))
           )
         )
       )

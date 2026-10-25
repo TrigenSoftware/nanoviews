@@ -21,8 +21,8 @@ export const Layout = component$(() => div({
     class: styles.header
   })(
     a({
-      'class': `${styles.logo} ${mixins.focusOutline}`,
-      'href': paths.home,
+      class: `${styles.logo} ${mixins.focusOutline}`,
+      href: paths.home,
       'aria-label': 'Go to home page'
     })(
       'CV App'
@@ -32,10 +32,10 @@ export const Layout = component$(() => div({
     })(
       ApplicationsProgress(),
       Button({
-        'as': a,
-        'href': paths.home,
-        'icon': 'home',
-        'size': 'sm',
+        as: a,
+        href: paths.home,
+        icon: 'home',
+        size: 'sm',
         'aria-label': 'Go to home page'
       })
     )

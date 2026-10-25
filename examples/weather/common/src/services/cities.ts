@@ -10,6 +10,7 @@ function cityToString(city: City) {
 interface RawCity {
   name: string
   country?: string
+  // oxlint-disable-next-line trigen/naming-convention
   country_code?: string
   latitude: number
   longitude: number
@@ -62,10 +63,10 @@ export async function fetchCities(query: string, signal?: AbortSignal) {
 
 export async function fetchCityByLocation(coords: Coords, signal?: AbortSignal) {
   const params = new URLSearchParams({
-    'lat': coords.latitude.toString(),
-    'lon': coords.longitude.toString(),
-    'format': 'json',
-    'limit': '1',
+    lat: coords.latitude.toString(),
+    lon: coords.longitude.toString(),
+    format: 'json',
+    limit: '1',
     'accept-language': 'en'
   })
   const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${params}`, {

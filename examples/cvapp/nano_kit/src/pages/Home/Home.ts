@@ -23,12 +23,12 @@ export const Home = component$(() => section({
     )
   })(
     Button({
-      'class': styles.button,
-      'as': a,
-      'href': paths.newApplication,
-      'icon': 'plus',
-      'size': 'md',
-      'variant': 'primary',
+      class: styles.button,
+      as: a,
+      href: paths.newApplication,
+      icon: 'plus',
+      size: 'md',
+      variant: 'primary',
       'aria-label': 'Create New'
     })(
       // An element of its own, for the mobile layout to hide

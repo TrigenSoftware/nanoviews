@@ -47,8 +47,8 @@ export const ApplicationCard = component$(({
 
   return LetterCard(props)(
     a({
-      'class': `${styles.link} ${mixins.focusOutline}`,
-      'href': paths.application({
+      class: `${styles.link} ${mixins.focusOutline}`,
+      href: paths.application({
         id
       }),
       'aria-label': 'View application details'

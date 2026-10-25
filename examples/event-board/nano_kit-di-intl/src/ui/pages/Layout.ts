@@ -1,6 +1,5 @@
 import {
   inject,
-  record,
   is
 } from 'nanoviews/store'
 import {
@@ -106,7 +105,7 @@ const Layout = component$(() => {
           if_($user)(
             $user => fragment(
               strong()(
-                record($user).$name
+                () => $user().name
               ),
               button({
                 class: 'button_link',
@@ -143,15 +142,17 @@ const Layout = component$(() => {
             $t.$language
           ),
           div({
-            'class': 'locale-switcher',
-            'role': 'group',
+            class: 'locale-switcher',
+            role: 'group',
             'aria-label': $t.$language
           })(
             ...supportedLocales.map(supportedLocale => button({
-              'class': 'locale-switcher__button',
-              'type': 'button',
+              class: 'locale-switcher__button',
+              type: 'button',
               'aria-pressed': is($locale, supportedLocale),
-              'onClick': () => $locale(supportedLocale)
+              onClick() {
+                $locale(supportedLocale)
+              }
             })(
               supportedLocale.toUpperCase()
             ))
@@ -161,15 +162,15 @@ const Layout = component$(() => {
     ),
     if_($loading)(
       () => div({
-        'class': 'loading-overlay',
-        'role': 'status',
+        class: 'loading-overlay',
+        role: 'status',
         'aria-live': 'polite'
       })(
         div({
           class: 'loading-overlay__content'
         })(
           span({
-            'class': 'loading-overlay__spinner',
+            class: 'loading-overlay__spinner',
             'aria-hidden': 'true'
           }),
           span()(

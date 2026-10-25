@@ -15,11 +15,11 @@ export const Thinker = component$(({
   label,
   ...props
 }: ThinkerProps) => div({
-  'class': [
+  class: [
     styles.root,
     className
   ],
-  'role': 'status',
+  role: 'status',
   'aria-label': label,
   ...props
 })(

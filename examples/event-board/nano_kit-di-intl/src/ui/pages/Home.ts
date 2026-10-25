@@ -26,6 +26,7 @@ import {
   button,
   trackById,
   component$,
+  as_,
   for_,
   if_
 } from 'nanoviews'
@@ -191,52 +192,48 @@ const Home = component$(() => {
       )
     ),
     div({
-      'class': ['events-grid', and($eventsLoading, 'events-grid_loading')],
+      class: ['events-grid', and($eventsLoading, 'events-grid_loading')],
       'aria-busy': $eventsLoading
     })(
       for_($list, trackById)(
-        (event) => {
-          const $event = record(event)
-
-          return article({
-            class: 'event-card'
+        as_(record, $event => article({
+          class: 'event-card'
+        })(
+          div({
+            class: 'event-card__meta'
           })(
-            div({
-              class: 'event-card__meta'
+            span()(
+              () => $t().categories?.[$event().category]
+            ),
+            span()(
+              () => $t().eventDate($event().startsAt)
+            )
+          ),
+          h2()(
+            Link({
+              to: 'event',
+              params: {
+                // A card is a row tracked by id, so its event and slug never change in it
+                slug: $event().slug
+              }
             })(
-              span()(
-                () => $t().categories?.[$event().category]
-              ),
-              span()(
-                () => $t().eventDate($event().startsAt)
-              )
+              $event.$title
+            )
+          ),
+          p()(
+            $event.$description
+          ),
+          div({
+            class: 'event-card__footer'
+          })(
+            span()(
+              $event.$location
             ),
-            h2()(
-              Link({
-                to: 'event',
-                params: {
-                  // A card is a row tracked by id, so its event and slug never change in it
-                  slug: $event().slug
-                }
-              })(
-                $event.$title
-              )
-            ),
-            p()(
-              $event.$description
-            ),
-            div({
-              class: 'event-card__footer'
-            })(
-              span()(
-                $event.$location
-              ),
-              span()(
-                () => $t().attendees($event().attendees)
-              )
+            span()(
+              () => $t().attendees($event().attendees)
             )
           )
-        }
+        ))
       )
     ),
     if_(() => $events()?.more)(
@@ -251,8 +248,8 @@ const Home = component$(() => {
     ),
     if_($eventsLoading)(
       () => div({
-        'class': 'notice notice_loading',
-        'role': 'status',
+        class: 'notice notice_loading',
+        role: 'status',
         'aria-live': 'polite'
       })(
         $t.$loading

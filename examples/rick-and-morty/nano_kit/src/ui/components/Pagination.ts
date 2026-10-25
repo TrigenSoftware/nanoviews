@@ -89,9 +89,9 @@ export const Pagination = component$(({
 
   return if_(gt($total, 1))(
     () => nav({
-      'role': 'navigation',
+      role: 'navigation',
       'aria-label': label,
-      'class': 'pagination-pagination'
+      class: 'pagination-pagination'
     })(
       ul({
         class: 'pagination-list'
@@ -100,9 +100,9 @@ export const Pagination = component$(({
         if_(gt($current, 1))(
           () => li()(
             Link({
-              'href': () => formatUrl($current() - 1),
+              href: () => formatUrl($current() - 1),
               'aria-label': previousLabel,
-              'class': 'pagination-link pagination-prev-next'
+              class: 'pagination-link pagination-prev-next'
             })(
               span({
                 'aria-hidden': 'true'
@@ -126,10 +126,10 @@ export const Pagination = component$(({
             return li()(
               typeof pageNumber === 'number'
                 ? Link({
-                  'href': formatUrl(pageNumber),
+                  href: formatUrl(pageNumber),
                   'aria-current': and(is($current, pageNumber), 'page'),
                   'aria-label': formatPageLabel(pageNumber),
-                  'class': [
+                  class: [
                     'pagination-link',
                     when(is($current, pageNumber), 'pagination-current', 'pagination-page')
                   ]
@@ -137,7 +137,7 @@ export const Pagination = component$(({
                   pageNumber
                 )
                 : span({
-                  'class': 'pagination-ellipsis',
+                  class: 'pagination-ellipsis',
                   'aria-hidden': 'true'
                 })(
                   pageNumber
@@ -149,9 +149,9 @@ export const Pagination = component$(({
         if_(lt($current, $total))(
           () => li()(
             Link({
-              'href': () => formatUrl($current() + 1),
+              href: () => formatUrl($current() + 1),
               'aria-label': nextLabel,
-              'class': 'pagination-link pagination-prev-next'
+              class: 'pagination-link pagination-prev-next'
             })(
               span({
                 'aria-hidden': 'true'

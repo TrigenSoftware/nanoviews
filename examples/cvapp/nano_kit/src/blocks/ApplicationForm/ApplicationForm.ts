@@ -110,9 +110,9 @@ export const ApplicationForm = component$(({
   })
 
   return Form({
-    'ref': $form,
-    'class': [styles.root, className],
-    'onSubmit': onSubmitCallback,
+    ref: $form,
+    class: [styles.root, className],
+    onSubmit: onSubmitCallback,
     'aria-busy': $upsertApplicationLoading,
     ...props
   })(
@@ -171,14 +171,14 @@ export const ApplicationForm = component$(({
       description: text`${pick($formData.$details, 'length')}/${MAX_DETAILS_LENGTH}`
     })(
       TextArea({
-        'class': styles.textarea,
-        'id': 'details',
-        'name': 'details',
-        'placeholder': 'Describe why you are a great fit or paste your bio',
-        'maxLength': MAX_DETAILS_LENGTH,
-        'value': $formData.$details,
-        'required': true,
-        'autoComplete': 'on',
+        class: styles.textarea,
+        id: 'details',
+        name: 'details',
+        placeholder: 'Describe why you are a great fit or paste your bio',
+        maxLength: MAX_DETAILS_LENGTH,
+        value: $formData.$details,
+        required: true,
+        autoComplete: 'on',
         'aria-describedby': 'details-description'
       })
     ),

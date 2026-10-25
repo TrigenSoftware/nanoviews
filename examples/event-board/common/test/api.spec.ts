@@ -199,7 +199,7 @@ describe('Event Board API', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Cookie': cookie
+          Cookie: cookie
         },
         body: JSON.stringify({
           title: 'Authored Event',

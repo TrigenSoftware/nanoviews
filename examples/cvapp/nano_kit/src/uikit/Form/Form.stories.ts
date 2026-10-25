@@ -60,12 +60,12 @@ export const Default: Story = {
           description: text`${pick($data.$details, 'length')}/${MAX_DETAILS_LENGTH}`
         })(
           TextArea({
-            'id': 'details',
-            'rows': 6,
-            'placeholder': 'Describe why you are a great fit or paste your bio',
-            'maxLength': MAX_DETAILS_LENGTH,
-            'value': $data.$details,
-            'required': true,
+            id: 'details',
+            rows: 6,
+            placeholder: 'Describe why you are a great fit or paste your bio',
+            maxLength: MAX_DETAILS_LENGTH,
+            value: $data.$details,
+            required: true,
             'aria-describedby': 'details-description'
           })
         ),

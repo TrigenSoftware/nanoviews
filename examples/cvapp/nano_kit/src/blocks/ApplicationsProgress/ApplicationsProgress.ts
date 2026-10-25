@@ -27,13 +27,13 @@ export const ApplicationsProgress = component$(({
 
   return if_(lte($applicationCount, GOAL_APPLICATIONS))(
     () => div({
-      'class': [styles.root, className],
-      'role': 'status',
+      class: [styles.root, className],
+      role: 'status',
       'aria-label': $text,
       ...props
     })(
       span({
-        'class': `${typography.text} ${typography.lg} ${styles.text}`,
+        class: `${typography.text} ${typography.lg} ${styles.text}`,
         'aria-hidden': 'true'
       })(
         $text

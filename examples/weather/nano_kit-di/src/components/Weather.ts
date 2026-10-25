@@ -1,7 +1,4 @@
-import {
-  record,
-  inject
-} from 'nanoviews/store'
+import { inject } from 'nanoviews/store'
 import {
   div,
   h3,
@@ -17,12 +14,11 @@ import { CurrentWeather$ } from '../stores/weather.js'
 export const Weather = component$(() => {
   const { $weather } = inject(CurrentWeather$)
   const { $currentLocation } = inject(CitySuggestions$)
-  const $city = record($currentLocation).$name
 
   return if_($weather)(
     () => div({
-      'class': 'weather',
-      'data-city': $city
+      class: 'weather',
+      'data-city': () => $currentLocation()?.name
     })(
       h3({
         class: 'weather-temp'
