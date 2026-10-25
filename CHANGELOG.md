@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/TrigenSoftware/nanoviews/compare/v1.0.0...v1.0.1) (2026-10-25)
+
+### Bug Fixes
+
+* **nanoviews:** reject an accessor of a list, `true` and `0` as the whole `class` ([#86](https://github.com/TrigenSoftware/nanoviews/issues/86)) ([57b5a9e](https://github.com/TrigenSoftware/nanoviews/commit/57b5a9e19d385727a20ed7d0ec7ca786e545b4d2))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nanoviews/compare/v1.0.0-alpha.9...v1.0.0) (2026-10-21)
 
 ### Nanoviews 1.0 🎉
