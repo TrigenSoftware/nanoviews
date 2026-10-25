@@ -2,9 +2,9 @@ import {
   $get,
   isAccessor
 } from 'kida'
-import type { ClassValue } from '../types/index.js'
+import type { ClassPart } from '../types/index.js'
 
-function join(parts: readonly ClassValue[]) {
+function join(parts: readonly ClassPart[]) {
   let cls = ''
 
   for (let i = 0, len = parts.length, part: unknown; i < len; i++) {
@@ -24,11 +24,11 @@ function join(parts: readonly ClassValue[]) {
 
 // A list with no accessor in it, the nested lists included, never changes: it
 // is joined once, with no effect to carry it
-function isDynamic(parts: readonly ClassValue[]): boolean {
+function isDynamic(parts: readonly ClassPart[]): boolean {
   for (let i = 0, len = parts.length, part: unknown; i < len; i++) {
     part = parts[i]
 
-    if (isAccessor(part) || Array.isArray(part) && isDynamic(part as readonly ClassValue[])) {
+    if (isAccessor(part) || Array.isArray(part) && isDynamic(part as readonly ClassPart[])) {
       return true
     }
   }
@@ -37,7 +37,7 @@ function isDynamic(parts: readonly ClassValue[]): boolean {
 }
 
 /* @__NO_SIDE_EFFECTS__ */
-export function cx(parts: readonly ClassValue[]) {
+export function cx(parts: readonly ClassPart[]) {
   return isDynamic(parts)
     ? () => join(parts)
     : join(parts)

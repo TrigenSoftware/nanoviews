@@ -8,7 +8,7 @@ import {
   $get
 } from 'kida'
 import type {
-  ClassValue,
+  ClassPart,
   Primitive,
   StyleValue,
   TargetEventHandler,
@@ -39,7 +39,7 @@ export function setAttribute(element: Element, name: string, $value: unknown) {
     setStyle(element as HTMLElement | SVGElement, $value as StyleValue)
   } else {
     if (name === 'class' && Array.isArray($value)) {
-      $value = cx($value as readonly ClassValue[])
+      $value = cx($value as readonly ClassPart[])
     }
 
     if (isAccessor($value)) {

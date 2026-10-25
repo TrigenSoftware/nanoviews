@@ -476,7 +476,7 @@ button({
 
 ## Classes
 
-`class` takes a string, an accessor, or a list of parts. A list joins every truthy string with a space and drops everything else. A part can be an accessor, and the class follows it:
+`class` takes a string, an accessor of one, or a list of parts. A list joins every truthy string with a space and drops everything else. A part can be an accessor, of a string or of a list, and the class follows it:
 
 ```ts
 import { signal, when } from 'nanoviews/store'
@@ -3256,7 +3256,8 @@ const SearchField = component$(({ onEnter, ...props }: SearchFieldProps) => {
 | `VoidElementFactory<Tag>`    | A factory of a void element, such as `input`.                                                                     |
 | `LazyElement<T, C>`          | A description of an element: called with children it keeps them, called with none it builds `T`.                  |
 | `LazyVoidElement<T>`         | A description of a void element: the call builds `T`.                                                             |
-| `ClassValue`                 | A value of `class`: a string, an accessor, or a list of parts.                                                    |
+| `ClassValue`                 | A value of `class`: a string, an accessor of one, or a list of parts.                                             |
+| `ClassPart`                  | A part of a `class` list: a string, a nested list, or an accessor of either.                                      |
 | `ClassList<V>`               | What `classList` returns for the parts `V`: an accessor, a string, or either.                                     |
 | `StyleValue`                 | A value of `style`: an object of properties, or an accessor of one.                                               |
 | `CSSProperties`              | The object of `style`: camelCased properties and `--custom` properties.                                           |
