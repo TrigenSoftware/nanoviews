@@ -157,7 +157,7 @@ A computed is read-only: writing it is a type error. Keep its body pure, with no
 In a list that marks one row, the selected one say, a `computed` per row over the selected id would wake every row on each change, for two of them to change. `selector` turns this around: it reads the source once and wakes only the readers whose answer changed.
 
 ```ts
-import { signal, selector, record } from 'nanoviews/store'
+import { signal, selector } from 'nanoviews/store'
 import { ul, li, for_, trackById } from 'nanoviews'
 
 const $folders = signal([
@@ -176,7 +176,7 @@ ul()(
         $selectedId(id)
       }
     })(
-      record($folder).$name
+      () => $folder().name
     )
   )
 )

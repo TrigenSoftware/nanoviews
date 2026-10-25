@@ -866,7 +866,7 @@ A computed is read-only: writing it is a type error. Keep its body pure, with no
 In a list that marks one row, the selected one say, a `computed` per row over the selected id would wake every row on each change, for two of them to change. `selector` turns this around: it reads the source once and wakes only the readers whose answer changed.
 
 ```ts
-import { signal, selector, record } from 'nanoviews/store'
+import { signal, selector } from 'nanoviews/store'
 import { ul, li, for_, trackById } from 'nanoviews'
 
 const $folders = signal([
@@ -885,7 +885,7 @@ ul()(
         $selectedId(id)
       }
     })(
-      record($folder).$name
+      () => $folder().name
     )
   )
 )
@@ -2069,7 +2069,7 @@ $tab('grid')
 `for_` renders a row for every item of an array and keeps the rows in step with it.
 
 ```ts
-import { signal, record } from 'nanoviews/store'
+import { signal } from 'nanoviews/store'
 import { for_, trackById, ul, li } from 'nanoviews'
 
 const $players = signal([
@@ -2080,7 +2080,7 @@ const $players = signal([
 
 ul()(
   for_($players, trackById)(
-    $player => li()(record($player).$name)
+    $player => li()(() => $player().name)
   )
 )
 // <ul><li>chopper</li><li>magixx</li><li>zont1x</li></ul>
@@ -2253,7 +2253,7 @@ With `tag => tag` as the tracker, the same list renders `<ul><li>news</li><li>te
 
 ### `as_`
 
-`as_` hands the row through a transform before rendering it, carrying the index and the key through: the same `$players` list, with `record` written once instead of in every child.
+`as_` hands the row through a transform before rendering it, carrying the index and the key through. Here the rows of the same `$players` list become records:
 
 ```ts
 import { record } from 'nanoviews/store'
