@@ -1,6 +1,6 @@
 import {
   type ClassList,
-  type ClassValue,
+  type ClassPart,
   cx
 } from '../internals/index.js'
 
@@ -23,6 +23,6 @@ import {
  * ```
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function classList<V extends ClassValue[]>(...parts: V) {
+export function classList<V extends ClassPart[]>(...parts: V) {
   return cx(parts) as ClassList<V>
 }

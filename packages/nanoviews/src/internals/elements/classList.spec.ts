@@ -13,7 +13,7 @@ import {
 } from 'kida'
 import type {
   Attributes,
-  ClassValue
+  ClassPart
 } from '../types/index.js'
 import {
   svg,
@@ -91,6 +91,40 @@ describe('nanoviews', () => {
             $dark(true)
 
             expect(element.className).toBe('card card_wide card_dark')
+          })
+
+          it('should follow an accessor of a list in the list', () => {
+            const $wide = signal(false)
+            const { container } = render(() => div({
+              class: ['card', () => $wide() && ['card_wide', 'card_dark']]
+            })())
+            const element = container.querySelector('.card')!
+
+            expect(element.className).toBe('card')
+
+            $wide(true)
+
+            expect(element.className).toBe('card card_wide card_dark')
+          })
+
+          it('should reject an accessor of a list as the whole class', () => {
+            div({
+              // @ts-expect-error an accessor of a list goes in a list
+              class: () => ['card', 'card_wide']
+            })
+          })
+
+          it('should reject true and 0 as the whole class', () => {
+            const $count = signal(0)
+
+            div({
+              // @ts-expect-error true on its own is written as text
+              class: true
+            })
+            div({
+              // @ts-expect-error a 0 on its own is written as text
+              class: () => $count() && 'card_full'
+            })
           })
 
           it('should render reactive class list', () => {
@@ -181,7 +215,7 @@ describe('nanoviews', () => {
 
           it('should type and return a string, an accessor or either', () => {
             const primary = signal(true)
-            const parts: ClassValue[] = ['button']
+            const parts: ClassPart[] = ['button']
 
             expectTypeOf(classList('button', false)).toEqualTypeOf<string>()
             expectTypeOf(classList('button', primary)).toEqualTypeOf<Accessor<string>>()

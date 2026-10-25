@@ -19,10 +19,18 @@ export type Booleanish = boolean | 'true' | 'false'
 export type CrossOrigin = 'anonymous' | 'use-credentials' | '' | EmptyValue
 
 /**
- * A `class` value: a string, an accessor, or a list of parts. A list joins its
- * truthy strings with spaces, drops the rest, and joins a nested list in place.
+ * A part of a `class` list: a string, a nested list, or an accessor of either.
+ * A list joins its truthy strings with spaces, drops the rest, and joins a
+ * nested list in place.
  */
-export type ClassValue = Signalish<string | boolean | 0 | EmptyValue | readonly ClassValue[]>
+export type ClassPart = Signalish<string | boolean | 0 | EmptyValue | readonly ClassPart[]>
+
+/**
+ * A `class` value: a string, an accessor of one, or a list of parts. Only a
+ * list joins an accessor of a list and drops `true` and `0`: on their own they
+ * would be written as text.
+ */
+export type ClassValue = Signalish<string | false | EmptyValue> | readonly ClassPart[]
 
 /**
  * What `classList` returns for the given parts: an accessor when one of them is an accessor for
