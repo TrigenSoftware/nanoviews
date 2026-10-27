@@ -39,12 +39,11 @@ import {
 import {
   App,
   Outlet,
+  Title$,
   router,
   pageView,
   syncPageHead$,
   syncHead$,
-  getPageTitle$,
-  getTitle$,
   pageTitleAnnouncer$,
   titleAnnouncer$
 } from './core.js'
@@ -358,7 +357,7 @@ describe('router', () => {
 
     describe('syncHead$', () => {
       it('should sync the document head with the page resolving head factories within the injection context', () => {
-        function Title$() {
+        function HomeTitle$() {
           return 'Home'
         }
 
@@ -369,7 +368,7 @@ describe('router', () => {
         const $page = router($location, [
           page('home', {
             default: HomePage,
-            Head$: () => [title(inject(Title$))]
+            Head$: () => [title(inject(HomeTitle$))]
           }),
           page('about', {
             default: AboutPage,
@@ -392,36 +391,9 @@ describe('router', () => {
       })
     })
 
-    describe('getPageTitle$', () => {
-      it('should get the title of the matched page', () => {
-        const [$location, navigation] = virtualNavigation('/home', {
-          home: '/home',
-          about: '/about'
-        })
-        const $page = router($location, [
-          page('home', {
-            default: HomePage,
-            Head$: () => [title('Home')]
-          }),
-          page('about', {
-            default: AboutPage,
-            Head$: () => [title('About')]
-          })
-        ])
-        const Root = component$(() => p()(getPageTitle$($page)))
-        const { container } = render(() => Root())
-
-        expect(container.textContent).toBe('Home')
-
-        navigation.push('/about')
-
-        expect(container.textContent).toBe('About')
-      })
-    })
-
-    describe('getTitle$', () => {
-      it('should get the title of the page resolving head factories within the injection context', () => {
-        function Title$() {
+    describe('Title$', () => {
+      it('should give the title of the page resolving head factories within the injection context', () => {
+        function HomeTitle$() {
           return 'Home'
         }
 
@@ -432,14 +404,14 @@ describe('router', () => {
         const $page = router($location, [
           page('home', {
             default: HomePage,
-            Head$: () => [title(inject(Title$))]
+            Head$: () => [title(inject(HomeTitle$))]
           }),
           page('about', {
             default: AboutPage,
             Head$: () => [title('About')]
           })
         ])
-        const Root = component$(() => p()(getTitle$()))
+        const Root = component$(() => p()(inject(Title$)))
         const { container } = render(() => context$(provide(Page$, $page))(Root()))
 
         expect(container.textContent).toBe('Home')
@@ -502,7 +474,7 @@ describe('router', () => {
       })
 
       it('should announce each new title of the page resolving head factories within the injection context', () => {
-        function Title$() {
+        function AboutTitle$() {
           return 'About'
         }
 
@@ -517,7 +489,7 @@ describe('router', () => {
           }),
           page('about', {
             default: AboutPage,
-            Head$: () => [title(inject(Title$))]
+            Head$: () => [title(inject(AboutTitle$))]
           })
         ])
         const Root = component$(() => {

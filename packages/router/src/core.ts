@@ -92,13 +92,10 @@ export const App = /* @__PURE__ */ component$(() => pageView(inject(Page$)))
 
 /**
  * Sync the document head with the head descriptors of the matched page, while the view is mounted.
- * The head factories are resolved within the current injection context, if there is one.
  * @param $page - Accessor of the matched page reference
  */
 export function syncPageHead$($page: Accessor<PageRef<unknown> | null>) {
-  const context = getContext()
-
-  effect$(() => syncHead($page, context))
+  effect$(() => syncHead($page))
 }
 
 /**
@@ -107,39 +104,27 @@ export function syncPageHead$($page: Accessor<PageRef<unknown> | null>) {
  * The head factories are resolved within that injection context.
  */
 export function syncHead$() {
-  syncPageHead$(inject(Page$))
+  const context = getContext()
+  const $page = inject(Page$)
+
+  effect$(() => syncHead($page, context))
 }
 
 /**
- * Get the title of the matched page from its head descriptors.
- * The head factories are resolved within the current injection context, if there is one.
- * @param $page - Accessor of the matched page reference
+ * Injection token for the title of the page matched by `Page$`.
+ * The head factories are resolved within the injection context the token is first injected in.
  * @returns Signal of the title, or of an empty string while the head has none
  */
-/* @__NO_SIDE_EFFECTS__ */
-export function getPageTitle$($page: Accessor<PageRef<unknown> | null>) {
-  return pageTitle($page, getContext())
-}
-
-/**
- * Get the title of the page matched by `Page$` from the injection context.
- * The head factories are resolved within that injection context.
- * @returns Signal of the title, or of an empty string while the head has none
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function getTitle$() {
-  return getPageTitle$(inject(Page$))
+export function Title$() {
+  return pageTitle(inject(Page$), getContext())
 }
 
 /**
  * Announce each new title of the matched page to assistive technologies, while the view is mounted.
- * The head factories are resolved within the current injection context, if there is one.
  * @param $page - Accessor of the matched page reference
  */
 export function pageTitleAnnouncer$($page: Accessor<PageRef<unknown> | null>) {
-  const context = getContext()
-
-  effect$(() => titleAnnouncer($page, context))
+  effect$(() => titleAnnouncer($page))
 }
 
 /**
@@ -148,5 +133,8 @@ export function pageTitleAnnouncer$($page: Accessor<PageRef<unknown> | null>) {
  * The head factories are resolved within that injection context.
  */
 export function titleAnnouncer$() {
-  pageTitleAnnouncer$(inject(Page$))
+  const context = getContext()
+  const $page = inject(Page$)
+
+  effect$(() => titleAnnouncer($page, context))
 }
