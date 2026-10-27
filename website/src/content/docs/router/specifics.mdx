@@ -281,7 +281,11 @@ import { inject } from 'nanoviews/store'
 import { p, component$ } from 'nanoviews'
 import { Title$ } from '@nanoviews/router'
 
-const Breadcrumb = component$(() => p()(inject(Title$)))
+const Breadcrumb = component$(() => {
+  const $title = inject(Title$)
+
+  return p()($title)
+})
 ```
 
 It resolves the `Head$` factories in the injection context it is first injected in, so a `Head$` may `inject`. Without dependency injection, Nano Kit's [`pageTitle($page)`](https://nano-kit.js.org/router/advanced/#pagetitle), re-exported here as well, gives the same signal.
