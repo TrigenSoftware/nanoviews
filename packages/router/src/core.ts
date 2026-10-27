@@ -19,7 +19,6 @@ import {
   type RouteLocationRecord,
   type Routes,
   Page$,
-  pageTitle,
   syncHead,
   titleAnnouncer,
   router as vanillaRouter
@@ -108,15 +107,6 @@ export function syncHead$() {
   const $page = inject(Page$)
 
   effect$(() => syncHead($page, context))
-}
-
-/**
- * Injection token for the title of the page matched by `Page$`.
- * The head factories are resolved within the injection context the token is first injected in.
- * @returns Signal of the title, or of an empty string while the head has none
- */
-export function Title$() {
-  return pageTitle(inject(Page$), getContext())
 }
 
 /**

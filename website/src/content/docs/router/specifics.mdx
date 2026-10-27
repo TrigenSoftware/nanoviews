@@ -274,7 +274,7 @@ With dependency injection, `syncHead$()` reads `Page$` and resolves the `Head$` 
 
 ## `Title$`
 
-`Title$` is an injection token for a signal of the title of the page matched by `Page$`: the first `title` of its `Head$`, the one of the page before the ones of its layouts. Inject it in a view and read it as any signal:
+`Title$`, Nano Kit's [injection token](https://nano-kit.js.org/router/advanced/#tokens) re-exported here, is a signal of the title of the page matched by `Page$`: the first `title` of its `Head$`, the one of the page before the ones of its layouts. Inject it in a view and read it as any signal:
 
 ```ts
 import { inject } from 'nanoviews/store'
@@ -284,7 +284,7 @@ import { Title$ } from '@nanoviews/router'
 const Breadcrumb = component$(() => p()(inject(Title$)))
 ```
 
-It resolves the `Head$` factories in the injection context it is first injected in, so a `Head$` may `inject`. Without dependency injection, Nano Kit's [`pageTitle($page)`](https://nano-kit.js.org/router/advanced/#pagetitle), re-exported here, gives the same signal.
+It resolves the `Head$` factories in the injection context it is first injected in, so a `Head$` may `inject`. Without dependency injection, Nano Kit's [`pageTitle($page)`](https://nano-kit.js.org/router/advanced/#pagetitle), re-exported here as well, gives the same signal.
 
 ## `pageTitleAnnouncer$` and `titleAnnouncer$`
 

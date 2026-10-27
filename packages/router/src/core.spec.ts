@@ -26,6 +26,7 @@ import {
 } from 'nanoviews'
 import {
   Page$,
+  Title$,
   virtualNavigation,
   param,
   title
@@ -39,7 +40,6 @@ import {
 import {
   App,
   Outlet,
-  Title$,
   router,
   pageView,
   syncPageHead$,

@@ -503,8 +503,8 @@ importers:
   packages/router:
     devDependencies:
       '@nano_kit/router':
-        specifier: ^2.3.0
-        version: 2.3.0(@nano_kit/store@2.0.0)
+        specifier: ^2.4.0
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: ^2.0.0
         version: 2.0.0
@@ -1541,8 +1541,8 @@ packages:
     peerDependencies:
       '@nano_kit/store': ^2.0.0
 
-  '@nano_kit/router@2.3.0':
-    resolution: {integrity: sha512-MKhCZa0HaSTr2xUFgQ1FLfGQlz8rCBUaNRbDmh1MKCOpyaKQxlp5SW8UQMyD597K6Q30+lqmRBMPZWLc+XY/vg==}
+  '@nano_kit/router@2.4.0':
+    resolution: {integrity: sha512-9R0y9ED4QI92eE6ByIZRFUTSPBwi4JVCJq8Cof/YixDOFypAGs0adGFS89ojpt8eKB5akxVDb3zXVPEzn980Zg==}
     engines: {node: '>=24'}
     peerDependencies:
       '@nano_kit/store': ^2.0.0
@@ -6623,7 +6623,7 @@ snapshots:
     dependencies:
       '@nano_kit/store': 2.0.0
 
-  '@nano_kit/router@2.3.0(@nano_kit/store@2.0.0)':
+  '@nano_kit/router@2.4.0(@nano_kit/store@2.0.0)':
     dependencies:
       '@nano_kit/store': 2.0.0
 
