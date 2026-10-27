@@ -152,7 +152,7 @@ importers:
         version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
         specifier: '*'
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: '*'
         version: 2.0.0
@@ -207,7 +207,7 @@ importers:
         version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
         specifier: '*'
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: '*'
         version: 2.0.0
@@ -241,7 +241,7 @@ importers:
         version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
         specifier: '*'
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: '*'
         version: 2.0.0
@@ -272,7 +272,7 @@ importers:
         version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
         specifier: '*'
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: '*'
         version: 2.0.0
@@ -297,7 +297,7 @@ importers:
         version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
         specifier: '*'
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: '*'
         version: 2.0.0
@@ -1531,12 +1531,6 @@ packages:
 
   '@nano_kit/query@2.0.0':
     resolution: {integrity: sha512-KCGRUwO6UJNRHGikViJOPIJrdFYRe5hWYmsGFS7/bfCEJ6qv3NFTB5PgGIlQSsgTW1UNggevOlfCUg4TzGQZWg==}
-    engines: {node: '>=24'}
-    peerDependencies:
-      '@nano_kit/store': ^2.0.0
-
-  '@nano_kit/router@2.0.0':
-    resolution: {integrity: sha512-HvTsIehZoa4wOLsimUHAvKIvNJKksxMYtfmy9NbsIsOAfBHDawHhtx0s99JcWSJlG3Alktoa3TXSmd7zpCDLxQ==}
     engines: {node: '>=24'}
     peerDependencies:
       '@nano_kit/store': ^2.0.0
@@ -6616,10 +6610,6 @@ snapshots:
       '@nano_kit/store': 2.0.0
 
   '@nano_kit/query@2.0.0(@nano_kit/store@2.0.0)':
-    dependencies:
-      '@nano_kit/store': 2.0.0
-
-  '@nano_kit/router@2.0.0(@nano_kit/store@2.0.0)':
     dependencies:
       '@nano_kit/store': 2.0.0
 
