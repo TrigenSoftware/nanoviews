@@ -368,6 +368,41 @@ With dependency injection, `syncHead$()` reads `Page$`. Within an injection cont
 
 `title`, `meta`, `link` and `script` are head descriptors from `@nanoviews/router` and element factories from `nanoviews`, and `nanoviews/svg` has a `title` and a `script` too. A module that needs both aliases one: `import { title as headTitle } from '@nanoviews/router'`.
 
+## `getPageTitle$` and `getTitle$`
+
+These return a signal of the title of the matched page: the first `title` of its `Head$`, the one of the page before the ones of its layouts. Read it in a view as any signal:
+
+```ts
+import { p, component$ } from 'nanoviews'
+import { getPageTitle$ } from '@nanoviews/router'
+
+const Breadcrumb = component$(() => p()(getPageTitle$($page)))
+```
+
+With dependency injection, `getTitle$()` reads `Page$`. Like `syncPageHead$` and `syncHead$`, they resolve the `Head$` factories in the injection context, if there is one. The signal is Nano Kit's [`pageTitle`](https://nano-kit.js.org/router/advanced/#pagetitle).
+
+## `pageTitleAnnouncer$` and `titleAnnouncer$`
+
+A navigation in the app loads no document, so a screen reader has nothing to announce. These announce each new title of the matched page to screen readers, as long as the component they are called in is mounted. Call one of them once, in the outermost layout, next to the head sync:
+
+```ts
+import { main, component$ } from 'nanoviews'
+import { syncPageHead$, pageTitleAnnouncer$, Outlet } from '@nanoviews/router'
+
+const MainLayout = component$(() => {
+  syncPageHead$($page)
+  pageTitleAnnouncer$($page)
+
+  return (
+    main()(
+      Outlet()
+    )
+  )
+})
+```
+
+With dependency injection, `titleAnnouncer$()` reads `Page$`. The announcer follows the title: give every view a distinct title, as moving between two pages with the same title announces nothing, and keep values that change often, like timers, out of titles. When a title is announced is covered in Nano Kit's [`titleAnnouncer`](https://nano-kit.js.org/router/advanced/#titleannouncer).
+
 ## Location, Navigation and Paths from the Context
 
 With dependency injection, the rest of the router is injected: `Location$`, `Navigation$` and `Paths$`, typed by `AppContext`, and `CanGoBack$`. Like every `inject`, they are called in the render, and a handler uses what the render got:

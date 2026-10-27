@@ -19,7 +19,9 @@ import {
   type RouteLocationRecord,
   type Routes,
   Page$,
+  pageTitle,
   syncHead,
+  titleAnnouncer,
   router as vanillaRouter
 } from '@nano_kit/router'
 import type { PageComponent } from './types.js'
@@ -106,4 +108,45 @@ export function syncPageHead$($page: Accessor<PageRef<unknown> | null>) {
  */
 export function syncHead$() {
   syncPageHead$(inject(Page$))
+}
+
+/**
+ * Get the title of the matched page from its head descriptors.
+ * The head factories are resolved within the current injection context, if there is one.
+ * @param $page - Accessor of the matched page reference
+ * @returns Signal of the title, or of an empty string while the head has none
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function getPageTitle$($page: Accessor<PageRef<unknown> | null>) {
+  return pageTitle($page, getContext())
+}
+
+/**
+ * Get the title of the page matched by `Page$` from the injection context.
+ * The head factories are resolved within that injection context.
+ * @returns Signal of the title, or of an empty string while the head has none
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function getTitle$() {
+  return getPageTitle$(inject(Page$))
+}
+
+/**
+ * Announce each new title of the matched page to assistive technologies, while the view is mounted.
+ * The head factories are resolved within the current injection context, if there is one.
+ * @param $page - Accessor of the matched page reference
+ */
+export function pageTitleAnnouncer$($page: Accessor<PageRef<unknown> | null>) {
+  const context = getContext()
+
+  effect$(() => titleAnnouncer($page, context))
+}
+
+/**
+ * Announce each new title of the page matched by `Page$` from the injection
+ * context to assistive technologies, while the view is mounted.
+ * The head factories are resolved within that injection context.
+ */
+export function titleAnnouncer$() {
+  pageTitleAnnouncer$(inject(Page$))
 }
