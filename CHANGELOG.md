@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/TrigenSoftware/nanoviews/compare/v1.1.0...v1.1.1) (2026-10-28)
+
+### Bug Fixes
+
+* **nanoviews:** build the child of a block with a plain value where the block is placed ([#90](https://github.com/TrigenSoftware/nanoviews/issues/90)) ([17454d3](https://github.com/TrigenSoftware/nanoviews/commit/17454d3f38010a2fdbedbcb2bcd42bba33398e04))
+
 ## [1.1.0](https://github.com/TrigenSoftware/nanoviews/compare/v1.0.1...v1.1.0) (2026-10-28)
 
 ### Features
