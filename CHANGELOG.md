@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.0](https://github.com/TrigenSoftware/nanoviews/compare/v1.0.1...v1.1.0) (2026-10-28)
+
+### Features
+
+* **router:** read and announce the page title ([#88](https://github.com/TrigenSoftware/nanoviews/issues/88)) ([8c75c69](https://github.com/TrigenSoftware/nanoviews/commit/8c75c6912380ad2829e7f73bcd3ffe1f6ecc4a85))
+
 ## [1.0.1](https://github.com/TrigenSoftware/nanoviews/compare/v1.0.0...v1.0.1) (2026-10-25)
 
 ### Bug Fixes
