@@ -6,7 +6,12 @@ import {
 } from 'vitest'
 import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
-import { signal } from 'kida'
+import {
+  signal,
+  inject,
+  provide
+} from 'kida'
+import { context$ } from '../component/context.js'
 import { b } from '../elements/elements.js'
 import * as Stories from './swap.stories.js'
 import { swap_ } from './swap.js'
@@ -15,6 +20,10 @@ const {
   StaticValue,
   ReactiveValue
 } = composeStories(Stories)
+
+function Theme$() {
+  return signal('light')
+}
 
 describe('nanoviews', () => {
   describe('flow', () => {
@@ -52,6 +61,16 @@ describe('nanoviews', () => {
 
         expect(container.innerHTML).toBe('<div><b>list</b></div>')
         expect(container.getElementsByTagName('b')[0]).not.toBe(first)
+      })
+
+      it('should build the child of a static value within the context it is placed in', () => {
+        const { container } = render(() => context$(provide(Theme$, signal('dark')))(
+          swap_('static', () => b()(
+            inject(Theme$)
+          ))
+        ))
+
+        expect(container.innerHTML).toBe('<div><b>dark</b></div>')
       })
     })
   })

@@ -9,7 +9,12 @@ import {
   render,
   fireEvent
 } from '@nanoviews/testing-library'
-import { signal } from 'kida'
+import {
+  signal,
+  inject,
+  provide
+} from 'kida'
+import { context$ } from '../component/context.js'
 import { b } from '../elements/elements.js'
 import * as Stories from './show.stories.js'
 import { show_ } from './show.js'
@@ -20,6 +25,10 @@ const {
   KeptAlive,
   Counter
 } = composeStories(Stories)
+
+function Theme$() {
+  return signal('light')
+}
 
 describe('nanoviews', () => {
   describe('flow', () => {
@@ -98,6 +107,16 @@ describe('nanoviews', () => {
         fireEvent.click(counter)
 
         expect(container.innerHTML).toBe('<div><button>Count: 2</button></div>')
+      })
+
+      it('should build the child of a static value within the context it is placed in', () => {
+        const { container } = render(() => context$(provide(Theme$, signal('dark')))(
+          show_(true, () => b()(
+            inject(Theme$)
+          ))
+        ))
+
+        expect(container.innerHTML).toBe('<div><b>dark</b></div>')
       })
     })
   })

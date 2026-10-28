@@ -19,9 +19,11 @@ export function swap_<T>(
   $value: Signalish<T>,
   render: (value: T) => Child
 ) {
-  if (isAccessor($value)) {
-    return lazyChild(() => swap($value, render))
-  }
-
-  return render($value)
+  // A static value decides at once, and its child is built in its place all
+  // the same, under the injection context of where the block is put
+  return lazyChild(
+    isAccessor($value)
+      ? () => swap($value, render)
+      : () => render($value)
+  )
 }

@@ -18,8 +18,11 @@ import {
   untracked,
   isWritable,
   onSignal,
-  record
+  record,
+  inject,
+  provide
 } from 'kida'
+import { context$ } from '../component/context.js'
 import { effect$ } from '../component/effect.js'
 import {
   ul,
@@ -54,6 +57,10 @@ function createPlayer(id: number): Player {
 // Deterministic, so a failure prints a seed and a step that reproduce it
 function createRandom(seed: number) {
   return () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff
+}
+
+function Theme$() {
+  return signal('light')
 }
 
 describe('nanoviews', () => {
@@ -1283,6 +1290,33 @@ describe('nanoviews', () => {
             }
           }
         )
+      })
+
+      it('should build the rows of a static array within the context they are placed in', () => {
+        const { container } = render(() => context$(provide(Theme$, signal('dark')))(
+          for_(['a'])(
+            () => li()(
+              inject(Theme$)
+            )
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><li>dark</li></div>')
+      })
+
+      it('should build the placeholder of an empty static array within the context it is placed in', () => {
+        const { container } = render(() => context$(provide(Theme$, signal('dark')))(
+          for_([])(
+            () => li()(
+              'row'
+            ),
+            () => li()(
+              inject(Theme$)
+            )
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><li>dark</li></div>')
       })
     })
   })
