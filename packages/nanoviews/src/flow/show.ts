@@ -21,5 +21,7 @@ export function show_($value: Signalish<unknown>, render: () => Child) {
     return lazyChild(() => show($value, render))
   }
 
-  return $value ? render() : null
+  // A static value decides at once, and a shown child is built in its place
+  // all the same, under the injection context of where the block is put
+  return $value ? lazyChild(() => render()) : null
 }

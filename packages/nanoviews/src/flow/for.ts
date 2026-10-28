@@ -125,12 +125,14 @@ export function for_(
     ): Child => lazyChild(() => loop($items, each_, else_, track))
   }
 
+  // The rows of a static array are built in their place all the same, under
+  // the injection context of where the block is put
   return (
     each_: StaticEach<unknown>,
     else_?: () => Child
-  ): Child => (
+  ): Child => lazyChild(() => (
     $items?.length
       ? fragment(...$items.map((item, index) => each_(item, index, index)))
       : else_?.()
-  )
+  ))
 }

@@ -9,8 +9,13 @@ import {
   render,
   fireEvent
 } from '@nanoviews/testing-library'
-import { signal } from 'kida'
+import {
+  signal,
+  inject,
+  provide
+} from 'kida'
 import { b } from '../elements/elements.js'
+import { context$ } from '../component/context.js'
 import { effect$ } from '../component/effect.js'
 import {
   case_,
@@ -25,6 +30,10 @@ const {
   ReactiveValueWithoutDefault,
   KeptAlive
 } = composeStories(Stories)
+
+function Theme$() {
+  return signal('light')
+}
 
 describe('nanoviews', () => {
   describe('flow', () => {
@@ -173,6 +182,18 @@ describe('nanoviews', () => {
         tab('b')
 
         expect(log).toEqual(['a cleanup', 'b'])
+      })
+
+      it('should build the case of a static value within the context it is placed in', () => {
+        const { container } = render(() => context$(provide(Theme$, signal('dark')))(
+          show_switch_('a')(
+            case_('a', () => b()(
+              inject(Theme$)
+            ))
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><b>dark</b></div>')
       })
     })
   })

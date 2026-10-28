@@ -9,8 +9,11 @@ import { render } from '@nanoviews/testing-library'
 import {
   type WritableSignal,
   type ReadableSignal,
-  signal
+  signal,
+  inject,
+  provide
 } from 'kida'
+import { context$ } from '../component/context.js'
 import { effect$ } from '../component/effect.js'
 import {
   b,
@@ -24,6 +27,10 @@ const {
   ReactiveValue,
   ReactiveValueThenOnly
 } = composeStories(Stories)
+
+function Theme$() {
+  return signal('light')
+}
 
 describe('nanoviews', () => {
   describe('flow', () => {
@@ -213,6 +220,18 @@ describe('nanoviews', () => {
             return null
           }
         )
+      })
+
+      it('should build the child of a static value within the context it is placed in', () => {
+        const { container } = render(() => context$(provide(Theme$, signal('dark')))(
+          if_(true)(
+            () => b()(
+              inject(Theme$)
+            )
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><b>dark</b></div>')
       })
     })
   })

@@ -51,7 +51,10 @@ export function show_switch_<T>($value: Signalish<T>) {
       })
     }
 
-    // A case child is a function, never falsy, so `||` tells a hit from a miss
-    return (casesMap.get($value) || casesMap.get(default_))?.()
+    // A case child is a function, never falsy, so `||` tells a hit from a
+    // miss. The case is built in its place, as the case of a reactive value
+    const render = casesMap.get($value) || casesMap.get(default_)
+
+    return render && lazyChild(() => render())
   }
 }

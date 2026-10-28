@@ -9,8 +9,11 @@ import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
 import {
   signal,
-  batch
+  batch,
+  inject,
+  provide
 } from 'kida'
+import { context$ } from '../component/context.js'
 import { b } from '../elements/elements.js'
 import { default_ } from './switch.js'
 import * as Stories from './match.stories.js'
@@ -25,6 +28,10 @@ const {
   ReactiveValueWithoutDefault,
   CaseValue
 } = composeStories(Stories)
+
+function Theme$() {
+  return signal('light')
+}
 
 describe('nanoviews', () => {
   describe('flow', () => {
@@ -194,6 +201,18 @@ describe('nanoviews', () => {
             return null
           })
         )
+      })
+
+      it('should build the child of a static case within the context it is placed in', () => {
+        const { container } = render(() => context$(provide(Theme$, signal('dark')))(
+          match_(
+            when_(true, () => b()(
+              inject(Theme$)
+            ))
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><b>dark</b></div>')
       })
     })
   })

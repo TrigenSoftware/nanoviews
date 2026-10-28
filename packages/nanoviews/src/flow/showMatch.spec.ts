@@ -9,7 +9,12 @@ import {
   render,
   fireEvent
 } from '@nanoviews/testing-library'
-import { signal } from 'kida'
+import {
+  signal,
+  inject,
+  provide
+} from 'kida'
+import { context$ } from '../component/context.js'
 import {
   b,
   i
@@ -25,6 +30,10 @@ const {
   ReactiveValueWithoutDefault,
   KeptAlive
 } = composeStories(Stories)
+
+function Theme$() {
+  return signal('light')
+}
 
 describe('nanoviews', () => {
   describe('flow', () => {
@@ -131,6 +140,18 @@ describe('nanoviews', () => {
             when_($post, $post => b()(() => $post().title))
           )
         })
+      })
+
+      it('should build the child of a static case within the context it is placed in', () => {
+        const { container } = render(() => context$(provide(Theme$, signal('dark')))(
+          show_match_(
+            when_(true, () => b()(
+              inject(Theme$)
+            ))
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><b>dark</b></div>')
       })
     })
   })
