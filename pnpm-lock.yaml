@@ -541,6 +541,33 @@ importers:
     linkDirectory: false
     publishDirectory: package
 
+  packages/server:
+    dependencies:
+      kida:
+        specifier: ^2.0.0
+        version: 2.0.0
+      nanoviews:
+        specifier: workspace:^
+        version: link:../nanoviews
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 5.0.0(vitest@5.0.0)
+      happy-dom:
+        specifier: 'catalog:'
+        version: 21.0.3
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.0(@types/node@24.13.2)(@vitest/coverage-v8@5.0.0)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.13.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+    linkDirectory: false
+    publishDirectory: package
+
   packages/storybook:
     dependencies:
       type-fest:
@@ -2813,8 +2840,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  agera@2.0.0:
-    resolution: {integrity: sha512-BP2jcKdeiIcnzZ4WexHkp/Wf0AKmHcDujL9oQx8MHkwY+Za/NvwTilVrsg6fYh6nTALT1kt2jhVFG6caBgPnLw==}
+  agera@2.1.0:
+    resolution: {integrity: sha512-EyswAarvOqyid7im0bwNfxpivOjoDYCmrodgITheykTStxCu/TbYL3lVfcVPaVLtY9Oi2VS1cNtkT8cQ8OZvPQ==}
     engines: {node: '>=24'}
 
   ajv-draft-04@1.0.0:
@@ -4114,9 +4141,6 @@ packages:
 
   magic-string@1.4.3:
     resolution: {integrity: sha512-z12OxmaPGE0F4xlpGdjuAUckipLpQlTAuAmyGhNoD7ODpYUzvDfvtxUbjM/jwznyP178oju/KDdyi220wNJ0RQ==}
-
-  magicast@0.5.4:
-    resolution: {integrity: sha512-llBEhWm1SacoRwgHUoQJYtwp4PBLF4faQi5TCpIGyGs9n4y5+juI0tDgyKIfpqxckRHaHzouUEph3THklWh03w==}
 
   magicast@0.5.5:
     resolution: {integrity: sha512-UicdXN8zQ3JHlxVq+28afMXPr1z7WNY6+7EJnzTdQWkTAlMLF5fNCCKxJHBQwGaNGR11581EiQmQzx73+MvszA==}
@@ -7423,7 +7447,7 @@ snapshots:
       '@vitest/istanbul-lib-coverage': 1.0.1
       '@vitest/istanbul-lib-report': 1.0.1
       ast-v8-to-istanbul: 1.0.6
-      magicast: 0.5.4
+      magicast: 0.5.5
       obug: 2.2.1
       std-env: 4.2.0
       tinyrainbow: 3.1.1
@@ -7546,7 +7570,7 @@ snapshots:
 
   acorn@8.19.0: {}
 
-  agera@2.0.0: {}
+  agera@2.1.0: {}
 
   ajv-draft-04@1.0.0(ajv@8.17.1):
     optionalDependencies:
@@ -8878,7 +8902,7 @@ snapshots:
 
   kida@2.0.0:
     dependencies:
-      agera: 2.0.0
+      agera: 2.1.0
 
   kleur@4.1.5: {}
 
@@ -8991,17 +9015,11 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  magicast@0.5.4:
-    dependencies:
-      '@babel/parser': 7.29.8
-      '@babel/types': 7.29.8
-      source-map-js: 1.2.1
-
   magicast@0.5.5:
     dependencies:
       '@babel/parser': 7.29.8
       '@babel/types': 7.29.8
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   markdown-extensions@2.0.0: {}
 

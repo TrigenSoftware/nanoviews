@@ -4,4 +4,5 @@ export * from './flow/index.js'
 export * from './component/index.js'
 export * from './utils.js'
 export * from './mount.js'
+export * from './renderToString.js'
 

@@ -32,7 +32,8 @@
     "./package.json": "./package.json",
     ".": "./src/index.ts",
     "./store": "./src/store.ts",
-    "./svg": "./src/svg/index.ts"
+    "./svg": "./src/svg/index.ts",
+    "./internals": "./src/internals/index.ts"
   },
   "publishConfig": {
     "exports": {

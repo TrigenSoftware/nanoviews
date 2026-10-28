@@ -4,7 +4,7 @@ import {
 } from 'kida'
 import type { ClassPart } from '../types/index.js'
 
-function join(parts: readonly ClassPart[]) {
+export function join(parts: readonly ClassPart[]) {
   let cls = ''
 
   for (let i = 0, len = parts.length, part: unknown; i < len; i++) {

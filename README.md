@@ -8,6 +8,7 @@ A small Direct DOM library for building user interfaces.
 |---------|-------------|---------|
 | [`nanoviews`](packages/nanoviews#readme) | A small Direct DOM library for building user interfaces. | [![NPM version][nanoviews-npm]][nanoviews-npm-url] |
 | [`@nanoviews/router`](packages/router#readme) | Nanoviews integration for @nano_kit/router. | [![NPM version][router-npm]][router-npm-url] |
+| [`@nanoviews/server`](packages/server#readme) | Nanoviews server-side rendering. | [![NPM version][server-npm]][server-npm-url] |
 | [`@nanoviews/storybook`](packages/storybook#readme) | Nanoviews storybook renderer. | [![NPM version][storybook-npm]][storybook-npm-url] |
 | [`@nanoviews/storybook-vite`](packages/storybook-vite#readme) | Nanoviews + Vite framework for storybook. | [![NPM version][storybook-vite-npm]][storybook-vite-npm-url] |
 | [`@nanoviews/testing-library`](packages/testing-library#readme) | Nanoviews testing utilities. | [![NPM version][testing-library-npm]][testing-library-npm-url] |
@@ -41,6 +42,11 @@ See the [Agent Skills](https://nanoviews.js.org/getting-started/agent-skills/) p
 
 [router-npm]: https://img.shields.io/npm/v/@nanoviews/router.svg
 [router-npm-url]: https://npmjs.com/package/@nanoviews/router
+
+<!-- @nanoviews/server -->
+
+[server-npm]: https://img.shields.io/npm/v/@nanoviews/server.svg
+[server-npm-url]: https://npmjs.com/package/@nanoviews/server
 
 <!-- @nanoviews/storybook -->
 
