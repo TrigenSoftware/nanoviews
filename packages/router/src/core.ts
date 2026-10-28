@@ -20,6 +20,7 @@ import {
   type Routes,
   Page$,
   syncHead,
+  titleAnnouncer,
   router as vanillaRouter
 } from '@nano_kit/router'
 import type { PageComponent } from './types.js'
@@ -90,13 +91,10 @@ export const App = /* @__PURE__ */ component$(() => pageView(inject(Page$)))
 
 /**
  * Sync the document head with the head descriptors of the matched page, while the view is mounted.
- * The head factories are resolved within the current injection context, if there is one.
  * @param $page - Accessor of the matched page reference
  */
 export function syncPageHead$($page: Accessor<PageRef<unknown> | null>) {
-  const context = getContext()
-
-  effect$(() => syncHead($page, context))
+  effect$(() => syncHead($page))
 }
 
 /**
@@ -105,5 +103,28 @@ export function syncPageHead$($page: Accessor<PageRef<unknown> | null>) {
  * The head factories are resolved within that injection context.
  */
 export function syncHead$() {
-  syncPageHead$(inject(Page$))
+  const context = getContext()
+  const $page = inject(Page$)
+
+  effect$(() => syncHead($page, context))
+}
+
+/**
+ * Announce each new title of the matched page to assistive technologies, while the view is mounted.
+ * @param $page - Accessor of the matched page reference
+ */
+export function pageTitleAnnouncer$($page: Accessor<PageRef<unknown> | null>) {
+  effect$(() => titleAnnouncer($page))
+}
+
+/**
+ * Announce each new title of the page matched by `Page$` from the injection
+ * context to assistive technologies, while the view is mounted.
+ * The head factories are resolved within that injection context.
+ */
+export function titleAnnouncer$() {
+  const context = getContext()
+  const $page = inject(Page$)
+
+  effect$(() => titleAnnouncer($page, context))
 }

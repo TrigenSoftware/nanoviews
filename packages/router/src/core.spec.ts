@@ -1,7 +1,10 @@
 import {
+  vi,
   describe,
   it,
-  expect
+  expect,
+  beforeEach,
+  afterEach
 } from 'vitest'
 import { render } from '@nanoviews/testing-library'
 import {
@@ -23,6 +26,7 @@ import {
 } from 'nanoviews'
 import {
   Page$,
+  Title$,
   virtualNavigation,
   param,
   title
@@ -39,11 +43,17 @@ import {
   router,
   pageView,
   syncPageHead$,
-  syncHead$
+  syncHead$,
+  pageTitleAnnouncer$,
+  titleAnnouncer$
 } from './core.js'
 
 const HomePage = component$(() => div()('Home Page'))
 const AboutPage = component$(() => div()('About Page'))
+
+function getAnnouncement() {
+  return document.querySelector('body > nano-kit-title-announcer')?.shadowRoot?.querySelector('[role="status"]')
+}
 
 describe('router', () => {
   describe('core', () => {
@@ -347,7 +357,7 @@ describe('router', () => {
 
     describe('syncHead$', () => {
       it('should sync the document head with the page resolving head factories within the injection context', () => {
-        function Title$() {
+        function HomeTitle$() {
           return 'Home'
         }
 
@@ -358,7 +368,7 @@ describe('router', () => {
         const $page = router($location, [
           page('home', {
             default: HomePage,
-            Head$: () => [title(inject(Title$))]
+            Head$: () => [title(inject(HomeTitle$))]
           }),
           page('about', {
             default: AboutPage,
@@ -378,6 +388,125 @@ describe('router', () => {
         navigation.push('/about')
 
         expect(document.title).toBe('About')
+      })
+    })
+
+    describe('Title$', () => {
+      it('should give the title of the page resolving head factories within the injection context', () => {
+        function HomeTitle$() {
+          return 'Home'
+        }
+
+        const [$location, navigation] = virtualNavigation('/home', {
+          home: '/home',
+          about: '/about'
+        })
+        const $page = router($location, [
+          page('home', {
+            default: HomePage,
+            Head$: () => [title(inject(HomeTitle$))]
+          }),
+          page('about', {
+            default: AboutPage,
+            Head$: () => [title('About')]
+          })
+        ])
+        const Root = component$(() => p()(inject(Title$)))
+        const { container } = render(() => context$(provide(Page$, $page))(Root()))
+
+        expect(container.textContent).toBe('Home')
+
+        navigation.push('/about')
+
+        expect(container.textContent).toBe('About')
+      })
+    })
+
+    describe('pageTitleAnnouncer$', () => {
+      beforeEach(() => {
+        vi.useFakeTimers()
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
+      })
+
+      it('should announce each new title of the matched page while the view is mounted', () => {
+        const [$location, navigation] = virtualNavigation('/home', {
+          home: '/home',
+          about: '/about'
+        })
+        const $page = router($location, [
+          page('home', {
+            default: HomePage,
+            Head$: () => [title('Home')]
+          }),
+          page('about', {
+            default: AboutPage,
+            Head$: () => [title('About')]
+          })
+        ])
+        const Root = component$(() => {
+          pageTitleAnnouncer$($page)
+
+          return pageView($page)
+        })
+        const { destroy } = render(() => Root())
+
+        navigation.push('/about')
+        vi.advanceTimersByTime(100)
+
+        expect(getAnnouncement()?.textContent).toBe('About')
+
+        destroy()
+
+        expect(getAnnouncement()).toBeUndefined()
+      })
+    })
+
+    describe('titleAnnouncer$', () => {
+      beforeEach(() => {
+        vi.useFakeTimers()
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
+      })
+
+      it('should announce each new title of the page resolving head factories within the injection context', () => {
+        function AboutTitle$() {
+          return 'About'
+        }
+
+        const [$location, navigation] = virtualNavigation('/home', {
+          home: '/home',
+          about: '/about'
+        })
+        const $page = router($location, [
+          page('home', {
+            default: HomePage,
+            Head$: () => [title('Home')]
+          }),
+          page('about', {
+            default: AboutPage,
+            Head$: () => [title(inject(AboutTitle$))]
+          })
+        ])
+        const Root = component$(() => {
+          titleAnnouncer$()
+
+          return App()
+        })
+        const { destroy } = render(() => context$(provide(Page$, $page))(Root()))
+
+        navigation.push('/about')
+        vi.advanceTimersByTime(100)
+
+        expect(getAnnouncement()?.textContent).toBe('About')
+
+        destroy()
+
+        expect(getAnnouncement()).toBeUndefined()
       })
     })
   })

@@ -1,6 +1,6 @@
 ---
 name: nanoviews-router
-description: "Routing a nanoviews app with @nanoviews/router, the nanoviews integration of @nano_kit/router that it re-exports: the route table and browser navigation, `router` with `pageView` or `App`, pages and page modules, layouts with `Outlet`, code splitting with `loadable`, `Link` and `linkComponent` with preloading and `aria-current`, plain anchors with `listenNavigationLinks$`, the document head through `Head$`, URL-derived signals, navigation guards and scroll, the dependency injection tokens, and tests on virtual navigation. Apply when adding or changing routes, pages, layouts, links, head tags or URL-derived state in an app that imports from `@nanoviews/router`, or from `@nano_kit/router` next to `nanoviews`. How views are written is the nanoviews skill."
+description: "Routing a nanoviews app with @nanoviews/router, the nanoviews integration of @nano_kit/router that it re-exports: the route table and browser navigation, `router` with `pageView` or `App`, pages and page modules, layouts with `Outlet`, code splitting with `loadable`, `Link` and `linkComponent` with preloading and `aria-current`, plain anchors with `listenNavigationLinks$`, the document head through `Head$`, URL-derived signals, navigation guards and scroll, screen reader announcements of page titles, the dependency injection tokens, and tests on virtual navigation. Apply when adding or changing routes, pages, layouts, links, head tags or URL-derived state in an app that imports from `@nanoviews/router`, or from `@nano_kit/router` next to `nanoviews`. How views are written is the nanoviews skill."
 license: MIT
 compatibility:
   - Claude Code
@@ -42,15 +42,15 @@ metadata:
 
 ## Setup shapes
 
-- **Module scope**: `router.ts` exports the route table `as const`, `[$location, navigation] = browserNavigation(routes)`, `paths = buildPaths(routes)` and the URL-state signals, `pages.ts` the page list, and `Link.ts` the `linkComponent(navigation, paths, [preloadable((): UnknownMatchRef[] => pages), ariaCurrent($location)])`. The root module creates `$page = router($location, pages)` once and mounts `pageView($page)`, and the outermost layout, declared in the pages, calls `listenNavigationLinks$(navigation)` and `syncPageHead$($page)` around its `Outlet()`.
-- **Dependency injection**: `main.ts` creates one `browserNavigation(routes)` and one `router($location, pages)` and provides `LocationNavigation$`, `Page$` and `Pages$` together in the root `context$` around `App()`, which is what goes into `mount`. The outermost layout, declared in the pages, calls `enableLinkComponentPreload$(true)`, `enableLinkComponentAriaCurrent$()` and `syncHead$()` and renders the navigation and `Outlet()`. Views use the DI `Link`, inject the tokens in the render, and take URL state from a `Params$` factory that injects `Location$`.
+- **Module scope**: `router.ts` exports the route table `as const`, `[$location, navigation] = browserNavigation(routes)`, `paths = buildPaths(routes)` and the URL-state signals, `pages.ts` the page list, and `Link.ts` the `linkComponent(navigation, paths, [preloadable((): UnknownMatchRef[] => pages), ariaCurrent($location)])`. The root module creates `$page = router($location, pages)` once and mounts `pageView($page)`, and the outermost layout, declared in the pages, calls `listenNavigationLinks$(navigation)`, `syncPageHead$($page)` and `pageTitleAnnouncer$($page)` around its `Outlet()`.
+- **Dependency injection**: `main.ts` creates one `browserNavigation(routes)` and one `router($location, pages)` and provides `LocationNavigation$`, `Page$` and `Pages$` together in the root `context$` around `App()`, which is what goes into `mount`. The outermost layout, declared in the pages, calls `enableLinkComponentPreload$(true)`, `enableLinkComponentAriaCurrent$()`, `syncHead$()` and `titleAnnouncer$()` and renders the navigation and `Outlet()`. Views use the DI `Link`, inject the tokens in the render, and take URL state from a `Params$` factory that injects `Location$`.
 - Take dependency injection when each test or story must give the views a navigation of its own, module scope otherwise. Either way the routes and the pages live in modules of their own, so that pages, links and stores import them without the app. The DI `Link` and a `linkComponent` link are different components: the `enable…$` calls extend only the DI one.
 - Import everything router-related from `@nanoviews/router`, which types `page`, `layout`, `loadable` and `notFound` for nanoviews pages and composes layouts in its `router`: the `router` of `@nano_kit/router` rejects layouts and renders nothing for their pages.
 
 ## Dependency injection
 
 - Augment `AppContext.routes` once per app, with `declare module '@nano_kit/router'` in `main.ts` or next to the routes. Without it `provide(LocationNavigation$, browserNavigation(routes))` is a type error and the DI `Link` takes any `to` and no `params`; a second augmentation with another table is TS2717.
-- `App` and `syncHead$()` need `Page$`; a link that preloads needs `Pages$` when it is built.
+- `App`, `syncHead$()`, `Title$` and `titleAnnouncer$()` need `Page$`; a link that preloads needs `Pages$` when it is built.
 - The `enable…$` calls extend only the links built after them, not one of an earlier sibling: call them in the outermost layout, before its links. A hook of your own, `inject(LinkSettings$).addHook(hook)`, is defined at module scope: one created in the render is added again on every build.
 
 ## Links
@@ -64,7 +64,9 @@ metadata:
 ## Pages, layouts and head
 
 - A page or layout module exports the view as `default` and may export `Head$`. It goes in as `loadable(() => import('./pages/User.js'))`, or whole when imported eagerly, `import * as Main from './layouts/Main.js'` and `layout(Main, [...])`: `Main.default` alone drops the `Head$`.
-- `Head$` does not run again when only the params change, and under an injection context it runs once per page: a tag that follows state takes an accessor, ``title(() => `User ${$userId()}`)``. `syncPageHead$($page)` or `syncHead$()` is called once, in the outermost layout.
+- `Head$` does not run again when only the params change, and with `syncHead$()` it runs once per page: a tag that follows state takes an accessor, ``title(() => `User ${$userId()}`)``. `syncPageHead$($page)` or `syncHead$()` is called once, in the outermost layout, and so is `pageTitleAnnouncer$($page)` or `titleAnnouncer$()`.
+- Give every view a distinct title and keep values that change often, like timers, out of it: the title announcer announces every new title, and two pages with the same title pass in silence. A view reads the title from `inject(Title$)`, or from `pageTitle($page)` without dependency injection, not from `document.title`.
+- A `Head$` that injects needs the dependency injection wrappers, `syncHead$()` and `titleAnnouncer$()`, which resolve it in the injection context: `syncPageHead$` and `pageTitleAnnouncer$` call `Head$` as it is.
 - A page that injects needs a root context above the router view, `context$()` or the providers of the DI shape. Without one, a page in a layout injects into the context of the layout's outlet and its store goes with the layout, and a page outside a layout throws.
 
 ## URL state and navigation

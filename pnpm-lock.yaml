@@ -152,7 +152,7 @@ importers:
         version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
         specifier: '*'
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: '*'
         version: 2.0.0
@@ -207,7 +207,7 @@ importers:
         version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
         specifier: '*'
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: '*'
         version: 2.0.0
@@ -241,7 +241,7 @@ importers:
         version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
         specifier: '*'
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: '*'
         version: 2.0.0
@@ -272,7 +272,7 @@ importers:
         version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
         specifier: '*'
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: '*'
         version: 2.0.0
@@ -297,7 +297,7 @@ importers:
         version: 2.0.0(@nano_kit/store@2.0.0)
       '@nano_kit/router':
         specifier: '*'
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: '*'
         version: 2.0.0
@@ -503,8 +503,8 @@ importers:
   packages/router:
     devDependencies:
       '@nano_kit/router':
-        specifier: ^2.0.0
-        version: 2.0.0(@nano_kit/store@2.0.0)
+        specifier: ^2.4.0
+        version: 2.4.0(@nano_kit/store@2.0.0)
       '@nano_kit/store':
         specifier: ^2.0.0
         version: 2.0.0
@@ -1535,8 +1535,8 @@ packages:
     peerDependencies:
       '@nano_kit/store': ^2.0.0
 
-  '@nano_kit/router@2.0.0':
-    resolution: {integrity: sha512-HvTsIehZoa4wOLsimUHAvKIvNJKksxMYtfmy9NbsIsOAfBHDawHhtx0s99JcWSJlG3Alktoa3TXSmd7zpCDLxQ==}
+  '@nano_kit/router@2.4.0':
+    resolution: {integrity: sha512-9R0y9ED4QI92eE6ByIZRFUTSPBwi4JVCJq8Cof/YixDOFypAGs0adGFS89ojpt8eKB5akxVDb3zXVPEzn980Zg==}
     engines: {node: '>=24'}
     peerDependencies:
       '@nano_kit/store': ^2.0.0
@@ -6613,7 +6613,7 @@ snapshots:
     dependencies:
       '@nano_kit/store': 2.0.0
 
-  '@nano_kit/router@2.0.0(@nano_kit/store@2.0.0)':
+  '@nano_kit/router@2.4.0(@nano_kit/store@2.0.0)':
     dependencies:
       '@nano_kit/store': 2.0.0
 

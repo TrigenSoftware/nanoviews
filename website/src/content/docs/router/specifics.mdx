@@ -268,9 +268,49 @@ const MainLayout = component$(() => {
 })
 ```
 
-With dependency injection, `syncHead$()` reads `Page$`. Within an injection context, `syncHead$` and `syncPageHead$` resolve the `Head$` factories in it, so a `Head$` may `inject`, and runs once, the first time its page is matched. Without one, `syncPageHead$` calls `Head$` on every match, and `inject` in it throws. The `Head$` of a layout applies to its pages, and a `title`, `lang` or `dir` of the page wins over the one of the layout. The descriptors are covered in Nano Kit's [Head Management](https://nano-kit.js.org/router/advanced/#head-management).
+With dependency injection, `syncHead$()` reads `Page$` and resolves the `Head$` factories in the injection context, so a `Head$` may `inject`, and runs once, the first time its page is matched. `syncPageHead$` calls `Head$` on every match, and `inject` in it throws. The `Head$` of a layout applies to its pages, and a `title`, `lang` or `dir` of the page wins over the one of the layout. The descriptors are covered in Nano Kit's [Head Management](https://nano-kit.js.org/router/advanced/#head-management).
 
 `title`, `meta`, `link` and `script` are head descriptors from `@nanoviews/router` and element factories from `nanoviews`, and `nanoviews/svg` has a `title` and a `script` too. A module that needs both aliases one: `import { title as headTitle } from '@nanoviews/router'`.
+
+## `Title$`
+
+`Title$`, Nano Kit's [injection token](https://nano-kit.js.org/router/advanced/#tokens) re-exported here, is a signal of the title of the page matched by `Page$`: the first `title` of its `Head$`, the one of the page before the ones of its layouts. Inject it in a view and read it as any signal:
+
+```ts
+import { inject } from 'nanoviews/store'
+import { p, component$ } from 'nanoviews'
+import { Title$ } from '@nanoviews/router'
+
+const Breadcrumb = component$(() => {
+  const $title = inject(Title$)
+
+  return p()($title)
+})
+```
+
+It resolves the `Head$` factories in the injection context it is first injected in, so a `Head$` may `inject`. Without dependency injection, Nano Kit's [`pageTitle($page)`](https://nano-kit.js.org/router/advanced/#pagetitle), re-exported here as well, gives the same signal.
+
+## `pageTitleAnnouncer$` and `titleAnnouncer$`
+
+A navigation in the app loads no document, so a screen reader has nothing to announce. These announce each new title of the matched page to screen readers, as long as the component they are called in is mounted. Call one of them once, in the outermost layout, next to the head sync:
+
+```ts
+import { main, component$ } from 'nanoviews'
+import { syncPageHead$, pageTitleAnnouncer$, Outlet } from '@nanoviews/router'
+
+const MainLayout = component$(() => {
+  syncPageHead$($page)
+  pageTitleAnnouncer$($page)
+
+  return (
+    main()(
+      Outlet()
+    )
+  )
+})
+```
+
+With dependency injection, `titleAnnouncer$()` reads `Page$` and resolves the `Head$` factories in the injection context, as `syncHead$()` does, while `pageTitleAnnouncer$` calls them as they are. The announcer follows the title: give every view a distinct title, as moving between two pages with the same title announces nothing, and keep values that change often, like timers, out of titles. When a title is announced is covered in Nano Kit's [`titleAnnouncer`](https://nano-kit.js.org/router/advanced/#titleannouncer).
 
 ## Location, Navigation and Paths from the Context
 
