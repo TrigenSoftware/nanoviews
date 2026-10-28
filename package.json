@@ -2,7 +2,7 @@
   "name": "nanoviews-monorepo",
   "type": "module",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A small Direct DOM library for building user interfaces.",
   "author": "dangreen",
   "license": "MIT",
