@@ -82,7 +82,9 @@ export function getSlots<D extends AnySlotComponent[]>(
       // A slot nobody declared here has no place to go: it would vanish
       // without a sound, so it stops one call away from the mistake
       if (j < 0) {
-        throw new Error('Slot is not declared in slots$')
+        throw import.meta.env.DEV
+          ? new Error('Slot is not declared in slots$')
+          : new Error()
       }
 
       slots[j] = child

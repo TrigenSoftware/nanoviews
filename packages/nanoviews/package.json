@@ -40,15 +40,21 @@
       "./package.json": "./package.json",
       ".": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
+        "development": "./dist/index.development.js",
+        "production": "./dist/index.production.js",
+        "default": "./dist/index.production.js"
       },
       "./store": {
         "types": "./dist/store.d.ts",
-        "default": "./dist/store.js"
+        "development": "./dist/store.development.js",
+        "production": "./dist/store.production.js",
+        "default": "./dist/store.production.js"
       },
       "./svg": {
         "types": "./dist/svg/index.d.ts",
-        "default": "./dist/svg.js"
+        "development": "./dist/svg.development.js",
+        "production": "./dist/svg.production.js",
+        "default": "./dist/svg.production.js"
       }
     },
     "directory": "package",
@@ -64,7 +70,9 @@
     "prepublishOnly": "run build clear:package clean-publish",
     "postpublish": "pnpm clear:package",
     "emitDeclarations": "tsc -p ./tsconfig.build.json --emitDeclarationOnly",
-    "build:dist": "run -p emitDeclarations [ vite build ]",
+    "build:dev": "NODE_ENV=development vite build",
+    "build:prod": "NODE_ENV=production vite build",
+    "build:dist": "run -p emitDeclarations build:dev build:prod",
     "build": "run clear:dist build:dist",
     "lint": "oxlint",
     "format": "oxlint --fix",

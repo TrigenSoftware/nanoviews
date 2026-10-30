@@ -6,7 +6,7 @@ import type { Primitive } from '../types/index.js'
 import {
   createTextNode,
   createTextNodeFromAccessor
-} from './text.js'
+} from './dom.js'
 
 const meta: Meta<{ value: Primitive }> = {
   title: 'Internals/Elements/Text'

@@ -2,7 +2,8 @@ import { deferEffect } from 'kida'
 import {
   type Child,
   mountChild,
-  lazyChild
+  lazyChild,
+  fresh
 } from '../internals/index.js'
 
 /**
@@ -14,7 +15,8 @@ import {
 /* @__NO_SIDE_EFFECTS__ */
 export function portal(target: () => ParentNode, child: Child) {
   return lazyChild(() => {
-    const unmount = mountChild(target(), child)
+    // The server markup has nothing of the child, so it is built fresh
+    const unmount = fresh(() => mountChild(target(), child))
 
     if (unmount !== undefined) {
       deferEffect(() => unmount)

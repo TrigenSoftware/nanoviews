@@ -10,5 +10,7 @@ import type { Child } from './internals/index.js'
 export function renderToString(app: () => Child): string
 
 export function renderToString(): string {
-  throw new Error('renderToString works in the server bundle only, where @nanoviews/server stands in for nanoviews')
+  throw import.meta.env.DEV
+    ? new Error('renderToString works in the server bundle only, where @nanoviews/server stands in for nanoviews')
+    : new Error()
 }

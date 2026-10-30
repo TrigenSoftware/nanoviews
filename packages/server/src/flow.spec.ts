@@ -1,4 +1,5 @@
 import {
+  vi,
   describe,
   it,
   expect
@@ -19,6 +20,7 @@ import { context$ } from './component.js'
 import {
   trackById,
   as_,
+  browser_,
   case_,
   default_,
   for_,
@@ -47,7 +49,7 @@ describe('server', () => {
             $name
           ),
           () => 'Guest'
-        ))).toBe('<p>Ann</p>')
+        ))).toBe('<!--[--><p>Ann</p><!--]-->')
 
         $user(null)
 
@@ -56,7 +58,7 @@ describe('server', () => {
             $name
           ),
           () => 'Guest'
-        ))).toBe('Guest')
+        ))).toBe('<!--[-->Guest<!--]-->')
       })
 
       it('should decide a static value', () => {
@@ -81,7 +83,7 @@ describe('server', () => {
       it('should render the child of the current value', () => {
         expect(renderToString(() => swap_(signal(2), count => p()(
           String(count * 2)
-        )))).toBe('<p>4</p>')
+        )))).toBe('<!--[--><p>4</p><!--]-->')
       })
 
       it('should build the child of a static value within the context it is placed in', () => {
@@ -99,14 +101,14 @@ describe('server', () => {
           case_('a', () => 'A'),
           case_('b', () => 'B'),
           default_(() => 'None')
-        ))).toBe('B')
+        ))).toBe('<!--[-->B<!--]-->')
       })
 
       it('should take the last of repeated cases and defaults', () => {
         expect(renderToString(() => switch_(signal('a'))(
           case_('a', () => 'first'),
           case_('a', () => 'last')
-        ))).toBe('last')
+        ))).toBe('<!--[-->last<!--]-->')
         expect(renderToString(() => switch_('x')(
           default_(() => 'first'),
           case_('a', () => 'A'),
@@ -137,7 +139,28 @@ describe('server', () => {
         expect(renderToString(() => show_switch_(signal('b'))(
           case_('a', () => 'A'),
           case_('b', () => 'B')
-        ))).toBe('B')
+        ))).toBe('<!--[--><!--]--><!--[-->B<!--]-->')
+      })
+
+      it('should show the default when no case matches', () => {
+        expect(renderToString(() => show_switch_(signal('c'))(
+          case_('a', () => 'A'),
+          default_(() => 'None')
+        ))).toBe('<!--[--><!--]--><!--[-->None<!--]-->')
+      })
+
+      it('should show nothing when no case matches and there is no default', () => {
+        expect(renderToString(() => show_switch_(signal('c'))(
+          case_('a', () => 'A')
+        ))).toBe('<!--[--><!--]-->')
+      })
+
+      it('should keep one block for a repeated key, in the place of its first case with the child of its last', () => {
+        expect(renderToString(() => show_switch_(signal('a'))(
+          case_('a', () => 'first'),
+          case_('b', () => 'B'),
+          case_('a', () => 'last')
+        ))).toBe('<!--[-->last<!--]--><!--[--><!--]-->')
       })
 
       it('should build the case of a static value within the context it is placed in', () => {
@@ -165,7 +188,7 @@ describe('server', () => {
           when_(signal('second'), $value => $value),
           when_($last, () => 'last'),
           default_(() => 'none')
-        ))).toBe('second')
+        ))).toBe('<!--[-->second<!--]-->')
         expect(reads).toBe(0)
       })
 
@@ -173,7 +196,13 @@ describe('server', () => {
         expect(renderToString(() => match_(
           when_(signal(0), () => 'zero'),
           default_(() => 'none')
-        ))).toBe('none')
+        ))).toBe('<!--[-->none<!--]-->')
+      })
+
+      it('should write an empty block when no case holds and there is no default', () => {
+        expect(renderToString(() => match_(
+          when_(signal(false), () => 'first')
+        ))).toBe('<!--[--><!--]-->')
       })
 
       it('should build the child of a static case within the context it is placed in', () => {
@@ -183,7 +212,7 @@ describe('server', () => {
               inject(Theme$)
             ))
           )
-        ))).toBe('<p>dark</p>')
+        ))).toBe('<!--[--><p>dark</p><!--]-->')
       })
     })
 
@@ -192,7 +221,7 @@ describe('server', () => {
         expect(renderToString(() => show_match_(
           when_(signal(false), () => 'first'),
           when_(signal(true), () => 'second')
-        ))).toBe('second')
+        ))).toBe('<!--[--><!--]--><!--[-->second<!--]-->')
       })
 
       it('should build the child of a static case within the context it is placed in', () => {
@@ -202,7 +231,7 @@ describe('server', () => {
               inject(Theme$)
             ))
           )
-        ))).toBe('<p>dark</p>')
+        ))).toBe('<!--[--><p>dark</p><!--]-->')
       })
     })
 
@@ -215,8 +244,8 @@ describe('server', () => {
           return 'shown'
         }
 
-        expect(renderToString(() => show_(signal(true), render))).toBe('shown')
-        expect(renderToString(() => show_(signal(false), render))).toBe('')
+        expect(renderToString(() => show_(signal(true), render))).toBe('<!--[-->shown<!--]-->')
+        expect(renderToString(() => show_(signal(false), render))).toBe('<!--[--><!--]-->')
         expect(renderToString(() => show_(false, render))).toBe('')
         expect(renders).toBe(1)
       })
@@ -251,7 +280,7 @@ describe('server', () => {
               $index, ': ', () => $todo().title
             )
           )
-        ))).toBe('<ul><li id="todo-1">0: Write</li><li id="todo-2">1: Ship</li></ul>')
+        ))).toBe('<ul><!--[--><li id="todo-1">0: Write</li><li id="todo-2">1: Ship</li><!--]--></ul>')
       })
 
       it('should hand a record of every item to the render function', () => {
@@ -268,18 +297,18 @@ describe('server', () => {
               $todo.$title
             ))
           )
-        ))).toBe('<ul><li>Write</li></ul>')
+        ))).toBe('<ul><!--[--><li>Write</li><!--]--></ul>')
       })
 
       it('should render else for an empty or missing list', () => {
         expect(renderToString(() => for_(signal<string[]>([]))(
           $item => $item,
           () => 'Empty'
-        ))).toBe('Empty')
+        ))).toBe('<!--[-->Empty<!--]-->')
         expect(renderToString(() => for_(signal<string[] | null>(null))(
           $item => $item,
           () => 'None'
-        ))).toBe('None')
+        ))).toBe('<!--[-->None<!--]-->')
       })
 
       it('should render else for an empty static array', () => {
@@ -320,6 +349,21 @@ describe('server', () => {
             )
           )
         ))).toBe('<p>dark</p>')
+      })
+    })
+
+    describe('browser_', () => {
+      it('should write the fallback in a block without calling render', () => {
+        const render = vi.fn(() => 'chart')
+
+        expect(renderToString(() => browser_(render, () => p()(
+          'loading'
+        )))).toBe('<!--[--><p>loading</p><!--]-->')
+        expect(render).not.toHaveBeenCalled()
+      })
+
+      it('should write an empty block without a fallback', () => {
+        expect(renderToString(() => browser_(() => 'chart'))).toBe('<!--[--><!--]-->')
       })
     })
   })

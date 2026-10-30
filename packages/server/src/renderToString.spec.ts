@@ -101,7 +101,7 @@ describe('server', () => {
             divider
           )
         )
-      ))).toBe('<ul><li>a</li><hr><li>b</li><hr><li>c</li><hr></ul>')
+      ))).toBe('<ul><!--[--><li>a</li><hr><li>b</li><hr><li>c</li><hr><!--]--></ul>')
     })
 
     it('should render inside a render', () => {

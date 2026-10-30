@@ -13,11 +13,15 @@ import {
   type LazyChild,
   type SwitchCase,
   type AnyMatchCase,
+  type ShowMatchCase,
   type TruthySignalish,
   type FalsySignalish,
   default_
 } from 'nanoviews'
-import { renderChild } from './internals/render.js'
+import {
+  state,
+  renderChild
+} from './internals/render.js'
 
 export {
   trackBy,
@@ -30,12 +34,21 @@ export {
 } from 'nanoviews'
 
 // A block reads its value once, when it is built, and writes what the value
-// decides: there is nothing for it to follow on the server. A static value
-// decides the same way, so the child is built in its place, under the
-// injection context of where the block is put, as on the client
+// decides: there is nothing for it to follow on the server. On the client a
+// block of a reactive value stands between two anchors, which hydration
+// takes from the markers written around its content. A static value decides
+// with no block, its child built in its place, as on the client
+const START = '<!--[-->'
+const END = '<!--]-->'
 
-function renderSwap<T>(this: (value: T) => Child, $value: Signalish<T>) {
-  return this($get($value))
+function renderReactiveSwap<T>(this: (value: T) => Child, $value: Accessor<T>) {
+  state.html += START
+  renderChild(this($value()))
+  state.html += END
+}
+
+function renderStaticSwap<T>(this: (value: T) => Child, value: T) {
+  return this(value)
 }
 
 /**
@@ -48,7 +61,9 @@ export function swap_<T>(
   $value: Signalish<T>,
   render: (value: T) => Child
 ): Child {
-  return (renderSwap<T>).bind(render, $value) as LazyChild
+  return isAccessor($value)
+    ? (renderReactiveSwap<T>).bind(render, $value)
+    : (renderStaticSwap<T>).bind(render, $value) as LazyChild
 }
 
 /**
@@ -68,6 +83,27 @@ export function if_<T>($value: T) {
   ))
 }
 
+// The value is decided once, so the cases are walked rather than put in a
+// map: from the last, which is the case a map keeps for a repeated key
+function findCase(cases: SwitchCase<unknown>[], value: unknown) {
+  let fallback: SwitchCase<unknown> | undefined
+
+  for (let i = cases.length - 1, matchCase, key; i >= 0; i--) {
+    matchCase = cases[i]
+    key = matchCase[0]
+
+    if (key === value) {
+      return matchCase
+    }
+
+    if (key === default_) {
+      fallback ??= matchCase
+    }
+  }
+
+  return fallback
+}
+
 /**
  * Decide which child to render based on switch cases
  * @param $value - Static value or store
@@ -75,45 +111,40 @@ export function if_<T>($value: T) {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function switch_<T>($value: Signalish<T>) {
-  // The value is decided once, so the cases are walked rather than put in a
-  // map: from the last, which is the case a map keeps for a repeated key
-  return (...cases: SwitchCase<SignalishValue<T>>[]) => swap_($value, (value) => {
-    let fallback: (() => Child) | undefined
-
-    for (let i = cases.length - 1, matchCase, key; i >= 0; i--) {
-      matchCase = cases[i]
-      key = matchCase[0]
-
-      if (key === value) {
-        return matchCase[1]()
-      }
-
-      if (key === default_) {
-        fallback ??= matchCase[1]
-      }
-    }
-
-    return fallback?.()
-  })
+  return (...cases: SwitchCase<SignalishValue<T>>[]) => swap_($value, value => findCase(cases, value)?.[1]())
 }
 
 // One walk, as on the client: the first case that holds wins, the first
 // `default_` answers when none does, and no case below the winner is read
-function renderMatch(this: AnyMatchCase[]) {
-  let fallback: AnyMatchCase | undefined
+function findMatch<C extends AnyMatchCase | ShowMatchCase>(cases: C[]) {
+  let fallback: C | undefined
 
-  for (let i = 0, len = this.length, matchCase, condition: unknown; i < len; i++) {
-    matchCase = this[i]
+  for (let i = 0, len = cases.length, matchCase: C, condition: unknown; i < len; i++) {
+    matchCase = cases[i]
     condition = matchCase[0]
 
     if (condition === default_) {
       fallback ??= matchCase
     } else if ($get(condition)) {
-      return matchCase[1](condition)
+      return matchCase
     }
   }
 
-  return fallback?.[1](fallback[0])
+  return fallback
+}
+
+// The client follows the cases in a computed, so the block is reactive
+// whatever the cases are
+function renderMatch(this: AnyMatchCase[]) {
+  const matched = findMatch(this)
+
+  state.html += START
+
+  if (matched !== undefined) {
+    renderChild(matched[1](matched[0]))
+  }
+
+  state.html += END
 }
 
 /**
@@ -136,10 +167,74 @@ export function show_($value: Signalish<unknown>, render: () => Child) {
   return swap_($value, value => (value ? render() : null))
 }
 
-// The client builds every case once and parks all but the shown one out of
-// the document: the shown one is what is written
-export const show_switch_ = switch_
-export const show_match_ = match_
+// The client builds every case once, each in a block of its own, and parks
+// all but the shown one out of the document: the markup has the blocks of
+// all the cases and the content of the shown one. The cases are keyed as
+// the map of the client keys them: a repeated key keeps its first place and
+// its last child
+function renderShowSwitch(this: SwitchCase<unknown>[], $value: Accessor<unknown>) {
+  const shown = findCase(this, $value())
+
+  for (let i = 0, len = this.length, key, j; i < len; i++) {
+    key = this[i][0]
+    j = 0
+
+    // The first case of the key, this one at the latest
+    while (this[j][0] !== key) {
+      j++
+    }
+
+    if (j === i) {
+      state.html += START
+
+      if (shown !== undefined && key === shown[0]) {
+        renderChild(shown[1]())
+      }
+
+      state.html += END
+    }
+  }
+}
+
+/**
+ * Show the child of the case that matches the value, keeping the others
+ * @param $value - Static value or store
+ * @returns Function that accepts cases and returns Block that shows decided child
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function show_switch_<T>($value: Signalish<T>) {
+  return (...cases: SwitchCase<SignalishValue<T>>[]): Child => (
+    isAccessor($value)
+      ? renderShowSwitch.bind(cases as SwitchCase<unknown>[], $value)
+      : switch_($value)(...cases)
+  )
+}
+
+// Every case is a block of its own, as in `show_switch_`
+function renderShowMatch(this: ShowMatchCase[]) {
+  const matched = findMatch(this)
+
+  for (let i = 0, len = this.length, matchCase; i < len; i++) {
+    matchCase = this[i]
+    state.html += START
+
+    if (matchCase === matched) {
+      renderChild(matchCase[1]())
+    }
+
+    state.html += END
+  }
+}
+
+/**
+ * Show the child of the first case that holds, keeping the others
+ * @param cases - Cases to decide from
+ * @returns Block that shows the child of the case that holds
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function show_match_(...cases: ShowMatchCase[]) {
+  return renderShowMatch.bind(cases) as LazyChild
+}
 
 type AnyEach = (
   item: Accessor<unknown>,
@@ -175,18 +270,22 @@ function renderReactiveItems(
 ) {
   const items = this()
 
-  if (!items?.length) {
-    return else_?.()
+  state.html += START
+
+  if (items?.length) {
+    // The render function reads the item and its index, and nothing writes
+    // them on the server: an accessor of each is all it takes, lighter than
+    // the signals of the client, and `record` takes it the same
+    for (let i = 0, len = items.length; i < len; i++) {
+      const item = items[i]
+
+      renderChild(each_(() => item, (() => i) as ReadableSignal<number>, track ? track(item, i) : i))
+    }
+  } else {
+    renderChild(else_?.())
   }
 
-  // The render function reads the item and its index, and nothing writes them
-  // on the server: an accessor of each is all it takes, lighter than the
-  // signals of the client, and `record` takes it the same
-  for (let i = 0, len = items.length; i < len; i++) {
-    const item = items[i]
-
-    renderChild(each_(() => item, (() => i) as ReadableSignal<number>, track ? track(item, i) : i))
-  }
+  state.html += END
 }
 
 // The items of a static array are built in their place all the same, and
@@ -242,11 +341,39 @@ export function for_(
     return (
       each_: AnyEach,
       else_?: () => Child
-    ): Child => renderReactiveItems.bind($items, track, each_, else_) as LazyChild
+    ): Child => renderReactiveItems.bind($items, track, each_, else_)
   }
 
   return (
     each_: StaticEach<unknown>,
     else_?: () => Child
   ): Child => renderStaticItems.bind(each_, $items, else_) as LazyChild
+}
+
+// The child needs the browser, so the server writes the fallback in its
+// place, in a block that hydration takes and clears to build the child in
+function renderFallback(this: () => Child) {
+  state.html += START
+  renderChild(this())
+  state.html += END
+}
+
+function renderEmptyBlock() {
+  state.html += START + END
+}
+
+/**
+ * Render a child in the browser only: the server never calls render, and
+ * writes the fallback in its place, such as a skeleton
+ * @param render - Function that returns the child
+ * @param fallback - Function that returns what the server writes instead
+ * @returns Block that writes the fallback
+ */
+export function browser_(render: () => Child, fallback?: () => Child): Child
+
+/* @__NO_SIDE_EFFECTS__ */
+export function browser_(_render: () => Child, fallback?: () => Child) {
+  return fallback === undefined
+    ? renderEmptyBlock
+    : renderFallback.bind(fallback)
 }

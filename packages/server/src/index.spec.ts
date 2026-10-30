@@ -28,10 +28,11 @@ const booleanAttributes = /^(?:allowfullscreen|async|autoplay|capture|controls|d
 // name, a boolean one by its presence, which the client writes as `"true"`
 // and the markup bare, the style the element got, adjacent text joined and
 // empty text left out, and the state of the controls, which the client keeps
-// in properties and the markup in attributes
+// in properties and the markup in attributes. The ends of a block are empty
+// text on the client and comments in the markup, so both are left out
 function snapshot(node: Node): unknown {
-  if (node.nodeType === 3) {
-    return (node as Text).data
+  if (node.nodeType === 3 || node.nodeType === 8) {
+    return node.nodeType === 3 ? (node as Text).data : ''
   }
 
   const element = node as HTMLElement & Partial<HTMLInputElement & HTMLOptionElement & HTMLMediaElement>
@@ -89,6 +90,113 @@ async function compare(view: View) {
 
   unmount()
   clientContainer.remove()
+}
+
+// An app with every kind of node and block the markup has to hydrate, and
+// the stores it follows
+function createApp() {
+  const $user = signal<string | null>('Ann')
+  const $tab = signal('list')
+  const $open = signal(false)
+  const $count = signal(1)
+  const $items = signal([
+    {
+      id: 1,
+      name: 'one'
+    },
+    {
+      id: 2,
+      name: 'two'
+    }
+  ])
+  const view: View = ({ component$, context$, div, p, b, ul, li, button, select, option, if_, switch_, case_, default_, match_, when_, show_, show_switch_, show_match_, for_, trackById }) => {
+    const Theme = component$(() => p()(
+      inject(Theme$)
+    ))
+
+    return div({
+      id: 'app'
+    })(
+      if_($user)(
+        $name => p()(
+          'Hello, ', $name, '!'
+        ),
+        () => 'Guest'
+      ),
+      context$(provide(Theme$, signal('dark')))(
+        Theme()
+      ),
+      switch_($tab)(
+        case_('list', () => b()(
+          'List'
+        )),
+        default_(() => 'Other')
+      ),
+      match_(
+        when_($open, () => 'open'),
+        default_(() => 'closed')
+      ),
+      show_($open, () => p()(
+        'Details'
+      )),
+      show_switch_($tab)(
+        case_('list', () => b()(
+          'Shown list'
+        )),
+        case_('grid', () => b()(
+          'Shown grid'
+        ))
+      ),
+      show_match_(
+        when_($open, () => 'Shown open'),
+        default_(() => 'Shown closed')
+      ),
+      ul()(
+        for_($items, trackById)(
+          ($item, $index) => li()(
+            $index, ': ', () => $item().name
+          )
+        )
+      ),
+      for_(['x', 'y'])(
+        item => item
+      ),
+      button({
+        onClick() {
+          $count($count() + 1)
+        }
+      })(
+        'Count: ', $count
+      ),
+      select({
+        value: $tab
+      })(
+        option({
+          value: 'list'
+        })(
+          'List'
+        ),
+        option({
+          value: 'grid'
+        })(
+          'Grid'
+        )
+      )
+    )
+  }
+
+  return {
+    view,
+    $user,
+    $tab,
+    $open,
+    $items
+  }
+}
+
+function renderTo(container: Element, view: View) {
+  document.body.append(container)
+  container.innerHTML = server.renderToString(() => view(server as unknown as typeof client, serverSvg))
 }
 
 describe('server', () => {
@@ -396,6 +504,104 @@ describe('server', () => {
           'Label'
         )
       ))
+    })
+  })
+
+  describe('hydrate', () => {
+    it('should take the elements of the markup instead of making them', () => {
+      const { view } = createApp()
+      const container = document.createElement('div')
+
+      renderTo(container, view)
+
+      const elements = [...container.querySelectorAll('*')]
+      const unmount = client.hydrate(() => view(client, clientSvg), container)
+      const hydrated = [...container.querySelectorAll('*')]
+
+      expect(hydrated).toHaveLength(elements.length)
+      expect(hydrated.every((element, i) => element === elements[i])).toBe(true)
+
+      unmount()
+      container.remove()
+    })
+
+    it('should follow the stores as a mounted app does', async () => {
+      const {
+        view,
+        $user,
+        $tab,
+        $open,
+        $items
+      } = createApp()
+      const mounted = document.createElement('div')
+      const hydrated = document.createElement('div')
+
+      document.body.append(mounted)
+      renderTo(hydrated, view)
+
+      const unmountMounted = client.mount(() => view(client, clientSvg), mounted)
+      const unmountHydrated = client.hydrate(() => view(client, clientSvg), hydrated)
+
+      // A select applies a static value once its options are in, a microtask later
+      await new Promise(resolve => setTimeout(resolve))
+
+      expect(snapshot(hydrated)).toEqual(snapshot(mounted))
+
+      $user(null)
+      $tab('grid')
+      $open(true)
+      $items([
+        {
+          id: 2,
+          name: 'two'
+        },
+        {
+          id: 3,
+          name: 'three'
+        }
+      ])
+      hydrated.querySelector('button')!.click()
+
+      await new Promise(resolve => setTimeout(resolve))
+
+      expect(snapshot(hydrated)).toEqual(snapshot(mounted))
+      expect(hydrated.querySelector('button')!.textContent).toBe('Count: 2')
+
+      unmountMounted()
+      unmountHydrated()
+      mounted.remove()
+      hydrated.remove()
+    })
+
+    it('should build the child of browser_ in place of the fallback the server wrote', () => {
+      const view: View = ({ div, b, i, p, browser_ }) => div()(
+        browser_(
+          () => b()(
+            'chart'
+          ),
+          () => i()(
+            'loading'
+          )
+        ),
+        p()(
+          'after'
+        )
+      )
+      const container = document.createElement('div')
+
+      renderTo(container, view)
+
+      const after = container.querySelector('p')
+
+      expect(container.innerHTML).toBe('<div><!--[--><i>loading</i><!--]--><p>after</p></div>')
+
+      const unmount = client.hydrate(() => view(client, clientSvg), container)
+
+      expect(container.innerHTML).toBe('<div><!--[--><b>chart</b><!--]--><p>after</p></div>')
+      expect(container.querySelector('p')).toBe(after)
+
+      unmount()
+      container.remove()
     })
   })
 })

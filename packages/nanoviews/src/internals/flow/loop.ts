@@ -26,9 +26,12 @@ import {
   deferScopeBindContext,
   effectScopeSwapper
 } from '../effects.js'
-import { createTextNode } from '../elements/text.js'
 import {
+  createTextNode,
   insertChildBeforeAnchor,
+  createBlock
+} from '../elements/dom.js'
+import {
   remove,
   removeBetween
 } from '../elements/child.js'
@@ -225,7 +228,7 @@ function reconcile(
         // Every row holds a place in the DOM, so a row that rendered nothing
         // still has one to be moved to, inserted before and removed with
         if (!row.f) {
-          insertAnchor.before(row.f = row.l = createTextNode())
+          insertChildBeforeAnchor(createTextNode(), insertAnchor, row)
         }
       })
 
@@ -351,11 +354,9 @@ export function loop(
   else_?: () => Child,
   track: UnknownTrack = (_, i) => i
 ): Child {
-  const start = createTextNode()
-  const end = createTextNode()
+  const [fragment, start, end] = createBlock()
   const context = getContext()
   const periodScope = deferScopeBindContext(context)
-  const fragment = document.createDocumentFragment()
   const blocksMap: LookupMap = new Map()
   const itemsList: LoopItemsList = {
     n: undefined,
@@ -389,8 +390,6 @@ export function loop(
     itemsList.n = itemsList.c = undefined
   }
   let isPlaceholder = false
-
-  fragment.append(start, end)
 
   effectScopeSwapper($items, (
     destroyPrev: DeferredScope | undefined,

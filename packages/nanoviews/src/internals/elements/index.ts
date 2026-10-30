@@ -1,4 +1,6 @@
 export * from './child.js'
+export * from './dom.js'
+export * from './hydration.js'
 export * from './text.js'
 export * from './attributes.js'
 export * from './classList.js'

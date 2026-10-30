@@ -7,39 +7,21 @@ import type {
   ElementFactory,
   LazyVoidElement,
   LazyElement,
-  EmptyValue,
   AttributeSetter
 } from '../types/index.js'
+import { lazyChild } from './child.js'
 import {
-  childToNode,
-  lazyChild
-} from './child.js'
+  createHtmlElement,
+  appendChildren
+} from './dom.js'
 import { setAttributes } from './attributes.js'
-
-/**
- * Build the children, if any, and append them to a node
- * @param target - Parent node
- * @param children - Children to append
- * @returns The parent node
- */
-export function appendChildren<T extends ParentNode>(target: T, children: Children | undefined) {
-  if (children !== undefined) {
-    for (let i = 0, len = children.length, node: ChildNode | DocumentFragment | EmptyValue; i < len; i++) {
-      if (node = childToNode(children[i])) {
-        target.appendChild(node)
-      }
-    }
-  }
-
-  return target
-}
 
 function createNode<Tag extends ElementName>(
   tag: Tag,
   attributes: Attributes<Tag> | undefined,
   attributeSetter?: AttributeSetter<PickElementType<Tag>>
 ) {
-  const element = document.createElement(tag) as PickElementType<Tag>
+  const element = createHtmlElement(tag) as PickElementType<Tag>
 
   if (attributes !== undefined) {
     setAttributes(element, attributes, attributeSetter)

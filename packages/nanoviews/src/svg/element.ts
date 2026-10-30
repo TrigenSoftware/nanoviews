@@ -2,6 +2,7 @@ import {
   type Children,
   type LazyVoidElement,
   type LazyElement,
+  createSvgElement,
   appendChildren,
   lazyChild
 } from '../internals/index.js'
@@ -14,10 +15,8 @@ import type {
 } from './types.js'
 import { setAttributes } from './attributes.js'
 
-const namespace = 'http://www.w3.org/2000/svg'
-
 function createNode<Tag extends ElementName>(tag: Tag, attributes: Attributes<Tag> | undefined) {
-  const element = document.createElementNS(namespace, tag)
+  const element = createSvgElement(tag)
 
   if (attributes !== undefined) {
     setAttributes(element, attributes)

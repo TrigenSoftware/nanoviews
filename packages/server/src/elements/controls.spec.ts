@@ -246,7 +246,7 @@ describe('server', () => {
                 })
               )
             )
-          ))).toBe('<select><optgroup label="Numbers"><option value="1"></option><option value="2" selected></option></optgroup></select>')
+          ))).toBe('<select><optgroup label="Numbers"><!--[--><option value="1"></option><option value="2" selected></option><!--]--></optgroup></select>')
         })
 
         it('should leave the own selected of an option out under a value', () => {
