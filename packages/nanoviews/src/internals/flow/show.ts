@@ -8,36 +8,33 @@ import {
   resumeScope
 } from 'kida'
 import type { Child } from '../types/index.js'
-import { createTextNode } from '../elements/text.js'
 import {
+  createBlock,
   insertChildBeforeAnchor,
-  extractBetween
-} from '../elements/child.js'
+  fresh
+} from '../elements/dom.js'
+import { extractBetween } from '../elements/child.js'
 
 export function show(
   $value: Accessor<unknown>,
   render: () => Child
 ) {
-  const start = createTextNode()
-  const end = createTextNode()
-  const fragment = document.createDocumentFragment()
+  const [fragment, start, end] = createBlock()
+  const hidden = !untracked($value)
+  const build = () => insertChildBeforeAnchor(render(), end)
+  // The first pass hands the whole tree over in its initial state: the
+  // content is built right here, under the caller's injection context, and
+  // held back - the toggle below owns its starts, so a value flipped
+  // before the first one never wakes the tree. Hidden content has no part
+  // in the server markup, so it is built fresh
+  const scope = boundDeferScope()(hidden ? () => fresh(build) : build)
   // The parked fragment doubles as the hidden flag, and `noDefer` effects
   // keep the parked DOM up to date
   let parked: DocumentFragment | undefined
 
-  fragment.append(start, end)
-
-  // The first pass hands the whole tree over in its initial state: the
-  // content is built right here, under the caller's injection context, and
-  // held back - the toggle below owns its starts, so a value flipped
-  // before the first one never wakes the tree
-  const scope = boundDeferScope()(() => {
-    insertChildBeforeAnchor(render(), end)
-  })
-
   pauseScope(scope)
 
-  if (!untracked($value)) {
+  if (hidden) {
     parked = extractBetween(start, end)
   }
 

@@ -10,6 +10,9 @@ export default defineConfig({
         index: './src/index.ts',
         store: './src/store.ts',
         svg: './src/svg/index.ts'
+      },
+      fileName(_, entryName) {
+        return `${entryName}.${process.env.NODE_ENV}.js`
       }
     },
     rolldownOptions: {

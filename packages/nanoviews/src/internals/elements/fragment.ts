@@ -1,6 +1,6 @@
 import type { Children } from '../types/index.js'
 import { lazyChild } from './child.js'
-import { appendChildren } from './element.js'
+import { appendChildren } from './dom.js'
 
 /**
  * Describe a document fragment with the given children

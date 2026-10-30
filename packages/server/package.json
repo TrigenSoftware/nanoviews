@@ -1,0 +1,88 @@
+{
+  "name": "@nanoviews/server",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Nanoviews server-side rendering: the API of nanoviews, building HTML strings.",
+  "author": "dangreen",
+  "license": "MIT",
+  "homepage": "https://nanoviews.js.org/guides/ssr/",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nanoviews.git",
+    "directory": "packages/server"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nanoviews/issues"
+  },
+  "keywords": [
+    "ssr",
+    "server",
+    "render",
+    "html",
+    "ui",
+    "view",
+    "reactive",
+    "signal",
+    "nanoviews",
+    "nano_kit"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./store": "./src/store.ts",
+    "./svg": "./src/svg/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./types/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./store": {
+        "types": "./types/store.d.ts",
+        "default": "./dist/store.js"
+      },
+      "./svg": {
+        "types": "./types/svg.d.ts",
+        "default": "./dist/svg.js"
+      }
+    },
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "dist",
+    "types"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear:dist": "del ./dist",
+    "clear": "del ./package ./dist ./coverage",
+    "prepublishOnly": "run build clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "build": "run clear:dist [ vite build ]",
+    "lint": "oxlint",
+    "format": "oxlint --fix",
+    "test:unit": "vitest run --coverage",
+    "test:unit:watch": "vitest watch",
+    "test:types": "tsc --noEmit",
+    "test": "run -p lint test:unit test:types"
+  },
+  "dependencies": {
+    "kida": "^2.0.0",
+    "nanoviews": "workspace:^"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "catalog:",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

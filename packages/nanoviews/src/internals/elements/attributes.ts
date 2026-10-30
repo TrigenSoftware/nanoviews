@@ -22,7 +22,7 @@ import { setStyle } from './style.js'
 // A boolean attribute is switched off by its absence, so `false` leaves it
 // out, the way a React reader expects. The enumerated attributes and the
 // `aria-*` and `data-*` families carry the literal string instead
-function isEmptyAttribute(name: string, value: unknown) {
+export function isEmptyAttribute(name: string, value: unknown) {
   return isEmpty(value) || value === false && !/^(?:aria-|data-|draggable$|contentEditable$|spellCheck$)/.test(name)
 }
 

@@ -2,39 +2,52 @@
   {
     "name": "All publics (Gzip)",
     "gzip": true,
-    "path": "dist/index.js",
+    "path": "dist/index.production.js",
     "import": "*",
-    "limit": "7.30 kB"
+    "limit": "7.95 kB"
   },
   {
     "name": "All publics (Brotli)",
-    "path": "dist/index.js",
+    "path": "dist/index.production.js",
     "import": "*",
-    "limit": "6.60 kB"
+    "limit": "7.15 kB"
   },
   {
     "name": "Average usage (Gzip)",
     "gzip": true,
-    "path": "dist/index.js",
-    "import": "{ fragment, div, form, input, button, label, if_, for_, component$, effect$ }",
-    "limit": "4.15 kB"
+    "path": "dist/index.production.js",
+    "import": "{ fragment, div, form, input, button, label, if_, for_, component$, effect$, mount }",
+    "limit": "4.25 kB"
   },
   {
     "name": "Average usage (Brotli)",
-    "path": "dist/index.js",
-    "import": "{ fragment, div, form, input, button, label, if_, for_, component$, effect$ }",
-    "limit": "3.80 kB"
+    "path": "dist/index.production.js",
+    "import": "{ fragment, div, form, input, button, label, if_, for_, component$, effect$, mount }",
+    "limit": "3.95 kB"
+  },
+  {
+    "name": "Average hydration usage (Gzip)",
+    "gzip": true,
+    "path": "dist/index.production.js",
+    "import": "{ fragment, div, form, input, button, label, if_, for_, component$, effect$, hydrate }",
+    "limit": "4.80 kB"
+  },
+  {
+    "name": "Average hydration usage (Brotli)",
+    "path": "dist/index.production.js",
+    "import": "{ fragment, div, form, input, button, label, if_, for_, component$, effect$, hydrate }",
+    "limit": "4.40 kB"
   },
   {
     "name": "SVG usage (Gzip)",
     "gzip": true,
-    "path": "dist/svg.js",
+    "path": "dist/svg.production.js",
     "import": "{ svg, path, circle }",
-    "limit": "1.70 kB"
+    "limit": "1.75 kB"
   },
   {
     "name": "SVG usage (Brotli)",
-    "path": "dist/svg.js",
+    "path": "dist/svg.production.js",
     "import": "{ svg, path, circle }",
     "limit": "1.60 kB"
   }

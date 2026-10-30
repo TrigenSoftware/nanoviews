@@ -2,15 +2,10 @@ import { isFunction } from 'kida'
 import type {
   AnyFn,
   Child,
-  EmptyValue,
   LazyChild,
   MaybeDestroy
 } from '../types/index.js'
-import {
-  isEmptyChild,
-  createTextNode,
-  createTextNodeFromAccessor
-} from './text.js'
+import { childToNode } from './dom.js'
 
 /* @__NO_SIDE_EFFECTS__ */
 export function isLazyChild<T extends () => Child = () => Child>(
@@ -26,27 +21,6 @@ export function lazyChild<T extends AnyFn>(
   (child as LazyChild<T>).c = true
 
   return child as LazyChild<T>
-}
-
-export function childToNode(child: Child) {
-  // A function is the common child, a description most of all, and it is
-  // never empty, so it is asked about first. A description unwraps in place
-  // rather than through a call per level: a component that returns an element
-  // that returns a fragment is three levels. The brand test is that of
-  // `isLazyChild`, spelled out to skip its own function check
-  while (isFunction(child)) {
-    if (!('c' in child)) {
-      return createTextNodeFromAccessor(child)
-    }
-
-    child = child()
-  }
-
-  return isEmptyChild(child)
-    ? undefined
-    : typeof child === 'object'
-      ? child
-      : createTextNode(child)
 }
 
 export function mountChild(
@@ -68,30 +42,6 @@ export function mountChild(
     target.appendChild(node)
 
     return () => (node as ChildNode).remove()
-  }
-}
-
-export function insertChildBeforeAnchor(
-  child: Child,
-  anchor: ChildNode,
-  rangeContainer?: {
-    f: ChildNode | EmptyValue
-    l: ChildNode | EmptyValue
-  }
-) {
-  const node = childToNode(child)
-
-  if (node) {
-    if (rangeContainer !== undefined) {
-      if (node.nodeType === 11) {
-        rangeContainer.f = node.firstChild!
-        rangeContainer.l = node.lastChild!
-      } else {
-        rangeContainer.f = rangeContainer.l = node as ChildNode
-      }
-    }
-
-    anchor.before(node)
   }
 }
 

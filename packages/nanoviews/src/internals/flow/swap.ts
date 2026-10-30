@@ -8,22 +8,18 @@ import {
   deferScopeBindContext,
   effectScopeSwapper
 } from '../effects.js'
-import { createTextNode } from '../elements/text.js'
 import {
-  insertChildBeforeAnchor,
-  removeBetween
-} from '../elements/child.js'
+  createBlock,
+  insertChildBeforeAnchor
+} from '../elements/dom.js'
+import { removeBetween } from '../elements/child.js'
 
 export function swap<T>(
   $value: Accessor<T>,
   render: (value: T) => Child
 ) {
-  const start = createTextNode()
-  const end = createTextNode()
+  const [fragment, start, end] = createBlock()
   const deferScope = deferScopeBindContext()
-  const fragment = document.createDocumentFragment()
-
-  fragment.append(start, end)
 
   // The replaced scope is destroyed first, while its DOM is still
   // attached; then the body removes it and renders the new content
