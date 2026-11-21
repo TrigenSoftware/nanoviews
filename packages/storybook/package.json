@@ -57,7 +57,7 @@
     "storybook": "^10.5.10"
   },
   "dependencies": {
-    "type-fest": "^5.9.0"
+    "type-fest": "^6.0.0"
   },
   "devDependencies": {
     "nanoviews": "workspace:^",
