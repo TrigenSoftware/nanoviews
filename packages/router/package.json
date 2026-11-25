@@ -72,7 +72,7 @@
   },
   "devDependencies": {
     "@nano_kit/router": "^2.4.0",
-    "@nano_kit/store": "^2.0.0",
+    "@nano_kit/store": "^5.0.0",
     "@nanoviews/testing-library": "workspace:^",
     "@size-limit/preset-small-lib": "catalog:",
     "@testing-library/dom": "catalog:",
